@@ -1,0 +1,115 @@
+// Prisma schema — banco de questões.
+// Regra central: o backend NUNCA guarda enunciado/alternativas/gabarito. Só o resultado
+// da resposta com snapshots de modulo/materia/assunto/dificuldade, o que permite gerar
+// estatística e priorizar erradas sem depender do JSON de questões.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Contexto {
+  ESTUDO
+  FLASH
+  SIMULADO
+  TOPICO
+}
+
+// Banco de questões (conteúdo). Compartilhado entre usuários (não é escopo por userId).
+// A correção de acerto continua no frontend; o backend só guarda e serve o conteúdo.
+model Questao {
+  id           Int      @id // ID definido no lote (usado como questaoId em Answer)
+  modulo       String // "I" | "II"
+  materia      String
+  assunto      String
+  dificuldade  String // facil | media | dificil
+  textoBaseKey String? // chave em TextoBase (questões de inglês)
+  enunciado    String
+  codigo       String? // bloco de código opcional
+  linguagem    String? // rótulo da linguagem do código
+  alternativas Json // { "A": "...", "B": "...", ... }
+  gabarito     String
+  explicacao   String
+  createdAt    DateTime @default(now())
+
+  @@index([modulo, materia])
+}
+
+model TextoBase {
+  chave String @id
+  texto String
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  nome         String
+  metaDiaria   Int      @default(70) // meta diária de questões (configurável no futuro)
+  createdAt    DateTime @default(now())
+
+  answers       Answer[]
+  notas         Nota[]
+  marcadas      Marcada[]
+  refreshTokens RefreshToken[]
+}
+
+// Cada tentativa de resposta. Snapshots permitem estatística/sorteio sem o JSON.
+model Answer {
+  id                  String   @id @default(cuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questaoId           Int
+  moduloSnapshot      String // "I" (gerais) | "II" (específicos)
+  materiaSnapshot     String
+  assuntoSnapshot     String
+  dificuldadeSnapshot String // facil | media | dificil
+  alternativaMarcada  String
+  acertou             Boolean
+  tempoSegundos       Int?
+  contexto            Contexto
+  createdAt           DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, acertou, moduloSnapshot])
+  @@index([userId, questaoId])
+}
+
+// Anotação do usuário na questão — uma por questão por usuário.
+model Nota {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questaoId Int
+  texto     String
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, questaoId])
+}
+
+// "Marcar questão pra revisar depois" — flag por questão por usuário.
+model Marcada {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questaoId Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, questaoId])
+}
+
+// Refresh tokens persistidos (hash) para permitir logout/revogação.
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}

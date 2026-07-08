@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100;
+  -webkit-font-smoothing: antialiased;
+  /* respeita safe-area do iOS na bottom tab */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* alvo de toque mínimo confortável no mobile */
+@layer components {
+  .tap {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  .card {
+    @apply rounded-2xl bg-white shadow-sm dark:bg-slate-900 dark:shadow-none dark:ring-1 dark:ring-white/5;
+  }
+  .btn-primary {
+    @apply tap rounded-xl bg-brand px-4 py-2 font-medium text-brand-fg transition
+           hover:brightness-110 active:scale-[0.98] disabled:opacity-50;
+  }
+  .sel {
+    @apply w-full rounded-lg border border-slate-300 bg-transparent px-2 py-1.5 text-sm
+           dark:border-slate-700;
+  }
+}

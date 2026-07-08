@@ -1,0 +1,86 @@
+{
+  "meta": {
+    "fonte": "Exemplo de formato — use como referência",
+    "versao": "exemplo",
+    "banca": "FGV",
+    "concurso": "Dataprev 2026"
+  },
+  "textos_base": {
+    "TB_ENG_1": "Digital transformation refers to the integration of digital technology into all areas of a business, fundamentally changing how organizations operate and deliver value to customers. It is also a cultural change that requires organizations to continually challenge the status quo and get comfortable with failure."
+  },
+  "questoes": [
+    {
+      "id": 1,
+      "modulo": "I",
+      "materia": "Língua Portuguesa",
+      "assunto": "Crase",
+      "dificuldade": "media",
+      "enunciado": "Assinale a alternativa em que o uso do acento indicativo de crase está correto.",
+      "alternativas": {
+        "A": "Refiro-me à pessoas que estudam muito.",
+        "B": "Cheguei à casa cedo ontem.",
+        "C": "Entreguei o documento à secretária do setor.",
+        "D": "Estou disposto à ajudar você.",
+        "E": "Fui à pé até o trabalho."
+      },
+      "gabarito": "C",
+      "explicacao": "Há crase diante de 'a secretária' (substantivo feminino determinado, regido pela preposição exigida por 'entreguei ... a'). Nas demais não há crase: 'a pessoas' (plural sem artigo), 'a casa' (sem especificação), 'a ajudar' (verbo) e 'a pé' (palavra masculina)."
+    },
+    {
+      "id": 2,
+      "modulo": "I",
+      "materia": "Língua Inglesa",
+      "assunto": "Reading Comprehension",
+      "dificuldade": "facil",
+      "texto_base": "TB_ENG_1",
+      "enunciado": "According to the text, digital transformation is also described as a:",
+      "alternativas": {
+        "A": "financial strategy",
+        "B": "cultural change",
+        "C": "marketing campaign",
+        "D": "legal requirement",
+        "E": "temporary trend"
+      },
+      "gabarito": "B",
+      "explicacao": "O texto afirma explicitamente: 'It is also a cultural change that requires organizations to continually challenge the status quo'."
+    },
+    {
+      "id": 3,
+      "modulo": "II",
+      "materia": "Desenvolvimento de Software",
+      "assunto": "SOLID (Liskov) / OO",
+      "dificuldade": "dificil",
+      "enunciado": "Considere o código Java a seguir. Ao substituir Retângulo por Quadrado em um código que espera largura e altura independentes, o comportamento pode quebrar. Essa situação ilustra a violação de qual princípio?",
+      "codigo": "class Retangulo {\n    protected int largura, altura;\n    public void setLargura(int l) { this.largura = l; }\n    public void setAltura(int a) { this.altura = a; }\n    public int area() { return largura * altura; }\n}\n\nclass Quadrado extends Retangulo {\n    public void setLargura(int l) { this.largura = l; this.altura = l; }\n    public void setAltura(int a) { this.altura = a; this.largura = a; }\n}",
+      "linguagem": "java",
+      "alternativas": {
+        "A": "Single Responsibility Principle (SRP).",
+        "B": "Open/Closed Principle (OCP).",
+        "C": "Liskov Substitution Principle (LSP).",
+        "D": "Interface Segregation Principle (ISP).",
+        "E": "Dependency Inversion Principle (DIP)."
+      },
+      "gabarito": "C",
+      "explicacao": "Exemplo clássico de violação de Liskov: Quadrado herda de Retângulo mas quebra o contrato esperado (largura e altura independentes), de modo que substituir a superclasse pela subclasse altera o comportamento correto do programa."
+    },
+    {
+      "id": 4,
+      "modulo": "II",
+      "materia": "Banco de Dados / BI / Big Data",
+      "assunto": "SQL",
+      "dificuldade": "media",
+      "enunciado": "Considere a consulta abaixo. Qual cláusula deve preencher a lacuna para retornar apenas os departamentos com mais de 5 funcionários?",
+      "codigo": "SELECT departamento, COUNT(*) AS total\nFROM funcionarios\nGROUP BY departamento\n_____ COUNT(*) > 5;",
+      "linguagem": "sql",
+      "alternativas": {
+        "A": "WHERE",
+        "B": "HAVING",
+        "C": "ORDER BY",
+        "D": "LIMIT",
+        "E": "DISTINCT"
+      },
+      "gabarito": "B",
+      "explicacao": "HAVING filtra grupos formados pelo GROUP BY (WHERE filtra linhas antes do agrupamento e não aceita funções de agregação como COUNT)."
+    }
+  ]
+}
