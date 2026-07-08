@@ -38,6 +38,8 @@ export function Home() {
   const [goal, setGoal] = useState<GoalToday | null>(null);
   const [editandoData, setEditandoData] = useState(false);
   const [salvandoData, setSalvandoData] = useState(false);
+  const [editandoMeta, setEditandoMeta] = useState(false);
+  const [salvandoMeta, setSalvandoMeta] = useState(false);
 
   useEffect(() => {
     api<GoalToday>("/goals/today").then(setGoal).catch(() => null);
@@ -86,6 +88,22 @@ export function Home() {
     }
   }
 
+  // Salva a nova meta diária (1–500 questões).
+  async function salvarMeta(valor: number) {
+    if (!Number.isFinite(valor) || valor < 1 || valor > 500) return;
+    setSalvandoMeta(true);
+    try {
+      const res = await api<{ metaDiaria: number }>("/goals/meta", {
+        method: "PATCH",
+        body: { metaDiaria: valor },
+      });
+      setGoal((g) => (g ? { ...g, meta: res.metaDiaria } : g));
+      setEditandoMeta(false);
+    } finally {
+      setSalvandoMeta(false);
+    }
+  }
+
   return (
     <div className="space-y-6" style={{ animation: "pop .35s ease both" }}>
       {/* Saudação */}
@@ -103,17 +121,73 @@ export function Home() {
           <div className="relative flex items-center gap-6">
             <ProgressRing valor={respondidas} meta={meta} size={148} />
             <div className="flex-1 space-y-3">
-              <p className="text-xs font-extrabold uppercase tracking-widest text-cyan-from">Meta diária</p>
-              <p className="font-display text-2xl font-extrabold leading-tight">
-                Faltam {faltam} {faltam === 1 ? "questão" : "questões"}
-              </p>
-              <button
-                onClick={continuarEstudando}
-                className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 font-display font-extrabold text-brand-600 transition hover:-translate-y-0.5"
-              >
-                Continuar estudando
-                <ArrowRight size={18} strokeWidth={2.4} />
-              </button>
+              <div className="flex items-center gap-2">
+                <p className="text-xs font-extrabold uppercase tracking-widest text-cyan-from">Meta diária</p>
+                {!editandoMeta && (
+                  <button
+                    onClick={() => setEditandoMeta(true)}
+                    className="text-white/60 transition hover:text-white"
+                    aria-label="Alterar meta diária"
+                    title="Alterar meta diária"
+                  >
+                    <Pencil size={14} strokeWidth={2} />
+                  </button>
+                )}
+              </div>
+
+              {editandoMeta ? (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const val = Number(new FormData(e.currentTarget).get("meta"));
+                    salvarMeta(val);
+                  }}
+                  className="space-y-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <input
+                      name="meta"
+                      type="number"
+                      min={1}
+                      max={500}
+                      defaultValue={meta}
+                      autoFocus
+                      disabled={salvandoMeta}
+                      className="w-24 rounded-lg bg-white/10 border border-white/20 px-3 py-2 text-lg font-extrabold text-white focus:outline-none focus:ring-2 focus:ring-cyan-from/50"
+                    />
+                    <span className="text-sm opacity-80">questões/dia</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="submit"
+                      disabled={salvandoMeta}
+                      className="rounded-xl bg-white px-4 py-2 text-sm font-display font-extrabold text-brand-600 transition hover:-translate-y-0.5 disabled:opacity-60"
+                    >
+                      {salvandoMeta ? "Salvando…" : "Salvar"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditandoMeta(false)}
+                      className="text-xs text-white/60 hover:text-white"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <p className="font-display text-2xl font-extrabold leading-tight">
+                    Faltam {faltam} {faltam === 1 ? "questão" : "questões"}
+                  </p>
+                  <button
+                    onClick={continuarEstudando}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 font-display font-extrabold text-brand-600 transition hover:-translate-y-0.5"
+                  >
+                    Continuar estudando
+                    <ArrowRight size={18} strokeWidth={2.4} />
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

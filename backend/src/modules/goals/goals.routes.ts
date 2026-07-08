@@ -66,6 +66,23 @@ goalsRouter.patch(
   })
 );
 
+// PATCH /goals/meta — define/atualiza a meta diária de questões do usuário.
+const metaSchema = z.object({
+  metaDiaria: z.number().int().min(1).max(500),
+});
+
+goalsRouter.patch(
+  "/meta",
+  asyncHandler(async (req, res) => {
+    const { metaDiaria } = metaSchema.parse(req.body);
+    const user = await prisma.user.update({
+      where: { id: req.userId! },
+      data: { metaDiaria },
+    });
+    res.json({ metaDiaria: user.metaDiaria });
+  })
+);
+
 // Conta dias consecutivos (fuso do usuário) em que bateu a meta.
 // Se hoje ainda não bateu, o streak considera a sequência que termina ontem
 // (não quebra até o dia virar).
