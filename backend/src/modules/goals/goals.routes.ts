@@ -1,5 +1,6 @@
 // Meta diária e streak. Derivados por query sobre Answer (sem tabela dedicada).
 import { Router } from "express";
+import { z } from "zod";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
@@ -8,7 +9,7 @@ import { startOfToday, localDateKey } from "../../lib/date.js";
 export const goalsRouter = Router();
 goalsRouter.use(requireAuth);
 
-// GET /goals/today — respondidas hoje vs meta + streak de dias batendo a meta.
+// GET /goals/today — respondidas hoje vs meta + streak + progresso geral do plano.
 goalsRouter.get(
   "/today",
   asyncHandler(async (req, res) => {
@@ -22,12 +23,46 @@ goalsRouter.get(
 
     const streak = await calcularStreak(req.userId!, meta);
 
+    // Total de questões no sistema (banco compartilhado) e quantas o usuário já
+    // respondeu ao menos uma vez (distinct por questaoId).
+    const totalQuestoes = await prisma.questao.count();
+    const respondidasDistintas = await prisma.answer.findMany({
+      where: { userId: req.userId! },
+      distinct: ["questaoId"],
+      select: { questaoId: true },
+    });
+    const respondidasTotal = respondidasDistintas.length;
+    const progressoPlano = totalQuestoes > 0 ? Math.round((respondidasTotal / totalQuestoes) * 100) : 0;
+
     res.json({
       meta,
       respondidasHoje,
       cumpriuHoje: respondidasHoje >= meta,
       streak,
+      dataProva: user?.dataProva ?? null,
+      totalQuestoes,
+      respondidasTotal,
+      progressoPlano,
     });
+  })
+);
+
+// PATCH /goals/prova — define/atualiza a data alvo da prova do usuário.
+const provaSchema = z.object({
+  // aceita "YYYY-MM-DD" ou ISO; null limpa a data.
+  dataProva: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).nullable(),
+});
+
+goalsRouter.patch(
+  "/prova",
+  asyncHandler(async (req, res) => {
+    const { dataProva } = provaSchema.parse(req.body);
+    const valor = dataProva ? new Date(dataProva) : null;
+    const user = await prisma.user.update({
+      where: { id: req.userId! },
+      data: { dataProva: valor },
+    });
+    res.json({ dataProva: user.dataProva });
   })
 );
 

@@ -2,6 +2,7 @@
 // - feedbackImediato=true  → revela acerto/erro + explicação a cada resposta e já persiste.
 // - feedbackImediato=false → modo prova (simulado): sem feedback; envia tudo no final.
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ReactNode } from "react";
+import { ChevronLeft, Bookmark } from "lucide-react";
 import type { Questao, Alternativa, Contexto } from "../types/questao";
 import { corrigir, montarResultado } from "../lib/correcao";
 import { enviarResposta } from "../lib/answers";
@@ -25,32 +26,64 @@ interface Props {
   onFinalizar: (respostas: RespostaSessao[]) => void;
   onProgresso?: () => void; // chamado após cada resposta (ex.: atualizar meta)
   cabecalho?: ReactNode; // ex.: cronômetro do simulado
+  initialIndex?: number; // retomar a sessão a partir desta questão
+  onCursorChange?: (idx: number) => void; // persiste o cursor no backend
+  onSair?: () => void; // sair da sessão (mantém a sessão ativa para retomar depois)
 }
 
 export interface SessionRunnerHandle {
   finalizar: () => void;
 }
 
+// Timer mm:ss por questão (ou tempo total desde o início da sessão).
+function Timer({ inicio }: { inicio: number }) {
+  const [, force] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => force((n) => n + 1), 1000);
+    return () => clearInterval(id);
+  }, [inicio]);
+  const seg = Math.max(0, Math.round((Date.now() - inicio) / 1000));
+  const mm = String(Math.floor(seg / 60)).padStart(2, "0");
+  const ss = String(seg % 60).padStart(2, "0");
+  return <span className="text-sm font-semibold text-faint tabular-nums">{mm}:{ss}</span>;
+}
+
 export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function SessionRunner(
-  { questoes, contexto, feedbackImediato, permiteNota, permiteMarcar, onFinalizar, onProgresso, cabecalho },
+  {
+    questoes,
+    contexto,
+    feedbackImediato,
+    permiteNota,
+    permiteMarcar,
+    onFinalizar,
+    onProgresso,
+    cabecalho,
+    initialIndex = 0,
+    onCursorChange,
+    onSair,
+  },
   ref
 ) {
-  const [idx, setIdx] = useState(0);
+  const [idx, setIdx] = useState(Math.min(initialIndex, Math.max(0, questoes.length - 1)));
   const [respostas, setRespostas] = useState<Map<number, RespostaSessao>>(new Map());
   const [selecionada, setSelecionada] = useState<Alternativa | undefined>();
   const [revelado, setRevelado] = useState(false);
+  const [mostrarNota, setMostrarNota] = useState(false);
   const inicioRef = useRef<number>(Date.now());
 
   const marcadas = useMarcadas();
   const questao = questoes[idx];
 
-  // Ao trocar de questão: restaura resposta anterior (voltar no simulado) e reinicia o timer.
+  // Ao trocar de questão: restaura resposta anterior (voltar no simulado), reinicia o timer
+  // e persiste o cursor no backend (para retomar depois).
   useEffect(() => {
     if (!questao) return;
     const r = respostas.get(questao.id);
     setSelecionada(r?.marcada);
     setRevelado(feedbackImediato && !!r);
+    setMostrarNota(false);
     inicioRef.current = Date.now();
+    onCursorChange?.(idx);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx]);
 
@@ -70,7 +103,6 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
       const resposta: RespostaSessao = { questao, marcada: alt, acertou, tempoSegundos: tempo };
       setRespostas((prev) => new Map(prev).set(questao.id, resposta));
       setRevelado(true);
-      // persiste imediatamente (com fila offline)
       void enviarResposta(montarResultado(questao, alt, contexto, tempo));
       onProgresso?.();
     }
@@ -102,66 +134,102 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   }
 
   function finalizar() {
-    // monta lista na ordem das questões; questões não respondidas contam como erro (em branco)
     const lista: RespostaSessao[] = questoes.map(
       (q) => respostas.get(q.id) ?? { questao: q, marcada: undefined, acertou: false, tempoSegundos: 0 }
     );
     onFinalizar(lista);
   }
 
-  // expõe finalizar() para o pai (ex.: cronômetro do simulado zera → finaliza)
   useImperativeHandle(ref, () => ({ finalizar }));
 
   const ultima = idx + 1 === questoes.length;
-  const podeAvancar = feedbackImediato ? revelado : true; // simulado deixa avançar mesmo em branco
+  const podeAvancar = feedbackImediato ? revelado : true;
+  const progresso = ((idx + 1) / questoes.length) * 100;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 p-4">
+    <div className="mx-auto max-w-[620px] space-y-4 py-4" style={{ animation: "pop .35s ease both" }}>
       {cabecalho}
-      {/* progresso da sessão */}
-      <div className="flex items-center gap-3 text-sm text-slate-400">
-        <span>
-          {idx + 1} / {questoes.length}
-        </span>
-        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+
+      {/* Topo: voltar + "Questão X de N" + timer + barra de progresso */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-3">
+          {onSair && (
+            <button
+              onClick={onSair}
+              className="h-[38px] w-[38px] rounded-xl border border-hair bg-white flex items-center justify-center text-muted hover:text-brand-500 transition flex-shrink-0"
+              aria-label="Sair da sessão"
+              title="Sair (você pode continuar depois)"
+            >
+              <ChevronLeft size={20} strokeWidth={2} />
+            </button>
+          )}
+          <span className="text-sm font-semibold text-muted">
+            Questão {idx + 1} de {questoes.length}
+          </span>
+          <div className="ml-auto flex items-center gap-3">
+            {permiteMarcar && (
+              <button
+                onClick={() => marcadas.alternar(questao.id)}
+                className={`h-[38px] w-[38px] rounded-xl border flex items-center justify-center transition ${
+                  marcadas.ids.has(questao.id)
+                    ? "border-brand-500 bg-brand-50 text-brand-500"
+                    : "border-hair bg-white text-faint hover:text-brand-500"
+                }`}
+                aria-pressed={marcadas.ids.has(questao.id)}
+                aria-label="Marcar para revisar depois"
+                title="Marcar para revisar depois"
+              >
+                <Bookmark size={18} strokeWidth={1.8} fill={marcadas.ids.has(questao.id) ? "currentColor" : "none"} />
+              </button>
+            )}
+            {!cabecalho && <Timer inicio={inicioRef.current} />}
+          </div>
+        </div>
+
+        <div className="h-2 w-full rounded-full bg-hair overflow-hidden">
           <div
-            className="h-full bg-brand transition-all"
-            style={{ width: `${((idx + 1) / questoes.length) * 100}%` }}
+            className="h-full rounded-full bg-gradient-to-r from-brand-500 to-[#7C6FF6] transition-all"
+            style={{ width: `${progresso}%` }}
           />
         </div>
-        {permiteMarcar && (
-          <button
-            onClick={() => marcadas.alternar(questao.id)}
-            className="tap rounded-lg px-1"
-            aria-pressed={marcadas.ids.has(questao.id)}
-            title="Marcar para revisar depois"
-          >
-            {marcadas.ids.has(questao.id) ? "🔖" : "📑"}
-          </button>
-        )}
       </div>
 
-      <QuestaoView
-        questao={questao}
-        selecionada={selecionada}
-        revelado={revelado}
-        mostrarTextoBase={!ehCompartilhado(idx)}
-        onSelecionar={selecionar}
-      />
+      {/* Cartão da questão */}
+      <div className="card p-6">
+        <QuestaoView
+          questao={questao}
+          selecionada={selecionada}
+          revelado={revelado}
+          mostrarTextoBase={!ehCompartilhado(idx)}
+          onSelecionar={selecionar}
+          onAnotar={permiteNota && revelado ? () => setMostrarNota((v) => !v) : undefined}
+          onMarcar={permiteMarcar && revelado ? () => marcadas.alternar(questao.id) : undefined}
+        />
+      </div>
 
-      {/* anotação — indisponível no simulado */}
-      {permiteNota && (revelado || !feedbackImediato) && <NotaEditor questaoId={questao.id} />}
+      {/* Editor de anotação (aparece ao clicar "Anotar"; simulado não usa) */}
+      {permiteNota && (mostrarNota || (!feedbackImediato && false)) && <NotaEditor questaoId={questao.id} />}
 
-      <div className="flex items-center justify-between gap-2 pt-2">
+      {/* Navegação inferior */}
+      <div className="flex items-center justify-between gap-3 pt-1">
+        {!feedbackImediato ? (
+          <button
+            onClick={voltar}
+            disabled={idx === 0}
+            className="rounded-2xl px-5 py-3 font-display font-bold text-muted disabled:opacity-30 hover:text-brand-500 transition"
+          >
+            ← Anterior
+          </button>
+        ) : (
+          <span />
+        )}
         <button
-          onClick={voltar}
-          disabled={idx === 0}
-          className="tap rounded-xl px-4 py-2 text-slate-500 disabled:opacity-30"
+          onClick={avancar}
+          disabled={!podeAvancar}
+          className="tap flex-1 max-w-xs ml-auto rounded-2xl bg-gradient-to-r from-brand-500 to-[#7C6FF6] px-6 py-3 font-display text-base font-extrabold text-white transition hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-40"
+          style={{ boxShadow: "0 16px 30px -14px rgba(91,79,224,.8)" }}
         >
-          ← Anterior
-        </button>
-        <button onClick={avancar} disabled={!podeAvancar} className="btn-primary">
-          {ultima ? "Finalizar" : "Próxima →"}
+          {ultima ? "Finalizar" : "Próxima questão"}
         </button>
       </div>
     </div>

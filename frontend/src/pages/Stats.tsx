@@ -1,6 +1,6 @@
-// Dashboard "onde estou errando": totais, evolução, acerto por matéria/assunto e pontos fracos.
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { BarChart3, AlertTriangle, Flame } from "lucide-react";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -15,6 +15,9 @@ import {
   Line,
 } from "recharts";
 import { api } from "../lib/api";
+import { Card } from "../components/Card";
+import { FilterSelect } from "../components/FilterSelect";
+import { Button } from "../components/Button";
 
 interface TaxaItem {
   chave: string;
@@ -28,6 +31,7 @@ interface Stats {
   totalRespondidas: number;
   totalAcertos: number;
   taxaGlobal: number;
+  streak: number;
   porDia: { dia: string; total: number; acertos: number }[];
   porMateria: TaxaItem[];
   porAssunto: TaxaItem[];
@@ -49,11 +53,21 @@ export function Stats() {
       .catch(() => setErro(true));
   }, [periodo]);
 
-  if (erro) return <div className="p-6 text-center text-slate-400">Não foi possível carregar as estatísticas.</div>;
-  if (!stats) return <div className="p-6 text-center text-slate-400">Carregando…</div>;
+  if (erro)
+    return (
+      <div className="mx-auto max-w-4xl p-6 text-center">
+        <p className="text-danger-from font-medium">Não foi possível carregar as estatísticas</p>
+      </div>
+    );
+  if (!stats)
+    return (
+      <div className="mx-auto max-w-4xl p-6 text-center">
+        <p className="text-faint">Carregando…</p>
+      </div>
+    );
 
-  // evolução da taxa de acerto acumulada ao longo dos dias
-  let accT = 0, accA = 0;
+  let accT = 0,
+    accA = 0;
   const evolucao = stats.porDia.map((d) => {
     accT += d.total;
     accA += d.acertos;
@@ -66,114 +80,174 @@ export function Stats() {
   }));
 
   return (
-    <div className="mx-auto max-w-2xl space-y-5 p-4">
-      <header className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Estatísticas 📊</h1>
-        <select value={periodo} onChange={(e) => setPeriodo(e.target.value as Periodo)} className="sel w-28">
-          <option value="7d">7 dias</option>
-          <option value="30d">30 dias</option>
-          <option value="all">Tudo</option>
-        </select>
-      </header>
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="h-12 w-12 rounded-lg bg-brand-100 flex items-center justify-center flex-shrink-0">
+            <BarChart3 size={24} className="text-brand-600" strokeWidth={1.5} />
+          </div>
+          <h1 className="font-display text-2xl font-extrabold text-brand-ink">Estatísticas</h1>
+        </div>
+        <FilterSelect
+          label=""
+          value={periodo}
+          onChange={(v) => setPeriodo(v as Periodo)}
+          options={[
+            { value: "7d", label: "7 dias" },
+            { value: "30d", label: "30 dias" },
+            { value: "all", label: "Tudo" },
+          ]}
+          className="w-32"
+        />
+      </div>
 
-      {/* totais */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="card p-4">
-          <p className="text-xs text-slate-400">Respondidas</p>
-          <p className="text-3xl font-bold tabular-nums">{stats.totalRespondidas}</p>
-        </div>
-        <div className="card p-4">
-          <p className="text-xs text-slate-400">Taxa de acerto</p>
-          <p className="text-3xl font-bold tabular-nums">{Math.round(stats.taxaGlobal * 100)}%</p>
-        </div>
+      {/* 3 KPIs */}
+      <div className="grid grid-cols-3 gap-4">
+        {/* Respondidas */}
+        <Card className="p-4 space-y-1">
+          <p className="text-xs font-bold text-muted uppercase tracking-widest">Respondidas</p>
+          <p className="font-display text-3xl font-extrabold text-brand-ink">{stats.totalRespondidas}</p>
+        </Card>
+
+        {/* Taxa de acerto */}
+        <Card className="p-4 space-y-1">
+          <p className="text-xs font-bold text-success-from uppercase tracking-widest">Taxa de acerto</p>
+          <div className="flex items-baseline gap-1">
+            <p className="font-display text-3xl font-extrabold text-success-from">
+              {Math.round(stats.taxaGlobal * 100)}%
+            </p>
+            <p className="text-xs text-success-from">↑</p>
+          </div>
+        </Card>
+
+        {/* Ofensiva */}
+        <Card className="p-4 space-y-1 bg-gradient-to-br from-flame-from to-flame-to text-white">
+          <p className="text-xs font-bold uppercase tracking-widest opacity-80">Ofensiva</p>
+          <div className="flex items-baseline gap-2">
+            <p className="font-display text-3xl font-extrabold">{stats.streak || 0}</p>
+            <Flame size={20} strokeWidth={2} />
+          </div>
+        </Card>
       </div>
 
       {stats.totalRespondidas === 0 ? (
-        <p className="card p-6 text-center text-slate-400">
-          Responda algumas questões para ver seus gráficos aqui.
-        </p>
+        <Card className="p-8 text-center">
+          <p className="text-faint">Responda algumas questões para ver seus gráficos aqui.</p>
+        </Card>
       ) : (
         <>
-          {/* questões respondidas ao longo do tempo */}
-          <Bloco titulo="Questões respondidas por dia">
-            <ResponsiveContainer width="100%" height={180}>
-              <AreaChart data={porDiaFmt}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                <XAxis dataKey="dia" fontSize={11} />
-                <YAxis fontSize={11} allowDecimals={false} />
-                <Tooltip />
-                <Area type="monotone" dataKey="respondidas" stroke="#4f46e5" fill="#4f46e5" fillOpacity={0.25} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </Bloco>
+          {/* Gráficos grid */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Questões por dia */}
+            <Card className="p-6 space-y-4">
+              <h2 className="font-display font-extrabold text-brand-ink">Questões por dia</h2>
+              <ResponsiveContainer width="100%" height={200}>
+                <AreaChart data={porDiaFmt}>
+                  <defs>
+                    <linearGradient id="colorRespondidas" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#5B4FE0" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#5B4FE0" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#EAE7F7" />
+                  <XAxis dataKey="dia" fontSize={11} stroke="#9C98B8" />
+                  <YAxis fontSize={11} allowDecimals={false} stroke="#9C98B8" />
+                  <Tooltip />
+                  <Area
+                    type="monotone"
+                    dataKey="respondidas"
+                    stroke="#5B4FE0"
+                    fillOpacity={1}
+                    fill="url(#colorRespondidas)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </Card>
 
-          {/* evolução da taxa de acerto */}
-          <Bloco titulo="Evolução da taxa de acerto (%)">
-            <ResponsiveContainer width="100%" height={180}>
-              <LineChart data={evolucao}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                <XAxis dataKey="dia" fontSize={11} />
-                <YAxis domain={[0, 100]} fontSize={11} />
-                <Tooltip />
-                <Line type="monotone" dataKey="taxa" stroke="#16a34a" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </Bloco>
+            {/* Evolução da taxa */}
+            <Card className="p-6 space-y-4">
+              <h2 className="font-display font-extrabold text-brand-ink">Evolução da taxa de acerto</h2>
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={evolucao}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#EAE7F7" />
+                  <XAxis dataKey="dia" fontSize={11} stroke="#9C98B8" />
+                  <YAxis domain={[0, 100]} fontSize={11} stroke="#9C98B8" />
+                  <Tooltip />
+                  <Line
+                    type="monotone"
+                    dataKey="taxa"
+                    stroke="#12995B"
+                    strokeWidth={3}
+                    dot={false}
+                    isAnimationActive
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </Card>
+          </div>
 
-          {/* acerto por matéria */}
-          <Bloco titulo="Acerto por matéria (%)">
-            <ResponsiveContainer width="100%" height={Math.max(160, materiaFmt.length * 34)}>
-              <BarChart data={materiaFmt} layout="vertical" margin={{ left: 10 }}>
-                <XAxis type="number" domain={[0, 100]} fontSize={11} />
-                <YAxis type="category" dataKey="materia" width={110} fontSize={11} />
+          {/* Acerto por matéria */}
+          <Card className="p-6 space-y-4">
+            <h2 className="font-display font-extrabold text-brand-ink">Acerto por matéria</h2>
+            <ResponsiveContainer width="100%" height={Math.max(200, materiaFmt.length * 40)}>
+              <BarChart data={materiaFmt} layout="vertical" margin={{ left: 100 }}>
+                <XAxis type="number" domain={[0, 100]} fontSize={11} stroke="#9C98B8" />
+                <YAxis type="category" dataKey="materia" width={95} fontSize={11} stroke="#9C98B8" />
                 <Tooltip />
-                <Bar dataKey="acerto" fill="#4f46e5" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="acerto" fill="#5B4FE0" radius={[0, 6, 6, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          </Bloco>
+          </Card>
 
-          {/* pontos fracos / revisão */}
-          <Bloco titulo="Pontos de melhoria (menor acerto)">
+          {/* Pontos de melhoria */}
+          <Card
+            className="p-6 space-y-4 bg-gradient-to-br from-[#FDECEF] to-[#FFF4F0] border border-[#F7D6DC]"
+          >
+            <div className="flex items-center gap-3">
+              <AlertTriangle size={24} className="text-danger-from flex-shrink-0" strokeWidth={1.5} />
+              <h2 className="font-display font-extrabold text-danger-from">Pontos de melhoria</h2>
+            </div>
+
             {stats.pontosFracos.length === 0 ? (
-              <p className="text-sm text-slate-400">Responda ao menos 3 questões por assunto para ver aqui.</p>
+              <p className="text-sm text-danger-from/80">
+                Responda ao menos 3 questões por assunto para ver aqui.
+              </p>
             ) : (
-              <ul className="space-y-2">
-                {stats.pontosFracos.slice(0, 8).map((p) => (
-                  <li key={p.chave} className="flex items-center gap-3 text-sm">
-                    <div className="flex-1">
-                      <p className="font-medium">{p.assunto}</p>
-                      <p className="text-xs text-slate-400">
-                        {p.materia} · {p.acertos}/{p.total} · {Math.round(p.taxa * 100)}%
+              <ul className="space-y-3">
+                {stats.pontosFracos.slice(0, 6).map((p) => (
+                  <li key={p.chave} className="flex items-center justify-between gap-3 bg-white rounded-xl p-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-brand-ink text-sm truncate">{p.assunto}</p>
+                      <p className="text-xs text-faint">
+                        {p.materia} · {p.acertos}/{p.total} acertos
                       </p>
                     </div>
-                    <button
-                      onClick={() =>
-                        navigate(
-                          `/topico?materia=${encodeURIComponent(p.materia)}&assunto=${encodeURIComponent(
-                            p.assunto ?? ""
-                          )}&prioriza=1`
-                        )
-                      }
-                      className="btn-primary text-xs"
-                    >
-                      Treinar agora
-                    </button>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="bg-danger-soft rounded-lg px-2.5 py-1 text-xs font-bold text-danger-from">
+                        {Math.round(p.taxa * 100)}%
+                      </div>
+                      <Button
+                        onClick={() =>
+                          navigate(
+                            `/topico?materia=${encodeURIComponent(p.materia)}&assunto=${encodeURIComponent(
+                              p.assunto ?? ""
+                            )}&prioriza=1`
+                          )
+                        }
+                        size="sm"
+                        variant="secondary"
+                      >
+                        Treinar
+                      </Button>
+                    </div>
                   </li>
                 ))}
               </ul>
             )}
-          </Bloco>
+          </Card>
         </>
       )}
     </div>
-  );
-}
-
-function Bloco({ titulo, children }: { titulo: string; children: React.ReactNode }) {
-  return (
-    <section className="card p-4">
-      <h2 className="mb-3 text-sm font-semibold">{titulo}</h2>
-      {children}
-    </section>
   );
 }

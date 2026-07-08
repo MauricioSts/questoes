@@ -45,17 +45,33 @@ model TextoBase {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
+  id           String    @id @default(cuid())
+  email        String    @unique
   passwordHash String
   nome         String
-  metaDiaria   Int      @default(70) // meta diária de questões (configurável no futuro)
-  createdAt    DateTime @default(now())
+  metaDiaria   Int       @default(70) // meta diária de questões (configurável no futuro)
+  dataProva    DateTime? // data alvo da prova (configurável pelo usuário)
+  createdAt    DateTime  @default(now())
 
   answers       Answer[]
   notas         Nota[]
   marcadas      Marcada[]
   refreshTokens RefreshToken[]
+  sessaoAtiva   SessaoAtiva?
+}
+
+// Sessão de estudo em andamento (uma por usuário). Guarda apenas a ORDEM dos IDs e
+// o cursor — o conteúdo continua no frontend e as respostas são persistidas em Answer.
+// Permite ao usuário sair no meio e retomar de onde parou ("Continuar estudando").
+model SessaoAtiva {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contexto   Contexto @default(ESTUDO)
+  questaoIds Int[] // ordem das questões da sessão
+  cursor     Int      @default(0) // índice da questão atual
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 // Cada tentativa de resposta. Snapshots permitem estatística/sorteio sem o JSON.

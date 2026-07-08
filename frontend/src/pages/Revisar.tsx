@@ -1,10 +1,11 @@
-// Aba "Revisar": questões cujo último resultado foi ERRO (vem do backend /answers/erradas).
-// Permite revisar todas numa sessão com feedback; ao acertar, a questão sai da lista.
 import { useCallback, useEffect, useState } from "react";
+import { RefreshCw } from "lucide-react";
 import { api } from "../lib/api";
 import { getQuestoes } from "../lib/questoesRepo";
 import { SessionRunner, type RespostaSessao } from "../components/SessionRunner";
 import { ResumoSessao } from "../components/ResumoSessao";
+import { Card } from "../components/Card";
+import { Button } from "../components/Button";
 import type { Questao } from "../types/questao";
 
 interface ErradaMeta {
@@ -35,13 +36,12 @@ export function Revisar() {
 
   useEffect(carregar, [carregar]);
 
-  // só as que ainda existem no banco de questões carregado
   const questoes = getQuestoes(metas.map((m) => m.questaoId));
 
   function finalizar(rs: RespostaSessao[]) {
     setResultado(rs);
     setSessao(null);
-    carregar(); // atualiza a lista (acertadas saem)
+    carregar();
   }
 
   if (resultado) return <ResumoSessao respostas={resultado} onNovaSessao={() => setResultado(null)} />;
@@ -60,45 +60,62 @@ export function Revisar() {
   }
 
   return (
-    <div className="mx-auto max-w-md space-y-4 p-4">
-      <header>
-        <h1 className="text-xl font-bold">Revisar 🔁</h1>
-        <p className="text-sm text-slate-400">Questões que você errou (último resultado).</p>
-      </header>
+    <div className="mx-auto max-w-[560px] space-y-6 px-4 py-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <div className="h-12 w-12 rounded-lg bg-danger-soft flex items-center justify-center flex-shrink-0">
+          <RefreshCw size={24} className="text-danger-from" strokeWidth={1.5} />
+        </div>
+        <div>
+          <h1 className="font-display text-2xl font-extrabold text-brand-ink">Revisar</h1>
+          <p className="text-sm text-faint">Assim que acertar, elas somem daqui</p>
+        </div>
+      </div>
 
       {carregando ? (
-        <p className="text-slate-400">Carregando…</p>
+        <Card className="p-6 text-center">
+          <p className="text-faint">Carregando…</p>
+        </Card>
       ) : erro ? (
-        <p className="card p-6 text-center text-slate-400">Não foi possível carregar (sem conexão?).</p>
+        <Card className="p-6 text-center">
+          <p className="text-danger-from font-medium">Não foi possível carregar</p>
+          <p className="text-sm text-faint mt-1">Verifique sua conexão.</p>
+        </Card>
       ) : questoes.length === 0 ? (
-        <p className="card p-6 text-center text-slate-400">
-          🎉 Nenhuma questão errada pendente. Continue estudando!
-        </p>
+        <Card className="p-8 text-center">
+          <p className="text-3xl mb-3">🎉</p>
+          <p className="font-semibold text-brand-ink">Nenhuma questão errada pendente</p>
+          <p className="text-sm text-faint mt-2">Continue estudando para melhorar!</p>
+        </Card>
       ) : (
         <>
-          <button onClick={() => setSessao(questoes)} className="btn-primary w-full">
-            Revisar {questoes.length} questõe{questoes.length > 1 ? "s" : ""}
-          </button>
-          <ul className="space-y-2">
+          <Button onClick={() => setSessao(questoes)} fullWidth size="lg">
+            Revisar {questoes.length} questão{questoes.length !== 1 ? "s" : ""}
+          </Button>
+
+          <div className="space-y-2">
             {metas
               .filter((m) => questoes.some((q) => q.id === m.questaoId))
               .map((m) => (
-                <li key={m.questaoId} className="card flex items-center gap-2 p-3 text-sm">
-                  <div className="flex-1">
-                    <p className="font-medium">{m.assunto}</p>
-                    <p className="text-xs text-slate-400">
+                <Card key={m.questaoId} className="flex items-center gap-3 p-4 overflow-hidden">
+                  {/* Barra colorida à esquerda */}
+                  <div className="h-14 w-1.5 rounded-full bg-danger-from flex-shrink-0" />
+
+                  {/* Conteúdo */}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-brand-ink text-sm truncate">{m.assunto}</p>
+                    <p className="text-xs text-faint">
                       Mód. {m.modulo} · {m.materia}
                     </p>
                   </div>
-                  <span
-                    className="rounded-full bg-erro/10 px-2 py-0.5 text-xs font-medium text-erro"
-                    title={`${m.erros} erro(s) em ${m.tentativas} tentativa(s)`}
-                  >
+
+                  {/* Badge de erros */}
+                  <div className="flex-shrink-0 rounded-full bg-danger-soft px-3 py-1.5 text-xs font-bold text-danger-from">
                     {m.erros}× errou
-                  </span>
-                </li>
+                  </div>
+                </Card>
               ))}
-          </ul>
+          </div>
         </>
       )}
     </div>

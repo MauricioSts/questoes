@@ -1,6 +1,5 @@
-// Modo SIMULADO (sábado): 70 questões na proporção da prova, ênfase nas erradas da semana.
-// Sem feedback imediato; anotações ocultas; cronômetro opcional de 4h; resultado ponderado.
 import { useRef, useState } from "react";
+import { FileText } from "lucide-react";
 import { api } from "../lib/api";
 import { todas } from "../lib/questoesRepo";
 import { montarSimulado, type SemanaItem } from "../lib/sessionBuilder";
@@ -10,9 +9,21 @@ import { SIMULADO_DURACAO_MIN, TOTAL_SIMULADO } from "../config/prova";
 import { SessionRunner, type RespostaSessao, type SessionRunnerHandle } from "../components/SessionRunner";
 import { Cronometro } from "../components/Cronometro";
 import { ResultadoSimulado } from "../components/ResultadoSimulado";
+import { Card } from "../components/Card";
+import { Button } from "../components/Button";
+import { Toggle } from "../components/Toggle";
 import type { Questao } from "../types/questao";
 
 type Fase = "intro" | "rodando" | "resultado";
+
+const COMPOSICAO = [
+  { nome: "Português", mod: "I", qtd: 12, cor: "brand" },
+  { nome: "Inglês", mod: "I", qtd: 12, cor: "brand" },
+  { nome: "RLM", mod: "I", qtd: 5, cor: "brand" },
+  { nome: "Atualidades + IA", mod: "I", qtd: 6, cor: "brand" },
+  { nome: "Legislação", mod: "I", qtd: 5, cor: "brand" },
+  { nome: "Módulo II", mod: "II", qtd: 30, cor: "success" },
+];
 
 export function Simulado() {
   const [fase, setFase] = useState<Fase>("intro");
@@ -47,7 +58,6 @@ export function Simulado() {
   async function finalizar(rs: RespostaSessao[]) {
     setResultado(rs);
     setFase("resultado");
-    // envia em lote só as efetivamente respondidas
     const lote = rs
       .filter((r) => r.marcada)
       .map((r) => montarResultado(r.questao, r.marcada!, "SIMULADO", r.tempoSegundos));
@@ -78,24 +88,90 @@ export function Simulado() {
   }
 
   return (
-    <div className="mx-auto max-w-md space-y-5 p-6 text-center">
-      <div className="text-5xl">📝</div>
-      <h1 className="text-2xl font-bold">Simulado</h1>
-      <p className="text-slate-400">
-        70 questões mantendo a proporção da prova (Módulo I = 40, Módulo II = 30), sorteadas das
-        que você respondeu na semana — com ênfase nas que errou. Sem feedback até o final.
-      </p>
-      <label className="card flex items-center justify-between gap-2 p-4 text-left text-sm">
-        <span>
-          Cronômetro de 4h (opcional)
-          <span className="block text-xs text-slate-400">Simula o tempo real da prova, pausável.</span>
-        </span>
-        <input type="checkbox" checked={usarCronometro} onChange={(e) => setUsarCronometro(e.target.checked)} />
-      </label>
-      {aviso && <p className="text-sm text-amber-500">{aviso}</p>}
-      <button onClick={iniciar} disabled={carregando} className="btn-primary w-full">
+    <div className="mx-auto max-w-[620px] space-y-6 px-4 py-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <div className="h-12 w-12 rounded-lg bg-success-soft flex items-center justify-center flex-shrink-0">
+          <FileText size={24} className="text-success-from" strokeWidth={1.5} />
+        </div>
+        <div>
+          <h1 className="font-display text-2xl font-extrabold text-brand-ink">Simulado</h1>
+          <p className="text-sm text-faint">70 questões na proporção real da prova — sem feedback até o fim</p>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Composição */}
+        <Card className="p-6 space-y-4">
+          <h2 className="font-display font-extrabold text-brand-ink">Composição</h2>
+
+          {COMPOSICAO.map((item) => {
+            const barWidth = (item.qtd / TOTAL_SIMULADO) * 100;
+            return (
+              <div key={item.nome} className="space-y-1">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-brand-ink">{item.nome}</span>
+                  <span className="text-xs text-faint font-semibold">{item.qtd}</span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-hair overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${
+                      item.cor === "brand"
+                        ? "bg-brand-400"
+                        : "bg-gradient-to-r from-success-from to-success-to"
+                    }`}
+                    style={{ width: `${barWidth}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </Card>
+
+        {/* Pontuação e Cronômetro */}
+        <div className="space-y-4">
+          {/* Pontuação máxima */}
+          <Card className="bg-gradient-to-br from-brand-900 to-brand-800 text-white p-6 space-y-2">
+            <p className="text-xs font-bold uppercase text-cyan-from opacity-80 tracking-widest">
+              Pontuação Máxima
+            </p>
+            <p className="font-display text-3xl font-extrabold">115 pts</p>
+            <p className="text-xs opacity-80">
+              Mód. I (peso 1) + Mód. II (peso 2,5)
+            </p>
+          </Card>
+
+          {/* Cronômetro */}
+          <Card className="p-6">
+            <Toggle
+              checked={usarCronometro}
+              onChange={setUsarCronometro}
+              label="Cronômetro de 4h"
+              ariaLabel="Ativar cronômetro para simular tempo real da prova"
+            />
+            <p className="text-xs text-faint mt-3">Pausável — zera e finaliza sozinho</p>
+          </Card>
+        </div>
+      </div>
+
+      {/* Aviso */}
+      {aviso && (
+        <div className="rounded-xl bg-yellow-100 border border-yellow-300 p-4 text-sm text-yellow-800">
+          {aviso}
+        </div>
+      )}
+
+      {/* Botão */}
+      <Button
+        onClick={iniciar}
+        disabled={carregando}
+        fullWidth
+        size="lg"
+        variant="primary"
+        className="bg-gradient-to-r from-success-from to-success-to"
+      >
         {carregando ? "Montando simulado…" : "Iniciar simulado"}
-      </button>
+      </Button>
     </div>
   );
 }

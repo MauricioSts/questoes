@@ -1,98 +1,186 @@
-// Renderização de uma questão: texto_base (opcional), enunciado e alternativas acessíveis.
-// Feedback de acerto/erro por COR + ÍCONE (não só cor).
+import { Check, X, PencilIcon, Bookmark } from "lucide-react";
 import type { Questao, Alternativa } from "../types/questao";
 import { getTextoBase } from "../lib/questoesRepo";
+import { Card } from "./Card";
+import { MetaPill } from "./MetaPill";
 
 const LETRAS: Alternativa[] = ["A", "B", "C", "D", "E"];
 
 interface Props {
   questao: Questao;
   selecionada?: Alternativa;
-  revelado: boolean; // true = mostra gabarito/explicação (modos com feedback imediato)
-  mostrarTextoBase?: boolean; // dedupe: só o 1º da sequência que compartilha o texto
+  revelado: boolean;
+  mostrarTextoBase?: boolean;
   onSelecionar: (alt: Alternativa) => void;
+  onAnotar?: () => void;
+  onMarcar?: () => void;
 }
 
-export function QuestaoView({ questao, selecionada, revelado, mostrarTextoBase = true, onSelecionar }: Props) {
+export function QuestaoView({
+  questao,
+  selecionada,
+  revelado,
+  mostrarTextoBase = true,
+  onSelecionar,
+  onAnotar,
+  onMarcar,
+}: Props) {
   const textoBase = getTextoBase(questao.texto_base);
+  const acertou = revelado && selecionada === questao.gabarito;
 
   return (
     <article className="space-y-4">
+      {/* Texto base */}
       {textoBase && mostrarTextoBase && (
-        <div className="card border-l-4 border-brand/60 p-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-brand">Texto base</p>
-          {textoBase}
-        </div>
+        <Card className="border-l-4 border-brand-500 p-4">
+          <p className="text-xs font-bold uppercase text-brand-600 tracking-widest mb-2">Texto base</p>
+          <p className="text-sm text-brand-ink leading-relaxed whitespace-pre-wrap">{textoBase}</p>
+        </Card>
       )}
 
-      <div className="flex items-center gap-2 text-xs text-slate-400">
-        <span className="rounded bg-slate-200 px-2 py-0.5 dark:bg-slate-800">Módulo {questao.modulo}</span>
-        <span>{questao.materia}</span>
-        <span>·</span>
-        <span>{questao.assunto}</span>
-        <span className="ml-auto capitalize">{questao.dificuldade}</span>
+      {/* Metadados */}
+      <div className="flex flex-wrap gap-2">
+        <MetaPill type="modulo" label={`Módulo ${questao.modulo}`} />
+        <MetaPill type="materia" label={questao.materia} />
+        <MetaPill
+          type={questao.dificuldade === "facil" ? "dificuldade-facil" : questao.dificuldade === "media" ? "dificuldade-media" : "dificuldade-dificil"}
+          label={questao.dificuldade === "facil" ? "Fácil" : questao.dificuldade === "media" ? "Média" : "Difícil"}
+        />
       </div>
 
-      <h2 className="whitespace-pre-wrap text-base font-medium leading-relaxed">{questao.enunciado}</h2>
+      {/* Enunciado */}
+      <h2 className="font-semibold text-base leading-relaxed text-brand-ink whitespace-pre-wrap">
+        {questao.enunciado}
+      </h2>
 
+      {/* Código (se houver) */}
       {questao.codigo && (
-        <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
+        <div className="overflow-hidden rounded-xl border border-hair">
           {questao.linguagem && (
-            <div className="border-b border-slate-200 bg-slate-100 px-3 py-1 text-xs font-mono text-slate-500 dark:border-slate-700 dark:bg-slate-800">
+            <div className="border-b border-hair bg-brand-100 px-4 py-2 text-xs font-mono font-bold text-brand-700">
               {questao.linguagem}
             </div>
           )}
-          <pre className="overflow-x-auto bg-slate-50 p-3 text-sm leading-relaxed dark:bg-slate-900">
-            <code className="font-mono">{questao.codigo}</code>
+          <pre className="overflow-x-auto bg-[#F7F6FD] p-4 text-sm leading-relaxed font-mono text-brand-ink">
+            <code>{questao.codigo}</code>
           </pre>
         </div>
       )}
 
-      <ul className="space-y-2" role="radiogroup" aria-label="Alternativas">
+      {/* Alternativas */}
+      <ul className="space-y-3" role="radiogroup" aria-label="Alternativas">
         {LETRAS.filter((l) => questao.alternativas[l] != null).map((letra) => {
-          const correta = revelado && questao.gabarito === letra;
-          const marcadaErrada = revelado && selecionada === letra && questao.gabarito !== letra;
-          const selec = selecionada === letra;
+          const isCorreta = revelado && questao.gabarito === letra;
+          const isMarcadaErrada = revelado && selecionada === letra && questao.gabarito !== letra;
+          const isSelected = selecionada === letra;
 
-          const base =
-            "tap flex w-full items-start gap-3 rounded-xl border p-3 text-left transition";
-          let cls =
-            "border-slate-200 hover:border-brand/60 dark:border-slate-700 dark:hover:border-brand/60";
-          if (correta) cls = "border-acerto bg-acerto/10 text-acerto";
-          else if (marcadaErrada) cls = "border-erro bg-erro/10 text-erro";
-          else if (selec && !revelado) cls = "border-brand bg-brand/10";
+          let borderClass = "border-hair hover:border-brand-400";
+          let bgClass = "bg-white hover:bg-brand-50";
+          let badgeClass = "bg-hair text-brand-ink";
+
+          if (isCorreta) {
+            borderClass = "border-success-from";
+            bgClass = "bg-success-soft";
+            badgeClass = "bg-success-from text-white";
+          } else if (isMarcadaErrada) {
+            borderClass = "border-danger-from";
+            bgClass = "bg-danger-soft";
+            badgeClass = "bg-danger-from text-white";
+          } else if (isSelected && !revelado) {
+            borderClass = "border-brand-500";
+            bgClass = "bg-brand-50";
+            badgeClass = "bg-brand-500 text-white";
+          }
 
           return (
             <li key={letra}>
               <button
                 type="button"
                 role="radio"
-                aria-checked={selec}
+                aria-checked={isSelected}
                 disabled={revelado}
                 onClick={() => onSelecionar(letra)}
-                className={`${base} ${cls}`}
+                className={`tap w-full flex items-start gap-4 rounded-2xl border p-4 text-left transition ${borderClass} ${bgClass} ${
+                  revelado ? "cursor-default" : ""
+                }`}
               >
-                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-current text-xs font-bold">
-                  {correta ? "✓" : marcadaErrada ? "✗" : letra}
-                </span>
-                <span className="whitespace-pre-wrap pt-0.5">{questao.alternativas[letra]}</span>
+                {/* Badge de letra */}
+                <div
+                  className={`h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0 font-bold text-sm ${badgeClass}`}
+                >
+                  {isCorreta ? (
+                    <Check size={20} strokeWidth={3} />
+                  ) : isMarcadaErrada ? (
+                    <X size={20} strokeWidth={3} />
+                  ) : (
+                    letra
+                  )}
+                </div>
+
+                {/* Texto da alternativa */}
+                <span className="whitespace-pre-wrap pt-1 text-sm">{questao.alternativas[letra]}</span>
               </button>
             </li>
           );
         })}
       </ul>
 
+      {/* Feedback (acerto/erro) */}
       {revelado && (
-        <div className="card space-y-1 p-4 text-sm">
-          <p className="font-semibold">
-            {selecionada === questao.gabarito ? (
-              <span className="text-acerto">✓ Você acertou!</span>
+        <Card
+          className={`p-6 space-y-3 ${
+            acertou
+              ? "bg-success-soft border-success-from"
+              : "bg-danger-soft border-danger-from"
+          }`}
+        >
+          <p
+            className={`font-display font-extrabold text-lg flex items-center gap-2 ${
+              acertou ? "text-success-from" : "text-danger-from"
+            }`}
+          >
+            {acertou ? (
+              <>
+                <Check size={24} strokeWidth={3} /> Você acertou!
+              </>
             ) : (
-              <span className="text-erro">✗ Resposta correta: {questao.gabarito}</span>
+              <>
+                <X size={24} strokeWidth={3} /> Resposta correta: {questao.gabarito}
+              </>
             )}
           </p>
-          <p className="whitespace-pre-wrap leading-relaxed text-slate-600 dark:text-slate-300">{questao.explicacao}</p>
-        </div>
+
+          {/* Explicação */}
+          <div className="text-sm leading-relaxed whitespace-pre-wrap text-brand-ink">
+            {questao.explicacao}
+          </div>
+
+          {/* Ações (anotar, marcar) */}
+          {(onAnotar || onMarcar) && (
+            <div className="flex gap-2 pt-2 border-t border-current border-opacity-20">
+              {onAnotar && (
+                <button
+                  onClick={onAnotar}
+                  className="tap flex items-center gap-2 text-xs font-semibold text-brand-500 hover:text-brand-600"
+                  aria-label="Anotar"
+                >
+                  <PencilIcon size={16} strokeWidth={1.5} />
+                  Anotar
+                </button>
+              )}
+              {onMarcar && (
+                <button
+                  onClick={onMarcar}
+                  className="tap flex items-center gap-2 text-xs font-semibold text-brand-500 hover:text-brand-600"
+                  aria-label="Marcar para revisar"
+                >
+                  <Bookmark size={16} strokeWidth={1.5} />
+                  Marcar
+                </button>
+              )}
+            </div>
+          )}
+        </Card>
       )}
     </article>
   );

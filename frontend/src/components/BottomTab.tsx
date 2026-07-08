@@ -1,39 +1,56 @@
-// Barra de navegação inferior (mobile-first). Em telas grandes vira uma barra lateral.
 import { NavLink } from "react-router-dom";
+import { Home, BookOpen, Zap, RefreshCw, FileText, BarChart3, Shield } from "lucide-react";
 
-const tabs = [
-  { to: "/", label: "Home", icon: "🎯", end: true },
-  { to: "/estudar", label: "Estudar", icon: "📖" },
-  { to: "/flash", label: "Flash", icon: "⚡" },
-  { to: "/revisar", label: "Revisar", icon: "🔁" },
-  { to: "/simulado", label: "Simulado", icon: "📝" },
-  { to: "/stats", label: "Stats", icon: "📊" },
+const navItems = [
+  { to: "/", label: "Home", icon: Home, end: true },
+  { to: "/estudar", label: "Estudar", icon: BookOpen },
+  { to: "/flash", label: "Flash", icon: Zap },
+  { to: "/revisar", label: "Revisar", icon: RefreshCw },
+  { to: "/simulado", label: "Simulado", icon: FileText },
+  { to: "/stats", label: "Stats", icon: BarChart3 },
 ];
 
 export function BottomTab() {
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/90 backdrop-blur
-                 dark:border-slate-800 dark:bg-slate-900/90
-                 sm:inset-y-0 sm:right-auto sm:w-20 sm:flex-col sm:border-r sm:border-t-0"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-hair bg-white/92 backdrop-blur
+                 lg:inset-y-0 lg:right-auto lg:w-[92px] lg:flex-col lg:border-r lg:border-t-0"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <ul className="flex items-stretch justify-around sm:h-full sm:flex-col sm:justify-start sm:gap-2 sm:pt-6">
-        {tabs.map((t) => (
-          <li key={t.to} className="flex-1 sm:flex-none">
+      {/* Logo (desktop) */}
+      <div className="hidden lg:flex items-center justify-center py-5">
+        <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-400 flex items-center justify-center shadow-lg shadow-brand-500/40">
+          <Shield size={24} className="text-white" strokeWidth={2} />
+        </div>
+      </div>
+
+      <ul className="flex items-stretch justify-around lg:flex-col lg:justify-start lg:gap-1 lg:px-2">
+        {navItems.map(({ to, label, icon: Icon, end }) => (
+          <li key={to} className="flex-1 lg:flex-none">
             <NavLink
-              to={t.to}
-              end={t.end}
+              to={to}
+              end={end}
               className={({ isActive }) =>
-                `tap flex flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium transition
-                 ${isActive ? "text-brand" : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"}`
+                `flex flex-col items-center justify-center gap-1 py-3 lg:py-3 lg:rounded-2xl transition text-[11px] font-semibold
+                 ${
+                   isActive
+                     ? "text-brand-500 lg:bg-brand-500/10"
+                     : "text-faint hover:text-brand-ink"
+                 }`
               }
-              aria-label={t.label}
+              aria-label={label}
+              title={label}
             >
-              <span className="text-lg" aria-hidden>
-                {t.icon}
-              </span>
-              {t.label}
+              {({ isActive }) => (
+                <>
+                  <Icon
+                    size={22}
+                    strokeWidth={isActive ? 2.2 : 1.8}
+                    fill={label === "Flash" && isActive ? "currentColor" : "none"}
+                  />
+                  <span>{label}</span>
+                </>
+              )}
             </NavLink>
           </li>
         ))}

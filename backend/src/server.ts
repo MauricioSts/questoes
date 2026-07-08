@@ -8,6 +8,7 @@ import { answersRouter } from "./modules/answers/answers.routes.js";
 import { notesRouter } from "./modules/notes/notes.routes.js";
 import { marcadasRouter } from "./modules/marcadas/marcadas.routes.js";
 import { goalsRouter } from "./modules/goals/goals.routes.js";
+import { sessaoRouter } from "./modules/sessao/sessao.routes.js";
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use("/answers", answersRouter);
 app.use("/notes", notesRouter);
 app.use("/marcadas", marcadasRouter);
 app.use("/goals", goalsRouter);
+app.use("/sessao", sessaoRouter);
 
 app.use(errorHandler);
 

@@ -1,33 +1,20 @@
-// Layout autenticado: header com tema/logout + área de conteúdo + bottom tab.
-import { Outlet, Link } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { BottomTab } from "./BottomTab";
-import { useTheme } from "../store/theme";
-import { useAuth } from "../store/auth";
+import { TopBar } from "./TopBar";
 
 export function AppLayout() {
-  const { tema, alternar } = useTheme();
-  const { logout } = useAuth();
-
   return (
-    <div className="min-h-full sm:pl-20">
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/80 px-4 py-2 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
-        <span className="font-semibold text-brand">Questões</span>
-        <div className="flex items-center gap-1">
-          <Link to="/importar" className="tap rounded-lg px-2" aria-label="Importar questões" title="Importar questões">
-            📥
-          </Link>
-          <button onClick={alternar} className="tap rounded-lg px-2" aria-label="Alternar tema">
-            {tema === "dark" ? "☀️" : "🌙"}
-          </button>
-          <button onClick={logout} className="tap rounded-lg px-2 text-sm text-slate-500" aria-label="Sair">
-            Sair
-          </button>
-        </div>
-      </header>
-      <main className="pb-20 sm:pb-6">
-        <Outlet />
-      </main>
+    <div className="min-h-full">
+      {/* Navegação: sidebar fixa à esquerda no desktop, barra inferior no mobile */}
       <BottomTab />
+
+      {/* Área de conteúdo: deslocada para não ficar sob a sidebar no desktop */}
+      <div className="lg:pl-[92px]">
+        <TopBar />
+        <main className="mx-auto max-w-[1100px] px-5 pb-28 pt-2 lg:pb-8">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }
