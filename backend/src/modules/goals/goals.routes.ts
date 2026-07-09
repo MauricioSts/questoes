@@ -40,6 +40,33 @@ goalsRouter.get(
     const respondidasTotal = respondidasDistintas.length;
     const progressoPlano = totalQuestoes > 0 ? Math.round((respondidasTotal / totalQuestoes) * 100) : 0;
 
+    // Legislação: total de questões da matéria + quantas (distintas) foram feitas
+    // hoje — para o feedback de "dia de legislação concluído" no dashboard.
+    const legislacaoWhere = { materia: { contains: "legisl", mode: "insensitive" as const } };
+    const legislacaoTotal = await prisma.questao.count({ where: legislacaoWhere });
+    const legislacaoDistintasHoje = await prisma.answer.findMany({
+      where: {
+        userId: req.userId!,
+        createdAt: { gte: inicioHoje },
+        materiaSnapshot: { contains: "legisl", mode: "insensitive" },
+      },
+      distinct: ["questaoId"],
+      select: { questaoId: true },
+    });
+    const legislacaoFeitasHoje = legislacaoDistintasHoje.length;
+
+    // Progresso de tempo até a prova (0–100%): quanto do período desde a criação
+    // da conta até a data da prova já passou. Só faz sentido com data definida.
+    const dataProva = user?.dataProva ?? null;
+    let progressoTempo: number | null = null;
+    if (dataProva && user) {
+      const inicio = user.createdAt.getTime();
+      const fim = dataProva.getTime();
+      const agora = Date.now();
+      progressoTempo =
+        fim > inicio ? Math.min(100, Math.max(0, Math.round(((agora - inicio) / (fim - inicio)) * 100))) : 100;
+    }
+
     res.json({
       meta,
       respondidasHoje,
@@ -47,10 +74,13 @@ goalsRouter.get(
       streak,
       semana, // 7 booleans: seg→dom da semana atual bateram a meta
       hojeIdx, // índice de hoje no array acima (0=seg … 6=dom)
-      dataProva: user?.dataProva ?? null,
+      dataProva,
       totalQuestoes,
       respondidasTotal,
       progressoPlano,
+      progressoTempo, // % do tempo até a prova decorrido (null se sem data)
+      legislacaoTotal,
+      legislacaoFeitasHoje,
     });
   })
 );

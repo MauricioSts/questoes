@@ -31,8 +31,11 @@ interface GoalToday {
   hojeIdx?: number; // índice de hoje (0=seg … 6=dom)
   dataProva?: string | null;
   progressoPlano?: number;
+  progressoTempo?: number | null; // % do tempo até a prova decorrido
   totalQuestoes?: number;
   respondidasTotal?: number;
+  legislacaoTotal?: number;
+  legislacaoFeitasHoje?: number;
 }
 
 const DIAS = ["S", "T", "Q", "Q", "S", "S", "D"];
@@ -63,16 +66,20 @@ export function Home() {
   // Prova
   const dataProva = goal?.dataProva ? new Date(goal.dataProva) : null;
   const diasProva = dataProva
-    ? Math.max(0, Math.floor((dataProva.getTime() - Date.now()) / 86400000))
+    ? Math.max(0, Math.ceil((dataProva.getTime() - Date.now()) / 86400000))
     : null;
+  const progressoTempo = goal?.progressoTempo ?? null;
 
   // Calendário semanal — os dias reais em que bateu a meta vêm do backend (fuso
   // do usuário). Fallback local só enquanto a resposta não chega.
   const hojeIdx = goal?.hojeIdx ?? (new Date().getDay() + 6) % 7; // seg=0 ... dom=6
   const diasConcluidos = goal?.semana ?? DIAS.map(() => false);
 
-  // Ciclo de legislação (dia sim, dia não)
+  // Ciclo de legislação (dia sim, dia não) + progresso de hoje
   const diaLegislacao = ehDiaDeLegislacao();
+  const legislacaoTotal = goal?.legislacaoTotal ?? 0;
+  const legislacaoFeitasHoje = goal?.legislacaoFeitasHoje ?? 0;
+  const legislacaoConcluida = legislacaoTotal > 0 && legislacaoFeitasHoje >= legislacaoTotal;
 
   // "Continuar estudando": retoma sessão ativa ou abre o modo estudo para uma nova.
   async function continuarEstudando() {
@@ -336,15 +343,17 @@ export function Home() {
             )}
           </div>
 
-          {!editandoData && (
+          {!editandoData && dataProva && progressoTempo != null && (
             <>
               <div className="mt-5 h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-cyan-from to-cyan-to"
-                  style={{ width: `${progressoPlano}%` }}
+                  style={{ width: `${progressoTempo}%` }}
                 />
               </div>
-              <p className="mt-2 text-xs opacity-70">{progressoPlano}% do plano concluído</p>
+              <p className="mt-2 text-xs opacity-70">
+                {progressoTempo}% do tempo até a prova · faltam {diasProva} dias
+              </p>
             </>
           )}
         </div>
@@ -361,21 +370,43 @@ export function Home() {
         </div>
       </div>
 
-      {/* f) Legislação — destaque quando é "dia de legislação" (ciclo de 2 dias) */}
+      {/* f) Legislação — destaque quando é "dia de legislação" (ciclo de 2 dias).
+             Ao concluir todas as questões de hoje, vira um feedback de conclusão. */}
       {diaLegislacao && (
-        <Link
-          to="/legislacao"
-          className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#12995B] to-[#0E7A48] p-5 text-white transition hover:-translate-y-0.5"
-        >
-          <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-white/15 flex items-center justify-center">
-            <Scale size={24} strokeWidth={2} />
-          </div>
-          <div className="flex-1">
-            <p className="font-display font-extrabold">Hoje é dia de Legislação 📜</p>
-            <p className="text-sm text-white/85">Faça todas as questões de legislação de hoje.</p>
-          </div>
-          <ArrowRight size={20} strokeWidth={2.4} className="flex-shrink-0" />
-        </Link>
+        legislacaoConcluida ? (
+          <Link
+            to="/legislacao"
+            className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#0E7A48] to-[#0A5E38] p-5 text-white transition hover:-translate-y-0.5"
+          >
+            <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-white/20 flex items-center justify-center">
+              <Check size={26} strokeWidth={3} />
+            </div>
+            <div className="flex-1">
+              <p className="font-display font-extrabold">Dia de legislação concluído! 🎉</p>
+              <p className="text-sm text-white/85">
+                Você fez as {legislacaoTotal} questões de legislação de hoje. Mandou bem!
+              </p>
+            </div>
+          </Link>
+        ) : (
+          <Link
+            to="/legislacao"
+            className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#12995B] to-[#0E7A48] p-5 text-white transition hover:-translate-y-0.5"
+          >
+            <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-white/15 flex items-center justify-center">
+              <Scale size={24} strokeWidth={2} />
+            </div>
+            <div className="flex-1">
+              <p className="font-display font-extrabold">Hoje é dia de Legislação 📜</p>
+              <p className="text-sm text-white/85">
+                {legislacaoFeitasHoje > 0
+                  ? `${legislacaoFeitasHoje} de ${legislacaoTotal} feitas hoje — continue!`
+                  : "Faça todas as questões de legislação de hoje."}
+              </p>
+            </div>
+            <ArrowRight size={20} strokeWidth={2.4} className="flex-shrink-0" />
+          </Link>
+        )
       )}
 
       {/* g) Atalhos: anotações + marcadas */}
