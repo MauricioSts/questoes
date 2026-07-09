@@ -1,11 +1,12 @@
 import { NavLink } from "react-router-dom";
-import { Home, BookOpen, Zap, RefreshCw, FileText, BarChart3, Shield } from "lucide-react";
+import { Home, BookOpen, Zap, RefreshCw, FileText, BarChart3, Scale, Shield } from "lucide-react";
 
 const navItems = [
   { to: "/", label: "Home", icon: Home, end: true },
   { to: "/estudar", label: "Estudar", icon: BookOpen },
   { to: "/flash", label: "Flash", icon: Zap },
   { to: "/revisar", label: "Revisar", icon: RefreshCw },
+  { to: "/legislacao", label: "Leis", icon: Scale },
   { to: "/simulado", label: "Simulado", icon: FileText },
   { to: "/stats", label: "Stats", icon: BarChart3 },
 ];

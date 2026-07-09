@@ -4,7 +4,7 @@ import { z } from "zod";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
-import { startOfToday, localDateKey } from "../../lib/date.js";
+import { startOfToday, localDateKey, weekDayKeys } from "../../lib/date.js";
 
 export const goalsRouter = Router();
 goalsRouter.use(requireAuth);
@@ -21,7 +21,13 @@ goalsRouter.get(
       where: { userId: req.userId!, createdAt: { gte: inicioHoje } },
     });
 
-    const streak = await calcularStreak(req.userId!, meta);
+    // Uma única passada nas respostas → mapa dia→quantidade, base do streak e da semana.
+    const porDia = await contarPorDia(req.userId!);
+    const streak = calcularStreak(porDia, meta);
+
+    // Calendário da ofensiva: cada dia da semana atual (seg→dom) bateu a meta?
+    const { keys, hojeIdx } = weekDayKeys();
+    const semana = keys.map((k) => (porDia.get(k) ?? 0) >= meta);
 
     // Total de questões no sistema (banco compartilhado) e quantas o usuário já
     // respondeu ao menos uma vez (distinct por questaoId).
@@ -39,6 +45,8 @@ goalsRouter.get(
       respondidasHoje,
       cumpriuHoje: respondidasHoje >= meta,
       streak,
+      semana, // 7 booleans: seg→dom da semana atual bateram a meta
+      hojeIdx, // índice de hoje no array acima (0=seg … 6=dom)
       dataProva: user?.dataProva ?? null,
       totalQuestoes,
       respondidasTotal,
@@ -83,22 +91,26 @@ goalsRouter.patch(
   })
 );
 
-// Conta dias consecutivos (fuso do usuário) em que bateu a meta.
-// Se hoje ainda não bateu, o streak considera a sequência que termina ontem
-// (não quebra até o dia virar).
-async function calcularStreak(userId: string, meta: number): Promise<number> {
-  const desde = new Date(Date.now() - 120 * 864e5); // janela suficiente
+// Mapa "YYYY-MM-DD" (fuso do usuário) → nº de questões respondidas naquele dia.
+// Janela de 120 dias é suficiente para streak e para a semana atual.
+async function contarPorDia(userId: string): Promise<Map<string, number>> {
+  const desde = new Date(Date.now() - 120 * 864e5);
   const answers = await prisma.answer.findMany({
     where: { userId, createdAt: { gte: desde } },
     select: { createdAt: true },
   });
-
   const porDia = new Map<string, number>();
   for (const a of answers) {
     const dia = localDateKey(a.createdAt);
     porDia.set(dia, (porDia.get(dia) ?? 0) + 1);
   }
+  return porDia;
+}
 
+// Conta dias consecutivos (fuso do usuário) em que bateu a meta.
+// Se hoje ainda não bateu, o streak considera a sequência que termina ontem
+// (não quebra até o dia virar).
+function calcularStreak(porDia: Map<string, number>, meta: number): number {
   const hojeKey = localDateKey(new Date());
   const bateuHoje = (porDia.get(hojeKey) ?? 0) >= meta;
 

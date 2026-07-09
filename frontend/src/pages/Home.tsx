@@ -12,18 +12,23 @@ import {
   Bookmark,
   Layers,
   Pencil,
+  Scale,
+  NotebookPen,
 } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../store/auth";
 import { getSessaoAtiva } from "../lib/sessao";
 import { ProgressRing } from "../components/ProgressRing";
 import { META_DIARIA_DEFAULT } from "../config/prova";
+import { ehDiaDeLegislacao } from "../lib/legislacao";
 
 interface GoalToday {
   meta: number;
   respondidasHoje: number;
   cumpriuHoje: boolean;
   streak: number;
+  semana?: boolean[]; // seg→dom da semana atual bateram a meta
+  hojeIdx?: number; // índice de hoje (0=seg … 6=dom)
   dataProva?: string | null;
   progressoPlano?: number;
   totalQuestoes?: number;
@@ -61,9 +66,13 @@ export function Home() {
     ? Math.max(0, Math.floor((dataProva.getTime() - Date.now()) / 86400000))
     : null;
 
-  // Calendário semanal — hoje (0=dom → índice na ordem S,T,Q,Q,S,S,D)
-  const hojeIdx = (new Date().getDay() + 6) % 7; // seg=0 ... dom=6
-  const diasConcluidos = DIAS.map((_, i) => i < hojeIdx && i < streak);
+  // Calendário semanal — os dias reais em que bateu a meta vêm do backend (fuso
+  // do usuário). Fallback local só enquanto a resposta não chega.
+  const hojeIdx = goal?.hojeIdx ?? (new Date().getDay() + 6) % 7; // seg=0 ... dom=6
+  const diasConcluidos = goal?.semana ?? DIAS.map(() => false);
+
+  // Ciclo de legislação (dia sim, dia não)
+  const diaLegislacao = ehDiaDeLegislacao();
 
   // "Continuar estudando": retoma sessão ativa ou abre o modo estudo para uma nova.
   async function continuarEstudando() {
@@ -352,14 +361,40 @@ export function Home() {
         </div>
       </div>
 
-      {/* f) Minhas marcadas */}
-      <Link
-        to="/marcadas"
-        className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-hair bg-white/50 py-4 font-display font-bold text-muted transition hover:border-brand-300 hover:text-brand-500"
-      >
-        <Bookmark size={18} strokeWidth={1.8} />
-        Minhas marcadas para revisar depois
-      </Link>
+      {/* f) Legislação — destaque quando é "dia de legislação" (ciclo de 2 dias) */}
+      {diaLegislacao && (
+        <Link
+          to="/legislacao"
+          className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#12995B] to-[#0E7A48] p-5 text-white transition hover:-translate-y-0.5"
+        >
+          <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-white/15 flex items-center justify-center">
+            <Scale size={24} strokeWidth={2} />
+          </div>
+          <div className="flex-1">
+            <p className="font-display font-extrabold">Hoje é dia de Legislação 📜</p>
+            <p className="text-sm text-white/85">Faça todas as questões de legislação de hoje.</p>
+          </div>
+          <ArrowRight size={20} strokeWidth={2.4} className="flex-shrink-0" />
+        </Link>
+      )}
+
+      {/* g) Atalhos: anotações + marcadas */}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Link
+          to="/anotacoes"
+          className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-hair bg-white/50 py-4 font-display font-bold text-muted transition hover:border-brand-300 hover:text-brand-500"
+        >
+          <NotebookPen size={18} strokeWidth={1.8} />
+          Questões com anotações
+        </Link>
+        <Link
+          to="/marcadas"
+          className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-hair bg-white/50 py-4 font-display font-bold text-muted transition hover:border-brand-300 hover:text-brand-500"
+        >
+          <Bookmark size={18} strokeWidth={1.8} />
+          Marcadas para revisar
+        </Link>
+      </div>
     </div>
   );
 }

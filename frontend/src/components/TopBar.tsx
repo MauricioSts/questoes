@@ -6,9 +6,6 @@ import { api } from "../lib/api";
 
 interface GoalToday {
   streak: number;
-  nivel?: number;
-  xpAtual?: number;
-  xpProximo?: number;
 }
 
 export function TopBar() {
@@ -25,12 +22,7 @@ export function TopBar() {
     navigate("/login");
   };
 
-  // TODO: nivel/xp virão do backend quando disponíveis; fallback abaixo.
   const streak = goal?.streak ?? 0;
-  const nivel = goal?.nivel ?? 1;
-  const xpAtual = goal?.xpAtual ?? 0;
-  const xpProximo = goal?.xpProximo ?? 100;
-  const xpPercent = Math.min((xpAtual / xpProximo) * 100, 100);
 
   return (
     <header className="sticky top-0 z-20 border-b border-hair bg-brand-50/82 backdrop-blur">
@@ -43,28 +35,12 @@ export function TopBar() {
           </span>
         </div>
 
-        {/* Direita: streak + nível + sair */}
+        {/* Direita: streak + sair */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Streak chip */}
           <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#FFE8D6] to-[#FFDCE4] px-3 py-1.5">
             <Flame size={16} className="text-flame-text" strokeWidth={2.2} fill="currentColor" />
             <span className="text-sm font-extrabold text-flame-text">{streak}</span>
-          </div>
-
-          {/* Nível chip (desktop) */}
-          <div className="hidden md:flex items-center gap-2 rounded-full border border-hair bg-white px-2 py-1.5 pr-3">
-            <div className="h-6 w-6 rounded-full bg-gradient-to-br from-brand-500 to-brand-400 flex items-center justify-center text-white text-xs font-extrabold">
-              {nivel}
-            </div>
-            <div className="h-2 w-24 rounded-full bg-hair overflow-hidden">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-brand-500 to-[#7C6FF6]"
-                style={{ width: `${xpPercent}%` }}
-              />
-            </div>
-            <span className="text-xs font-semibold text-muted tabular-nums">
-              {xpAtual}/{xpProximo}
-            </span>
           </div>
 
           {/* Sair */}

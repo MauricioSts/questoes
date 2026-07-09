@@ -56,3 +56,25 @@ export function startOfWeekWindow(timeZone = env.USER_TIMEZONE): Date {
   const today = startOfToday(timeZone);
   return new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
 }
+
+// Índice do dia da semana no fuso do usuário: 0=segunda … 6=domingo.
+export function localWeekdayIndex(date: Date, timeZone = env.USER_TIMEZONE): number {
+  const wd = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short" }).format(date);
+  const map: Record<string, number> = {
+    Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6,
+  };
+  return map[wd] ?? 0;
+}
+
+// Chaves "YYYY-MM-DD" (fuso do usuário) da semana atual, de segunda a domingo,
+// junto do índice de hoje (0=seg … 6=dom). Base para o calendário de ofensiva.
+export function weekDayKeys(timeZone = env.USER_TIMEZONE): { keys: string[]; hojeIdx: number } {
+  const hojeIdx = localWeekdayIndex(new Date(), timeZone);
+  const base = startOfToday(timeZone); // meia-noite local de hoje (em UTC)
+  const keys: string[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(base.getTime() + (i - hojeIdx) * 864e5); // seg = -hojeIdx
+    keys.push(localDateKey(d, timeZone));
+  }
+  return { keys, hojeIdx };
+}

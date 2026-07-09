@@ -13,6 +13,8 @@ import { Topico } from "./pages/Topico";
 import { Simulado } from "./pages/Simulado";
 import { Stats } from "./pages/Stats";
 import { Marcadas } from "./pages/Marcadas";
+import { Anotacoes } from "./pages/Anotacoes";
+import { Legislacao } from "./pages/Legislacao";
 import { Revisar } from "./pages/Revisar";
 import { Importar } from "./pages/Importar";
 
@@ -41,6 +43,8 @@ export default function App() {
               <Route path="/revisar" element={<Revisar />} />
               <Route path="/stats" element={<Stats />} />
               <Route path="/marcadas" element={<Marcadas />} />
+              <Route path="/anotacoes" element={<Anotacoes />} />
+              <Route path="/legislacao" element={<Legislacao />} />
               <Route path="/importar" element={<Importar />} />
             </Route>
           </Routes>
