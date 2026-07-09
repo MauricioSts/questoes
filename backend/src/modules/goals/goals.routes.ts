@@ -4,7 +4,7 @@ import { z } from "zod";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
-import { startOfToday, localDateKey, weekDayKeys } from "../../lib/date.js";
+import { startOfToday, localDateKey, weekDayKeys, localWeekdayIndex } from "../../lib/date.js";
 
 export const goalsRouter = Router();
 goalsRouter.use(requireAuth);
@@ -138,22 +138,28 @@ async function contarPorDia(userId: string): Promise<Map<string, number>> {
 }
 
 // Conta dias consecutivos (fuso do usuário) em que bateu a meta.
-// Se hoje ainda não bateu, o streak considera a sequência que termina ontem
-// (não quebra até o dia virar).
+// Domingo é dia de descanso: não conta para o streak nem o quebra — é apenas
+// pulado. Se hoje ainda não bateu (e não é domingo), a sequência considera o
+// último dia útil (não quebra até o dia virar).
 function calcularStreak(porDia: Map<string, number>, meta: number): number {
-  const hojeKey = localDateKey(new Date());
-  const bateuHoje = (porDia.get(hojeKey) ?? 0) >= meta;
+  const bateuNoDia = (cursor: Date) => (porDia.get(localDateKey(cursor)) ?? 0) >= meta;
+  const ehDomingo = (cursor: Date) => localWeekdayIndex(cursor) === 6;
+  const diaAntes = (cursor: Date) => new Date(cursor.getTime() - 864e5);
+
+  let cursor = startOfToday();
+  // Hoje ainda em aberto: se não é domingo e ainda não bateu, começa de ontem.
+  if (!ehDomingo(cursor) && !bateuNoDia(cursor)) cursor = diaAntes(cursor);
 
   let streak = 0;
-  // Se hoje não bateu, começamos a contar a partir de ontem.
-  let cursor = new Date(startOfToday().getTime());
-  if (!bateuHoje) cursor = new Date(cursor.getTime() - 864e5);
-
   while (true) {
-    const key = localDateKey(cursor);
-    if ((porDia.get(key) ?? 0) >= meta) {
+    if (ehDomingo(cursor)) {
+      // Descanso: pula sem contar nem quebrar a sequência.
+      cursor = diaAntes(cursor);
+      continue;
+    }
+    if (bateuNoDia(cursor)) {
       streak++;
-      cursor = new Date(cursor.getTime() - 864e5);
+      cursor = diaAntes(cursor);
     } else {
       break;
     }

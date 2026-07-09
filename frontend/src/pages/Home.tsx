@@ -14,6 +14,8 @@ import {
   Pencil,
   Scale,
   NotebookPen,
+  Lock,
+  Moon,
 } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../store/auth";
@@ -21,6 +23,7 @@ import { getSessaoAtiva } from "../lib/sessao";
 import { ProgressRing } from "../components/ProgressRing";
 import { META_DIARIA_DEFAULT } from "../config/prova";
 import { ehDiaDeLegislacao } from "../lib/legislacao";
+import { ehDiaDeSimulado } from "../lib/agenda";
 
 interface GoalToday {
   meta: number;
@@ -56,6 +59,7 @@ export function Home() {
   const meta = goal?.meta ?? usuario?.metaDiaria ?? META_DIARIA_DEFAULT;
   const respondidas = goal?.respondidasHoje ?? 0;
   const faltam = Math.max(0, meta - respondidas);
+  const cumpriuHoje = goal?.cumpriuHoje ?? false;
   const streak = goal?.streak ?? 0;
 
   // Questões no sistema x respondidas (total)
@@ -80,6 +84,9 @@ export function Home() {
   const legislacaoTotal = goal?.legislacaoTotal ?? 0;
   const legislacaoFeitasHoje = goal?.legislacaoFeitasHoje ?? 0;
   const legislacaoConcluida = legislacaoTotal > 0 && legislacaoFeitasHoje >= legislacaoTotal;
+
+  // Simulado só aos sábados
+  const diaSimulado = ehDiaDeSimulado();
 
   // "Continuar estudando": retoma sessão ativa ou abre o modo estudo para uma nova.
   async function continuarEstudando() {
@@ -190,6 +197,25 @@ export function Home() {
                     </button>
                   </div>
                 </form>
+              ) : cumpriuHoje ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <span className="text-3xl leading-none">🎉</span>
+                    <p className="font-display text-2xl font-extrabold leading-tight">
+                      Meta batida!
+                    </p>
+                  </div>
+                  <p className="text-sm text-white/85">
+                    {respondidas} de {meta} questões hoje · ofensiva de {streak} {streak === 1 ? "dia" : "dias"} 🔥
+                  </p>
+                  <button
+                    onClick={continuarEstudando}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-white/15 px-5 py-3 font-display font-extrabold text-white transition hover:bg-white/25"
+                  >
+                    Seguir treinando
+                    <ArrowRight size={18} strokeWidth={2.4} />
+                  </button>
+                </>
               ) : (
                 <>
                   <p className="font-display text-2xl font-extrabold leading-tight">
@@ -227,6 +253,7 @@ export function Home() {
             {DIAS.map((d, i) => {
               const feito = diasConcluidos[i];
               const hoje = i === hojeIdx;
+              const descanso = i === 6 && !feito; // domingo = descanso (não quebra a ofensiva)
               return (
                 <div key={i} className="flex flex-col items-center gap-1.5">
                   <div
@@ -235,10 +262,17 @@ export function Home() {
                         ? "bg-gradient-to-br from-flame-from to-flame-to"
                         : hoje
                         ? "border-2 border-dashed border-flame-from bg-white"
+                        : descanso
+                        ? "bg-brand-50 border border-dashed border-hair"
                         : "bg-brand-100"
                     }`}
+                    title={descanso ? "Domingo é dia de descanso — não quebra a ofensiva" : undefined}
                   >
-                    {feito && <Check size={18} className="text-white" strokeWidth={3} />}
+                    {feito ? (
+                      <Check size={18} className="text-white" strokeWidth={3} />
+                    ) : descanso ? (
+                      <Moon size={16} className="text-faint" strokeWidth={2} />
+                    ) : null}
                   </div>
                   <span className="text-xs font-bold text-faint">{d}</span>
                 </div>
@@ -365,7 +399,15 @@ export function Home() {
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <ModoCard to="/estudar" icon={BookOpen} titulo="Estudar" sub="Feedback imediato + anotações" bg="bg-[#EEF0FF]" cor="text-[#4A57E0]" />
           <ModoCard to="/flash" icon={Zap} titulo="Flash" sub="10 erradas do Módulo II" bg="bg-[#FFF0E8]" cor="text-[#F5722B]" fill />
-          <ModoCard to="/simulado" icon={FileText} titulo="Simulado" sub="70 questões, prova real" bg="bg-[#E8F7EF]" cor="text-[#12995B]" />
+          <ModoCard
+            to="/simulado"
+            icon={FileText}
+            titulo="Simulado"
+            sub={diaSimulado ? "70 questões, prova real" : "Disponível aos sábados"}
+            bg="bg-[#E8F7EF]"
+            cor="text-[#12995B]"
+            locked={!diaSimulado}
+          />
           <ModoCard to="/revisar" icon={RefreshCw} titulo="Revisar" sub="Suas erradas em fila" bg="bg-[#FDECEF]" cor="text-[#E14A5F]" />
         </div>
       </div>
@@ -409,6 +451,23 @@ export function Home() {
         )
       )}
 
+      {/* f2) Simulado — destaque no sábado (dia de simulado) */}
+      {diaSimulado && (
+        <Link
+          to="/simulado"
+          className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#4A3DB0] to-[#6B5CE8] p-5 text-white transition hover:-translate-y-0.5"
+        >
+          <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-white/15 flex items-center justify-center">
+            <FileText size={24} strokeWidth={2} />
+          </div>
+          <div className="flex-1">
+            <p className="font-display font-extrabold">Sábado é dia de Simulado 📝</p>
+            <p className="text-sm text-white/85">Encare as 70 questões no clima de prova real.</p>
+          </div>
+          <ArrowRight size={20} strokeWidth={2.4} className="flex-shrink-0" />
+        </Link>
+      )}
+
       {/* g) Atalhos: anotações + marcadas */}
       <div className="grid gap-3 sm:grid-cols-2">
         <Link
@@ -438,6 +497,7 @@ function ModoCard({
   bg,
   cor,
   fill = false,
+  locked = false,
 }: {
   to: string;
   icon: typeof BookOpen;
@@ -446,14 +506,33 @@ function ModoCard({
   bg: string;
   cor: string;
   fill?: boolean;
+  locked?: boolean;
 }) {
-  return (
-    <Link to={to} className="card p-5 transition hover:-translate-y-0.5 cursor-pointer">
+  const conteudo = (
+    <>
       <div className={`h-11 w-11 rounded-xl ${bg} flex items-center justify-center`}>
         <Icon size={22} className={cor} strokeWidth={2} fill={fill ? "currentColor" : "none"} />
       </div>
-      <h3 className="mt-3 font-display font-extrabold text-brand-ink">{titulo}</h3>
+      <h3 className="mt-3 font-display font-extrabold text-brand-ink flex items-center gap-1.5">
+        {titulo}
+        {locked && <Lock size={14} className="text-faint" strokeWidth={2} />}
+      </h3>
       <p className="text-sm text-faint mt-0.5">{sub}</p>
+    </>
+  );
+
+  // Bloqueado (ex.: simulado fora do sábado): não navega, visual esmaecido.
+  if (locked) {
+    return (
+      <div className="card p-5 opacity-60 cursor-not-allowed" aria-disabled title="Disponível aos sábados">
+        {conteudo}
+      </div>
+    );
+  }
+
+  return (
+    <Link to={to} className="card p-5 transition hover:-translate-y-0.5 cursor-pointer">
+      {conteudo}
     </Link>
   );
 }

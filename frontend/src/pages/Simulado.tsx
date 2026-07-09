@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
-import { FileText } from "lucide-react";
+import { FileText, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
 import { api } from "../lib/api";
+import { ehDiaDeSimulado } from "../lib/agenda";
 import { todas } from "../lib/questoesRepo";
 import { montarSimulado, type SemanaItem } from "../lib/sessionBuilder";
 import { montarResultado } from "../lib/correcao";
@@ -84,6 +86,30 @@ export function Simulado() {
           ) : null
         }
       />
+    );
+  }
+
+  // Simulado é um ritual de sábado: fora dele, fica bloqueado.
+  if (!ehDiaDeSimulado()) {
+    return (
+      <div className="mx-auto max-w-[620px] px-4 py-6">
+        <Card className="p-8 text-center space-y-3">
+          <div className="mx-auto h-14 w-14 rounded-2xl bg-success-soft flex items-center justify-center">
+            <Lock size={26} className="text-success-from" strokeWidth={2} />
+          </div>
+          <h1 className="font-display text-2xl font-extrabold text-brand-ink">Simulado é aos sábados</h1>
+          <p className="text-sm text-faint">
+            O simulado completo fica disponível só aos sábados, no clima de prova real. Volte no
+            sábado — enquanto isso, treine no modo Estudar, Flash ou Revisar.
+          </p>
+          <Link
+            to="/"
+            className="inline-flex items-center justify-center rounded-2xl bg-brand-500 px-5 py-3 font-display font-extrabold text-white transition hover:-translate-y-0.5"
+          >
+            Voltar ao início
+          </Link>
+        </Card>
+      </div>
     );
   }
 
