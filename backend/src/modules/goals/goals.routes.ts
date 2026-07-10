@@ -20,6 +20,10 @@ goalsRouter.get(
     const respondidasHoje = await prisma.answer.count({
       where: { userId: req.userId!, createdAt: { gte: inicioHoje } },
     });
+    // Acertos de hoje → aproveitamento do dia no dashboard.
+    const acertosHoje = await prisma.answer.count({
+      where: { userId: req.userId!, createdAt: { gte: inicioHoje }, acertou: true },
+    });
 
     // Uma única passada nas respostas → mapa dia→quantidade, base do streak e da semana.
     const porDia = await contarPorDia(req.userId!);
@@ -70,6 +74,7 @@ goalsRouter.get(
     res.json({
       meta,
       respondidasHoje,
+      acertosHoje,
       cumpriuHoje: respondidasHoje >= meta,
       streak,
       semana, // 7 booleans: seg→dom da semana atual bateram a meta

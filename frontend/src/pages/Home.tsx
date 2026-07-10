@@ -16,6 +16,9 @@ import {
   NotebookPen,
   Lock,
   Moon,
+  Target,
+  Percent,
+  X,
 } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../store/auth";
@@ -28,6 +31,7 @@ import { ehDiaDeSimulado } from "../lib/agenda";
 interface GoalToday {
   meta: number;
   respondidasHoje: number;
+  acertosHoje?: number;
   cumpriuHoje: boolean;
   streak: number;
   semana?: boolean[]; // seg→dom da semana atual bateram a meta
@@ -58,6 +62,9 @@ export function Home() {
 
   const meta = goal?.meta ?? usuario?.metaDiaria ?? META_DIARIA_DEFAULT;
   const respondidas = goal?.respondidasHoje ?? 0;
+  const acertosHoje = goal?.acertosHoje ?? 0;
+  const errosHoje = Math.max(0, respondidas - acertosHoje);
+  const aproveitamentoHoje = respondidas > 0 ? Math.round((acertosHoje / respondidas) * 100) : 0;
   const faltam = Math.max(0, meta - respondidas);
   const cumpriuHoje = goal?.cumpriuHoje ?? false;
   const streak = goal?.streak ?? 0;
@@ -133,6 +140,22 @@ export function Home() {
       <div className="pt-2">
         <h1 className="font-display text-3xl font-extrabold text-brand-ink">Olá, {usuario?.nome}</h1>
         <p className="text-muted mt-1">Bora manter a ofensiva de hoje.</p>
+      </div>
+
+      {/* Resumo de hoje: realizadas, acertos, erros e aproveitamento */}
+      <div className="card p-5">
+        <div className="flex items-center justify-between">
+          <p className="font-display font-extrabold text-brand-ink">Hoje</p>
+          <span className="text-xs font-bold uppercase tracking-widest text-faint">
+            {aproveitamentoHoje}% de aproveitamento
+          </span>
+        </div>
+        <div className="mt-4 grid grid-cols-4 gap-3">
+          <StatHoje icon={Target} valor={respondidas} rotulo="Realizadas" bg="bg-[#EEF0FF]" cor="text-[#4A57E0]" />
+          <StatHoje icon={Check} valor={acertosHoje} rotulo="Acertos" bg="bg-[#E8F7EF]" cor="text-[#12995B]" />
+          <StatHoje icon={X} valor={errosHoje} rotulo="Erros" bg="bg-[#FDECEF]" cor="text-[#E14A5F]" />
+          <StatHoje icon={Percent} valor={aproveitamentoHoje} sufixo="%" rotulo="Aproveit." bg="bg-[#FFF4E5]" cor="text-[#E08A00]" />
+        </div>
       </div>
 
       {/* Grid principal 2 colunas */}
@@ -485,6 +508,35 @@ export function Home() {
           Marcadas para revisar
         </Link>
       </div>
+    </div>
+  );
+}
+
+function StatHoje({
+  icon: Icon,
+  valor,
+  rotulo,
+  bg,
+  cor,
+  sufixo = "",
+}: {
+  icon: typeof BookOpen;
+  valor: number;
+  rotulo: string;
+  bg: string;
+  cor: string;
+  sufixo?: string;
+}) {
+  return (
+    <div className="flex flex-col items-center text-center gap-1.5">
+      <div className={`h-10 w-10 rounded-xl ${bg} flex items-center justify-center`}>
+        <Icon size={20} className={cor} strokeWidth={2.4} />
+      </div>
+      <p className="font-display text-2xl font-extrabold text-brand-ink leading-none">
+        {valor}
+        {sufixo}
+      </p>
+      <p className="text-xs font-bold uppercase tracking-wide text-faint">{rotulo}</p>
     </div>
   );
 }
