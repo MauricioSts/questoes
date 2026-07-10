@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { LogOut, Flame } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { LogOut, Flame, Upload } from "lucide-react";
 import { useAuth } from "../store/auth";
 import { api } from "../lib/api";
 
@@ -42,6 +42,17 @@ export function TopBar() {
             <Flame size={16} className="text-flame-text" strokeWidth={2.2} fill="currentColor" />
             <span className="text-sm font-extrabold text-flame-text">{streak}</span>
           </div>
+
+          {/* Importar questões */}
+          <Link
+            to="/importar"
+            className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-muted hover:text-brand-500 transition"
+            aria-label="Importar questões"
+            title="Importar questões"
+          >
+            <Upload size={18} strokeWidth={1.8} />
+            <span className="hidden sm:inline">Importar</span>
+          </Link>
 
           {/* Sair */}
           <button

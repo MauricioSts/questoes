@@ -59,6 +59,20 @@ goalsRouter.get(
     });
     const legislacaoFeitasHoje = legislacaoDistintasHoje.length;
 
+    // Português: mesmo cálculo da legislação, para o "dia de português" no dashboard.
+    const portuguesWhere = { materia: { contains: "portugu", mode: "insensitive" as const } };
+    const portuguesTotal = await prisma.questao.count({ where: portuguesWhere });
+    const portuguesDistintasHoje = await prisma.answer.findMany({
+      where: {
+        userId: req.userId!,
+        createdAt: { gte: inicioHoje },
+        materiaSnapshot: { contains: "portugu", mode: "insensitive" },
+      },
+      distinct: ["questaoId"],
+      select: { questaoId: true },
+    });
+    const portuguesFeitasHoje = portuguesDistintasHoje.length;
+
     // Progresso de tempo até a prova (0–100%): quanto do período desde a criação
     // da conta até a data da prova já passou. Só faz sentido com data definida.
     const dataProva = user?.dataProva ?? null;
@@ -86,6 +100,8 @@ goalsRouter.get(
       progressoTempo, // % do tempo até a prova decorrido (null se sem data)
       legislacaoTotal,
       legislacaoFeitasHoje,
+      portuguesTotal,
+      portuguesFeitasHoje,
     });
   })
 );

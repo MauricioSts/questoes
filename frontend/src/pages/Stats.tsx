@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { BarChart3, AlertTriangle, Flame } from "lucide-react";
+import { BarChart3, Flame } from "lucide-react";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -17,7 +16,6 @@ import {
 import { api } from "../lib/api";
 import { Card } from "../components/Card";
 import { FilterSelect } from "../components/FilterSelect";
-import { Button } from "../components/Button";
 
 interface TaxaItem {
   chave: string;
@@ -41,7 +39,6 @@ interface Stats {
 type Periodo = "7d" | "30d" | "all";
 
 export function Stats() {
-  const navigate = useNavigate();
   const [periodo, setPeriodo] = useState<Periodo>("all");
   const [stats, setStats] = useState<Stats | null>(null);
   const [erro, setErro] = useState(false);
@@ -198,53 +195,6 @@ export function Stats() {
                 <Bar dataKey="acerto" fill="#5B4FE0" radius={[0, 6, 6, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          </Card>
-
-          {/* Pontos de melhoria */}
-          <Card
-            className="p-6 space-y-4 bg-gradient-to-br from-[#FDECEF] to-[#FFF4F0] border border-[#F7D6DC]"
-          >
-            <div className="flex items-center gap-3">
-              <AlertTriangle size={24} className="text-danger-from flex-shrink-0" strokeWidth={1.5} />
-              <h2 className="font-display font-extrabold text-danger-from">Pontos de melhoria</h2>
-            </div>
-
-            {stats.pontosFracos.length === 0 ? (
-              <p className="text-sm text-danger-from/80">
-                Responda ao menos 3 questões por assunto para ver aqui.
-              </p>
-            ) : (
-              <ul className="space-y-3">
-                {stats.pontosFracos.slice(0, 6).map((p) => (
-                  <li key={p.chave} className="flex items-center justify-between gap-3 bg-white rounded-xl p-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-brand-ink text-sm truncate">{p.assunto}</p>
-                      <p className="text-xs text-faint">
-                        {p.materia} · {p.acertos}/{p.total} acertos
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <div className="bg-danger-soft rounded-lg px-2.5 py-1 text-xs font-bold text-danger-from">
-                        {Math.round(p.taxa * 100)}%
-                      </div>
-                      <Button
-                        onClick={() =>
-                          navigate(
-                            `/topico?materia=${encodeURIComponent(p.materia)}&assunto=${encodeURIComponent(
-                              p.assunto ?? ""
-                            )}&prioriza=1`
-                          )
-                        }
-                        size="sm"
-                        variant="secondary"
-                      >
-                        Treinar
-                      </Button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
           </Card>
         </>
       )}

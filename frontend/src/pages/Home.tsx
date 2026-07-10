@@ -19,6 +19,7 @@ import {
   Target,
   Percent,
   X,
+  Languages,
 } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../store/auth";
@@ -26,7 +27,11 @@ import { getSessaoAtiva } from "../lib/sessao";
 import { ProgressRing } from "../components/ProgressRing";
 import { META_DIARIA_DEFAULT } from "../config/prova";
 import { ehDiaDeLegislacao } from "../lib/legislacao";
+import { ehDiaDePortugues } from "../lib/portugues";
 import { ehDiaDeSimulado } from "../lib/agenda";
+
+// Matéria de português no banco — usada no deep-link da div "dia de português".
+const MATERIA_PORTUGUES = "Língua Portuguesa";
 
 interface GoalToday {
   meta: number;
@@ -43,6 +48,8 @@ interface GoalToday {
   respondidasTotal?: number;
   legislacaoTotal?: number;
   legislacaoFeitasHoje?: number;
+  portuguesTotal?: number;
+  portuguesFeitasHoje?: number;
 }
 
 const DIAS = ["S", "T", "Q", "Q", "S", "S", "D"];
@@ -91,6 +98,13 @@ export function Home() {
   const legislacaoTotal = goal?.legislacaoTotal ?? 0;
   const legislacaoFeitasHoje = goal?.legislacaoFeitasHoje ?? 0;
   const legislacaoConcluida = legislacaoTotal > 0 && legislacaoFeitasHoje >= legislacaoTotal;
+
+  // Ciclo de português (dia sim, dia não — alterna com legislação) + progresso de hoje
+  const diaPortugues = ehDiaDePortugues();
+  const portuguesTotal = goal?.portuguesTotal ?? 0;
+  const portuguesFeitasHoje = goal?.portuguesFeitasHoje ?? 0;
+  const portuguesConcluida = portuguesTotal > 0 && portuguesFeitasHoje >= portuguesTotal;
+  const linkPortugues = `/materias?materia=${encodeURIComponent(MATERIA_PORTUGUES)}`;
 
   // Simulado só aos sábados
   const diaSimulado = ehDiaDeSimulado();
@@ -467,6 +481,45 @@ export function Home() {
                 {legislacaoFeitasHoje > 0
                   ? `${legislacaoFeitasHoje} de ${legislacaoTotal} feitas hoje — continue!`
                   : "Faça todas as questões de legislação de hoje."}
+              </p>
+            </div>
+            <ArrowRight size={20} strokeWidth={2.4} className="flex-shrink-0" />
+          </Link>
+        )
+      )}
+
+      {/* f1) Português — destaque quando é "dia de português" (ciclo de 2 dias,
+             alternando com legislação). Vira feedback de conclusão ao terminar. */}
+      {diaPortugues && (
+        portuguesConcluida ? (
+          <Link
+            to={linkPortugues}
+            className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#2A3DAF] to-[#1E2C82] p-5 text-white transition hover:-translate-y-0.5"
+          >
+            <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-white/20 flex items-center justify-center">
+              <Check size={26} strokeWidth={3} />
+            </div>
+            <div className="flex-1">
+              <p className="font-display font-extrabold">Dia de português concluído! 🎉</p>
+              <p className="text-sm text-white/85">
+                Você fez as {portuguesTotal} questões de português de hoje. Mandou bem!
+              </p>
+            </div>
+          </Link>
+        ) : (
+          <Link
+            to={linkPortugues}
+            className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#3B4DD1] to-[#2A3DAF] p-5 text-white transition hover:-translate-y-0.5"
+          >
+            <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-white/15 flex items-center justify-center">
+              <Languages size={24} strokeWidth={2} />
+            </div>
+            <div className="flex-1">
+              <p className="font-display font-extrabold">Hoje é dia de Português ✍️</p>
+              <p className="text-sm text-white/85">
+                {portuguesFeitasHoje > 0
+                  ? `${portuguesFeitasHoje} de ${portuguesTotal} feitas hoje — continue!`
+                  : "Faça todas as questões de português de hoje."}
               </p>
             </div>
             <ArrowRight size={20} strokeWidth={2.4} className="flex-shrink-0" />
