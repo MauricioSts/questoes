@@ -6,6 +6,7 @@ import { SessionRunner, type RespostaSessao } from "../components/SessionRunner"
 import { ResumoSessao } from "../components/ResumoSessao";
 import { exportarProgresso } from "../lib/export";
 import type { Questao } from "../types/questao";
+import { comRealce } from "../components/Realce";
 
 export function Marcadas() {
   const marcadas = useMarcadas();
@@ -68,7 +69,7 @@ export function Marcadas() {
               <li key={q.id} className="card flex items-start gap-2 p-3 text-sm">
                 <div className="flex-1">
                   <p className="text-xs text-slate-400">{q.materia} · {q.assunto}</p>
-                  <p className="line-clamp-2">{q.enunciado}</p>
+                  <p className="line-clamp-2">{comRealce(q.enunciado)}</p>
                 </div>
                 <button
                   onClick={() => marcadas.alternar(q.id)}

@@ -188,6 +188,65 @@ answersRouter.get(
   })
 );
 
+// GET /answers/simulados — histórico de simulados anteriores, com as respostas de cada um.
+// Não há coluna de sessão: um simulado é um lote enviado de uma vez (mesmo instante), então
+// agrupamos as respostas de contexto SIMULADO por proximidade de tempo (gap > 30min = novo).
+answersRouter.get(
+  "/simulados",
+  asyncHandler(async (req, res) => {
+    const rows = await prisma.answer.findMany({
+      where: { userId: req.userId!, contexto: "SIMULADO" },
+      orderBy: { createdAt: "asc" },
+      select: {
+        questaoId: true,
+        alternativaMarcada: true,
+        acertou: true,
+        tempoSegundos: true,
+        moduloSnapshot: true,
+        materiaSnapshot: true,
+        assuntoSnapshot: true,
+        dificuldadeSnapshot: true,
+        createdAt: true,
+      },
+    });
+
+    const GAP_MS = 30 * 60 * 1000; // >30min entre respostas = simulado diferente
+    interface Sessao {
+      id: string;
+      data: Date;
+      total: number;
+      acertos: number;
+      tempoTotalSegundos: number;
+      respostas: (Omit<(typeof rows)[number], "createdAt">)[];
+    }
+    const sessoes: Sessao[] = [];
+    let ultima: Date | null = null;
+    for (const r of rows) {
+      const { createdAt, ...resto } = r;
+      if (!ultima || createdAt.getTime() - ultima.getTime() > GAP_MS) {
+        sessoes.push({
+          id: createdAt.toISOString(),
+          data: createdAt,
+          total: 0,
+          acertos: 0,
+          tempoTotalSegundos: 0,
+          respostas: [],
+        });
+      }
+      const s = sessoes[sessoes.length - 1];
+      s.total++;
+      if (resto.acertou) s.acertos++;
+      s.tempoTotalSegundos += resto.tempoSegundos ?? 0;
+      s.respostas.push(resto);
+      ultima = createdAt;
+    }
+
+    // Mais recentes primeiro.
+    sessoes.reverse();
+    res.json({ simulados: sessoes });
+  })
+);
+
 // GET /answers/week — questões respondidas nos últimos 7 dias + flag de erro (Simulado).
 // O frontend usa isso para sortear mantendo a proporção, com ênfase nas erradas.
 answersRouter.get(

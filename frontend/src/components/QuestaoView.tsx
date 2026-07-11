@@ -3,6 +3,7 @@ import type { Questao, Alternativa } from "../types/questao";
 import { getTextoBase } from "../lib/questoesRepo";
 import { Card } from "./Card";
 import { MetaPill } from "./MetaPill";
+import { comRealce } from "./Realce";
 
 const LETRAS: Alternativa[] = ["A", "B", "C", "D", "E"];
 
@@ -34,7 +35,7 @@ export function QuestaoView({
       {textoBase && mostrarTextoBase && (
         <Card className="border-l-4 border-brand-500 p-4">
           <p className="text-xs font-bold uppercase text-brand-600 tracking-widest mb-2">Texto base</p>
-          <p className="text-sm text-brand-ink leading-relaxed whitespace-pre-wrap">{textoBase}</p>
+          <p className="text-sm text-brand-ink leading-relaxed whitespace-pre-wrap">{comRealce(textoBase)}</p>
         </Card>
       )}
 
@@ -50,7 +51,7 @@ export function QuestaoView({
 
       {/* Enunciado */}
       <h2 className="font-semibold text-base leading-relaxed text-brand-ink whitespace-pre-wrap">
-        {questao.enunciado}
+        {comRealce(questao.enunciado)}
       </h2>
 
       {/* Código (se houver) */}
@@ -118,7 +119,7 @@ export function QuestaoView({
                 </div>
 
                 {/* Texto da alternativa */}
-                <span className="whitespace-pre-wrap pt-1 text-sm">{questao.alternativas[letra]}</span>
+                <span className="whitespace-pre-wrap pt-1 text-sm">{comRealce(questao.alternativas[letra]!)}</span>
               </button>
             </li>
           );
@@ -152,7 +153,7 @@ export function QuestaoView({
 
           {/* Explicação */}
           <div className="text-sm leading-relaxed whitespace-pre-wrap text-brand-ink">
-            {questao.explicacao}
+            {comRealce(questao.explicacao)}
           </div>
 
           {/* Ações (anotar, marcar) */}

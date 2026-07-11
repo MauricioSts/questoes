@@ -9,6 +9,7 @@ import { ResumoSessao } from "../components/ResumoSessao";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import type { Questao } from "../types/questao";
+import { comRealce } from "../components/Realce";
 
 interface Nota {
   questaoId: number;
@@ -96,7 +97,7 @@ export function Anotacoes() {
                   <p className="text-xs font-semibold text-faint">
                     Mód. {q.modulo} · {q.materia} · {q.assunto}
                   </p>
-                  <p className="text-sm text-brand-ink line-clamp-2">{q.enunciado}</p>
+                  <p className="text-sm text-brand-ink line-clamp-2">{comRealce(q.enunciado)}</p>
                   <div className="rounded-xl bg-brand-50 border border-hair p-3">
                     <p className="text-sm whitespace-pre-wrap text-brand-ink">{n.texto}</p>
                   </div>

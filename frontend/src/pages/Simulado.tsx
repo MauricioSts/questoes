@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { FileText, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
+import { SimuladosAnteriores } from "../components/SimuladosAnteriores";
 import { api } from "../lib/api";
 import { ehDiaDeSimulado } from "../lib/agenda";
 import { todas } from "../lib/questoesRepo";
@@ -17,6 +18,7 @@ import { Toggle } from "../components/Toggle";
 import type { Questao } from "../types/questao";
 
 type Fase = "intro" | "rodando" | "resultado";
+type Aba = "novo" | "anteriores";
 
 const COMPOSICAO = [
   { nome: "Português", mod: "I", qtd: 12, cor: "brand" },
@@ -29,6 +31,7 @@ const COMPOSICAO = [
 
 export function Simulado() {
   const [fase, setFase] = useState<Fase>("intro");
+  const [aba, setAba] = useState<Aba>("novo");
   const [questoes, setQuestoes] = useState<Questao[]>([]);
   const [resultado, setResultado] = useState<RespostaSessao[]>([]);
   const [usarCronometro, setUsarCronometro] = useState(false);
@@ -89,43 +92,27 @@ export function Simulado() {
     );
   }
 
-  // Simulado é um ritual de sábado: fora dele, fica bloqueado.
-  if (!ehDiaDeSimulado()) {
-    return (
-      <div className="mx-auto max-w-[620px] px-4 py-6">
-        <Card className="p-8 text-center space-y-3">
-          <div className="mx-auto h-14 w-14 rounded-2xl bg-success-soft flex items-center justify-center">
-            <Lock size={26} className="text-success-from" strokeWidth={2} />
-          </div>
-          <h1 className="font-display text-2xl font-extrabold text-brand-ink">Simulado é aos sábados</h1>
-          <p className="text-sm text-faint">
-            O simulado completo fica disponível só aos sábados, no clima de prova real. Volte no
-            sábado — enquanto isso, treine no modo Estudar, Flash ou Revisar.
-          </p>
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-2xl bg-brand-500 px-5 py-3 font-display font-extrabold text-white transition hover:-translate-y-0.5"
-          >
-            Voltar ao início
-          </Link>
-        </Card>
+  // Conteúdo da aba "Novo simulado": bloqueado fora de sábado, senão a tela de início.
+  const conteudoNovo = !ehDiaDeSimulado() ? (
+    <Card className="p-8 text-center space-y-3">
+      <div className="mx-auto h-14 w-14 rounded-2xl bg-success-soft flex items-center justify-center">
+        <Lock size={26} className="text-success-from" strokeWidth={2} />
       </div>
-    );
-  }
-
-  return (
-    <div className="mx-auto max-w-[620px] space-y-6 px-4 py-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <div className="h-12 w-12 rounded-lg bg-success-soft flex items-center justify-center flex-shrink-0">
-          <FileText size={24} className="text-success-from" strokeWidth={1.5} />
-        </div>
-        <div>
-          <h1 className="font-display text-2xl font-extrabold text-brand-ink">Simulado</h1>
-          <p className="text-sm text-faint">70 questões na proporção real da prova — sem feedback até o fim</p>
-        </div>
-      </div>
-
+      <h1 className="font-display text-2xl font-extrabold text-brand-ink">Simulado é aos sábados</h1>
+      <p className="text-sm text-faint">
+        O simulado completo fica disponível só aos sábados, no clima de prova real. Volte no
+        sábado — enquanto isso, treine no modo Estudar, Flash ou Revisar. Você ainda pode revisar
+        seus simulados anteriores na aba acima.
+      </p>
+      <Link
+        to="/"
+        className="inline-flex items-center justify-center rounded-2xl bg-brand-500 px-5 py-3 font-display font-extrabold text-white transition hover:-translate-y-0.5"
+      >
+        Voltar ao início
+      </Link>
+    </Card>
+  ) : (
+    <>
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Composição */}
         <Card className="p-6 space-y-4">
@@ -198,6 +185,41 @@ export function Simulado() {
       >
         {carregando ? "Montando simulado…" : "Iniciar simulado"}
       </Button>
+    </>
+  );
+
+  return (
+    <div className="mx-auto max-w-[620px] space-y-6 px-4 py-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <div className="h-12 w-12 rounded-lg bg-success-soft flex items-center justify-center flex-shrink-0">
+          <FileText size={24} className="text-success-from" strokeWidth={1.5} />
+        </div>
+        <div>
+          <h1 className="font-display text-2xl font-extrabold text-brand-ink">Simulado</h1>
+          <p className="text-sm text-faint">70 questões na proporção real da prova — sem feedback até o fim</p>
+        </div>
+      </div>
+
+      {/* Abas */}
+      <div className="flex gap-1 rounded-2xl bg-hair/50 p-1">
+        {([
+          ["novo", "Novo simulado"],
+          ["anteriores", "Anteriores"],
+        ] as const).map(([val, label]) => (
+          <button
+            key={val}
+            onClick={() => setAba(val)}
+            className={`tap flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition ${
+              aba === val ? "bg-white text-brand-ink shadow-sm" : "text-faint hover:text-brand-ink"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {aba === "novo" ? conteudoNovo : <SimuladosAnteriores />}
     </div>
   );
 }
