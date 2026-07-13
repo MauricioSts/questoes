@@ -457,8 +457,9 @@ export function Home() {
         </div>
       </div>
 
-      {/* d2) Revisão espaçada (SRS) — só aparece quando há questões prontas hoje */}
-      {revisaoPendente > 0 && (
+      {/* d2) Revisão espaçada (SRS) — sempre visível: destaque quando há questões
+             prontas hoje, ou um card calmo "tudo em dia" quando não há. */}
+      {revisaoPendente > 0 ? (
         <Link
           to="/revisar?modo=srs"
           className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#4A57E0] to-[#6B5CE8] p-5 text-white transition hover:-translate-y-0.5"
@@ -475,6 +476,22 @@ export function Home() {
             </p>
           </div>
           <ArrowRight size={20} strokeWidth={2.4} className="flex-shrink-0" />
+        </Link>
+      ) : (
+        <Link
+          to="/revisar?modo=srs"
+          className="relative flex items-center gap-4 overflow-hidden rounded-2xl border border-hair bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-300"
+        >
+          <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-brand-100 flex items-center justify-center">
+            <CalendarClock size={24} className="text-brand-600" strokeWidth={2} />
+          </div>
+          <div className="flex-1">
+            <p className="font-display font-extrabold text-brand-ink">Revisão do dia em dia ✅</p>
+            <p className="text-sm text-faint">
+              Nada pronto para revisar agora — a gente te avisa aqui na hora certa de cada questão.
+            </p>
+          </div>
+          <ArrowRight size={20} strokeWidth={2.4} className="flex-shrink-0 text-faint" />
         </Link>
       )}
 
