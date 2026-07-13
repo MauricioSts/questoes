@@ -27,7 +27,7 @@ export function Button({
 
   const variantClass = {
     primary: "bg-gradient-to-r from-brand-500 to-[#7C6FF6] text-white shadow-lg shadow-brand-500/40",
-    secondary: "border border-hair bg-white text-brand-500 hover:bg-brand-50",
+    secondary: "border border-hair bg-surface text-brand-500 hover:bg-brand-50",
     outline: "border border-hair text-brand-500",
   }[variant];
 

@@ -7,6 +7,7 @@ import { SessionRunner, type RespostaSessao } from "../components/SessionRunner"
 import { ResumoSessao } from "../components/ResumoSessao";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
+import { Skeleton } from "../components/Skeleton";
 import type { Questao } from "../types/questao";
 
 type Modo = "erradas" | "srs";
@@ -104,7 +105,7 @@ export function Revisar() {
         <button
           onClick={() => trocarModo("erradas")}
           className={`rounded-xl py-2.5 text-sm font-display font-bold transition ${
-            !srs ? "bg-white text-brand-ink shadow-sm" : "text-faint hover:text-brand-ink"
+            !srs ? "bg-surface text-brand-ink shadow-sm" : "text-faint hover:text-brand-ink"
           }`}
         >
           Erradas pendentes
@@ -112,7 +113,7 @@ export function Revisar() {
         <button
           onClick={() => trocarModo("srs")}
           className={`rounded-xl py-2.5 text-sm font-display font-bold transition ${
-            srs ? "bg-white text-brand-ink shadow-sm" : "text-faint hover:text-brand-ink"
+            srs ? "bg-surface text-brand-ink shadow-sm" : "text-faint hover:text-brand-ink"
           }`}
         >
           Revisão do dia
@@ -120,9 +121,12 @@ export function Revisar() {
       </div>
 
       {carregando ? (
-        <Card className="p-6 text-center">
-          <p className="text-faint">Carregando…</p>
-        </Card>
+        <div className="space-y-3">
+          <Skeleton className="h-12" />
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-[74px]" />
+          ))}
+        </div>
       ) : erro ? (
         <Card className="p-6 text-center">
           <p className="text-danger-from font-medium">Não foi possível carregar</p>

@@ -29,7 +29,7 @@ export function StreakCalendar({ diasConcluidos, hojeEhIndice = -1 }: StreakCale
           return (
             <div
               key={idx}
-              className="h-10 w-10 rounded-lg border-2 border-dashed border-flame-text flex items-center justify-center flex-shrink-0 bg-white font-bold text-flame-text"
+              className="h-10 w-10 rounded-lg border-2 border-dashed border-flame-text flex items-center justify-center flex-shrink-0 bg-surface font-bold text-flame-text"
             >
               {dia}
             </div>

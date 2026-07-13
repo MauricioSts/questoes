@@ -29,7 +29,7 @@ export function NotaEditor({ questaoId }: { questaoId: number }) {
         rows={3}
         autoFocus
         placeholder="Sua anotação sobre esta questão…"
-        className="w-full rounded-xl border border-hair bg-white p-2 focus:outline-none focus:ring-2 focus:ring-brand-300"
+        className="w-full rounded-xl border border-hair bg-surface p-2 focus:outline-none focus:ring-2 focus:ring-brand-300"
       />
       <div className="flex items-center gap-3">
         <button

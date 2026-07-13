@@ -211,7 +211,7 @@ export function Simulado() {
             key={val}
             onClick={() => setAba(val)}
             className={`tap flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition ${
-              aba === val ? "bg-white text-brand-ink shadow-sm" : "text-faint hover:text-brand-ink"
+              aba === val ? "bg-surface text-brand-ink shadow-sm" : "text-faint hover:text-brand-ink"
             }`}
           >
             {label}

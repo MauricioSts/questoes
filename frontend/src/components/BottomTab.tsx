@@ -15,7 +15,7 @@ const navItems = [
 export function BottomTab() {
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-hair bg-white/92 backdrop-blur
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-hair bg-surface/92 backdrop-blur
                  lg:inset-y-0 lg:right-auto lg:w-[92px] lg:flex-col lg:border-r lg:border-t-0"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >

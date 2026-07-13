@@ -14,9 +14,27 @@ import {
   LineChart,
   Line,
 } from "recharts";
+import type { TooltipProps } from "recharts";
 import { api } from "../lib/api";
 import { Card } from "../components/Card";
+import { Skeleton } from "../components/Skeleton";
 import { FilterSelect } from "../components/FilterSelect";
+
+// Tooltip dos gráficos alinhado ao design (usa tokens → funciona no dark mode).
+function ChartTooltip({ active, payload, label, suffix = "" }: TooltipProps<number, string> & { suffix?: string }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-xl border border-hair bg-surface px-3 py-2 shadow-lg">
+      {label != null && <p className="text-xs font-bold text-muted mb-0.5">{label}</p>}
+      {payload.map((p) => (
+        <p key={String(p.dataKey)} className="text-sm font-extrabold text-brand-ink">
+          {p.value}
+          {suffix}
+        </p>
+      ))}
+    </div>
+  );
+}
 
 interface TaxaItem {
   chave: string;
@@ -69,8 +87,18 @@ export function Stats() {
     );
   if (!stats)
     return (
-      <div className="mx-auto max-w-4xl p-6 text-center">
-        <p className="text-faint">Carregando…</p>
+      <div className="mx-auto max-w-4xl space-y-6 px-4 py-6">
+        <Skeleton className="h-10 w-48" />
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-20" />
+          ))}
+        </div>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Skeleton className="h-64" />
+          <Skeleton className="h-64" />
+        </div>
+        <Skeleton className="h-56" />
       </div>
     );
 
@@ -171,7 +199,7 @@ export function Stats() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#EAE7F7" />
                   <XAxis dataKey="dia" fontSize={11} stroke="#9C98B8" />
                   <YAxis fontSize={11} allowDecimals={false} stroke="#9C98B8" />
-                  <Tooltip />
+                  <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgb(var(--hair))" }} />
                   <Area
                     type="monotone"
                     dataKey="respondidas"
@@ -191,7 +219,7 @@ export function Stats() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#EAE7F7" />
                   <XAxis dataKey="dia" fontSize={11} stroke="#9C98B8" />
                   <YAxis domain={[0, 100]} fontSize={11} stroke="#9C98B8" />
-                  <Tooltip />
+                  <Tooltip content={<ChartTooltip suffix="%" />} cursor={{ stroke: "rgb(var(--hair))" }} />
                   <Line
                     type="monotone"
                     dataKey="taxa"
@@ -212,7 +240,7 @@ export function Stats() {
               <BarChart data={materiaFmt} layout="vertical" margin={{ left: 100 }}>
                 <XAxis type="number" domain={[0, 100]} fontSize={11} stroke="#9C98B8" />
                 <YAxis type="category" dataKey="materia" width={95} fontSize={11} stroke="#9C98B8" />
-                <Tooltip />
+                <Tooltip content={<ChartTooltip suffix="%" />} cursor={{ fill: "rgb(var(--hair))" }} />
                 <Bar dataKey="acerto" fill="#5B4FE0" radius={[0, 6, 6, 0]} />
               </BarChart>
             </ResponsiveContainer>

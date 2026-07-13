@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, Flame, Upload } from "lucide-react";
+import { LogOut, Flame, Upload, Moon, Sun } from "lucide-react";
 import { useAuth } from "../store/auth";
+import { useTheme } from "../store/theme";
 import { api } from "../lib/api";
 
 interface GoalToday {
@@ -10,6 +11,7 @@ interface GoalToday {
 
 export function TopBar() {
   const navigate = useNavigate();
+  const { tema, alternar } = useTheme();
   const { logout } = useAuth();
   const [goal, setGoal] = useState<GoalToday | null>(null);
 
@@ -62,6 +64,16 @@ export function TopBar() {
           >
             <LogOut size={18} strokeWidth={1.8} />
             <span className="hidden sm:inline">Sair</span>
+          </button>
+
+          {/* Alternar tema claro/escuro */}
+          <button
+            onClick={alternar}
+            className="flex items-center rounded-lg px-2 py-1.5 text-muted hover:text-brand-500 transition"
+            aria-label={tema === "dark" ? "Mudar para tema claro" : "Mudar para tema escuro"}
+            title={tema === "dark" ? "Tema claro" : "Tema escuro"}
+          >
+            {tema === "dark" ? <Sun size={18} strokeWidth={1.8} /> : <Moon size={18} strokeWidth={1.8} />}
           </button>
         </div>
       </div>

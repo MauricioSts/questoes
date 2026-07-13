@@ -156,7 +156,7 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
           {onSair && (
             <button
               onClick={onSair}
-              className="h-[38px] w-[38px] rounded-xl border border-hair bg-white flex items-center justify-center text-muted hover:text-brand-500 transition flex-shrink-0"
+              className="h-[38px] w-[38px] rounded-xl border border-hair bg-surface flex items-center justify-center text-muted hover:text-brand-500 transition flex-shrink-0"
               aria-label="Sair da sessão"
               title="Sair (você pode continuar depois)"
             >
@@ -173,7 +173,7 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
                 className={`h-[38px] w-[38px] rounded-xl border flex items-center justify-center transition ${
                   marcadas.ids.has(questao.id)
                     ? "border-brand-500 bg-brand-50 text-brand-500"
-                    : "border-hair bg-white text-faint hover:text-brand-500"
+                    : "border-hair bg-surface text-faint hover:text-brand-500"
                 }`}
                 aria-pressed={marcadas.ids.has(questao.id)}
                 aria-label="Marcar para revisar depois"

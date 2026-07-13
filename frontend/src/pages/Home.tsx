@@ -325,7 +325,7 @@ export function Home() {
                       feito
                         ? "bg-gradient-to-br from-flame-from to-flame-to"
                         : hoje
-                        ? "border-2 border-dashed border-flame-from bg-white"
+                        ? "border-2 border-dashed border-flame-from bg-surface"
                         : descanso
                         ? "bg-brand-50 border border-dashed border-hair"
                         : "bg-brand-100"
@@ -480,7 +480,7 @@ export function Home() {
       ) : (
         <Link
           to="/revisar?modo=srs"
-          className="relative flex items-center gap-4 overflow-hidden rounded-2xl border border-hair bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-300"
+          className="relative flex items-center gap-4 overflow-hidden rounded-2xl border border-hair bg-surface p-5 transition hover:-translate-y-0.5 hover:border-brand-300"
         >
           <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-brand-100 flex items-center justify-center">
             <CalendarClock size={24} className="text-brand-600" strokeWidth={2} />

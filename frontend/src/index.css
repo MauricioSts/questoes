@@ -49,8 +49,33 @@
   }
 }
 
+/* Tokens de chassi em canais RGB (r g b) — consumidos pelo Tailwind via rgb(var(--x)/alpha). */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+  --brand-50: 241 240 250;
+  --brand-100: 233 231 248;
+  --ink: 27 23 56;
+  --muted: 106 102 144; /* mais escuro que antes p/ melhor contraste no claro */
+  --faint: 139 135 168;
+  --hair: 234 231 247;
+  --surface: 255 255 255;
+  --surface-2: 247 246 253;
+  --bg: 241 240 250;
+  --bg-glow: rgba(124, 111, 246, 0.14);
+}
+
+.dark {
+  color-scheme: dark;
+  --brand-50: 35 32 70;
+  --brand-100: 46 41 90;
+  --ink: 236 234 251;
+  --muted: 173 168 205;
+  --faint: 138 133 176;
+  --hair: 52 45 90;
+  --surface: 33 29 59;
+  --surface-2: 42 37 82;
+  --bg: 18 15 38;
+  --bg-glow: rgba(124, 111, 246, 0.22);
 }
 
 html,
@@ -61,7 +86,8 @@ body,
 
 body {
   @apply text-brand-ink;
-  background: radial-gradient(1200px 600px at 80% -10%, rgba(124, 111, 246, 0.14), transparent 60%), #F1F0FA;
+  background: radial-gradient(1200px 600px at 80% -10%, var(--bg-glow), transparent 60%),
+    rgb(var(--bg));
   -webkit-font-smoothing: antialiased;
   padding-bottom: env(safe-area-inset-bottom);
 }
@@ -73,8 +99,11 @@ body {
   }
 
   .card {
-    @apply rounded-2xl bg-white border border-hair shadow-md;
+    @apply rounded-2xl bg-surface border border-hair shadow-md;
     box-shadow: 0 12px 30px -18px rgba(27, 23, 56, 0.2);
+  }
+  .dark .card {
+    box-shadow: 0 12px 30px -18px rgba(0, 0, 0, 0.55);
   }
 
   .card-hover {
@@ -88,7 +117,7 @@ body {
   }
 
   .btn-secondary {
-    @apply tap rounded-2xl border border-hair bg-white px-6 py-3 font-display font-extrabold text-brand-500
+    @apply tap rounded-2xl border border-hair bg-surface px-6 py-3 font-display font-extrabold text-brand-500
            transition hover:-translate-y-0.5 active:scale-[0.98];
   }
 
@@ -109,7 +138,7 @@ body {
   }
 
   .filter-select {
-    @apply w-full rounded-xl border border-hair bg-[#F7F6FD] px-4 py-2.5 font-sans text-sm
+    @apply w-full rounded-xl border border-hair bg-surface2 px-4 py-2.5 font-sans text-sm
            transition appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-500/50;
   }
 

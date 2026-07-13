@@ -76,7 +76,7 @@ export function QuestaoView({
           const isSelected = selecionada === letra;
 
           let borderClass = "border-hair hover:border-brand-400";
-          let bgClass = "bg-white hover:bg-brand-50";
+          let bgClass = "bg-surface hover:bg-brand-50";
           let badgeClass = "bg-hair text-brand-ink";
 
           if (isCorreta) {
