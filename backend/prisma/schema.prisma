@@ -77,6 +77,7 @@ model SessaoAtiva {
 // Cada tentativa de resposta. Snapshots permitem estatística/sorteio sem o JSON.
 model Answer {
   id                  String   @id @default(cuid())
+  clientId            String?  @unique // id gerado no cliente p/ deduplicar reenvios (fila offline)
   userId              String
   user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   questaoId           Int

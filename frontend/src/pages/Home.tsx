@@ -21,6 +21,7 @@ import {
   X,
   Languages,
   Trophy,
+  CalendarClock,
 } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../store/auth";
@@ -52,6 +53,7 @@ interface GoalToday {
   legislacaoFeitasHoje?: number;
   portuguesTotal?: number;
   portuguesFeitasHoje?: number;
+  revisaoPendente?: number; // questões prontas para revisão espaçada (SRS)
 }
 
 const DIAS = ["S", "T", "Q", "Q", "S", "S", "D"];
@@ -108,6 +110,9 @@ export function Home() {
   const portuguesFeitasHoje = goal?.portuguesFeitasHoje ?? 0;
   const portuguesConcluida = portuguesTotal > 0 && portuguesFeitasHoje >= portuguesTotal;
   const linkPortugues = `/materias?materia=${encodeURIComponent(MATERIA_PORTUGUES)}`;
+
+  // Revisão espaçada (SRS): questões prontas para revisar hoje
+  const revisaoPendente = goal?.revisaoPendente ?? 0;
 
   // Simulado só aos sábados
   const diaSimulado = ehDiaDeSimulado();
@@ -451,6 +456,27 @@ export function Home() {
           )}
         </div>
       </div>
+
+      {/* d2) Revisão espaçada (SRS) — só aparece quando há questões prontas hoje */}
+      {revisaoPendente > 0 && (
+        <Link
+          to="/revisar?modo=srs"
+          className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#4A57E0] to-[#6B5CE8] p-5 text-white transition hover:-translate-y-0.5"
+        >
+          <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-white/15 flex items-center justify-center">
+            <CalendarClock size={24} strokeWidth={2} />
+          </div>
+          <div className="flex-1">
+            <p className="font-display font-extrabold">
+              {revisaoPendente} {revisaoPendente === 1 ? "questão pronta" : "questões prontas"} para revisar 🧠
+            </p>
+            <p className="text-sm text-white/85">
+              Revisão espaçada: reveja agora enquanto ainda está fresco na memória.
+            </p>
+          </div>
+          <ArrowRight size={20} strokeWidth={2.4} className="flex-shrink-0" />
+        </Link>
+      )}
 
       {/* e) Modos de estudo */}
       <div>

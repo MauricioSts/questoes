@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { BarChart3, Flame } from "lucide-react";
+import { Link } from "react-router-dom";
+import { BarChart3, Flame, Timer, Target, ArrowRight } from "lucide-react";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -24,16 +25,26 @@ interface TaxaItem {
   total: number;
   acertos: number;
   taxa: number;
+  tempoMedio: number | null;
 }
 interface Stats {
   totalRespondidas: number;
   totalAcertos: number;
   taxaGlobal: number;
+  tempoMedioSegundos: number | null;
   streak: number;
   porDia: { dia: string; total: number; acertos: number }[];
   porMateria: TaxaItem[];
   porAssunto: TaxaItem[];
   pontosFracos: TaxaItem[];
+}
+
+// Formata segundos como "1m30s" / "45s" / "—".
+function fmtTempo(seg: number | null | undefined): string {
+  if (seg == null || seg <= 0) return "—";
+  const m = Math.floor(seg / 60);
+  const s = seg % 60;
+  return m > 0 ? `${m}m${s.toString().padStart(2, "0")}s` : `${s}s`;
 }
 
 type Periodo = "7d" | "30d" | "all";
@@ -99,8 +110,8 @@ export function Stats() {
         />
       </div>
 
-      {/* 3 KPIs */}
-      <div className="grid grid-cols-3 gap-4">
+      {/* 4 KPIs */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {/* Respondidas */}
         <Card className="p-4 space-y-1">
           <p className="text-xs font-bold text-muted uppercase tracking-widest">Respondidas</p>
@@ -116,6 +127,16 @@ export function Stats() {
             </p>
             <p className="text-xs text-success-from">↑</p>
           </div>
+        </Card>
+
+        {/* Tempo médio por questão */}
+        <Card className="p-4 space-y-1">
+          <p className="text-xs font-bold text-muted uppercase tracking-widest flex items-center gap-1">
+            <Timer size={12} strokeWidth={2.4} /> Tempo médio
+          </p>
+          <p className="font-display text-3xl font-extrabold text-brand-ink">
+            {fmtTempo(stats.tempoMedioSegundos)}
+          </p>
         </Card>
 
         {/* Ofensiva */}
@@ -196,6 +217,77 @@ export function Stats() {
               </BarChart>
             </ResponsiveContainer>
           </Card>
+
+          {/* Pontos fracos: assuntos com pior aproveitamento (volume mínimo) */}
+          {stats.pontosFracos.length > 0 && (
+            <Card className="p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <Target size={18} className="text-danger-from" strokeWidth={2.4} />
+                <h2 className="font-display font-extrabold text-brand-ink">Seus pontos fracos</h2>
+              </div>
+              <p className="text-sm text-faint -mt-2">
+                Assuntos onde você mais erra. Toque em treinar para focar neles.
+              </p>
+              <div className="space-y-2">
+                {stats.pontosFracos.slice(0, 8).map((p) => {
+                  const pct = Math.round(p.taxa * 100);
+                  return (
+                    <Link
+                      key={p.chave}
+                      to={`/topico?materia=${encodeURIComponent(p.materia)}&assunto=${encodeURIComponent(
+                        p.assunto ?? ""
+                      )}&prioriza=1`}
+                      className="flex items-center gap-3 rounded-xl border border-hair p-3 transition hover:border-brand-300 hover:bg-brand-50"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-brand-ink text-sm truncate">{p.assunto}</p>
+                        <p className="text-xs text-faint truncate">
+                          {p.materia} · {p.acertos}/{p.total} acertos
+                          {p.tempoMedio ? ` · ${fmtTempo(p.tempoMedio)}/questão` : ""}
+                        </p>
+                      </div>
+                      <span
+                        className={`flex-shrink-0 rounded-full px-3 py-1 text-xs font-bold ${
+                          pct < 50
+                            ? "bg-danger-soft text-danger-from"
+                            : pct < 70
+                            ? "bg-[#FFF4E5] text-[#E08A00]"
+                            : "bg-[#E8F7EF] text-[#12995B]"
+                        }`}
+                      >
+                        {pct}%
+                      </span>
+                      <ArrowRight size={16} className="text-faint flex-shrink-0" strokeWidth={2} />
+                    </Link>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
+
+          {/* Tempo médio por matéria — ritmo de prova */}
+          {stats.porMateria.some((m) => m.tempoMedio) && (
+            <Card className="p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <Timer size={18} className="text-brand-600" strokeWidth={2.4} />
+                <h2 className="font-display font-extrabold text-brand-ink">Tempo médio por matéria</h2>
+              </div>
+              <div className="space-y-2">
+                {[...stats.porMateria]
+                  .filter((m) => m.tempoMedio)
+                  .sort((a, b) => (b.tempoMedio ?? 0) - (a.tempoMedio ?? 0))
+                  .map((m) => (
+                    <div key={m.chave} className="flex items-center gap-3 text-sm">
+                      <span className="flex-1 min-w-0 truncate text-brand-ink">{m.materia}</span>
+                      <span className="text-xs text-faint">{m.total} q</span>
+                      <span className="font-display font-extrabold text-brand-ink tabular-nums">
+                        {fmtTempo(m.tempoMedio)}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </Card>
+          )}
         </>
       )}
     </div>

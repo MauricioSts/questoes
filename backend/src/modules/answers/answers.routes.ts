@@ -6,12 +6,15 @@ import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { calcularStats } from "../../lib/stats.js";
+import { calcularStreakUsuario } from "../../lib/streak.js";
+import { revisoesPendentes } from "../../lib/srs.js";
 import { startOfWeekWindow } from "../../lib/date.js";
 
 export const answersRouter = Router();
 answersRouter.use(requireAuth);
 
 const answerSchema = z.object({
+  clientId: z.string().min(1).max(64).optional(), // id do cliente p/ deduplicar reenvios
   questaoId: z.number().int(),
   moduloSnapshot: z.string().min(1),
   materiaSnapshot: z.string().min(1),
@@ -23,23 +26,36 @@ const answerSchema = z.object({
   contexto: z.enum(["ESTUDO", "FLASH", "SIMULADO", "TOPICO"]),
 });
 
-// POST /answers — registra uma resposta.
+// POST /answers — registra uma resposta. Idempotente por clientId: um reenvio
+// da fila offline com o mesmo clientId não cria duplicata.
 answersRouter.post(
   "/",
   asyncHandler(async (req, res) => {
     const data = answerSchema.parse(req.body);
-    const answer = await prisma.answer.create({ data: { ...data, userId: req.userId! } });
-    res.status(201).json({ id: answer.id });
+    try {
+      const answer = await prisma.answer.create({ data: { ...data, userId: req.userId! } });
+      res.status(201).json({ id: answer.id });
+    } catch (e) {
+      // P2002 = violação de unique (clientId já registrado) → resposta já existe.
+      if (data.clientId && (e as { code?: string }).code === "P2002") {
+        const existente = await prisma.answer.findUnique({ where: { clientId: data.clientId } });
+        res.status(200).json({ id: existente?.id, duplicate: true });
+        return;
+      }
+      throw e;
+    }
   })
 );
 
 // POST /answers/batch — registra um lote (usado no simulado: 70 de uma vez).
+// skipDuplicates ignora respostas cujo clientId já foi registrado (reenvio offline).
 answersRouter.post(
   "/batch",
   asyncHandler(async (req, res) => {
     const lote = z.array(answerSchema).min(1).parse(req.body);
     const created = await prisma.answer.createMany({
       data: lote.map((a) => ({ ...a, userId: req.userId! })),
+      skipDuplicates: true,
     });
     res.status(201).json({ count: created.count });
   })
@@ -90,7 +106,10 @@ answersRouter.get(
     if (period === "7d") desde = new Date(Date.now() - 7 * 864e5);
     else if (period === "30d") desde = new Date(Date.now() - 30 * 864e5);
     const stats = await calcularStats(req.userId!, desde);
-    res.json(stats);
+    // Streak sempre considera o histórico completo (independe do período do filtro).
+    const user = await prisma.user.findUnique({ where: { id: req.userId! } });
+    const streak = await calcularStreakUsuario(req.userId!, user?.metaDiaria ?? 70);
+    res.json({ ...stats, streak });
   })
 );
 
@@ -185,6 +204,34 @@ answersRouter.get(
       .sort((a, b) => b.erros - a.erros || b.ultimaData.getTime() - a.ultimaData.getTime());
 
     res.json({ ids: erradas.map((x) => x.questaoId), questoes: erradas });
+  })
+);
+
+// GET /answers/revisao?limit=30 — questões prontas para revisão espaçada (SRS) hoje.
+// Ordena as mais atrasadas primeiro. Também informa o total pendente (para o card da home).
+answersRouter.get(
+  "/revisao",
+  asyncHandler(async (req, res) => {
+    const limit = Math.min(Number(req.query.limit ?? 60), 200);
+    const answers = await prisma.answer.findMany({
+      where: { userId: req.userId! },
+      select: {
+        questaoId: true,
+        acertou: true,
+        createdAt: true,
+        moduloSnapshot: true,
+        materiaSnapshot: true,
+        assuntoSnapshot: true,
+        dificuldadeSnapshot: true,
+      },
+    });
+    const pendentes = revisoesPendentes(answers);
+    const recorte = pendentes.slice(0, limit);
+    res.json({
+      total: pendentes.length,
+      ids: recorte.map((i) => i.questaoId),
+      questoes: recorte,
+    });
   })
 );
 

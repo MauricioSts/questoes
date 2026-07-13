@@ -10,12 +10,14 @@ export interface TaxaItem {
   total: number;
   acertos: number;
   taxa: number; // 0..1
+  tempoMedio: number | null; // segundos médios por questão (null se nenhuma cronometrada)
 }
 
 export interface StatsResumo {
   totalRespondidas: number;
   totalAcertos: number;
   taxaGlobal: number;
+  tempoMedioSegundos: number | null; // tempo médio por questão no período (null se sem dados)
   porDia: { dia: string; total: number; acertos: number }[];
   porMateria: TaxaItem[];
   porAssunto: TaxaItem[];
@@ -29,6 +31,7 @@ export interface AnswerLike {
   materiaSnapshot: string;
   assuntoSnapshot: string;
   createdAt: Date;
+  tempoSegundos?: number | null;
 }
 
 export async function calcularStats(userId: string, desde?: Date): Promise<StatsResumo> {
@@ -39,10 +42,20 @@ export async function calcularStats(userId: string, desde?: Date): Promise<Stats
       materiaSnapshot: true,
       assuntoSnapshot: true,
       createdAt: true,
+      tempoSegundos: true,
     },
     orderBy: { createdAt: "asc" },
   });
   return agregarStats(answers);
+}
+
+// Média de tempo (segundos) considerando só respostas cronometradas (>0).
+function tempoMedio(itens: AnswerLike[]): number | null {
+  const tempos = itens
+    .map((a) => a.tempoSegundos)
+    .filter((t): t is number => typeof t === "number" && t > 0);
+  if (tempos.length === 0) return null;
+  return Math.round(tempos.reduce((s, t) => s + t, 0) / tempos.length);
 }
 
 // Agregação pura (sem banco) — testável isoladamente.
@@ -82,6 +95,7 @@ export function agregarStats(answers: AnswerLike[]): StatsResumo {
     totalRespondidas,
     totalAcertos,
     taxaGlobal: totalRespondidas ? totalAcertos / totalRespondidas : 0,
+    tempoMedioSegundos: tempoMedio(answers),
     porDia,
     porMateria: porMateria.sort((a, b) => a.taxa - b.taxa),
     porAssunto,
@@ -89,20 +103,27 @@ export function agregarStats(answers: AnswerLike[]): StatsResumo {
   };
 }
 
-function agrupar<T extends { acertou: boolean }>(
+function agrupar<T extends AnswerLike>(
   itens: T[],
   chaveFn: (i: T) => string,
   metaFn: (i: T) => { materia: string; assunto?: string }
 ): TaxaItem[] {
-  const map = new Map<string, TaxaItem>();
+  const map = new Map<string, T[]>();
   for (const it of itens) {
     const chave = chaveFn(it);
-    const meta = metaFn(it);
-    const cur =
-      map.get(chave) ?? { chave, ...meta, total: 0, acertos: 0, taxa: 0 };
-    cur.total++;
-    if (it.acertou) cur.acertos++;
-    map.set(chave, cur);
+    const bucket = map.get(chave) ?? [];
+    bucket.push(it);
+    map.set(chave, bucket);
   }
-  return [...map.values()].map((i) => ({ ...i, taxa: i.total ? i.acertos / i.total : 0 }));
+  return [...map.entries()].map(([chave, itens]) => {
+    const acertos = itens.filter((i) => i.acertou).length;
+    return {
+      chave,
+      ...metaFn(itens[0]),
+      total: itens.length,
+      acertos,
+      taxa: itens.length ? acertos / itens.length : 0,
+      tempoMedio: tempoMedio(itens),
+    };
+  });
 }
