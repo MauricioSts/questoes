@@ -44,6 +44,12 @@ goalsRouter.get(
     const respondidasTotal = respondidasDistintas.length;
     const progressoPlano = totalQuestoes > 0 ? Math.round((respondidasTotal / totalQuestoes) * 100) : 0;
 
+    // Total de questões realizadas de todos os tempos (conta repetições — cada
+    // resposta registrada, não só questões distintas). É o "quanto já resolvi".
+    const respondidasSempre = await prisma.answer.count({
+      where: { userId: req.userId! },
+    });
+
     // Legislação: total de questões da matéria + quantas (distintas) foram feitas
     // hoje — para o feedback de "dia de legislação concluído" no dashboard.
     const legislacaoWhere = { materia: { contains: "legisl", mode: "insensitive" as const } };
@@ -96,6 +102,7 @@ goalsRouter.get(
       dataProva,
       totalQuestoes,
       respondidasTotal,
+      respondidasSempre, // total de respostas de todos os tempos (com repetições)
       progressoPlano,
       progressoTempo, // % do tempo até a prova decorrido (null se sem data)
       legislacaoTotal,

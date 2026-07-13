@@ -20,6 +20,7 @@ import {
   Percent,
   X,
   Languages,
+  Trophy,
 } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../store/auth";
@@ -46,6 +47,7 @@ interface GoalToday {
   progressoTempo?: number | null; // % do tempo até a prova decorrido
   totalQuestoes?: number;
   respondidasTotal?: number;
+  respondidasSempre?: number; // todas as questões realizadas desde o início (com repetições)
   legislacaoTotal?: number;
   legislacaoFeitasHoje?: number;
   portuguesTotal?: number;
@@ -79,6 +81,7 @@ export function Home() {
   // Questões no sistema x respondidas (total)
   const totalQuestoes = goal?.totalQuestoes ?? 0;
   const respondidasTotal = goal?.respondidasTotal ?? 0;
+  const respondidasSempre = goal?.respondidasSempre ?? 0;
   const progressoPlano = goal?.progressoPlano ?? 0;
 
   // Prova
@@ -154,6 +157,25 @@ export function Home() {
       <div className="pt-2">
         <h1 className="font-display text-3xl font-extrabold text-brand-ink">Olá, {usuario?.nome}</h1>
         <p className="text-muted mt-1">Bora manter a ofensiva de hoje.</p>
+      </div>
+
+      {/* Total de questões realizadas desde o início (todas, com repetições) */}
+      <div className="relative flex items-center gap-5 overflow-hidden rounded-3xl bg-gradient-to-br from-[#F5722B] to-[#F59E0B] p-6 text-white">
+        <div className="absolute -top-8 right-10 h-32 w-32 rounded-full bg-white/10 blur-2xl" style={{ animation: "floaty 8s ease-in-out infinite" }} />
+        <div className="relative h-16 w-16 flex-shrink-0 rounded-2xl bg-white/15 flex items-center justify-center">
+          <Trophy size={30} className="text-white" strokeWidth={2} />
+        </div>
+        <div className="relative flex-1">
+          <p className="text-xs font-extrabold uppercase tracking-widest text-white/80">
+            Questões realizadas
+          </p>
+          <p className="font-display text-5xl font-extrabold leading-none mt-1">
+            {respondidasSempre.toLocaleString("pt-BR")}
+          </p>
+          <p className="text-sm text-white/85 mt-1.5">
+            no total desde que você começou 🚀
+          </p>
+        </div>
       </div>
 
       {/* Resumo de hoje: realizadas, acertos, erros e aproveitamento */}
