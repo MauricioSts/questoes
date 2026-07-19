@@ -20,21 +20,25 @@ export async function contarPorDia(userId: string): Promise<Map<string, number>>
 }
 
 // Conta dias consecutivos (fuso do usuário) em que bateu a meta.
-// Domingo é dia de descanso: não conta para o streak nem o quebra — é apenas
-// pulado. Se hoje ainda não bateu (e não é domingo), a sequência considera o
-// último dia útil (não quebra até o dia virar).
+// Sábado e domingo são dias de descanso: não contam para o streak nem o quebram
+// — são apenas pulados. Se hoje ainda não bateu (e não é dia de descanso), a
+// sequência considera o último dia útil (não quebra até o dia virar).
 export function calcularStreak(porDia: Map<string, number>, meta: number): number {
   const bateuNoDia = (cursor: Date) => (porDia.get(localDateKey(cursor)) ?? 0) >= meta;
-  const ehDomingo = (cursor: Date) => localWeekdayIndex(cursor) === 6;
+  // localWeekdayIndex: seg=0 … sáb=5, dom=6.
+  const ehDescanso = (cursor: Date) => {
+    const wd = localWeekdayIndex(cursor);
+    return wd === 5 || wd === 6;
+  };
   const diaAntes = (cursor: Date) => new Date(cursor.getTime() - 864e5);
 
   let cursor = startOfToday();
-  // Hoje ainda em aberto: se não é domingo e ainda não bateu, começa de ontem.
-  if (!ehDomingo(cursor) && !bateuNoDia(cursor)) cursor = diaAntes(cursor);
+  // Hoje ainda em aberto: se não é descanso e ainda não bateu, começa de ontem.
+  if (!ehDescanso(cursor) && !bateuNoDia(cursor)) cursor = diaAntes(cursor);
 
   let streak = 0;
   while (true) {
-    if (ehDomingo(cursor)) {
+    if (ehDescanso(cursor)) {
       // Descanso: pula sem contar nem quebrar a sequência.
       cursor = diaAntes(cursor);
       continue;

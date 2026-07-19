@@ -317,7 +317,7 @@ export function Home() {
             {DIAS.map((d, i) => {
               const feito = diasConcluidos[i];
               const hoje = i === hojeIdx;
-              const descanso = i === 6 && !feito; // domingo = descanso (não quebra a ofensiva)
+              const descanso = (i === 5 || i === 6) && !feito; // sáb/dom = descanso (não quebra a ofensiva)
               return (
                 <div key={i} className="flex flex-col items-center gap-1.5">
                   <div
@@ -330,7 +330,7 @@ export function Home() {
                         ? "bg-brand-50 border border-dashed border-hair"
                         : "bg-brand-100"
                     }`}
-                    title={descanso ? "Domingo é dia de descanso — não quebra a ofensiva" : undefined}
+                    title={descanso ? "Sábado e domingo são de descanso — não quebram a ofensiva" : undefined}
                   >
                     {feito ? (
                       <Check size={18} className="text-white" strokeWidth={3} />

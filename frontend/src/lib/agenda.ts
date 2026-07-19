@@ -6,7 +6,8 @@ export function ehDiaDeSimulado(d = new Date()): boolean {
   return d.getDay() === 6;
 }
 
-// Domingo é dia de descanso — a ofensiva não morre (tratado no backend).
+// Sábado e domingo são dias de descanso — a ofensiva não morre (tratado no backend).
+// getDay(): 0=domingo, 6=sábado.
 export function ehDiaDeDescanso(d = new Date()): boolean {
-  return d.getDay() === 0;
+  return d.getDay() === 0 || d.getDay() === 6;
 }
