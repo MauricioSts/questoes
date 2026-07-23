@@ -56,7 +56,41 @@ export async function importarLote(
   }
 }
 
+export interface ExcluirLoteResultado {
+  ok: boolean;
+  excluidas: number;
+  naoEncontradas: number[];
+  totalAgora: number;
+}
+
+// Exclui só as questões com os IDs informados (mantém o resto e o histórico de respostas).
+export async function excluirLote(ids: number[]): Promise<ExcluirLoteResultado> {
+  return api<ExcluirLoteResultado>("/questoes/excluir-lote", {
+    method: "POST",
+    body: { ids },
+  });
+}
+
 export async function limparTudo(): Promise<void> {
   await api("/questoes", { method: "DELETE" });
   await idbLimparTudo();
+}
+
+// Interpreta uma lista de IDs digitada: aceita separação por vírgula/espaço/linha e
+// intervalos "a-b" (ex.: "1, 3, 5-8, 12" → [1,3,5,6,7,8,12]). Ignora lixo e ordena único.
+export function parseIdsInput(texto: string): number[] {
+  const ids = new Set<number>();
+  for (const parte of texto.split(/[\s,;]+/)) {
+    if (!parte) continue;
+    const intervalo = parte.match(/^(\d+)-(\d+)$/);
+    if (intervalo) {
+      let a = Number(intervalo[1]);
+      let b = Number(intervalo[2]);
+      if (a > b) [a, b] = [b, a];
+      for (let i = a; i <= b; i++) ids.add(i);
+    } else if (/^\d+$/.test(parte)) {
+      ids.add(Number(parte));
+    }
+  }
+  return [...ids].sort((x, y) => x - y);
 }

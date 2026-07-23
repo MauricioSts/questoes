@@ -127,6 +127,45 @@ questoesRouter.post(
   })
 );
 
+// POST /questoes/excluir-lote — exclui só as questões com os IDs informados (admin).
+// Usa POST (e não DELETE com body) porque corpo em DELETE é mal suportado por proxies/clients.
+// As respostas (Answer) são preservadas — guardam snapshot pra estatística. Notas e marcações
+// dessas questões viram órfãs, então são removidas junto na mesma transação.
+const excluirLoteSchema = z.object({
+  ids: z.array(z.number().int()).min(1).max(5000),
+});
+
+questoesRouter.post(
+  "/excluir-lote",
+  asyncHandler(async (req, res) => {
+    const { ids } = excluirLoteSchema.parse(req.body);
+    const idsUnicos = [...new Set(ids)];
+
+    const existentes = await prisma.questao.findMany({
+      where: { id: { in: idsUnicos } },
+      select: { id: true },
+    });
+    const idsExistentes = existentes.map((q) => q.id);
+    const naoEncontradas = idsUnicos.filter((id) => !idsExistentes.includes(id));
+
+    if (idsExistentes.length > 0) {
+      await prisma.$transaction([
+        prisma.nota.deleteMany({ where: { questaoId: { in: idsExistentes } } }),
+        prisma.marcada.deleteMany({ where: { questaoId: { in: idsExistentes } } }),
+        prisma.questao.deleteMany({ where: { id: { in: idsExistentes } } }),
+      ]);
+    }
+
+    const totalAgora = await prisma.questao.count();
+    res.json({
+      ok: true,
+      excluidas: idsExistentes.length,
+      naoEncontradas,
+      totalAgora,
+    });
+  })
+);
+
 // DELETE /questoes — limpa o banco de questões (admin).
 questoesRouter.delete(
   "/",

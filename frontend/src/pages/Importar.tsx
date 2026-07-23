@@ -1,8 +1,16 @@
 // Tela admin de importação de lotes de questões (upload de JSON).
 // Valida, mostra prévia, trata colisão de IDs (rejeitar ou deslocar) e grava no IndexedDB.
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { validarLote, type ResultadoValidacao } from "../lib/validarLote";
-import { importarLote, limparTudo, type ImportarResultado } from "../lib/questoesStore";
+import {
+  importarLote,
+  limparTudo,
+  excluirLote,
+  parseIdsInput,
+  type ImportarResultado,
+  type ExcluirLoteResultado,
+} from "../lib/questoesStore";
+import { getQuestao } from "../lib/questoesRepo";
 import { useQuestoes } from "../store/questoes";
 import exemplo from "../data/questoes.json";
 
@@ -14,6 +22,34 @@ export function Importar() {
   const [resultado, setResultado] = useState<ImportarResultado | null>(null);
   const [erroLeitura, setErroLeitura] = useState<string | null>(null);
   const [gravando, setGravando] = useState(false);
+
+  // --- excluir lote específico por IDs ---
+  const [idsTexto, setIdsTexto] = useState("");
+  const [excluindo, setExcluindo] = useState(false);
+  const [resultadoExcluir, setResultadoExcluir] = useState<ExcluirLoteResultado | null>(null);
+
+  const idsParaExcluir = useMemo(() => parseIdsInput(idsTexto), [idsTexto]);
+  const idsExistentes = useMemo(
+    () => idsParaExcluir.filter((id) => getQuestao(id)),
+    [idsParaExcluir]
+  );
+
+  async function excluir() {
+    if (idsExistentes.length === 0) return;
+    if (!confirm(`Excluir ${idsExistentes.length} questão(ões) do app? Essa ação não tem volta (seu histórico de respostas é preservado).`)) return;
+    setExcluindo(true);
+    setResultadoExcluir(null);
+    try {
+      const r = await excluirLote(idsParaExcluir);
+      setResultadoExcluir(r);
+      await recarregar();
+      setIdsTexto("");
+    } catch {
+      setErroLeitura("Falha ao excluir no servidor (sem conexão?). Tente novamente.");
+    } finally {
+      setExcluindo(false);
+    }
+  }
 
   function carregarJson(json: unknown, nome: string) {
     setErroLeitura(null);
@@ -162,6 +198,61 @@ export function Importar() {
             </div>
           ) : (
             <p className="text-erro">❌ Não foi possível importar. Verifique a conexão e tente novamente.</p>
+          )}
+        </div>
+      )}
+
+      {/* excluir um lote específico de questões por ID */}
+      {total > 0 && (
+        <div className="card space-y-3 p-4">
+          <div>
+            <h2 className="text-sm font-semibold">Excluir questões específicas 🗑️</h2>
+            <p className="text-xs text-slate-400">
+              Digite os IDs separados por vírgula. Aceita intervalos, ex.: <code>1, 3, 5-10, 42</code>.
+            </p>
+          </div>
+
+          <input
+            type="text"
+            inputMode="numeric"
+            value={idsTexto}
+            onChange={(e) => {
+              setIdsTexto(e.target.value);
+              setResultadoExcluir(null);
+            }}
+            placeholder="1, 3, 5-10"
+            className="w-full rounded-lg border border-slate-700 bg-transparent px-3 py-2 text-sm"
+          />
+
+          {idsParaExcluir.length > 0 && (
+            <p className="text-xs text-slate-400">
+              {idsExistentes.length} de {idsParaExcluir.length} ID(s) existem no app.
+              {idsExistentes.length < idsParaExcluir.length && (
+                <span className="text-amber-500"> Os demais serão ignorados.</span>
+              )}
+            </p>
+          )}
+
+          <button
+            onClick={excluir}
+            disabled={excluindo || idsExistentes.length === 0}
+            className="tap w-full rounded-xl border border-erro py-2 text-sm text-erro disabled:opacity-40"
+          >
+            {excluindo ? "Excluindo…" : `Excluir ${idsExistentes.length} questão(ões)`}
+          </button>
+
+          {resultadoExcluir && (
+            <div className="space-y-1 text-sm text-acerto">
+              <p className="font-semibold">✓ {resultadoExcluir.excluidas} questão(ões) excluída(s).</p>
+              {resultadoExcluir.naoEncontradas.length > 0 && (
+                <p className="text-slate-500">
+                  {resultadoExcluir.naoEncontradas.length} ID(s) não existiam:{" "}
+                  {resultadoExcluir.naoEncontradas.slice(0, 20).join(", ")}
+                  {resultadoExcluir.naoEncontradas.length > 20 ? "…" : ""}.
+                </p>
+              )}
+              <p className="text-slate-500">Total no app: {resultadoExcluir.totalAgora}.</p>
+            </div>
           )}
         </div>
       )}
