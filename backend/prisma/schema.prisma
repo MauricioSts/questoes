@@ -34,9 +34,11 @@ model Questao {
   alternativas Json // { "A": "...", "B": "...", ... }
   gabarito     String
   explicacao   String
-  createdAt    DateTime @default(now())
+  loteNome     String? // rótulo do lote (nome do arquivo importado); null p/ imports antigos
+  createdAt    DateTime @default(now()) // idêntico p/ toda questão de um mesmo import → chave do lote
 
   @@index([modulo, materia])
+  @@index([createdAt])
 }
 
 model TextoBase {

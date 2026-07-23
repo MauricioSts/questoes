@@ -39,12 +39,17 @@ export interface ImportarResultado {
 export async function importarLote(
   questoes: Questao[],
   textosBase: Record<string, string>,
-  opts: { deslocarSeColidir: boolean }
+  opts: { deslocarSeColidir: boolean; nomeLote?: string }
 ): Promise<ImportarResultado> {
   try {
     const r = await api<Omit<ImportarResultado, "ok">>("/questoes/import", {
       method: "POST",
-      body: { questoes, textosBase, deslocarSeColidir: opts.deslocarSeColidir },
+      body: {
+        questoes,
+        textosBase,
+        deslocarSeColidir: opts.deslocarSeColidir,
+        nomeLote: opts.nomeLote,
+      },
     });
     return { ok: true, ...r };
   } catch (e) {
@@ -74,6 +79,28 @@ export async function excluirLote(ids: number[]): Promise<ExcluirLoteResultado> 
 export async function limparTudo(): Promise<void> {
   await api("/questoes", { method: "DELETE" });
   await idbLimparTudo();
+}
+
+// Um lote = todas as questões importadas juntas (mesmo createdAt). `chave` é o createdAt ISO.
+export interface Lote {
+  chave: string;
+  nome: string | null;
+  quantidade: number;
+  idMin: number | null;
+  idMax: number | null;
+  criadoEm: string;
+}
+
+export async function listarLotes(): Promise<Lote[]> {
+  const r = await api<{ lotes: Lote[] }>("/questoes/lotes");
+  return r.lotes;
+}
+
+// Exclui um lote inteiro pela chave (createdAt ISO). Preserva o histórico de respostas.
+export async function excluirLoteGrupo(
+  chave: string
+): Promise<{ ok: boolean; excluidas: number; totalAgora: number }> {
+  return api("/questoes/excluir-lote-grupo", { method: "POST", body: { chave } });
 }
 
 // Interpreta uma lista de IDs digitada: aceita separação por vírgula/espaço/linha e

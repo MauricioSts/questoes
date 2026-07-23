@@ -30,6 +30,7 @@ const importSchema = z.object({
   questoes: z.array(questaoSchema).min(1),
   textosBase: z.record(z.string()).default({}),
   deslocarSeColidir: z.boolean().default(true),
+  nomeLote: z.string().max(200).optional(), // rótulo do lote (nome do arquivo)
 });
 
 // GET /questoes — todas as questões + textos base (para o frontend popular o app).
@@ -65,7 +66,7 @@ questoesRouter.get(
 questoesRouter.post(
   "/import",
   asyncHandler(async (req, res) => {
-    const { questoes, textosBase, deslocarSeColidir } = importSchema.parse(req.body);
+    const { questoes, textosBase, deslocarSeColidir, nomeLote } = importSchema.parse(req.body);
 
     // valida gabarito ↔ alternativas (defesa extra além do frontend)
     for (const q of questoes) {
@@ -108,6 +109,7 @@ questoesRouter.post(
           alternativas: q.alternativas as Prisma.InputJsonValue,
           gabarito: q.gabarito,
           explicacao: q.explicacao,
+          loteNome: nomeLote ?? null,
         })),
       }),
       ...Object.entries(textosBase).map(([chave, texto]) =>
@@ -124,6 +126,61 @@ questoesRouter.post(
       faixaFinal: [Math.min(...ids), Math.max(...ids)],
       totalAgora,
     });
+  })
+);
+
+// GET /questoes/lotes — lista os lotes (importações) para exclusão em bloco.
+// Um lote = todas as questões que compartilham o mesmo createdAt (um único import grava
+// todas com o mesmo timestamp de transação). A chave é esse createdAt em ISO.
+questoesRouter.get(
+  "/lotes",
+  asyncHandler(async (_req, res) => {
+    const grupos = await prisma.questao.groupBy({
+      by: ["createdAt", "loteNome"],
+      _count: { _all: true },
+      _min: { id: true },
+      _max: { id: true },
+      orderBy: { createdAt: "asc" },
+    });
+    const lotes = grupos.map((g) => ({
+      chave: g.createdAt.toISOString(),
+      nome: g.loteNome ?? null,
+      quantidade: g._count._all,
+      idMin: g._min.id,
+      idMax: g._max.id,
+      criadoEm: g.createdAt,
+    }));
+    res.json({ lotes });
+  })
+);
+
+// POST /questoes/excluir-lote-grupo — exclui um lote inteiro pela chave (createdAt ISO).
+// Preserva o histórico de respostas; remove notas/marcações órfãs junto.
+const excluirGrupoSchema = z.object({ chave: z.string().datetime() });
+
+questoesRouter.post(
+  "/excluir-lote-grupo",
+  asyncHandler(async (req, res) => {
+    const { chave } = excluirGrupoSchema.parse(req.body);
+    const createdAt = new Date(chave);
+
+    const doLote = await prisma.questao.findMany({
+      where: { createdAt },
+      select: { id: true },
+    });
+    if (doLote.length === 0) {
+      throw new HttpError(404, "Lote não encontrado (pode já ter sido excluído).");
+    }
+    const ids = doLote.map((q) => q.id);
+
+    await prisma.$transaction([
+      prisma.nota.deleteMany({ where: { questaoId: { in: ids } } }),
+      prisma.marcada.deleteMany({ where: { questaoId: { in: ids } } }),
+      prisma.questao.deleteMany({ where: { createdAt } }),
+    ]);
+
+    const totalAgora = await prisma.questao.count();
+    res.json({ ok: true, excluidas: ids.length, totalAgora });
   })
 );
 

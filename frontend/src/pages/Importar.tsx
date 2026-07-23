@@ -1,14 +1,17 @@
 // Tela admin de importação de lotes de questões (upload de JSON).
 // Valida, mostra prévia, trata colisão de IDs (rejeitar ou deslocar) e grava no IndexedDB.
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { validarLote, type ResultadoValidacao } from "../lib/validarLote";
 import {
   importarLote,
   limparTudo,
   excluirLote,
   parseIdsInput,
+  listarLotes,
+  excluirLoteGrupo,
   type ImportarResultado,
   type ExcluirLoteResultado,
+  type Lote,
 } from "../lib/questoesStore";
 import { getQuestao } from "../lib/questoesRepo";
 import { useQuestoes } from "../store/questoes";
@@ -23,7 +26,38 @@ export function Importar() {
   const [erroLeitura, setErroLeitura] = useState<string | null>(null);
   const [gravando, setGravando] = useState(false);
 
-  // --- excluir lote específico por IDs ---
+  // --- lotes (importações) para excluir em bloco ---
+  const [lotes, setLotes] = useState<Lote[]>([]);
+  const [excluindoLote, setExcluindoLote] = useState<string | null>(null);
+
+  const carregarLotes = useCallback(async () => {
+    try {
+      setLotes(await listarLotes());
+    } catch {
+      /* offline: some a seção; não bloqueia a tela */
+    }
+  }, []);
+
+  useEffect(() => {
+    void carregarLotes();
+  }, [carregarLotes]);
+
+  async function excluirLoteInteiro(l: Lote) {
+    const rotulo = l.nome ?? `lote de ${formatarData(l.criadoEm)}`;
+    if (!confirm(`Excluir o ${rotulo} (${l.quantidade} questões, IDs ${l.idMin}–${l.idMax})? Não tem volta — seu histórico de respostas é preservado.`)) return;
+    setExcluindoLote(l.chave);
+    try {
+      await excluirLoteGrupo(l.chave);
+      await recarregar();
+      await carregarLotes();
+    } catch {
+      setErroLeitura("Falha ao excluir o lote no servidor (sem conexão?). Tente novamente.");
+    } finally {
+      setExcluindoLote(null);
+    }
+  }
+
+  // --- excluir avulsas por IDs ---
   const [idsTexto, setIdsTexto] = useState("");
   const [excluindo, setExcluindo] = useState(false);
   const [resultadoExcluir, setResultadoExcluir] = useState<ExcluirLoteResultado | null>(null);
@@ -43,6 +77,7 @@ export function Importar() {
       const r = await excluirLote(idsParaExcluir);
       setResultadoExcluir(r);
       await recarregar();
+      await carregarLotes();
       setIdsTexto("");
     } catch {
       setErroLeitura("Falha ao excluir no servidor (sem conexão?). Tente novamente.");
@@ -76,10 +111,12 @@ export function Importar() {
     try {
       const r = await importarLote(validacao.questoes, validacao.textosBase, {
         deslocarSeColidir: deslocar,
+        nomeLote: nomeArquivo || undefined,
       });
       setResultado(r);
       if (r.ok) {
         await recarregar();
+        await carregarLotes();
         setValidacao(null);
       }
     } catch {
@@ -94,6 +131,7 @@ export function Importar() {
     if (!confirm("Isso apaga TODAS as questões importadas do app (seu histórico de respostas no servidor é preservado). Continuar?")) return;
     await limparTudo();
     await recarregar();
+    await carregarLotes();
     setResultado(null);
     setValidacao(null);
   }
@@ -202,11 +240,41 @@ export function Importar() {
         </div>
       )}
 
-      {/* excluir um lote específico de questões por ID */}
+      {/* lotes importados — excluir um lote inteiro de uma vez */}
+      {lotes.length > 0 && (
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold">Lotes importados 📦</h2>
+          <p className="text-xs text-slate-400">Exclua um lote inteiro com um toque.</p>
+          {lotes.map((l) => (
+            <div key={l.chave} className="card flex items-center gap-3 p-3">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold">
+                  {l.nome ?? `Lote de ${formatarData(l.criadoEm)}`}
+                </p>
+                <p className="text-xs text-slate-400">
+                  {l.quantidade} questões · IDs {l.idMin}–{l.idMax}
+                  {l.nome && <> · {formatarData(l.criadoEm)}</>}
+                </p>
+              </div>
+              <button
+                onClick={() => excluirLoteInteiro(l)}
+                disabled={excluindoLote !== null}
+                className="tap shrink-0 rounded-lg border border-erro px-3 py-1.5 text-xs text-erro disabled:opacity-40"
+              >
+                {excluindoLote === l.chave ? "Excluindo…" : "Excluir lote"}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* excluir questões avulsas por ID (uso pontual) */}
       {total > 0 && (
-        <div className="card space-y-3 p-4">
-          <div>
-            <h2 className="text-sm font-semibold">Excluir questões específicas 🗑️</h2>
+        <details className="card space-y-3 p-4">
+          <summary className="cursor-pointer text-sm font-semibold">
+            Excluir questões avulsas por ID 🗑️
+          </summary>
+          <div className="mt-2">
             <p className="text-xs text-slate-400">
               Digite os IDs separados por vírgula. Aceita intervalos, ex.: <code>1, 3, 5-10, 42</code>.
             </p>
@@ -254,7 +322,7 @@ export function Importar() {
               <p className="text-slate-500">Total no app: {resultadoExcluir.totalAgora}.</p>
             </div>
           )}
-        </div>
+        </details>
       )}
 
       {total > 0 && (
@@ -264,4 +332,14 @@ export function Importar() {
       )}
     </div>
   );
+}
+
+function formatarData(iso: string): string {
+  return new Date(iso).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
