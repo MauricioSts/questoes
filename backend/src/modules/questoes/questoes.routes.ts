@@ -155,7 +155,8 @@ questoesRouter.get(
 );
 
 // POST /questoes/excluir-lote-grupo — exclui um lote inteiro pela chave (createdAt ISO).
-// Preserva o histórico de respostas; remove notas/marcações órfãs junto.
+// Remove também as respostas/notas/marcações dessas questões (senão ficariam órfãs e
+// inflariam o contador de "respondidas" acima do total de questões existentes).
 const excluirGrupoSchema = z.object({ chave: z.string().datetime() });
 
 questoesRouter.post(
@@ -174,6 +175,7 @@ questoesRouter.post(
     const ids = doLote.map((q) => q.id);
 
     await prisma.$transaction([
+      prisma.answer.deleteMany({ where: { questaoId: { in: ids } } }),
       prisma.nota.deleteMany({ where: { questaoId: { in: ids } } }),
       prisma.marcada.deleteMany({ where: { questaoId: { in: ids } } }),
       prisma.questao.deleteMany({ where: { createdAt } }),
@@ -186,8 +188,8 @@ questoesRouter.post(
 
 // POST /questoes/excluir-lote — exclui só as questões com os IDs informados (admin).
 // Usa POST (e não DELETE com body) porque corpo em DELETE é mal suportado por proxies/clients.
-// As respostas (Answer) são preservadas — guardam snapshot pra estatística. Notas e marcações
-// dessas questões viram órfãs, então são removidas junto na mesma transação.
+// Remove também respostas/notas/marcações dessas questões na mesma transação, para não
+// deixar dados órfãos (que inflariam o contador de "respondidas").
 const excluirLoteSchema = z.object({
   ids: z.array(z.number().int()).min(1).max(5000),
 });
@@ -207,6 +209,7 @@ questoesRouter.post(
 
     if (idsExistentes.length > 0) {
       await prisma.$transaction([
+        prisma.answer.deleteMany({ where: { questaoId: { in: idsExistentes } } }),
         prisma.nota.deleteMany({ where: { questaoId: { in: idsExistentes } } }),
         prisma.marcada.deleteMany({ where: { questaoId: { in: idsExistentes } } }),
         prisma.questao.deleteMany({ where: { id: { in: idsExistentes } } }),
