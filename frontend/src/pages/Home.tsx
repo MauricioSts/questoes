@@ -22,6 +22,7 @@ import {
   Languages,
   Trophy,
   CalendarClock,
+  Palmtree,
 } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../store/auth";
@@ -41,6 +42,7 @@ interface GoalToday {
   acertosHoje?: number;
   cumpriuHoje: boolean;
   streak: number;
+  feriasAtivo?: boolean; // modo férias ligado: dias não quebram a ofensiva
   semana?: boolean[]; // seg→dom da semana atual bateram a meta
   hojeIdx?: number; // índice de hoje (0=seg … 6=dom)
   dataProva?: string | null;
@@ -66,6 +68,7 @@ export function Home() {
   const [salvandoData, setSalvandoData] = useState(false);
   const [editandoMeta, setEditandoMeta] = useState(false);
   const [salvandoMeta, setSalvandoMeta] = useState(false);
+  const [salvandoFerias, setSalvandoFerias] = useState(false);
 
   useEffect(() => {
     api<GoalToday>("/goals/today").then(setGoal).catch(() => null);
@@ -79,6 +82,7 @@ export function Home() {
   const faltam = Math.max(0, meta - respondidas);
   const cumpriuHoje = goal?.cumpriuHoje ?? false;
   const streak = goal?.streak ?? 0;
+  const feriasAtivo = goal?.feriasAtivo ?? false;
 
   // Questões no sistema x respondidas (total)
   const totalQuestoes = goal?.totalQuestoes ?? 0;
@@ -153,6 +157,20 @@ export function Home() {
       setEditandoMeta(false);
     } finally {
       setSalvandoMeta(false);
+    }
+  }
+
+  // Liga/desliga o modo férias — enquanto ligado os dias não quebram a ofensiva.
+  async function alternarFerias(ativo: boolean) {
+    setSalvandoFerias(true);
+    try {
+      const res = await api<{ feriasAtivo: boolean }>("/goals/ferias", {
+        method: "PATCH",
+        body: { ativo },
+      });
+      setGoal((g) => (g ? { ...g, feriasAtivo: res.feriasAtivo } : g));
+    } finally {
+      setSalvandoFerias(false);
     }
   }
 
@@ -317,7 +335,10 @@ export function Home() {
             {DIAS.map((d, i) => {
               const feito = diasConcluidos[i];
               const hoje = i === hojeIdx;
-              const descanso = (i === 5 || i === 6) && !feito; // sáb/dom = descanso (não quebra a ofensiva)
+              // sáb/dom = descanso; em modo férias, todo dia não-feito também não quebra.
+              const fimDeSemana = i === 5 || i === 6;
+              const feriasNoDia = feriasAtivo && i <= hojeIdx; // só dias já decorridos
+              const descanso = !feito && (fimDeSemana || feriasNoDia);
               return (
                 <div key={i} className="flex flex-col items-center gap-1.5">
                   <div
@@ -330,18 +351,62 @@ export function Home() {
                         ? "bg-brand-50 border border-dashed border-hair"
                         : "bg-brand-100"
                     }`}
-                    title={descanso ? "Sábado e domingo são de descanso — não quebram a ofensiva" : undefined}
+                    title={
+                      descanso
+                        ? feriasNoDia && !fimDeSemana
+                          ? "Modo férias — este dia não quebra a ofensiva"
+                          : "Sábado e domingo são de descanso — não quebram a ofensiva"
+                        : undefined
+                    }
                   >
                     {feito ? (
                       <Check size={18} className="text-white" strokeWidth={3} />
                     ) : descanso ? (
-                      <Moon size={16} className="text-faint" strokeWidth={2} />
+                      feriasNoDia && !fimDeSemana ? (
+                        <Palmtree size={16} className="text-faint" strokeWidth={2} />
+                      ) : (
+                        <Moon size={16} className="text-faint" strokeWidth={2} />
+                      )
                     ) : null}
                   </div>
                   <span className="text-xs font-bold text-faint">{d}</span>
                 </div>
               );
             })}
+          </div>
+
+          {/* Modo férias: enquanto ligado, os dias não quebram a ofensiva. */}
+          <div className="mt-6 flex items-center justify-between rounded-2xl bg-brand-50 border border-hair p-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-brand-100 flex items-center justify-center flex-shrink-0">
+                <Palmtree size={20} className="text-brand-500" strokeWidth={2} />
+              </div>
+              <div>
+                <p className="font-bold text-brand-ink">Modo férias</p>
+                <p className="text-xs text-muted mt-0.5">
+                  {feriasAtivo
+                    ? "Ligado — os dias não quebram a ofensiva. Desligue ao voltar."
+                    : "Ligue ao viajar para não perder a ofensiva."}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={feriasAtivo}
+              aria-label="Modo férias"
+              disabled={salvandoFerias}
+              onClick={() => alternarFerias(!feriasAtivo)}
+              className={`relative h-7 w-12 flex-shrink-0 rounded-full transition-colors disabled:opacity-50 ${
+                feriasAtivo ? "bg-brand-500" : "bg-brand-100"
+              }`}
+            >
+              <span
+                className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                  feriasAtivo ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
           </div>
         </div>
 

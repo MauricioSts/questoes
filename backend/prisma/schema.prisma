@@ -53,6 +53,9 @@ model User {
   nome         String
   metaDiaria   Int       @default(70) // meta diária de questões (configurável no futuro)
   dataProva    DateTime? // data alvo da prova (configurável pelo usuário)
+  feriasAtivo  Boolean   @default(false) // modo férias ligado: dias não quebram a ofensiva
+  feriasDesde  DateTime? // instante em que o modo férias foi ligado (janela atual/última)
+  feriasAte    DateTime? // instante em que foi desligado (null enquanto ativo)
   createdAt    DateTime  @default(now())
 
   answers       Answer[]

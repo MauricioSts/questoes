@@ -29,7 +29,12 @@ goalsRouter.get(
 
     // Uma única passada nas respostas → mapa dia→quantidade, base do streak e da semana.
     const porDia = await contarPorDia(req.userId!);
-    const streak = calcularStreak(porDia, meta);
+    const ferias = {
+      ativo: user?.feriasAtivo ?? false,
+      desde: user?.feriasDesde ?? null,
+      ate: user?.feriasAte ?? null,
+    };
+    const streak = calcularStreak(porDia, meta, ferias);
 
     // Calendário da ofensiva: cada dia da semana atual (seg→dom) bateu a meta?
     const { keys, hojeIdx } = weekDayKeys();
@@ -114,6 +119,7 @@ goalsRouter.get(
       acertosHoje,
       cumpriuHoje: respondidasHoje >= meta,
       streak,
+      feriasAtivo: ferias.ativo, // modo férias ligado (dias não quebram a ofensiva)
       semana, // 7 booleans: seg→dom da semana atual bateram a meta
       hojeIdx, // índice de hoje no array acima (0=seg … 6=dom)
       dataProva,
@@ -164,5 +170,38 @@ goalsRouter.patch(
       data: { metaDiaria },
     });
     res.json({ metaDiaria: user.metaDiaria });
+  })
+);
+
+// PATCH /goals/ferias — liga/desliga o modo férias. Ligar abre uma nova janela
+// (feriasDesde = agora, feriasAte = null); desligar fecha (feriasAte = agora).
+// Enquanto ligado, os dias não quebram a ofensiva; ao desligar, a janela [desde,
+// ate] continua sendo pulada no cálculo — por isso a ofensiva não quebra ao voltar.
+const feriasSchema = z.object({
+  ativo: z.boolean(),
+});
+
+goalsRouter.patch(
+  "/ferias",
+  asyncHandler(async (req, res) => {
+    const { ativo } = feriasSchema.parse(req.body);
+    const atual = await prisma.user.findUnique({ where: { id: req.userId! } });
+    const jaAtivo = atual?.feriasAtivo ?? false;
+
+    // Idempotente: só mexe nas datas quando o estado realmente muda.
+    const data = ativo
+      ? jaAtivo
+        ? {}
+        : { feriasAtivo: true, feriasDesde: new Date(), feriasAte: null }
+      : jaAtivo
+      ? { feriasAtivo: false, feriasAte: new Date() }
+      : {};
+
+    const user = await prisma.user.update({ where: { id: req.userId! }, data });
+    res.json({
+      feriasAtivo: user.feriasAtivo,
+      feriasDesde: user.feriasDesde,
+      feriasAte: user.feriasAte,
+    });
   })
 );
