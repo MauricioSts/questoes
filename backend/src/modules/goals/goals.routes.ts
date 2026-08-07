@@ -5,7 +5,7 @@ import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { startOfToday, weekDayKeys } from "../../lib/date.js";
-import { contarPorDia, calcularStreak } from "../../lib/streak.js";
+import { contarPorDia, calcularStreak, carregarFeriasPeriodos } from "../../lib/streak.js";
 import { revisoesPendentes } from "../../lib/srs.js";
 
 export const goalsRouter = Router();
@@ -38,12 +38,8 @@ goalsRouter.get(
 
     // Uma única passada nas respostas → mapa dia→quantidade, base do streak e da semana.
     const porDia = await contarPorDia(req.userId!);
-    const ferias = {
-      ativo: user?.feriasAtivo ?? false,
-      desde: user?.feriasDesde ?? null,
-      ate: user?.feriasAte ?? null,
-    };
-    const streak = calcularStreak(porDia, meta, ferias);
+    const periodosFerias = await carregarFeriasPeriodos(req.userId!);
+    const streak = calcularStreak(porDia, meta, periodosFerias);
 
     // Calendário da ofensiva: cada dia da semana atual (seg→dom) bateu a meta?
     const { keys, hojeIdx } = weekDayKeys();
@@ -130,7 +126,7 @@ goalsRouter.get(
       acertosHoje,
       cumpriuHoje: respondidasHoje >= meta,
       streak,
-      feriasAtivo: ferias.ativo, // modo férias ligado (dias não quebram a ofensiva)
+      feriasAtivo: user?.feriasAtivo ?? false, // modo férias ligado (dias não quebram a ofensiva)
       semana, // 7 booleans: seg→dom da semana atual bateram a meta
       hojeIdx, // índice de hoje no array acima (0=seg … 6=dom)
       dataProva,
@@ -198,21 +194,35 @@ goalsRouter.patch(
     const { ativo } = feriasSchema.parse(req.body);
     const atual = await prisma.user.findUnique({ where: { id: req.userId! } });
     const jaAtivo = atual?.feriasAtivo ?? false;
+    const agora = new Date();
 
-    // Idempotente: só mexe nas datas quando o estado realmente muda.
+    // Idempotente: só age quando o estado muda. Cada viagem vira um FeriasPeriodo
+    // (histórico preservado) — ligar de novo NÃO apaga períodos anteriores.
+    if (ativo && !jaAtivo) {
+      // Abre um novo período (se por algum motivo houver um aberto, fecha antes).
+      await prisma.feriasPeriodo.updateMany({
+        where: { userId: req.userId!, fim: null },
+        data: { fim: agora },
+      });
+      await prisma.feriasPeriodo.create({ data: { userId: req.userId!, inicio: agora, fim: null } });
+    } else if (!ativo && jaAtivo) {
+      // Fecha o período em aberto.
+      await prisma.feriasPeriodo.updateMany({
+        where: { userId: req.userId!, fim: null },
+        data: { fim: agora },
+      });
+    }
+
+    // Mantém as flags no User só para a UI (o cálculo usa FeriasPeriodo).
     const data = ativo
       ? jaAtivo
         ? {}
-        : { feriasAtivo: true, feriasDesde: new Date(), feriasAte: null }
+        : { feriasAtivo: true, feriasDesde: agora, feriasAte: null }
       : jaAtivo
-      ? { feriasAtivo: false, feriasAte: new Date() }
+      ? { feriasAtivo: false, feriasAte: agora }
       : {};
-
     const user = await prisma.user.update({ where: { id: req.userId! }, data });
-    res.json({
-      feriasAtivo: user.feriasAtivo,
-      feriasDesde: user.feriasDesde,
-      feriasAte: user.feriasAte,
-    });
+
+    res.json({ feriasAtivo: user.feriasAtivo });
   })
 );

@@ -79,9 +79,13 @@ export interface DiaHeatmap {
   dia: string; // YYYY-MM-DD
   total: number;
 }
+export interface PeriodoFerias {
+  inicio: string; // YYYY-MM-DD
+  fim: string | null; // null = em aberto
+}
 export function carregarHeatmap(concursoId: string, from: string, to: string) {
   const qs = `concursoId=${encodeURIComponent(concursoId)}&from=${from}&to=${to}`;
-  return api<{ dias: DiaHeatmap[] }>(`/stats/heatmap?${qs}`);
+  return api<{ dias: DiaHeatmap[]; periodos: PeriodoFerias[] }>(`/stats/heatmap?${qs}`);
 }
 
 // Matérias por edital já mapeadas — usadas no estado "concurso vazio".

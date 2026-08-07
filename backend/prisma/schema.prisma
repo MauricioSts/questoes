@@ -115,14 +115,29 @@ model User {
   feriasAte    DateTime? // instante em que foi desligado (null enquanto ativo)
   createdAt    DateTime  @default(now())
 
-  answers       Answer[]
-  notas         Nota[]
-  marcadas      Marcada[]
-  concursos     Concurso[]
-  paginas       PaginaCaderno[]
-  postits       PostIt[]
-  refreshTokens RefreshToken[]
-  sessaoAtiva   SessaoAtiva?
+  answers        Answer[]
+  notas          Nota[]
+  marcadas       Marcada[]
+  concursos      Concurso[]
+  paginas        PaginaCaderno[]
+  postits        PostIt[]
+  feriasPeriodos FeriasPeriodo[]
+  refreshTokens  RefreshToken[]
+  sessaoAtiva    SessaoAtiva?
+}
+
+// Períodos de modo férias (histórico). Cada viagem é uma linha; `fim` null = férias
+// ainda ligado. Guardar TODOS os períodos (em vez de uma única janela no User) é o
+// que impede a ofensiva de quebrar retroativamente quando o modo é ligado de novo.
+model FeriasPeriodo {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inicio    DateTime
+  fim       DateTime? // null = período em aberto (modo férias ligado agora)
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }
 
 // Sessão de estudo em andamento (uma por usuário). Guarda apenas a ORDEM dos IDs e

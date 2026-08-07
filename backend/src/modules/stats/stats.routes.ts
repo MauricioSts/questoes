@@ -41,6 +41,17 @@ statsRouter.get(
       .map(([dia, total]) => ({ dia, total }))
       .sort((a, b) => a.dia.localeCompare(b.dia));
 
-    res.json({ dias });
+    // Períodos de férias (para o heatmap marcar as semanas em que houve modo férias).
+    const periodosRaw = await prisma.feriasPeriodo.findMany({
+      where: { userId: req.userId! },
+      select: { inicio: true, fim: true },
+      orderBy: { inicio: "asc" },
+    });
+    const periodos = periodosRaw.map((p) => ({
+      inicio: localDateKey(p.inicio),
+      fim: p.fim ? localDateKey(p.fim) : null,
+    }));
+
+    res.json({ dias, periodos });
   })
 );

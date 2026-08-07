@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { calcularStreak, type FeriasWindow } from "../lib/streak.js";
+import { calcularStreak, type FeriasPeriodo } from "../lib/streak.js";
 import { localDateKey } from "../lib/date.js";
 
 // Monta um mapa dia→quantidade marcando meta batida (>=1) nos offsets informados
@@ -24,7 +24,7 @@ describe("calcularStreak — modo férias", () => {
 
   it("com férias ligado, os dias recentes não quebram — a ofensiva é preservada", () => {
     const porDia = porDiaComMetaEm([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
-    const ferias: FeriasWindow = { ativo: true, desde: diasAtras(9), ate: null };
+    const ferias: FeriasPeriodo[] = [{ inicio: diasAtras(9), fim: null }];
     // Sem férias seria 0; com férias o bloco antigo continua contando.
     expect(calcularStreak(porDia, 1, ferias)).toBeGreaterThan(0);
   });
@@ -33,7 +33,7 @@ describe("calcularStreak — modo férias", () => {
     // Estudou 0..2 (recentes), férias em 3..9, bloco antigo 10..20.
     const porDia = porDiaComMetaEm([0, 1, 2, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
     const semFerias = calcularStreak(porDia, 1);
-    const ferias: FeriasWindow = { ativo: false, desde: diasAtras(9), ate: diasAtras(3) };
+    const ferias: FeriasPeriodo[] = [{ inicio: diasAtras(9), fim: diasAtras(3) }];
     const comFerias = calcularStreak(porDia, 1, ferias);
     // Sem férias a sequência para no buraco 3..9; com férias ela pula o buraco e soma o bloco antigo.
     expect(comFerias).toBeGreaterThan(semFerias);
@@ -42,10 +42,10 @@ describe("calcularStreak — modo férias", () => {
   it("dias fora da janela de férias voltam a contar normalmente", () => {
     // Só o bloco antigo cumprido; férias cobre 3..9 mas 0..2 (recentes) foram perdidos.
     const porDia = porDiaComMetaEm([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
-    const ferias: FeriasWindow = { ativo: false, desde: diasAtras(9), ate: diasAtras(3) };
+    const ferias: FeriasPeriodo[] = [{ inicio: diasAtras(9), fim: diasAtras(3) }];
     // 0..2 não são férias nem (necessariamente) fim de semana → podem quebrar como antes.
     // Garante que a janela fechada NÃO congela dias fora dela: resultado <= com férias ativo.
-    const ativo: FeriasWindow = { ativo: true, desde: diasAtras(9), ate: null };
+    const ativo: FeriasPeriodo[] = [{ inicio: diasAtras(9), fim: null }];
     expect(calcularStreak(porDia, 1, ferias)).toBeLessThanOrEqual(calcularStreak(porDia, 1, ativo));
   });
 });

@@ -116,11 +116,7 @@ answersRouter.get(
     const stats = await calcularStats(req.userId!, desde);
     // Streak sempre considera o histórico completo (independe do período do filtro).
     const user = await prisma.user.findUnique({ where: { id: req.userId! } });
-    const streak = await calcularStreakUsuario(req.userId!, user?.metaDiaria ?? 70, {
-      ativo: user?.feriasAtivo ?? false,
-      desde: user?.feriasDesde ?? null,
-      ate: user?.feriasAte ?? null,
-    });
+    const streak = await calcularStreakUsuario(req.userId!, user?.metaDiaria ?? 70);
     res.json({ ...stats, streak });
   })
 );

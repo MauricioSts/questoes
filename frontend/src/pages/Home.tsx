@@ -5,23 +5,12 @@ import {
   FileText,
   RefreshCw,
   ArrowRight,
-  Flame,
   CalendarDays,
-  Check,
   Bookmark,
-  Layers,
   Pencil,
-  Scale,
   NotebookPen,
   Lock,
-  Moon,
-  Target,
-  Percent,
-  X,
-  Languages,
-  Trophy,
   CalendarClock,
-  Palmtree,
 } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../store/auth";
@@ -29,15 +18,11 @@ import { getSessaoAtiva } from "../lib/sessao";
 import { ProgressRing } from "../components/ProgressRing";
 import { StreakHeatmap } from "../components/StreakHeatmap";
 import { StickyBoard } from "../components/StickyBoard";
-import { carregarHeatmap, type DiaHeatmap } from "../lib/multiApi";
+import { carregarHeatmap, type DiaHeatmap, type PeriodoFerias } from "../lib/multiApi";
 import { getConcursoId } from "../lib/concurso";
+import { useConcurso } from "../store/concurso";
 import { META_DIARIA_DEFAULT } from "../config/prova";
-import { ehDiaDeLegislacao } from "../lib/legislacao";
-import { ehDiaDePortugues } from "../lib/portugues";
 import { ehDiaDeSimulado } from "../lib/agenda";
-
-// Matéria de português no banco — usada no deep-link da div "dia de português".
-const MATERIA_PORTUGUES = "Língua Portuguesa";
 
 interface GoalToday {
   meta: number;
@@ -45,35 +30,27 @@ interface GoalToday {
   acertosHoje?: number;
   cumpriuHoje: boolean;
   streak: number;
-  feriasAtivo?: boolean; // modo férias ligado: dias não quebram a ofensiva
-  semana?: boolean[]; // seg→dom da semana atual bateram a meta
-  hojeIdx?: number; // índice de hoje (0=seg … 6=dom)
+  feriasAtivo?: boolean;
   dataProva?: string | null;
   progressoPlano?: number;
-  progressoTempo?: number | null; // % do tempo até a prova decorrido
+  progressoTempo?: number | null;
   totalQuestoes?: number;
   respondidasTotal?: number;
-  respondidasSempre?: number; // todas as questões realizadas desde o início (com repetições)
-  legislacaoTotal?: number;
-  legislacaoFeitasHoje?: number;
-  portuguesTotal?: number;
-  portuguesFeitasHoje?: number;
-  revisaoPendente?: number; // questões prontas para revisão espaçada (SRS)
+  respondidasSempre?: number;
+  revisaoPendente?: number;
 }
-
-const DIAS = ["S", "T", "Q", "Q", "S", "S", "D"];
 
 export function Home() {
   const { usuario } = useAuth();
+  const { ativo } = useConcurso();
   const navigate = useNavigate();
   const [goal, setGoal] = useState<GoalToday | null>(null);
   const [editandoData, setEditandoData] = useState(false);
-  const [salvandoData, setSalvandoData] = useState(false);
   const [editandoMeta, setEditandoMeta] = useState(false);
+  const [salvandoData, setSalvandoData] = useState(false);
   const [salvandoMeta, setSalvandoMeta] = useState(false);
-  const [salvandoFerias, setSalvandoFerias] = useState(false);
-
   const [heatmap, setHeatmap] = useState<DiaHeatmap[]>([]);
+  const [periodosFerias, setPeriodosFerias] = useState<PeriodoFerias[]>([]);
 
   useEffect(() => {
     api<GoalToday>("/goals/today").then(setGoal).catch(() => null);
@@ -83,59 +60,43 @@ export function Home() {
       const from = new Date(to.getTime() - 371 * 864e5);
       const fmt = (d: Date) => d.toISOString().slice(0, 10);
       carregarHeatmap(cid, fmt(from), fmt(to))
-        .then((r) => setHeatmap(r.dias))
+        .then((r) => {
+          setHeatmap(r.dias);
+          setPeriodosFerias(r.periodos);
+        })
         .catch(() => null);
     }
   }, []);
 
-  const meta = goal?.meta ?? usuario?.metaDiaria ?? META_DIARIA_DEFAULT;
+  const meta = goal?.meta ?? ativo?.metaDiaria ?? META_DIARIA_DEFAULT;
   const respondidas = goal?.respondidasHoje ?? 0;
   const acertosHoje = goal?.acertosHoje ?? 0;
   const errosHoje = Math.max(0, respondidas - acertosHoje);
-  const aproveitamentoHoje = respondidas > 0 ? Math.round((acertosHoje / respondidas) * 100) : 0;
-  const faltam = Math.max(0, meta - respondidas);
+  const faltamMeta = Math.max(0, meta - respondidas);
   const cumpriuHoje = goal?.cumpriuHoje ?? false;
   const streak = goal?.streak ?? 0;
   const feriasAtivo = goal?.feriasAtivo ?? false;
+  const totalAcumulado = goal?.respondidasSempre ?? 0;
 
-  // Questões no sistema x respondidas (total)
   const totalQuestoes = goal?.totalQuestoes ?? 0;
   const respondidasTotal = goal?.respondidasTotal ?? 0;
-  const respondidasSempre = goal?.respondidasSempre ?? 0;
   const progressoPlano = goal?.progressoPlano ?? 0;
+  const faltamBanco = Math.max(0, totalQuestoes - respondidasTotal);
 
-  // Prova
   const dataProva = goal?.dataProva ? new Date(goal.dataProva) : null;
-  const diasProva = dataProva
-    ? Math.max(0, Math.ceil((dataProva.getTime() - Date.now()) / 86400000))
-    : null;
+  const diasProva = dataProva ? Math.max(0, Math.ceil((dataProva.getTime() - Date.now()) / 86400000)) : null;
   const progressoTempo = goal?.progressoTempo ?? null;
-
-  // Calendário semanal — os dias reais em que bateu a meta vêm do backend (fuso
-  // do usuário). Fallback local só enquanto a resposta não chega.
-  const hojeIdx = goal?.hojeIdx ?? (new Date().getDay() + 6) % 7; // seg=0 ... dom=6
-  const diasConcluidos = goal?.semana ?? DIAS.map(() => false);
-
-  // Ciclo de legislação (dia sim, dia não) + progresso de hoje
-  const diaLegislacao = ehDiaDeLegislacao();
-  const legislacaoTotal = goal?.legislacaoTotal ?? 0;
-  const legislacaoFeitasHoje = goal?.legislacaoFeitasHoje ?? 0;
-  const legislacaoConcluida = legislacaoTotal > 0 && legislacaoFeitasHoje >= legislacaoTotal;
-
-  // Ciclo de português (dia sim, dia não — alterna com legislação) + progresso de hoje
-  const diaPortugues = ehDiaDePortugues();
-  const portuguesTotal = goal?.portuguesTotal ?? 0;
-  const portuguesFeitasHoje = goal?.portuguesFeitasHoje ?? 0;
-  const portuguesConcluida = portuguesTotal > 0 && portuguesFeitasHoje >= portuguesTotal;
-  const linkPortugues = `/materias?materia=${encodeURIComponent(MATERIA_PORTUGUES)}`;
-
-  // Revisão espaçada (SRS): questões prontas para revisar hoje
   const revisaoPendente = goal?.revisaoPendente ?? 0;
-
-  // Simulado só aos sábados
   const diaSimulado = ehDiaDeSimulado();
 
-  // "Continuar estudando": retoma sessão ativa ou abre o modo estudo para uma nova.
+  // Data e saudação por horário.
+  const agora = new Date();
+  const dataFmt = agora
+    .toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "short", year: "numeric" })
+    .toUpperCase();
+  const h = agora.getHours();
+  const saudacao = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+
   async function continuarEstudando() {
     const sessao = await getSessaoAtiva();
     if (sessao && sessao.contexto === "ESTUDO" && sessao.cursor < sessao.questaoIds.length) {
@@ -145,7 +106,6 @@ export function Home() {
     }
   }
 
-  // Salva a nova data da prova (input type=date → "YYYY-MM-DD").
   async function salvarData(valor: string) {
     if (!valor) return;
     setSalvandoData(true);
@@ -158,15 +118,11 @@ export function Home() {
     }
   }
 
-  // Salva a nova meta diária (1–500 questões).
   async function salvarMeta(valor: number) {
     if (!Number.isFinite(valor) || valor < 1 || valor > 500) return;
     setSalvandoMeta(true);
     try {
-      const res = await api<{ metaDiaria: number }>("/goals/meta", {
-        method: "PATCH",
-        body: { metaDiaria: valor },
-      });
+      const res = await api<{ metaDiaria: number }>("/goals/meta", { method: "PATCH", body: { metaDiaria: valor } });
       setGoal((g) => (g ? { ...g, meta: res.metaDiaria } : g));
       setEditandoMeta(false);
     } finally {
@@ -174,572 +130,238 @@ export function Home() {
     }
   }
 
-  // Liga/desliga o modo férias — enquanto ligado os dias não quebram a ofensiva.
-  async function alternarFerias(ativo: boolean) {
-    setSalvandoFerias(true);
+  async function alternarFerias(valor: boolean) {
     try {
-      const res = await api<{ feriasAtivo: boolean }>("/goals/ferias", {
-        method: "PATCH",
-        body: { ativo },
-      });
+      const res = await api<{ feriasAtivo: boolean }>("/goals/ferias", { method: "PATCH", body: { ativo: valor } });
       setGoal((g) => (g ? { ...g, feriasAtivo: res.feriasAtivo } : g));
-    } finally {
-      setSalvandoFerias(false);
+    } catch {
+      /* ignora */
     }
   }
 
   return (
-    <div className="space-y-6" style={{ animation: "pop .35s ease both" }}>
-      {/* Saudação */}
-      <div className="pt-2">
-        <h1 className="font-display text-3xl font-extrabold text-brand-ink">Olá, {usuario?.nome}</h1>
-        <p className="text-muted mt-1">Bora manter a ofensiva de hoje.</p>
+    <div className="fadeup space-y-6 pt-2">
+      {/* 1. Cabeçalho */}
+      <header>
+        <p className="text-[11px] font-bold uppercase tracking-[.18em] text-faint">{dataFmt}</p>
+        <h1 className="mt-1 font-display leading-none text-brand-ink" style={{ fontSize: 42, fontWeight: "var(--displayWeight)" as never }}>
+          {saudacao}, {usuario?.nome}
+        </h1>
+        <p className="mt-2 text-muted">
+          {diasProva != null ? (
+            <>
+              Faltam <b className="text-brand-ink">{diasProva} dias</b> para a prova da {ativo?.banca ?? ""}. Continue de onde parou.
+            </>
+          ) : (
+            <>Defina a data da sua prova para acompanhar a contagem regressiva.</>
+          )}
+        </p>
+      </header>
+
+      {/* 2. Faixa de 4 KPIs (um cartão dividido por border-right) */}
+      <div className="card grid grid-cols-2 sm:grid-cols-4 divide-hair">
+        <Kpi rotulo="Realizadas hoje" valor={respondidas} sub={`de ${meta} na meta`} />
+        <Kpi rotulo="Acertos" valor={acertosHoje} sub="nesta jornada" cor="var(--goodText)" borda />
+        <Kpi rotulo="Erros" valor={errosHoje} sub="vão para revisão" cor="var(--accentText)" borda />
+        <Kpi rotulo="Total acumulado" valor={totalAcumulado} sub="desde o início" borda />
       </div>
 
-      {/* Total de questões realizadas desde o início (todas, com repetições) */}
-      <div className="relative flex items-center gap-5 overflow-hidden rounded-3xl bg-gradient-to-br from-[#F5722B] to-[#F59E0B] p-6 text-white">
-        <div className="absolute -top-8 right-10 h-32 w-32 rounded-full bg-white/10 blur-2xl" style={{ animation: "floaty 8s ease-in-out infinite" }} />
-        <div className="relative h-16 w-16 flex-shrink-0 rounded-2xl bg-white/15 flex items-center justify-center">
-          <Trophy size={30} className="text-white" strokeWidth={2} />
-        </div>
-        <div className="relative flex-1">
-          <p className="text-xs font-extrabold uppercase tracking-widest text-white/80">
-            Questões realizadas
-          </p>
-          <p className="font-display text-5xl font-extrabold leading-none mt-1">
-            {respondidasSempre.toLocaleString("pt-BR")}
-          </p>
-          <p className="text-sm text-white/85 mt-1.5">
-            no total desde que você começou 🚀
-          </p>
-        </div>
-      </div>
-
-      {/* Resumo de hoje: realizadas, acertos, erros e aproveitamento */}
-      <div className="card p-5">
-        <div className="flex items-center justify-between">
-          <p className="font-display font-extrabold text-brand-ink">Hoje</p>
-          <span className="text-xs font-bold uppercase tracking-widest text-faint">
-            {aproveitamentoHoje}% de aproveitamento
-          </span>
-        </div>
-        <div className="mt-4 grid grid-cols-4 gap-3">
-          <StatHoje icon={Target} valor={respondidas} rotulo="Realizadas" bg="bg-[#EEF0FF]" cor="text-[#4A57E0]" />
-          <StatHoje icon={Check} valor={acertosHoje} rotulo="Acertos" bg="bg-[#E8F7EF]" cor="text-[#12995B]" />
-          <StatHoje icon={X} valor={errosHoje} rotulo="Erros" bg="bg-[#FDECEF]" cor="text-[#E14A5F]" />
-          <StatHoje icon={Percent} valor={aproveitamentoHoje} sufixo="%" rotulo="Aproveit." bg="bg-[#FFF4E5]" cor="text-[#E08A00]" />
-        </div>
-      </div>
-
-      {/* Grid principal 2 colunas */}
+      {/* 3. Meta diária + coluna direita (contagem + progresso no banco) */}
       <div className="grid gap-5 lg:grid-cols-2">
-        {/* a) Meta diária (hero escuro) */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#2C2260] via-[#4A3DB0] to-[#6B5CE8] p-7 text-white">
-          <div className="absolute -top-6 right-8 h-40 w-40 rounded-full bg-white/10 blur-2xl" style={{ animation: "floaty 7s ease-in-out infinite" }} />
-          <div className="absolute bottom-2 right-24 h-24 w-24 rounded-full bg-white/5 blur-xl" style={{ animation: "floaty 9s ease-in-out infinite" }} />
-          <div className="relative flex items-center gap-6">
-            <ProgressRing valor={respondidas} meta={meta} size={148} />
-            <div className="flex-1 space-y-3">
-              <div className="flex items-center gap-2">
-                <p className="text-xs font-extrabold uppercase tracking-widest text-cyan-from">Meta diária</p>
-                {!editandoMeta && (
-                  <button
-                    onClick={() => setEditandoMeta(true)}
-                    className="text-white/60 transition hover:text-white"
-                    aria-label="Alterar meta diária"
-                    title="Alterar meta diária"
-                  >
-                    <Pencil size={14} strokeWidth={2} />
-                  </button>
-                )}
-              </div>
-
-              {editandoMeta ? (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const val = Number(new FormData(e.currentTarget).get("meta"));
-                    salvarMeta(val);
-                  }}
-                  className="space-y-2"
-                >
-                  <div className="flex items-center gap-2">
-                    <input
-                      name="meta"
-                      type="number"
-                      min={1}
-                      max={500}
-                      defaultValue={meta}
-                      autoFocus
-                      disabled={salvandoMeta}
-                      className="w-24 rounded-lg bg-white/10 border border-white/20 px-3 py-2 text-lg font-extrabold text-white focus:outline-none focus:ring-2 focus:ring-cyan-from/50"
-                    />
-                    <span className="text-sm opacity-80">questões/dia</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="submit"
-                      disabled={salvandoMeta}
-                      className="rounded-xl bg-white px-4 py-2 text-sm font-display font-extrabold text-brand-600 transition hover:-translate-y-0.5 disabled:opacity-60"
-                    >
-                      {salvandoMeta ? "Salvando…" : "Salvar"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditandoMeta(false)}
-                      className="text-xs text-white/60 hover:text-white"
-                    >
-                      Cancelar
-                    </button>
-                  </div>
-                </form>
-              ) : cumpriuHoje ? (
-                <>
-                  <div className="flex items-center gap-2">
-                    <span className="text-3xl leading-none">🎉</span>
-                    <p className="font-display text-2xl font-extrabold leading-tight">
-                      Meta batida!
-                    </p>
-                  </div>
-                  <p className="text-sm text-white/85">
-                    {respondidas} de {meta} questões hoje · ofensiva de {streak} {streak === 1 ? "dia" : "dias"} 🔥
-                  </p>
-                  <button
-                    onClick={continuarEstudando}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-white/15 px-5 py-3 font-display font-extrabold text-white transition hover:bg-white/25"
-                  >
-                    Seguir treinando
-                    <ArrowRight size={18} strokeWidth={2.4} />
-                  </button>
-                </>
-              ) : (
-                <>
-                  <p className="font-display text-2xl font-extrabold leading-tight">
-                    Faltam {faltam} {faltam === 1 ? "questão" : "questões"}
-                  </p>
-                  <button
-                    onClick={continuarEstudando}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 font-display font-extrabold text-brand-600 transition hover:-translate-y-0.5"
-                  >
-                    Continuar estudando
-                    <ArrowRight size={18} strokeWidth={2.4} />
-                  </button>
-                </>
+        {/* Meta diária (anel) */}
+        <div className="card flex items-center gap-6 p-7">
+          <ProgressRing valor={respondidas} meta={meta} size={116} />
+          <div className="flex-1 space-y-2">
+            <div className="flex items-center gap-2">
+              <p className="text-[11px] font-bold uppercase tracking-[.16em] text-faint">Meta diária</p>
+              {!editandoMeta && (
+                <button onClick={() => setEditandoMeta(true)} className="text-faint transition hover:text-brand-500" aria-label="Alterar meta diária">
+                  <Pencil size={13} strokeWidth={2} />
+                </button>
               )}
             </div>
-          </div>
-        </div>
-
-        {/* b) Ofensiva */}
-        <div className="card p-7">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="font-display text-3xl font-extrabold text-brand-ink">{streak} dias</p>
-              <p className="text-muted mt-1">de ofensiva. Não quebre!</p>
-            </div>
-            <div
-              className="h-16 w-16 rounded-2xl bg-gradient-to-br from-flame-from to-flame-to flex items-center justify-center shadow-lg shadow-flame-to/40"
-              style={{ animation: "flamewave 2.5s ease-in-out infinite" }}
-            >
-              <Flame size={30} className="text-white" strokeWidth={2} fill="currentColor" />
-            </div>
-          </div>
-
-          <div className="mt-6 grid grid-cols-7 gap-2">
-            {DIAS.map((d, i) => {
-              const feito = diasConcluidos[i];
-              const hoje = i === hojeIdx;
-              // sáb/dom = descanso; em modo férias, todo dia não-feito também não quebra.
-              const fimDeSemana = i === 5 || i === 6;
-              const feriasNoDia = feriasAtivo && i <= hojeIdx; // só dias já decorridos
-              const descanso = !feito && (fimDeSemana || feriasNoDia);
-              return (
-                <div key={i} className="flex flex-col items-center gap-1.5">
-                  <div
-                    className={`h-11 w-full rounded-xl flex items-center justify-center ${
-                      feito
-                        ? "bg-gradient-to-br from-flame-from to-flame-to"
-                        : hoje
-                        ? "border-2 border-dashed border-flame-from bg-surface"
-                        : descanso
-                        ? "bg-brand-50 border border-dashed border-hair"
-                        : "bg-brand-100"
-                    }`}
-                    title={
-                      descanso
-                        ? feriasNoDia && !fimDeSemana
-                          ? "Modo férias — este dia não quebra a ofensiva"
-                          : "Sábado e domingo são de descanso — não quebram a ofensiva"
-                        : undefined
-                    }
-                  >
-                    {feito ? (
-                      <Check size={18} className="text-white" strokeWidth={3} />
-                    ) : descanso ? (
-                      feriasNoDia && !fimDeSemana ? (
-                        <Palmtree size={16} className="text-faint" strokeWidth={2} />
-                      ) : (
-                        <Moon size={16} className="text-faint" strokeWidth={2} />
-                      )
-                    ) : null}
-                  </div>
-                  <span className="text-xs font-bold text-faint">{d}</span>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Modo férias: enquanto ligado, os dias não quebram a ofensiva. */}
-          <div className="mt-6 flex items-center justify-between rounded-2xl bg-brand-50 border border-hair p-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-brand-100 flex items-center justify-center flex-shrink-0">
-                <Palmtree size={20} className="text-brand-500" strokeWidth={2} />
-              </div>
-              <div>
-                <p className="font-bold text-brand-ink">Modo férias</p>
-                <p className="text-xs text-muted mt-0.5">
-                  {feriasAtivo
-                    ? "Ligado — os dias não quebram a ofensiva. Desligue ao voltar."
-                    : "Ligue ao viajar para não perder a ofensiva."}
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={feriasAtivo}
-              aria-label="Modo férias"
-              disabled={salvandoFerias}
-              onClick={() => alternarFerias(!feriasAtivo)}
-              className={`relative h-7 w-12 flex-shrink-0 rounded-full transition-colors disabled:opacity-50 ${
-                feriasAtivo ? "bg-brand-500" : "bg-brand-100"
-              }`}
-            >
-              <span
-                className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                  feriasAtivo ? "translate-x-6" : "translate-x-1"
-                }`}
-              />
-            </button>
-          </div>
-        </div>
-
-        {/* c) Questões no sistema x respondidas (substitui o card de Nível) */}
-        <div className="card p-7">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-400 flex items-center justify-center flex-shrink-0">
-              <Layers size={22} className="text-white" strokeWidth={2} />
-            </div>
-            <div className="flex-1">
-              <p className="font-display font-extrabold text-brand-ink">Questões</p>
-              <p className="text-sm text-faint">Seu progresso no banco</p>
-            </div>
-          </div>
-
-          <div className="mt-5 flex items-end gap-6">
-            <div>
-              <p className="font-display text-3xl font-extrabold text-brand-500">{respondidasTotal}</p>
-              <p className="text-xs font-bold uppercase tracking-widest text-muted">Respondidas</p>
-            </div>
-            <div className="h-10 w-px bg-hair" />
-            <div>
-              <p className="font-display text-3xl font-extrabold text-brand-ink">{totalQuestoes}</p>
-              <p className="text-xs font-bold uppercase tracking-widest text-muted">No sistema</p>
-            </div>
-          </div>
-
-          <div className="mt-5 h-2.5 w-full rounded-full bg-hair overflow-hidden">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-brand-500 to-[#7C6FF6]"
-              style={{
-                width: `${progressoPlano}%`,
-                backgroundSize: "200% 100%",
-                animation: "shimmer 2.5s linear infinite",
-              }}
-            />
-          </div>
-          <p className="mt-2 text-xs text-faint">
-            {totalQuestoes - respondidasTotal > 0
-              ? `Faltam ${totalQuestoes - respondidasTotal} questões para você ver todas`
-              : totalQuestoes > 0
-              ? "Você já viu todas as questões do banco!"
-              : "Importe questões para começar"}
-          </p>
-        </div>
-
-        {/* d) Contagem para a prova (escuro) — com edição de data */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1C1840] to-[#332A6E] p-7 text-white">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <p className="text-xs font-extrabold uppercase tracking-widest text-cyan-from/80">
-                Contagem para a prova
-              </p>
-
-              {editandoData ? (
-                <div className="mt-3 space-y-2">
-                  <input
-                    type="date"
-                    defaultValue={dataProva ? dataProva.toISOString().slice(0, 10) : ""}
-                    onChange={(e) => salvarData(e.target.value)}
-                    disabled={salvandoData}
-                    className="rounded-lg bg-white/10 border border-white/20 px-3 py-2 text-sm text-white [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-cyan-from/50"
-                  />
-                  <button
-                    onClick={() => setEditandoData(false)}
-                    className="block text-xs text-white/60 hover:text-white"
-                  >
+            {editandoMeta ? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  salvarMeta(Number(new FormData(e.currentTarget).get("meta")));
+                }}
+                className="space-y-2"
+              >
+                <input name="meta" type="number" min={1} max={500} defaultValue={meta} autoFocus disabled={salvandoMeta} className="filter-select w-28" />
+                <div className="flex items-center gap-3">
+                  <button type="submit" disabled={salvandoMeta} className="btn-primary text-sm">
+                    {salvandoMeta ? "Salvando…" : "Salvar"}
+                  </button>
+                  <button type="button" onClick={() => setEditandoMeta(false)} className="text-xs text-muted hover:text-brand-ink">
                     Cancelar
                   </button>
                 </div>
-              ) : (
-                <>
-                  <div className="mt-2 flex items-end gap-2">
-                    <span className="font-display text-5xl font-extrabold leading-none">
-                      {diasProva ?? "—"}
-                    </span>
-                    <span className="pb-1 text-sm opacity-80">dias restantes</span>
-                  </div>
-                  <p className="mt-2 text-sm opacity-80">
-                    {dataProva
-                      ? `Prova: ${dataProva.toLocaleDateString("pt-BR", { day: "numeric", month: "short", year: "numeric" })}`
-                      : "Defina a data da prova"}
-                  </p>
-                </>
+              </form>
+            ) : (
+              <>
+                <p className="font-display text-2xl font-bold leading-tight text-brand-ink">
+                  {cumpriuHoje ? "Meta batida" : `Faltam ${faltamMeta} ${faltamMeta === 1 ? "questão" : "questões"}`}
+                </p>
+                <p className="text-sm text-muted">
+                  {cumpriuHoje
+                    ? `${respondidas} de ${meta} hoje · ofensiva de ${streak} ${streak === 1 ? "dia" : "dias"}.`
+                    : "Cada questão te aproxima da ofensiva de hoje."}
+                </p>
+                <button onClick={continuarEstudando} className="btn-primary mt-1 inline-flex items-center gap-2 text-base">
+                  {cumpriuHoje ? "Seguir treinando" : "Continuar estudando"}
+                  <ArrowRight size={18} strokeWidth={2.4} />
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Coluna direita empilhada */}
+        <div className="space-y-5">
+          {/* Contagem para a prova */}
+          <div className="card p-6">
+            <div className="flex items-start justify-between">
+              <p className="text-[11px] font-bold uppercase tracking-[.16em] text-faint">Contagem para a prova</p>
+              {!editandoData && (
+                <button onClick={() => setEditandoData(true)} className="text-faint transition hover:text-brand-500" aria-label="Alterar data da prova">
+                  {dataProva ? <Pencil size={14} strokeWidth={1.8} /> : <CalendarDays size={16} strokeWidth={1.8} />}
+                </button>
               )}
             </div>
-
-            {!editandoData && (
-              <button
-                onClick={() => setEditandoData(true)}
-                className="h-11 w-11 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition"
-                aria-label="Alterar data da prova"
-                title="Alterar data da prova"
-              >
-                {dataProva ? <Pencil size={18} strokeWidth={1.8} /> : <CalendarDays size={20} strokeWidth={1.8} />}
-              </button>
+            {editandoData ? (
+              <div className="mt-3 space-y-2">
+                <input
+                  type="date"
+                  defaultValue={dataProva ? dataProva.toISOString().slice(0, 10) : ""}
+                  onChange={(e) => salvarData(e.target.value)}
+                  disabled={salvandoData}
+                  className="filter-select w-auto"
+                />
+                <button onClick={() => setEditandoData(false)} className="block text-xs text-muted hover:text-brand-ink">
+                  Cancelar
+                </button>
+              </div>
+            ) : (
+              <>
+                <p className="mt-2 flex items-end gap-2">
+                  <span className="font-display font-bold leading-none text-brand-ink" style={{ fontSize: 38 }}>
+                    {diasProva ?? "—"}
+                  </span>
+                  <span className="pb-1 text-sm text-muted">dias restantes</span>
+                </p>
+                <p className="mt-1 text-sm text-muted">
+                  {dataProva
+                    ? `Prova: ${dataProva.toLocaleDateString("pt-BR", { day: "numeric", month: "short", year: "numeric" })}`
+                    : "Defina a data da prova"}
+                </p>
+                {dataProva && progressoTempo != null && (
+                  <>
+                    <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--track)" }}>
+                      <div className="h-full rounded-full" style={{ width: `${progressoTempo}%`, background: "var(--accent)" }} />
+                    </div>
+                    <p className="mt-2 text-xs text-faint">{progressoTempo}% do tempo até a prova percorrido</p>
+                  </>
+                )}
+              </>
             )}
           </div>
 
-          {!editandoData && dataProva && progressoTempo != null && (
-            <>
-              <div className="mt-5 h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-cyan-from to-cyan-to"
-                  style={{ width: `${progressoTempo}%` }}
-                />
-              </div>
-              <p className="mt-2 text-xs opacity-70">
-                {progressoTempo}% do tempo até a prova · faltam {diasProva} dias
-              </p>
-            </>
-          )}
+          {/* Progresso no banco */}
+          <div className="card p-6">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-bold uppercase tracking-[.16em] text-faint">Seu progresso no banco</p>
+              <span className="font-display font-bold text-brand-ink">{progressoPlano}%</span>
+            </div>
+            <p className="mt-2 text-sm text-muted">
+              <b className="text-brand-ink">{respondidasTotal}</b> de {totalQuestoes} respondidas
+            </p>
+            <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full" style={{ background: "var(--track)" }}>
+              <div className="h-full rounded-full" style={{ width: `${progressoPlano}%`, background: "var(--accent)" }} />
+            </div>
+            <p className="mt-2 text-xs text-faint">
+              {faltamBanco > 0 ? `Faltam ${faltamBanco} questões para ver todas` : totalQuestoes > 0 ? "Você já viu todas as questões!" : "Importe questões para começar"}
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Heatmap anual de sequência (estilo GitHub) */}
-      <StreakHeatmap dias={heatmap} feriasAtivo={feriasAtivo} onToggleFerias={(v) => alternarFerias(v)} />
+      {/* 4. Heatmap anual */}
+      <StreakHeatmap dias={heatmap} periodos={periodosFerias} feriasAtivo={feriasAtivo} onToggleFerias={(v) => alternarFerias(v)} />
 
-      {/* d2) Revisão espaçada (SRS) — sempre visível: destaque quando há questões
-             prontas hoje, ou um card calmo "tudo em dia" quando não há. */}
-      {revisaoPendente > 0 ? (
+      {/* 5. Banner de revisão pendente */}
+      {revisaoPendente > 0 && (
         <Link
           to="/revisar?modo=srs"
-          className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#4A57E0] to-[#6B5CE8] p-5 text-white transition hover:-translate-y-0.5"
+          className="flex items-center gap-4 rounded-2xl border-l-4 p-5 transition hover:-translate-y-0.5"
+          style={{ borderColor: "var(--accent)", background: "var(--accentBg)" }}
         >
-          <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-white/15 flex items-center justify-center">
+          <div className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-2xl" style={{ background: "var(--accentBg)", color: "var(--accentText)" }}>
             <CalendarClock size={24} strokeWidth={2} />
           </div>
           <div className="flex-1">
-            <p className="font-display font-extrabold">
-              {revisaoPendente} {revisaoPendente === 1 ? "questão pronta" : "questões prontas"} para revisar 🧠
+            <p className="font-display font-bold text-brand-ink">
+              {revisaoPendente} {revisaoPendente === 1 ? "questão pronta" : "questões prontas"} para revisar
             </p>
-            <p className="text-sm text-white/85">
-              Revisão espaçada: reveja agora enquanto ainda está fresco na memória.
-            </p>
-          </div>
-          <ArrowRight size={20} strokeWidth={2.4} className="flex-shrink-0" />
-        </Link>
-      ) : (
-        <Link
-          to="/revisar?modo=srs"
-          className="relative flex items-center gap-4 overflow-hidden rounded-2xl border border-hair bg-surface p-5 transition hover:-translate-y-0.5 hover:border-brand-300"
-        >
-          <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-brand-100 flex items-center justify-center">
-            <CalendarClock size={24} className="text-brand-600" strokeWidth={2} />
-          </div>
-          <div className="flex-1">
-            <p className="font-display font-extrabold text-brand-ink">Revisão do dia em dia ✅</p>
-            <p className="text-sm text-faint">
-              Nada pronto para revisar agora — a gente te avisa aqui na hora certa de cada questão.
-            </p>
+            <p className="text-sm text-muted">Revisão espaçada: reveja agora enquanto está fresco na memória.</p>
           </div>
           <ArrowRight size={20} strokeWidth={2.4} className="flex-shrink-0 text-faint" />
         </Link>
       )}
 
-      {/* e) Modos de estudo */}
+      {/* 6. Mural de post-its */}
+      <StickyBoard />
+
+      {/* 7. Modos de estudo */}
       <div>
-        <h2 className="font-display text-xl font-extrabold text-brand-ink mb-4">Modos de estudo</h2>
+        <h2 className="mb-4 font-display text-xl font-bold text-brand-ink">Modos de estudo</h2>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <ModoCard to="/estudar" icon={BookOpen} titulo="Estudar" sub="Feedback imediato + anotações" bg="bg-brand-100" cor="text-brand-600" />
-          <ModoCard to="/revisar" icon={RefreshCw} titulo="Revisar" sub="Suas erradas em fila" bg="bg-danger-soft" cor="text-danger-from" />
-          <ModoCard to="/caderno" icon={NotebookPen} titulo="Caderno" sub="Anotações por matéria" bg="bg-brand-100" cor="text-brand-700" />
+          <ModoCard to="/estudar" icon={BookOpen} titulo="Estudar" sub="Feedback imediato + anotações" />
+          <ModoCard to="/revisar" icon={RefreshCw} titulo="Revisar" sub="Suas erradas em fila" />
+          <ModoCard to="/caderno" icon={NotebookPen} titulo="Caderno" sub="Anotações por matéria" />
           <ModoCard
             to="/simulado"
             icon={FileText}
             titulo="Simulado"
             sub={diaSimulado ? "70 questões, prova real" : "Disponível aos sábados"}
-            bg="bg-success-soft"
-            cor="text-success-from"
             locked={!diaSimulado}
           />
         </div>
       </div>
 
-      {/* Mural de post-its arrastáveis */}
-      <StickyBoard />
-
-      {/* f) Legislação — destaque quando é "dia de legislação" (ciclo de 2 dias).
-             Ao concluir todas as questões de hoje, vira um feedback de conclusão. */}
-      {diaLegislacao && (
-        legislacaoConcluida ? (
-          <Link
-            to="/legislacao"
-            className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#0E7A48] to-[#0A5E38] p-5 text-white transition hover:-translate-y-0.5"
-          >
-            <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-white/20 flex items-center justify-center">
-              <Check size={26} strokeWidth={3} />
-            </div>
-            <div className="flex-1">
-              <p className="font-display font-extrabold">Dia de legislação concluído! 🎉</p>
-              <p className="text-sm text-white/85">
-                Você fez as {legislacaoTotal} questões de legislação de hoje. Mandou bem!
-              </p>
-            </div>
-          </Link>
-        ) : (
-          <Link
-            to="/legislacao"
-            className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#12995B] to-[#0E7A48] p-5 text-white transition hover:-translate-y-0.5"
-          >
-            <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-white/15 flex items-center justify-center">
-              <Scale size={24} strokeWidth={2} />
-            </div>
-            <div className="flex-1">
-              <p className="font-display font-extrabold">Hoje é dia de Legislação 📜</p>
-              <p className="text-sm text-white/85">
-                {legislacaoFeitasHoje > 0
-                  ? `${legislacaoFeitasHoje} de ${legislacaoTotal} feitas hoje — continue!`
-                  : "Faça todas as questões de legislação de hoje."}
-              </p>
-            </div>
-            <ArrowRight size={20} strokeWidth={2.4} className="flex-shrink-0" />
-          </Link>
-        )
-      )}
-
-      {/* f1) Português — destaque quando é "dia de português" (ciclo de 2 dias,
-             alternando com legislação). Vira feedback de conclusão ao terminar. */}
-      {diaPortugues && (
-        portuguesConcluida ? (
-          <Link
-            to={linkPortugues}
-            className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#2A3DAF] to-[#1E2C82] p-5 text-white transition hover:-translate-y-0.5"
-          >
-            <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-white/20 flex items-center justify-center">
-              <Check size={26} strokeWidth={3} />
-            </div>
-            <div className="flex-1">
-              <p className="font-display font-extrabold">Dia de português concluído! 🎉</p>
-              <p className="text-sm text-white/85">
-                Você fez as {portuguesTotal} questões de português de hoje. Mandou bem!
-              </p>
-            </div>
-          </Link>
-        ) : (
-          <Link
-            to={linkPortugues}
-            className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#3B4DD1] to-[#2A3DAF] p-5 text-white transition hover:-translate-y-0.5"
-          >
-            <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-white/15 flex items-center justify-center">
-              <Languages size={24} strokeWidth={2} />
-            </div>
-            <div className="flex-1">
-              <p className="font-display font-extrabold">Hoje é dia de Português ✍️</p>
-              <p className="text-sm text-white/85">
-                {portuguesFeitasHoje > 0
-                  ? `${portuguesFeitasHoje} de ${portuguesTotal} feitas hoje — continue!`
-                  : "Faça todas as questões de português de hoje."}
-              </p>
-            </div>
-            <ArrowRight size={20} strokeWidth={2.4} className="flex-shrink-0" />
-          </Link>
-        )
-      )}
-
-      {/* f2) Simulado — destaque no sábado (dia de simulado) */}
-      {diaSimulado && (
-        <Link
-          to="/simulado"
-          className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#4A3DB0] to-[#6B5CE8] p-5 text-white transition hover:-translate-y-0.5"
-        >
-          <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-white/15 flex items-center justify-center">
-            <FileText size={24} strokeWidth={2} />
-          </div>
-          <div className="flex-1">
-            <p className="font-display font-extrabold">Sábado é dia de Simulado 📝</p>
-            <p className="text-sm text-white/85">Encare as 70 questões no clima de prova real.</p>
-          </div>
-          <ArrowRight size={20} strokeWidth={2.4} className="flex-shrink-0" />
-        </Link>
-      )}
-
-      {/* g) Atalhos: anotações + marcadas */}
+      {/* 8. Atalhos */}
       <div className="grid gap-3 sm:grid-cols-2">
-        <Link
-          to="/anotacoes"
-          className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-hair bg-white/50 py-4 font-display font-bold text-muted transition hover:border-brand-300 hover:text-brand-500"
-        >
-          <NotebookPen size={18} strokeWidth={1.8} />
-          Questões com anotações
+        <Link to="/anotacoes" className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-hair py-4 font-display font-bold text-muted transition hover:border-brand-300 hover:text-brand-500">
+          <NotebookPen size={18} strokeWidth={1.8} /> Questões com anotações
         </Link>
-        <Link
-          to="/marcadas"
-          className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-hair bg-white/50 py-4 font-display font-bold text-muted transition hover:border-brand-300 hover:text-brand-500"
-        >
-          <Bookmark size={18} strokeWidth={1.8} />
-          Marcadas para revisar
+        <Link to="/marcadas" className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-hair py-4 font-display font-bold text-muted transition hover:border-brand-300 hover:text-brand-500">
+          <Bookmark size={18} strokeWidth={1.8} /> Marcadas para revisar
         </Link>
       </div>
     </div>
   );
 }
 
-function StatHoje({
-  icon: Icon,
-  valor,
+function Kpi({
   rotulo,
-  bg,
+  valor,
+  sub,
   cor,
-  sufixo = "",
+  borda,
 }: {
-  icon: typeof BookOpen;
-  valor: number;
   rotulo: string;
-  bg: string;
-  cor: string;
-  sufixo?: string;
+  valor: number;
+  sub: string;
+  cor?: string;
+  borda?: boolean;
 }) {
   return (
-    <div className="flex flex-col items-center text-center gap-1.5">
-      <div className={`h-10 w-10 rounded-xl ${bg} flex items-center justify-center`}>
-        <Icon size={20} className={cor} strokeWidth={2.4} />
-      </div>
-      <p className="font-display text-2xl font-extrabold text-brand-ink leading-none">
-        {valor}
-        {sufixo}
+    <div className={`px-5 py-5 ${borda ? "sm:border-l border-hair" : ""}`}>
+      <p className="text-[10px] font-bold uppercase tracking-[.14em] text-faint">{rotulo}</p>
+      <p className="mt-2 font-display font-bold leading-none" style={{ fontSize: 34, color: cor ?? "var(--text)" }}>
+        {valor.toLocaleString("pt-BR")}
       </p>
-      <p className="text-xs font-bold uppercase tracking-wide text-faint">{rotulo}</p>
+      <p className="mt-1.5 text-xs text-muted">{sub}</p>
     </div>
   );
 }
@@ -749,44 +371,35 @@ function ModoCard({
   icon: Icon,
   titulo,
   sub,
-  bg,
-  cor,
-  fill = false,
   locked = false,
 }: {
   to: string;
   icon: typeof BookOpen;
   titulo: string;
   sub: string;
-  bg: string;
-  cor: string;
-  fill?: boolean;
   locked?: boolean;
 }) {
   const conteudo = (
     <>
-      <div className={`h-11 w-11 rounded-xl ${bg} flex items-center justify-center`}>
-        <Icon size={22} className={cor} strokeWidth={2} fill={fill ? "currentColor" : "none"} />
+      <div className="grid h-11 w-11 place-items-center rounded-xl" style={{ background: "var(--accentBg)", color: "var(--accentText)" }}>
+        <Icon size={22} strokeWidth={2} />
       </div>
-      <h3 className="mt-3 font-display font-extrabold text-brand-ink flex items-center gap-1.5">
+      <h3 className="mt-3 flex items-center gap-1.5 font-display font-bold text-brand-ink">
         {titulo}
         {locked && <Lock size={14} className="text-faint" strokeWidth={2} />}
       </h3>
-      <p className="text-sm text-faint mt-0.5">{sub}</p>
+      <p className="mt-0.5 text-sm text-faint">{sub}</p>
     </>
   );
-
-  // Bloqueado (ex.: simulado fora do sábado): não navega, visual esmaecido.
   if (locked) {
     return (
-      <div className="card p-5 opacity-60 cursor-not-allowed" aria-disabled title="Disponível aos sábados">
+      <div className="card p-5 opacity-60" aria-disabled title="Disponível aos sábados">
         {conteudo}
       </div>
     );
   }
-
   return (
-    <Link to={to} className="card p-5 transition hover:-translate-y-0.5 cursor-pointer">
+    <Link to={to} className="card p-5 transition hover:-translate-y-0.5">
       {conteudo}
     </Link>
   );

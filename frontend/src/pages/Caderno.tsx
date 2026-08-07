@@ -13,7 +13,7 @@ import {
 } from "../lib/multiApi";
 
 export function Caderno() {
-  const { activeId } = useConcurso();
+  const { activeId, ativo } = useConcurso();
   const [paginas, setPaginas] = useState<PaginaCaderno[]>([]);
   const [ativaId, setAtivaId] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(true);
@@ -70,9 +70,18 @@ export function Caderno() {
 
   return (
     <div className="fadeup pt-2">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="font-display text-3xl font-bold text-brand-ink">Caderno</h1>
-        <button onClick={() => novaPagina()} className="btn-secondary text-sm">
+      <div className="mb-5 flex items-end justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[.16em] text-faint">Caderno · {ativo?.nome ?? ""}</p>
+          <h1 className="mt-1 font-display font-bold text-brand-ink" style={{ fontSize: 40, fontWeight: "var(--displayWeight)" as never }}>
+            Suas anotações
+          </h1>
+          <p className="mt-1 text-muted">Páginas de teoria e resumo, organizadas por matéria.</p>
+        </div>
+        <button
+          onClick={() => novaPagina()}
+          className="btn-primary flex-shrink-0 text-sm"
+        >
           <span className="inline-flex items-center gap-1.5">
             <Plus size={16} strokeWidth={2} /> Nova página
           </span>
