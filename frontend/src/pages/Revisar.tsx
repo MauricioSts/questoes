@@ -1,14 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { RefreshCw, CalendarClock } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { api } from "../lib/api";
 import { getQuestoes } from "../lib/questoesRepo";
 import { SessionRunner, type RespostaSessao } from "../components/SessionRunner";
 import { ResumoSessao } from "../components/ResumoSessao";
 import { Card } from "../components/Card";
-import { Button } from "../components/Button";
 import { Skeleton } from "../components/Skeleton";
+import { PageHeader } from "../components/PageHeader";
 import type { Questao } from "../types/questao";
+
+// Cor da barra de gravidade por nº de erros (spec §7): 4×/3× accent, 2× accentText, 1× dim.
+function corGravidade(erros = 0): string {
+  if (erros >= 3) return "var(--accent)";
+  if (erros === 2) return "var(--accentText)";
+  return "var(--dim)";
+}
 
 type Modo = "erradas" | "srs";
 
@@ -31,6 +38,7 @@ export function Revisar() {
   const [erro, setErro] = useState(false);
   const [sessao, setSessao] = useState<Questao[] | null>(null);
   const [resultado, setResultado] = useState<RespostaSessao[] | null>(null);
+  const [contagem, setContagem] = useState<{ erradas: number; srs: number }>({ erradas: 0, srs: 0 });
 
   const carregar = useCallback(() => {
     setCarregando(true);
@@ -43,6 +51,14 @@ export function Revisar() {
   }, [modo]);
 
   useEffect(carregar, [carregar]);
+
+  // Contagem das duas abas (para os rótulos "Erradas pendentes · N").
+  useEffect(() => {
+    Promise.all([
+      api<{ questoes: unknown[] }>("/answers/erradas").catch(() => ({ questoes: [] })),
+      api<{ total: number }>("/answers/revisao").catch(() => ({ total: 0 })),
+    ]).then(([e, s]) => setContagem({ erradas: e.questoes.length, srs: s.total }));
+  }, [resultado]);
 
   const questoes = getQuestoes(metas.map((m) => m.questaoId));
 
@@ -78,46 +94,34 @@ export function Revisar() {
     : "Continue estudando para melhorar!";
 
   return (
-    <div className="mx-auto max-w-[560px] space-y-6 px-4 py-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <div
-          className={`h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
-            srs ? "bg-brand-100" : "bg-danger-soft"
-          }`}
-        >
-          {srs ? (
-            <CalendarClock size={24} className="text-brand-600" strokeWidth={1.5} />
-          ) : (
-            <RefreshCw size={24} className="text-danger-from" strokeWidth={1.5} />
-          )}
-        </div>
-        <div>
-          <h1 className="font-display text-2xl font-extrabold text-brand-ink">Revisar</h1>
-          <p className="text-sm text-faint">
-            {srs ? "Revisão espaçada: a questão certa, no dia certo" : "Assim que acertar, elas somem daqui"}
-          </p>
-        </div>
-      </div>
+    <div className="fadeup mx-auto max-w-[820px] pt-2">
+      <PageHeader
+        rotulo="Revisão"
+        titulo={srs ? "Revisão do dia" : "O que ficou pendente"}
+        subtitulo={
+          srs ? "A questão certa, no dia certo — revisão espaçada." : "Assim que você acerta, a questão sai desta lista."
+        }
+      />
 
-      {/* Alternância de modo */}
-      <div className="grid grid-cols-2 gap-1 rounded-2xl bg-brand-50 p-1">
-        <button
-          onClick={() => trocarModo("erradas")}
-          className={`rounded-xl py-2.5 text-sm font-display font-bold transition ${
-            !srs ? "bg-surface text-brand-ink shadow-sm" : "text-faint hover:text-brand-ink"
-          }`}
-        >
-          Erradas pendentes
-        </button>
-        <button
-          onClick={() => trocarModo("srs")}
-          className={`rounded-xl py-2.5 text-sm font-display font-bold transition ${
-            srs ? "bg-surface text-brand-ink shadow-sm" : "text-faint hover:text-brand-ink"
-          }`}
-        >
-          Revisão do dia
-        </button>
+      {/* Abas com contagem (underline) */}
+      <div className="mb-5 flex items-center gap-6 border-b border-hair">
+        {([
+          { id: "erradas", label: "Erradas pendentes", n: contagem.erradas },
+          { id: "srs", label: "Revisão do dia", n: contagem.srs },
+        ] as const).map((t) => {
+          const ativo = (t.id === "srs") === srs;
+          return (
+            <button
+              key={t.id}
+              onClick={() => trocarModo(t.id)}
+              className={`-mb-px border-b-2 pb-2.5 text-sm font-display font-bold transition ${
+                ativo ? "border-brand-500 text-brand-ink" : "border-transparent text-faint hover:text-brand-ink"
+              }`}
+            >
+              {t.label} · {t.n}
+            </button>
+          );
+        })}
       </div>
 
       {carregando ? (
@@ -133,51 +137,42 @@ export function Revisar() {
           <p className="text-sm text-faint mt-1">Verifique sua conexão.</p>
         </Card>
       ) : questoes.length === 0 ? (
-        <Card className="p-8 text-center">
-          <p className="text-3xl mb-3">🎉</p>
-          <p className="font-semibold text-brand-ink">{vazioTitulo}</p>
+        <Card className="p-10 text-center">
+          <p className="font-display text-xl font-bold text-brand-ink">{vazioTitulo}</p>
           <p className="text-sm text-faint mt-2">{vazioSub}</p>
         </Card>
       ) : (
-        <>
-          <Button onClick={() => setSessao(questoes)} fullWidth size="lg">
-            {srs ? "Revisar" : "Revisar"} {questoes.length} questão{questoes.length !== 1 ? "s" : ""}
-          </Button>
+        <div className="space-y-4">
+          <button
+            onClick={() => setSessao(questoes)}
+            className="btn-primary flex w-full items-center justify-center gap-2 text-lg"
+          >
+            Revisar {questoes.length} {questoes.length !== 1 ? "questões" : "questão"}
+            <ArrowRight size={20} strokeWidth={2.2} />
+          </button>
 
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {metas
               .filter((m) => questoes.some((q) => q.id === m.questaoId))
               .map((m) => (
-                <Card key={m.questaoId} className="flex items-center gap-3 p-4 overflow-hidden">
-                  {/* Barra colorida à esquerda */}
+                <Card key={m.questaoId} className="flex items-center gap-4 overflow-hidden p-4">
                   <div
-                    className={`h-14 w-1.5 rounded-full flex-shrink-0 ${
-                      srs ? "bg-brand-400" : "bg-danger-from"
-                    }`}
+                    className="h-12 w-[3px] flex-shrink-0 rounded-full"
+                    style={{ background: srs ? "var(--accentText)" : corGravidade(m.erros) }}
                   />
-
-                  {/* Conteúdo */}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-brand-ink text-sm truncate">{m.assunto}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-display font-bold text-brand-ink">{m.assunto}</p>
                     <p className="text-xs text-faint">
                       Mód. {m.modulo} · {m.materia}
                     </p>
                   </div>
-
-                  {/* Badge: erros (erradas) ou nível de memória (srs) */}
-                  {srs ? (
-                    <div className="flex-shrink-0 rounded-full bg-brand-100 px-3 py-1.5 text-xs font-bold text-brand-600">
-                      {(m.streak ?? 0) === 0 ? "reforçar" : `nível ${m.streak}`}
-                    </div>
-                  ) : (
-                    <div className="flex-shrink-0 rounded-full bg-danger-soft px-3 py-1.5 text-xs font-bold text-danger-from">
-                      {m.erros}× errou
-                    </div>
-                  )}
+                  <span className="flex-shrink-0 text-xs font-bold" style={{ color: srs ? "var(--accentText)" : "var(--accentText)" }}>
+                    {srs ? ((m.streak ?? 0) === 0 ? "reforçar" : `nível ${m.streak}`) : `${m.erros}× errou`}
+                  </span>
                 </Card>
               ))}
           </div>
-        </>
+        </div>
       )}
     </div>
   );

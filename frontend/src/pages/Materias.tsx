@@ -2,14 +2,23 @@
 // suas questões numa rodada. Aceita deep-link ?materia=... para já abrir uma matéria.
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Library, ArrowLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
 import { SessionRunner, type RespostaSessao } from "../components/SessionRunner";
 import { ResumoSessao } from "../components/ResumoSessao";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
+import { PageHeader } from "../components/PageHeader";
 import { materias as listarMaterias, filtrar } from "../lib/questoesRepo";
 import { useProgresso } from "../hooks/useProgresso";
 import type { Questao } from "../types/questao";
+
+// Cor da barra de acerto (spec §7): verde ≥75%, muted 55–74%, accent <55%.
+function corAcerto(pct: number | null): string {
+  if (pct == null) return "var(--track)";
+  if (pct >= 75) return "var(--good)";
+  if (pct >= 55) return "var(--muted)";
+  return "var(--accent)";
+}
 
 export function Materias() {
   const [params, setParams] = useSearchParams();
@@ -24,13 +33,19 @@ export function Materias() {
     setMateriaSel(params.get("materia") ?? "");
   }, [params]);
 
-  // Lista de matérias com a contagem de questões de cada uma.
+  // Lista de matérias com contagem + % de acerto (último resultado por questão).
   const lista = useMemo(
     () =>
       listarMaterias()
-        .map((m) => ({ materia: m, total: filtrar({ materia: m }).length }))
+        .map((m) => {
+          const qs = filtrar({ materia: m });
+          const respondidas = qs.filter((q) => progresso.respondidas.has(q.id)).length;
+          const erradas = qs.filter((q) => progresso.erradas.has(q.id)).length;
+          const acerto = respondidas > 0 ? Math.round(((respondidas - erradas) / respondidas) * 100) : null;
+          return { materia: m, total: qs.length, acerto };
+        })
         .filter((x) => x.total > 0),
-    []
+    [progresso.respondidas, progresso.erradas]
   );
 
   const questoesDaMateria = useMemo(
@@ -68,51 +83,43 @@ export function Materias() {
   // --- Detalhe de uma matéria: lista as questões + botão para fazer todas ---
   if (materiaSel) {
     return (
-      <div className="mx-auto max-w-[620px] space-y-6 px-1 py-6">
+      <div className="fadeup mx-auto max-w-[820px] pt-2">
         <button
           onClick={() => abrir("")}
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-brand-500"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-brand-500"
         >
           <ArrowLeft size={16} strokeWidth={2} />
           Todas as matérias
         </button>
 
-        <div className="flex items-center gap-4">
-          <div className="h-12 w-12 rounded-2xl bg-brand-100 flex items-center justify-center flex-shrink-0">
-            <Library size={24} className="text-brand-600" strokeWidth={1.8} />
-          </div>
-          <div>
-            <h1 className="font-display text-2xl font-extrabold text-brand-ink">{materiaSel}</h1>
-            <p className="text-sm text-faint">
-              {questoesDaMateria.length} {questoesDaMateria.length === 1 ? "questão" : "questões"} no banco
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          rotulo="Estudo dirigido"
+          titulo={materiaSel}
+          subtitulo={`${questoesDaMateria.length} ${questoesDaMateria.length === 1 ? "questão" : "questões"} no banco`}
+        />
 
         {questoesDaMateria.length === 0 ? (
-          <Card className="p-8 text-center">
-            <p className="text-3xl mb-3">📭</p>
-            <p className="font-semibold text-brand-ink">Nenhuma questão dessa matéria</p>
+          <Card className="p-10 text-center">
+            <p className="font-display text-xl font-bold text-brand-ink">Nenhuma questão dessa matéria</p>
           </Card>
         ) : (
-          <>
+          <div className="space-y-4">
             <Button onClick={() => setSessao(questoesDaMateria)} fullWidth size="lg">
-              Fazer {questoesDaMateria.length}{" "}
-              {questoesDaMateria.length === 1 ? "questão" : "questões"} de {materiaSel}
+              Fazer {questoesDaMateria.length} {questoesDaMateria.length === 1 ? "questão" : "questões"} de {materiaSel}
             </Button>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {questoesDaMateria.map((q) => (
-                <Card key={q.id} className="flex items-center gap-3 p-4 overflow-hidden">
-                  <div className="h-14 w-1.5 rounded-full bg-brand-400 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-brand-ink text-sm truncate">{q.assunto}</p>
+                <Card key={q.id} className="flex items-center gap-4 overflow-hidden p-4">
+                  <div className="h-12 w-[3px] flex-shrink-0 rounded-full" style={{ background: "var(--accentText)" }} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-display font-bold text-brand-ink">{q.assunto}</p>
                     <p className="text-xs text-faint">Mód. {q.modulo} · {q.materia}</p>
                   </div>
                 </Card>
               ))}
             </div>
-          </>
+          </div>
         )}
       </div>
     );
@@ -120,38 +127,36 @@ export function Materias() {
 
   // --- Lista de matérias ---
   return (
-    <div className="mx-auto max-w-[620px] space-y-6 px-1 py-6">
-      <div className="flex items-center gap-4">
-        <div className="h-12 w-12 rounded-2xl bg-brand-100 flex items-center justify-center flex-shrink-0">
-          <Library size={24} className="text-brand-600" strokeWidth={1.8} />
-        </div>
-        <div>
-          <h1 className="font-display text-2xl font-extrabold text-brand-ink">Matérias</h1>
-          <p className="text-sm text-faint">Escolha uma matéria e faça todas as questões dela.</p>
-        </div>
-      </div>
+    <div className="fadeup mx-auto max-w-[820px] pt-2">
+      <PageHeader
+        rotulo="Estudo dirigido"
+        titulo="Matérias"
+        subtitulo="Escolha uma matéria para montar uma sessão dirigida."
+      />
 
       {lista.length === 0 ? (
-        <Card className="p-8 text-center">
-          <p className="text-3xl mb-3">📭</p>
-          <p className="font-semibold text-brand-ink">Nenhuma questão no banco</p>
+        <Card className="p-10 text-center">
+          <p className="font-display text-xl font-bold text-brand-ink">Nenhuma questão no banco</p>
           <p className="text-sm text-faint mt-2">Importe questões para começar.</p>
         </Card>
       ) : (
-        <div className="space-y-2">
-          {lista.map(({ materia, total }) => (
+        <div className="space-y-2.5">
+          {lista.map(({ materia, total, acerto }) => (
             <button key={materia} onClick={() => abrir(materia)} className="w-full text-left">
-              <Card className="flex items-center gap-3 p-4 transition hover:-translate-y-0.5">
-                <div className="h-12 w-12 rounded-2xl bg-brand-100 flex items-center justify-center flex-shrink-0">
-                  <Library size={20} className="text-brand-600" strokeWidth={1.8} />
+              <Card className="flex items-center gap-5 p-4 transition hover:-translate-y-0.5">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-display font-bold text-brand-ink">{materia}</p>
+                  <div className="mt-2 flex items-center gap-3">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--track)" }}>
+                      <div className="h-full rounded-full" style={{ width: `${acerto ?? 0}%`, background: corAcerto(acerto) }} />
+                    </div>
+                    <span className="w-12 text-right text-xs font-semibold text-muted">
+                      {acerto == null ? "—" : `${acerto}%`}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-brand-ink truncate">{materia}</p>
-                  <p className="text-xs text-faint">
-                    {total} {total === 1 ? "questão" : "questões"}
-                  </p>
-                </div>
-                <ChevronRight size={20} className="text-faint flex-shrink-0" strokeWidth={2} />
+                <span className="flex-shrink-0 text-xs text-faint">{total} {total === 1 ? "questão" : "questões"}</span>
+                <ChevronRight size={20} className="flex-shrink-0 text-faint" strokeWidth={2} />
               </Card>
             </button>
           ))}

@@ -26,7 +26,7 @@ export function Button({
   const baseClass = "tap rounded-2xl font-display font-extrabold transition hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50";
 
   const variantClass = {
-    primary: "bg-gradient-to-r from-brand-500 to-[#7C6FF6] text-white shadow-lg shadow-brand-500/40",
+    primary: "bg-brand-500 text-[color:var(--onAccent)] shadow-lg shadow-brand-500/30",
     secondary: "border border-hair bg-surface text-brand-500 hover:bg-brand-50",
     outline: "border border-hair text-brand-500",
   }[variant];

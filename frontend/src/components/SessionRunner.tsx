@@ -163,7 +163,7 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
               <ChevronLeft size={20} strokeWidth={2} />
             </button>
           )}
-          <span className="text-sm font-semibold text-muted">
+          <span className="text-xs font-bold uppercase tracking-[.16em] text-muted">
             Questão {idx + 1} de {questoes.length}
           </span>
           <div className="ml-auto flex items-center gap-3">
@@ -186,11 +186,8 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
           </div>
         </div>
 
-        <div className="h-2 w-full rounded-full bg-hair overflow-hidden">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-brand-500 to-[#7C6FF6] transition-all"
-            style={{ width: `${progresso}%` }}
-          />
+        <div className="h-1 w-full overflow-hidden rounded-full" style={{ background: "var(--track)" }}>
+          <div className="h-full rounded-full transition-all" style={{ width: `${progresso}%`, background: "var(--accent)" }} />
         </div>
       </div>
 
@@ -226,8 +223,7 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
         <button
           onClick={avancar}
           disabled={!podeAvancar}
-          className="tap flex-1 max-w-xs ml-auto rounded-2xl bg-gradient-to-r from-brand-500 to-[#7C6FF6] px-6 py-3 font-display text-base font-extrabold text-white transition hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-40"
-          style={{ boxShadow: "0 16px 30px -14px rgba(91,79,224,.8)" }}
+          className="btn-primary ml-auto max-w-xs flex-1 disabled:opacity-40"
         >
           {ultima ? "Finalizar" : "Próxima questão"}
         </button>

@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
-import { FileText, Lock } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Lock } from "lucide-react";
 import { SimuladosAnteriores } from "../components/SimuladosAnteriores";
+import { PageHeader } from "../components/PageHeader";
 import { api } from "../lib/api";
 import { ehDiaDeSimulado } from "../lib/agenda";
 import { todas } from "../lib/questoesRepo";
@@ -94,22 +94,22 @@ export function Simulado() {
 
   // Conteúdo da aba "Novo simulado": bloqueado fora de sábado, senão a tela de início.
   const conteudoNovo = !ehDiaDeSimulado() ? (
-    <Card className="p-8 text-center space-y-3">
-      <div className="mx-auto h-14 w-14 rounded-2xl bg-success-soft flex items-center justify-center">
-        <Lock size={26} className="text-success-from" strokeWidth={2} />
+    <Card className="p-10 text-center">
+      <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-hair" style={{ background: "var(--surface2)" }}>
+        <Lock size={26} className="text-faint" strokeWidth={2} />
       </div>
-      <h1 className="font-display text-2xl font-extrabold text-brand-ink">Simulado é aos sábados</h1>
-      <p className="text-sm text-faint">
-        O simulado completo fica disponível só aos sábados, no clima de prova real. Volte no
-        sábado — enquanto isso, treine no modo Estudar, Flash ou Revisar. Você ainda pode revisar
-        seus simulados anteriores na aba acima.
+      <h2 className="mt-5 font-display font-bold text-brand-ink" style={{ fontSize: 30, fontWeight: "var(--displayWeight)" as never }}>
+        Abre no sábado
+      </h2>
+      <p className="mx-auto mt-3 max-w-md text-sm text-muted">
+        O simulado completo libera aos sábados, sorteado a partir do que você respondeu na semana,
+        com ênfase nas erradas. Nota ponderada de até 115 pontos (Módulo I peso 1, Módulo II peso 2,5).
       </p>
-      <Link
-        to="/"
-        className="inline-flex items-center justify-center rounded-2xl bg-brand-500 px-5 py-3 font-display font-extrabold text-white transition hover:-translate-y-0.5"
-      >
-        Voltar ao início
-      </Link>
+      <div className="mx-auto mt-8 flex max-w-sm items-start justify-center gap-10">
+        <StatSimulado n="70" label="questões" />
+        <StatSimulado n="4h" label="cronômetro" />
+        <StatSimulado n="115" label="pontos" />
+      </div>
     </Card>
   ) : (
     <>
@@ -174,35 +174,30 @@ export function Simulado() {
         </div>
       )}
 
+      {/* Aviso */}
+      {aviso && (
+        <div className="rounded-xl border p-4 text-sm" style={{ borderColor: "var(--accentBd)", background: "var(--accentBg)", color: "var(--accentText)" }}>
+          {aviso}
+        </div>
+      )}
+
       {/* Botão */}
-      <Button
-        onClick={iniciar}
-        disabled={carregando}
-        fullWidth
-        size="lg"
-        variant="primary"
-        className="bg-gradient-to-r from-success-from to-success-to"
-      >
+      <Button onClick={iniciar} disabled={carregando} fullWidth size="lg">
         {carregando ? "Montando simulado…" : "Iniciar simulado"}
       </Button>
     </>
   );
 
   return (
-    <div className="mx-auto max-w-[620px] space-y-6 px-4 py-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <div className="h-12 w-12 rounded-lg bg-success-soft flex items-center justify-center flex-shrink-0">
-          <FileText size={24} className="text-success-from" strokeWidth={1.5} />
-        </div>
-        <div>
-          <h1 className="font-display text-2xl font-extrabold text-brand-ink">Simulado</h1>
-          <p className="text-sm text-faint">70 questões na proporção real da prova — sem feedback até o fim</p>
-        </div>
-      </div>
+    <div className="fadeup mx-auto max-w-[820px] pt-2">
+      <PageHeader
+        rotulo="Simulado"
+        titulo="Prova completa"
+        subtitulo="70 questões na proporção real, sem feedback até o fim."
+      />
 
-      {/* Abas */}
-      <div className="flex gap-1 rounded-2xl bg-hair/50 p-1">
+      {/* Abas (underline) */}
+      <div className="mb-5 flex items-center gap-6 border-b border-hair">
         {([
           ["novo", "Novo simulado"],
           ["anteriores", "Anteriores"],
@@ -210,8 +205,8 @@ export function Simulado() {
           <button
             key={val}
             onClick={() => setAba(val)}
-            className={`tap flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition ${
-              aba === val ? "bg-surface text-brand-ink shadow-sm" : "text-faint hover:text-brand-ink"
+            className={`-mb-px border-b-2 pb-2.5 text-sm font-display font-bold transition ${
+              aba === val ? "border-brand-500 text-brand-ink" : "border-transparent text-faint hover:text-brand-ink"
             }`}
           >
             {label}
@@ -219,7 +214,16 @@ export function Simulado() {
         ))}
       </div>
 
-      {aba === "novo" ? conteudoNovo : <SimuladosAnteriores />}
+      <div className="space-y-6">{aba === "novo" ? conteudoNovo : <SimuladosAnteriores />}</div>
     </div>
+  );
+}
+
+function StatSimulado({ n, label }: { n: string; label: string }) {
+  return (
+    <span className="flex flex-col items-center">
+      <span className="font-display font-bold text-brand-ink" style={{ fontSize: 26 }}>{n}</span>
+      <span className="mt-1 text-[10px] font-bold uppercase tracking-[.14em] text-faint">{label}</span>
+    </span>
   );
 }

@@ -30,7 +30,10 @@ export function QuestaoView({
   const acertou = revelado && selecionada === questao.gabarito;
 
   return (
-    <article className="space-y-4">
+    <article
+      className="space-y-4"
+      style={revelado && !acertou ? { animation: "shakeX .4s ease" } : undefined}
+    >
       {/* Texto base */}
       {textoBase && mostrarTextoBase && (
         <Card className="border-l-4 border-brand-500 p-4">
@@ -50,7 +53,7 @@ export function QuestaoView({
       </div>
 
       {/* Enunciado */}
-      <h2 className="font-semibold text-base leading-relaxed text-brand-ink whitespace-pre-wrap">
+      <h2 className="font-semibold leading-relaxed text-brand-ink whitespace-pre-wrap" style={{ fontSize: "16.5px" }}>
         {comRealce(questao.enunciado)}
       </h2>
 
@@ -62,7 +65,7 @@ export function QuestaoView({
               {questao.linguagem}
             </div>
           )}
-          <pre className="overflow-x-auto bg-[#F7F6FD] p-4 text-sm leading-relaxed font-mono text-brand-ink">
+          <pre className="overflow-x-auto p-4 text-sm leading-relaxed font-mono text-brand-ink" style={{ background: "var(--surface2)" }}>
             <code>{questao.codigo}</code>
           </pre>
         </div>

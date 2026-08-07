@@ -7,9 +7,9 @@ import { useConcurso, type Concurso, type EstadoConcurso } from "../store/concur
 import { criarConcurso } from "../lib/multiApi";
 
 const BADGE: Record<EstadoConcurso, { texto: string; cls: string }> = {
-  EM_CURSO: { texto: "Em curso", cls: "bg-success-soft text-success-from" },
-  PAUSADO: { texto: "Pausado", cls: "bg-brand-100 text-brand-700" },
-  VAZIO: { texto: "Vazio", cls: "bg-danger-soft text-danger-from" },
+  EM_CURSO: { texto: "EM CURSO", cls: "border border-[color:var(--accentBd)] text-[color:var(--accentText)]" },
+  PAUSADO: { texto: "PAUSADO", cls: "bg-brand-100 text-brand-700" },
+  VAZIO: { texto: "VAZIO", cls: "bg-surface2 text-faint" },
 };
 
 export function ConcursoPicker() {
@@ -28,7 +28,7 @@ export function ConcursoPicker() {
         <h1 className="font-display text-4xl font-bold text-brand-ink" style={{ fontWeight: "var(--displayWeight)" as never }}>
           Seus concursos
         </h1>
-        <p className="text-muted mt-1">Escolha em qual concurso quer estudar agora.</p>
+        <p className="text-muted mt-1">Escolha o concurso que você vai estudar agora.</p>
       </div>
 
       {loading ? (
@@ -54,12 +54,10 @@ export function ConcursoPicker() {
               </div>
               <h2 className="mt-4 font-display text-2xl font-bold text-brand-ink leading-tight">{c.nome}</h2>
               <p className="text-sm text-faint">{c.cargo}</p>
-              <div className="mt-4 flex items-center gap-4 text-sm">
+              <div className="mt-4 flex items-center gap-5 text-sm">
                 <Num n={c.respondidas} label="respondidas" />
-                <span className="text-hair">·</span>
                 <Num n={c.noBanco} label="no banco" />
-                <span className="text-hair">·</span>
-                <Num n={c.diasProva} label="dias p/ prova" />
+                <Num n={`${c.diasProva}d`} label="até a prova" />
               </div>
             </button>
           ))}
@@ -97,11 +95,11 @@ export function ConcursoPicker() {
   );
 }
 
-function Num({ n, label }: { n: number; label: string }) {
+function Num({ n, label }: { n: number | string; label: string }) {
   return (
     <span className="flex flex-col leading-tight">
-      <span className="font-display text-lg font-bold text-brand-ink">{n}</span>
-      <span className="text-[11px] uppercase tracking-wide text-faint">{label}</span>
+      <span className="font-display text-xl font-bold text-brand-ink">{n}</span>
+      <span className="text-[10px] uppercase tracking-[.12em] text-faint">{label}</span>
     </span>
   );
 }

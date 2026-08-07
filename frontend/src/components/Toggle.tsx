@@ -8,8 +8,8 @@ interface ToggleProps {
 
 export function Toggle({ checked, onChange, label, disabled = false, ariaLabel }: ToggleProps) {
   return (
-    <div className="flex items-center gap-3">
-      {label && <label className="text-sm font-medium text-brand-ink">{label}</label>}
+    <div className="flex items-center justify-between gap-3">
+      {label && <label className="flex-1 text-sm font-medium text-brand-ink">{label}</label>}
       <button
         onClick={() => !disabled && onChange(!checked)}
         disabled={disabled}

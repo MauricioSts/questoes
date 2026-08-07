@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { BookOpen, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { Questao, Modulo, Dificuldade } from "../types/questao";
 import { filtrar, materias as listarMaterias, assuntos as listarAssuntos, getQuestoes } from "../lib/questoesRepo";
 import { shuffle } from "../lib/sessionBuilder";
@@ -11,6 +11,7 @@ import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { Toggle } from "../components/Toggle";
 import { FilterSelect } from "../components/FilterSelect";
+import { PageHeader } from "../components/PageHeader";
 import { getSessaoAtiva, salvarSessao, atualizarCursor, encerrarSessao } from "../lib/sessao";
 
 export function Estudar() {
@@ -28,6 +29,7 @@ export function Estudar() {
   const [dificuldade, setDificuldade] = useState<Dificuldade | "">("");
   const [soNaoRespondidas, setSoNaoRespondidas] = useState(false);
   const [soErradas, setSoErradas] = useState(false);
+  const [priorizarErradas, setPriorizarErradas] = useState(false);
   const [quantidade, setQuantidade] = useState(10);
 
   const materiasDisp = useMemo(() => listarMaterias(modulo || undefined), [modulo]);
@@ -63,7 +65,15 @@ export function Estudar() {
     });
     if (soNaoRespondidas) pool = pool.filter((q) => !progresso.respondidas.has(q.id));
     if (soErradas) pool = pool.filter((q) => progresso.erradas.has(q.id));
-    const sel = shuffle(pool).slice(0, quantidade);
+    // "Priorizar as que errei mais": as erradas vêm primeiro na seleção.
+    let sel: Questao[];
+    if (priorizarErradas) {
+      const err = shuffle(pool.filter((q) => progresso.erradas.has(q.id)));
+      const resto = shuffle(pool.filter((q) => !progresso.erradas.has(q.id)));
+      sel = [...err, ...resto].slice(0, quantidade);
+    } else {
+      sel = shuffle(pool).slice(0, quantidade);
+    }
     setResultado(null);
     setCursorInicial(0);
     setSessao(sel);
@@ -118,17 +128,12 @@ export function Estudar() {
   }
 
   return (
-    <div className="mx-auto max-w-[560px] space-y-6 px-4 py-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <div className="h-12 w-12 rounded-lg bg-brand-100 flex items-center justify-center flex-shrink-0">
-          <BookOpen size={24} className="text-brand-600" strokeWidth={1.5} />
-        </div>
-        <div>
-          <h1 className="font-display text-2xl font-extrabold text-brand-ink">Modo Estudo</h1>
-          <p className="text-sm text-faint">Feedback imediato, explicação e anotações</p>
-        </div>
-      </div>
+    <div className="fadeup mx-auto max-w-[680px] pt-2">
+      <PageHeader
+        rotulo="Modo estudo"
+        titulo="Montar sessão"
+        subtitulo="Feedback imediato, explicação e anotações a cada questão."
+      />
 
       {/* Filtros */}
       <Card className="p-6 space-y-4">
@@ -205,11 +210,17 @@ export function Estudar() {
             label="Só erradas anteriormente"
             ariaLabel="Filtrar apenas questões respondidas incorretamente"
           />
+          <Toggle
+            checked={priorizarErradas}
+            onChange={setPriorizarErradas}
+            label="Priorizar as que errei mais"
+            ariaLabel="Colocar as questões erradas antes na sessão"
+          />
         </div>
       </Card>
 
       {/* Botão */}
-      <Button onClick={iniciar} fullWidth size="lg">
+      <Button onClick={iniciar} fullWidth size="lg" className="mt-6">
         Começar sessão <ArrowRight size={20} strokeWidth={1.5} className="ml-2" />
       </Button>
     </div>
