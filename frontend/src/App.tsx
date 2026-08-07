@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./store/auth";
 import { ThemeProvider } from "./store/theme";
+import { ConcursoProvider } from "./store/concurso";
 import { QuestoesProvider } from "./store/questoes";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout } from "./components/AppLayout";
@@ -18,6 +19,8 @@ import { Legislacao } from "./pages/Legislacao";
 import { Materias } from "./pages/Materias";
 import { Revisar } from "./pages/Revisar";
 import { Importar } from "./pages/Importar";
+import { Caderno } from "./pages/Caderno";
+import { ConcursoPicker } from "./pages/ConcursoPicker";
 
 export default function App() {
   return (
@@ -30,18 +33,22 @@ export default function App() {
             <Route
               element={
                 <ProtectedRoute>
-                  <QuestoesProvider>
-                    <AppLayout />
-                  </QuestoesProvider>
+                  <ConcursoProvider>
+                    <QuestoesProvider>
+                      <AppLayout />
+                    </QuestoesProvider>
+                  </ConcursoProvider>
                 </ProtectedRoute>
               }
             >
               <Route path="/" element={<Home />} />
+              <Route path="/concursos" element={<ConcursoPicker />} />
               <Route path="/estudar" element={<Estudar />} />
               <Route path="/flash" element={<Flash />} />
               <Route path="/topico" element={<Topico />} />
               <Route path="/simulado" element={<Simulado />} />
               <Route path="/revisar" element={<Revisar />} />
+              <Route path="/caderno" element={<Caderno />} />
               <Route path="/stats" element={<Stats />} />
               <Route path="/marcadas" element={<Marcadas />} />
               <Route path="/anotacoes" element={<Anotacoes />} />

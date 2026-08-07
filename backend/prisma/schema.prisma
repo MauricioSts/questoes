@@ -23,6 +23,7 @@ enum Contexto {
 // A correção de acerto continua no frontend; o backend só guarda e serve o conteúdo.
 model Questao {
   id           Int      @id // ID definido no lote (usado como questaoId em Answer)
+  concursoId   String? // concurso ao qual a questão pertence (multi-concurso). null = legado
   modulo       String // "I" | "II"
   materia      String
   assunto      String
@@ -39,6 +40,62 @@ model Questao {
 
   @@index([modulo, materia])
   @@index([createdAt])
+  @@index([concursoId])
+}
+
+// Concurso do usuário. O app é multi-concurso: cada concurso tem seu próprio conjunto de
+// questões, respostas, anotações e caderno. Nenhum dado atravessa concursos.
+model Concurso {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nome       String // "Banco do Brasil"
+  iniciais   String // "BB"
+  banca      String // "CESGRANRIO"
+  ano        Int
+  cargo      String
+  dataProva  DateTime
+  metaDiaria Int      @default(30)
+  arquivado  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  paginas PaginaCaderno[]
+  postits PostIt[]
+
+  @@index([userId])
+}
+
+// Página do Caderno (anotações tipo Notion), escopada por usuário + concurso + matéria.
+model PaginaCaderno {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concursoId String
+  concurso   Concurso @relation(fields: [concursoId], references: [id], onDelete: Cascade)
+  materia    String
+  titulo     String   @default("")
+  conteudo   String   @default("") // markdown ou JSON de blocos
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId, concursoId])
+}
+
+// Post-it do mural (Home), arrastável, escopado por usuário + concurso.
+model PostIt {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concursoId String
+  concurso   Concurso @relation(fields: [concursoId], references: [id], onDelete: Cascade)
+  x          Float    @default(0)
+  y          Float    @default(0)
+  texto      String   @default("")
+  cor        String   @default("amber") // amber | sage | rose | slate
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId, concursoId])
 }
 
 model TextoBase {
@@ -61,6 +118,9 @@ model User {
   answers       Answer[]
   notas         Nota[]
   marcadas      Marcada[]
+  concursos     Concurso[]
+  paginas       PaginaCaderno[]
+  postits       PostIt[]
   refreshTokens RefreshToken[]
   sessaoAtiva   SessaoAtiva?
 }
@@ -85,6 +145,7 @@ model Answer {
   clientId            String?  @unique // id gerado no cliente p/ deduplicar reenvios (fila offline)
   userId              String
   user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concursoId          String? // concurso da resposta (multi-concurso). null = legado
   questaoId           Int
   moduloSnapshot      String // "I" (gerais) | "II" (específicos)
   materiaSnapshot     String
@@ -103,23 +164,25 @@ model Answer {
 
 // Anotação do usuário na questão — uma por questão por usuário.
 model Nota {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  questaoId Int
-  texto     String
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concursoId String? // concurso da anotação (multi-concurso). null = legado
+  questaoId  Int
+  texto      String
+  updatedAt  DateTime @updatedAt
 
   @@unique([userId, questaoId])
 }
 
 // "Marcar questão pra revisar depois" — flag por questão por usuário.
 model Marcada {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  questaoId Int
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concursoId String? // concurso da marcação (multi-concurso). null = legado
+  questaoId  Int
+  createdAt  DateTime @default(now())
 
   @@unique([userId, questaoId])
 }

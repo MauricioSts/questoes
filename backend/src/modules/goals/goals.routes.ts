@@ -16,15 +16,24 @@ goalsRouter.get(
   "/today",
   asyncHandler(async (req, res) => {
     const user = await prisma.user.findUnique({ where: { id: req.userId! } });
-    const meta = user?.metaDiaria ?? 70;
+
+    // Multi-concurso: quando ?concursoId= é enviado, os números são do concurso ativo
+    // (meta e data da prova vêm do concurso). Sem o param, comporta-se como legado.
+    const concursoId = req.query.concursoId ? String(req.query.concursoId) : undefined;
+    const cf: { concursoId?: string } = concursoId ? { concursoId } : {};
+    const concurso = concursoId
+      ? await prisma.concurso.findFirst({ where: { id: concursoId, userId: req.userId! } })
+      : null;
+
+    const meta = concurso?.metaDiaria ?? user?.metaDiaria ?? 70;
 
     const inicioHoje = startOfToday();
     const respondidasHoje = await prisma.answer.count({
-      where: { userId: req.userId!, createdAt: { gte: inicioHoje } },
+      where: { userId: req.userId!, createdAt: { gte: inicioHoje }, ...cf },
     });
     // Acertos de hoje → aproveitamento do dia no dashboard.
     const acertosHoje = await prisma.answer.count({
-      where: { userId: req.userId!, createdAt: { gte: inicioHoje }, acertou: true },
+      where: { userId: req.userId!, createdAt: { gte: inicioHoje }, acertou: true, ...cf },
     });
 
     // Uma única passada nas respostas → mapa dia→quantidade, base do streak e da semana.
@@ -42,9 +51,9 @@ goalsRouter.get(
 
     // Total de questões no sistema (banco compartilhado) e quantas o usuário já
     // respondeu ao menos uma vez (distinct por questaoId).
-    const totalQuestoes = await prisma.questao.count();
+    const totalQuestoes = await prisma.questao.count({ where: { ...cf } });
     const respondidasDistintas = await prisma.answer.findMany({
-      where: { userId: req.userId! },
+      where: { userId: req.userId!, ...cf },
       distinct: ["questaoId"],
       select: { questaoId: true },
     });
@@ -54,18 +63,19 @@ goalsRouter.get(
     // Total de questões realizadas de todos os tempos (conta repetições — cada
     // resposta registrada, não só questões distintas). É o "quanto já resolvi".
     const respondidasSempre = await prisma.answer.count({
-      where: { userId: req.userId! },
+      where: { userId: req.userId!, ...cf },
     });
 
     // Legislação: total de questões da matéria + quantas (distintas) foram feitas
     // hoje — para o feedback de "dia de legislação concluído" no dashboard.
-    const legislacaoWhere = { materia: { contains: "legisl", mode: "insensitive" as const } };
+    const legislacaoWhere = { materia: { contains: "legisl", mode: "insensitive" as const }, ...cf };
     const legislacaoTotal = await prisma.questao.count({ where: legislacaoWhere });
     const legislacaoDistintasHoje = await prisma.answer.findMany({
       where: {
         userId: req.userId!,
         createdAt: { gte: inicioHoje },
         materiaSnapshot: { contains: "legisl", mode: "insensitive" },
+        ...cf,
       },
       distinct: ["questaoId"],
       select: { questaoId: true },
@@ -73,13 +83,14 @@ goalsRouter.get(
     const legislacaoFeitasHoje = legislacaoDistintasHoje.length;
 
     // Português: mesmo cálculo da legislação, para o "dia de português" no dashboard.
-    const portuguesWhere = { materia: { contains: "portugu", mode: "insensitive" as const } };
+    const portuguesWhere = { materia: { contains: "portugu", mode: "insensitive" as const }, ...cf };
     const portuguesTotal = await prisma.questao.count({ where: portuguesWhere });
     const portuguesDistintasHoje = await prisma.answer.findMany({
       where: {
         userId: req.userId!,
         createdAt: { gte: inicioHoje },
         materiaSnapshot: { contains: "portugu", mode: "insensitive" },
+        ...cf,
       },
       distinct: ["questaoId"],
       select: { questaoId: true },
@@ -88,7 +99,7 @@ goalsRouter.get(
 
     // Revisão espaçada: quantas questões estão "prontas" para revisar hoje (SRS).
     const answersRevisao = await prisma.answer.findMany({
-      where: { userId: req.userId! },
+      where: { userId: req.userId!, ...cf },
       select: {
         questaoId: true,
         acertou: true,
@@ -103,10 +114,10 @@ goalsRouter.get(
 
     // Progresso de tempo até a prova (0–100%): quanto do período desde a criação
     // da conta até a data da prova já passou. Só faz sentido com data definida.
-    const dataProva = user?.dataProva ?? null;
+    const dataProva = concurso?.dataProva ?? user?.dataProva ?? null;
     let progressoTempo: number | null = null;
     if (dataProva && user) {
-      const inicio = user.createdAt.getTime();
+      const inicio = (concurso?.createdAt ?? user.createdAt).getTime();
       const fim = dataProva.getTime();
       const agora = Date.now();
       progressoTempo =

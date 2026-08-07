@@ -9,6 +9,10 @@ import { notesRouter } from "./modules/notes/notes.routes.js";
 import { marcadasRouter } from "./modules/marcadas/marcadas.routes.js";
 import { goalsRouter } from "./modules/goals/goals.routes.js";
 import { sessaoRouter } from "./modules/sessao/sessao.routes.js";
+import { concursosRouter } from "./modules/concursos/concursos.routes.js";
+import { cadernoRouter } from "./modules/caderno/caderno.routes.js";
+import { postitsRouter } from "./modules/postits/postits.routes.js";
+import { statsRouter } from "./modules/stats/stats.routes.js";
 
 const app = express();
 
@@ -29,6 +33,10 @@ app.use("/notes", notesRouter);
 app.use("/marcadas", marcadasRouter);
 app.use("/goals", goalsRouter);
 app.use("/sessao", sessaoRouter);
+app.use("/concursos", concursosRouter);
+app.use("/caderno", cadernoRouter);
+app.use("/postits", postitsRouter);
+app.use("/stats", statsRouter);
 
 app.use(errorHandler);
 

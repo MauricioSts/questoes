@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, Flame, Upload, Moon, Sun } from "lucide-react";
+import { LogOut, Flame, Upload, Sun } from "lucide-react";
 import { useAuth } from "../store/auth";
 import { useTheme } from "../store/theme";
+import { useConcurso } from "../store/concurso";
 import { api } from "../lib/api";
 
 interface GoalToday {
@@ -12,8 +13,10 @@ interface GoalToday {
 export function TopBar() {
   const navigate = useNavigate();
   const { tema, alternar } = useTheme();
+  const { ativo } = useConcurso();
   const { logout } = useAuth();
   const [goal, setGoal] = useState<GoalToday | null>(null);
+  const grimorio = tema === "grimorio";
 
   useEffect(() => {
     api<GoalToday>("/goals/today").then(setGoal).catch(() => null);
@@ -31,10 +34,14 @@ export function TopBar() {
       <div className="flex items-center justify-between gap-3 px-5 py-3">
         {/* Esquerda: título + badge */}
         <div className="flex items-center gap-3">
-          <span className="font-display text-xl font-extrabold text-brand-ink">Questões</span>
-          <span className="hidden sm:inline rounded-full bg-brand-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-muted">
-            Dataprev · FGV
+          <span className="font-brand text-xl font-bold text-brand-ink" style={{ letterSpacing: "var(--brandTrack)" }}>
+            {grimorio ? "Grimório" : "NEON//VGL"}
           </span>
+          {ativo && (
+            <span className="hidden sm:inline rounded-full bg-brand-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-brand-700">
+              {ativo.iniciais} · {ativo.banca}
+            </span>
+          )}
         </div>
 
         {/* Direita: streak + sair */}
@@ -66,14 +73,14 @@ export function TopBar() {
             <span className="hidden sm:inline">Sair</span>
           </button>
 
-          {/* Alternar tema claro/escuro */}
+          {/* Alternar tema Grimório/Neon (ícone no header no mobile) */}
           <button
             onClick={alternar}
-            className="flex items-center rounded-lg px-2 py-1.5 text-muted hover:text-brand-500 transition"
-            aria-label={tema === "dark" ? "Mudar para tema claro" : "Mudar para tema escuro"}
-            title={tema === "dark" ? "Tema claro" : "Tema escuro"}
+            className="flex items-center rounded-lg px-2 py-1.5 text-muted hover:text-brand-500 transition lg:hidden"
+            aria-label={grimorio ? "Mudar para Modo Neon" : "Mudar para Modo Grimório"}
+            title={grimorio ? "Modo Neon" : "Modo Grimório"}
           >
-            {tema === "dark" ? <Sun size={18} strokeWidth={1.8} /> : <Moon size={18} strokeWidth={1.8} />}
+            {grimorio ? <Flame size={18} strokeWidth={1.8} fill="currentColor" /> : <Sun size={18} strokeWidth={1.8} />}
           </button>
         </div>
       </div>

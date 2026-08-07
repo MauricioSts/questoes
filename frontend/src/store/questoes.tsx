@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
 import { carregarTudo } from "../lib/questoesStore";
 import { setDados, totalQuestoes } from "../lib/questoesRepo";
+import { useConcurso } from "./concurso";
 
 interface QuestoesContextValue {
   pronto: boolean;
@@ -15,6 +16,8 @@ const QuestoesContext = createContext<QuestoesContextValue | null>(null);
 export function QuestoesProvider({ children }: { children: ReactNode }) {
   const [pronto, setPronto] = useState(false);
   const [total, setTotal] = useState(0);
+  // Recarrega o conjunto de questões sempre que o concurso ativo muda (multi-concurso).
+  const { activeId } = useConcurso();
 
   const recarregar = useCallback(async () => {
     const { questoes, textosBase } = await carregarTudo();
@@ -23,8 +26,9 @@ export function QuestoesProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    setPronto(false);
     recarregar().finally(() => setPronto(true));
-  }, [recarregar]);
+  }, [recarregar, activeId]);
 
   if (!pronto) {
     return <div className="grid h-full place-items-center text-slate-400">Carregando questões…</div>;

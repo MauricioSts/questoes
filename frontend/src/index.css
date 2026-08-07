@@ -2,87 +2,148 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================ ANIMAÇÕES ============================ */
 @keyframes floaty {
-  0%, 100% {
-    transform: translateY(0) rotate(0);
-  }
-  50% {
-    transform: translateY(-14px) rotate(6deg);
-  }
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-14px) rotate(6deg); }
 }
-
 @keyframes pop {
-  0% {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  60% {
-    transform: scale(1.03);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  0% { transform: scale(0.9); opacity: 0; }
+  60% { transform: scale(1.03); }
+  100% { transform: scale(1); opacity: 1; }
 }
-
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
-
 @keyframes ringdraw {
-  from {
-    stroke-dashoffset: 327;
-  }
+  from { stroke-dashoffset: 327; }
 }
-
 @keyframes flamewave {
-  0%, 100% {
-    transform: scaleY(1) translateY(0);
-  }
-  50% {
-    transform: scaleY(1.08) translateY(-2px);
-  }
+  0%, 100% { transform: scaleY(1) translateY(0); }
+  50% { transform: scaleY(1.08) translateY(-2px); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes shakeX {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+/* Halos de vela (Grimório): oscilação suave de opacidade/escala */
+@keyframes candle {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.06); }
+}
+/* Varredura (Neon): linha horizontal descendo a tela */
+@keyframes scanline {
+  from { transform: translateY(-10vh); }
+  to { transform: translateY(110vh); }
 }
 
-/* Tokens de chassi em canais RGB (r g b) — consumidos pelo Tailwind via rgb(var(--x)/alpha). */
-:root {
-  color-scheme: light;
-  --brand-50: 241 240 250;
-  --brand-100: 233 231 248;
-  --ink: 27 23 56;
-  --muted: 106 102 144; /* mais escuro que antes p/ melhor contraste no claro */
-  --faint: 139 135 168;
-  --hair: 234 231 247;
-  --surface: 255 255 255;
-  --surface-2: 247 246 253;
-  --bg: 241 240 250;
-  --bg-glow: rgba(124, 111, 246, 0.14);
-}
+/* ============================ TEMAS ============================ *
+ * Cada tema define (1) canais RGB "r g b" para o Tailwind (chassi + acento) e
+ * (2) os tokens hex do design (usados por app-root e componentes premium). */
 
-.dark {
+/* ---------- GRIMÓRIO (escuro, mística/biblioteca antiga) ---------- */
+[data-theme='grimorio'] {
+  /* canais RGB p/ Tailwind */
+  --brand-50: 34 26 60;
+  --brand-100: 48 36 73;
+  --brand-200: 91 71 136;
+  --brand-300: 91 71 136;
+  --brand-400: 228 188 69;
+  --brand-500: 201 162 39;
+  --brand-600: 165 133 31;
+  --brand-700: 231 206 134;
+  --ink: 239 230 210;
+  --muted: 176 162 203;
+  --faint: 133 119 153;
+  --hair: 48 36 73;
+  --surface: 26 20 48;
+  --surface-2: 34 26 60;
+  --bg: 18 14 30;
+  --bg-glow: rgba(201, 162, 39, 0.10);
+  --flame-text: 228 188 69;
+  --success-from: 78 143 109;
+  --success-soft: 30 45 37;
+  --danger-from: 201 162 39;
+  --danger-soft: 33 26 20;
+  --cyan-from: 228 188 69;
+  --cyan-to: 201 162 39;
+
+  /* tokens hex do design */
+  --text:#EFE6D2; --dim:#5C4F7C;
+  --surfaceHex:#1A1430; --surface2:#221A3C;
+  --line:#302449; --lineSoft:#241B38; --lineStrong:#3D2F5C; --lineHi:#5B4788;
+  --accent:#C9A227; --accentHi:#E4BC45; --accentText:#E7CE86;
+  --accentBd:#5C4620; --accentBg:rgba(201,162,39,.12);
+  --good:#4E8F6D; --goodText:#8FCFA9; --goodBd:#2C5541; --goodBg:rgba(78,143,109,.12);
+  --onAccent:#1A1206;
+  --track:#2A2040; --trackSoft:#241B38; --bar:#362A52;
+  --display:'Cormorant Garamond', serif; --displayWeight:600;
+  --brandFont:'Cinzel', serif; --brandWeight:600; --brandTrack:.06em;
+  --r:6px; --rSm:4px; --rChip:3px;
+  --grain:.045; --vignette:rgba(8,4,16,.78); --vigStop:52%;
+  --cardGlow: inset 0 1px 0 rgba(231,206,134,.05), 0 24px 50px -34px rgba(0,0,0,.9);
+  --heat0:#211A38; --heat0bd:#2A2144;
+  --heat1:rgba(201,162,39,.28); --heat2:rgba(201,162,39,.5);
+  --heat3:rgba(201,162,39,.74); --heat4:#E4BC45;
+  --dot:#2A2144;
   color-scheme: dark;
-  --brand-50: 35 32 70;
-  --brand-100: 46 41 90;
-  --ink: 236 234 251;
-  --muted: 173 168 205;
-  --faint: 138 133 176;
-  --hair: 52 45 90;
-  --surface: 33 29 59;
-  --surface-2: 42 37 82;
-  --bg: 18 15 38;
-  --bg-glow: rgba(124, 111, 246, 0.22);
 }
 
-html,
-body,
-#root {
-  height: 100%;
+/* ---------- NEON (claro, cyberpunk divertido) ---------- */
+[data-theme='neon'] {
+  --brand-50: 244 241 255;
+  --brand-100: 235 228 255;
+  --brand-200: 201 188 255;
+  --brand-300: 167 139 250;
+  --brand-400: 255 61 168;
+  --brand-500: 230 0 126;
+  --brand-600: 194 0 107;
+  --brand-700: 194 0 107;
+  --ink: 20 16 58;
+  --muted: 95 85 168;
+  --faint: 139 128 201;
+  --hair: 216 206 255;
+  --surface: 255 255 255;
+  --surface-2: 247 244 255;
+  --bg: 244 241 255;
+  --bg-glow: rgba(139, 92, 246, 0.14);
+  --flame-text: 230 0 126;
+  --success-from: 0 128 111;
+  --success-soft: 217 247 241;
+  --danger-from: 230 0 126;
+  --danger-soft: 255 228 242;
+  --cyan-from: 0 194 255;
+  --cyan-to: 139 92 246;
+
+  --text:#14103A; --dim:#B2A8E0;
+  --surfaceHex:#FFFFFF; --surface2:#F7F4FF;
+  --line:#D8CEFF; --lineSoft:#EBE4FF; --lineStrong:#C9BCFF; --lineHi:#A78BFA;
+  --accent:#E6007E; --accentHi:#FF3DA8; --accentText:#C2006B;
+  --accentBd:#FFB3DC; --accentBg:rgba(230,0,126,.10);
+  --good:#00B39A; --goodText:#00806F; --goodBd:#8DE8DA; --goodBg:rgba(0,179,154,.12);
+  --onAccent:#FFFFFF;
+  --track:#EBE4FF; --trackSoft:#F1ECFF; --bar:#DCD2FF;
+  --display:'Chakra Petch', sans-serif; --displayWeight:700;
+  --brandFont:'Chakra Petch', sans-serif; --brandWeight:700; --brandTrack:.02em;
+  --r:14px; --rSm:10px; --rChip:999px;
+  --grain:0; --vignette:rgba(120,90,220,.10); --vigStop:70%;
+  --cardGlow: 0 6px 0 -2px rgba(216,206,255,.6), 0 14px 30px -18px rgba(90,60,190,.35);
+  --heat0:#EFE9FF; --heat0bd:#DED4FF;
+  --heat1:rgba(0,194,255,.45); --heat2:rgba(139,92,246,.55);
+  --heat3:rgba(230,0,126,.65); --heat4:#E6007E;
+  --dot:#DED4FF;
+  color-scheme: light;
 }
+
+html, body, #root { height: 100%; }
 
 body {
   @apply text-brand-ink;
@@ -92,6 +153,57 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* ---------- OBRIGATÓRIO: sem isto o texto herda a cor do body ao trocar tema ---------- */
+.app-root { color: var(--text); background: transparent; }
+
+/* ---------- Camadas de atmosfera (fixas, não capturam clique) ---------- */
+.atmos { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.atmos-grain {
+  opacity: var(--grain);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+.atmos-vignette {
+  background: radial-gradient(120% 90% at 50% 40%, transparent var(--vigStop), var(--vignette) 100%);
+}
+/* Halos de vela — só Grimório */
+.atmos-candle { display: none; }
+[data-theme='grimorio'] .atmos-candle { display: block; }
+.atmos-candle .halo {
+  position: absolute; border-radius: 999px; filter: blur(60px);
+  animation: candle 6s ease-in-out infinite;
+}
+.atmos-candle .halo-amber {
+  width: 42vw; height: 42vw; left: -6vw; top: 8vh;
+  background: radial-gradient(circle, rgba(201,162,39,.20), transparent 70%);
+}
+.atmos-candle .halo-violet {
+  width: 38vw; height: 38vw; right: -8vw; bottom: 4vh;
+  background: radial-gradient(circle, rgba(91,71,136,.22), transparent 70%);
+  animation-duration: 7s;
+}
+/* Varredura — só Neon */
+.atmos-scan { display: none; }
+[data-theme='neon'] .atmos-scan {
+  display: block; position: absolute; inset-inline: 0; height: 120px;
+  background: linear-gradient(180deg, transparent, rgba(0,194,255,.06) 45%, rgba(230,0,126,.05) 55%, transparent);
+  animation: scanline 7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atmos-candle .halo, .atmos-scan { animation: none !important; }
+  .fadeup { animation: none !important; }
+}
+
+.fadeup { animation: fadeUp 400ms ease both; }
+
+/* Placeholders de campos contenteditable (Caderno / post-its) */
+[contenteditable]:empty:before {
+  content: attr(data-ph);
+  color: var(--faint, #888);
+  pointer-events: none;
+}
+
 /* alvo de toque mínimo confortável no mobile */
 @layer components {
   .tap {
@@ -99,11 +211,8 @@ body {
   }
 
   .card {
-    @apply rounded-2xl bg-surface border border-hair shadow-md;
-    box-shadow: 0 12px 30px -18px rgba(27, 23, 56, 0.2);
-  }
-  .dark .card {
-    box-shadow: 0 12px 30px -18px rgba(0, 0, 0, 0.55);
+    @apply rounded-2xl bg-surface border border-hair;
+    box-shadow: var(--cardGlow);
   }
 
   .card-hover {
@@ -111,9 +220,10 @@ body {
   }
 
   .btn-primary {
-    @apply tap rounded-2xl bg-gradient-to-r from-brand-500 to-[#7C6FF5] px-6 py-3 font-display font-extrabold text-white text-lg
+    @apply tap rounded-2xl bg-brand-500 px-6 py-3 font-display font-extrabold text-lg
            transition hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50;
-    box-shadow: 0 16px 30px -14px rgba(91, 79, 224, 0.8);
+    color: var(--onAccent);
+    box-shadow: 0 16px 30px -18px rgb(var(--brand-500));
   }
 
   .btn-secondary {
@@ -122,26 +232,16 @@ body {
   }
 
   .toggle {
-    @apply inline-flex h-6 w-10 items-center rounded-full bg-slate-200 transition;
+    @apply inline-flex h-6 w-10 items-center rounded-full bg-hair transition;
   }
-
-  .toggle.active {
-    @apply bg-brand-500;
-  }
-
-  .toggle-circle {
-    @apply h-4 w-4 rounded-full bg-white transition;
-  }
-
-  .toggle.active .toggle-circle {
-    @apply translate-x-4;
-  }
+  .toggle.active { @apply bg-brand-500; }
+  .toggle-circle { @apply h-4 w-4 rounded-full bg-surface transition; }
+  .toggle.active .toggle-circle { @apply translate-x-4; }
 
   .filter-select {
-    @apply w-full rounded-xl border border-hair bg-surface2 px-4 py-2.5 font-sans text-sm
+    @apply w-full rounded-xl border border-hair bg-surface2 px-4 py-2.5 font-sans text-sm text-brand-ink
            transition appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-500/50;
   }
-
   .filter-label {
     @apply block text-xs font-bold uppercase text-muted mb-1;
   }
@@ -149,24 +249,9 @@ body {
   .meta-pill {
     @apply inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold;
   }
-
-  .meta-modulo {
-    @apply bg-brand-100 text-brand-700;
-  }
-
-  .meta-materia {
-    @apply bg-success-soft text-success-from;
-  }
-
-  .meta-dificuldade-facil {
-    @apply bg-success-soft text-success-from;
-  }
-
-  .meta-dificuldade-media {
-    @apply bg-yellow-100 text-yellow-700;
-  }
-
-  .meta-dificuldade-dificil {
-    @apply bg-danger-soft text-danger-from;
-  }
+  .meta-modulo { @apply bg-brand-100 text-brand-700; }
+  .meta-materia { @apply bg-success-soft text-success-from; }
+  .meta-dificuldade-facil { @apply bg-success-soft text-success-from; }
+  .meta-dificuldade-media { @apply bg-brand-100 text-brand-700; }
+  .meta-dificuldade-dificil { @apply bg-danger-soft text-danger-from; }
 }

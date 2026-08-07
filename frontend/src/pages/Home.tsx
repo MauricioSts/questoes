@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   BookOpen,
-  Zap,
   FileText,
   RefreshCw,
   ArrowRight,
@@ -28,6 +27,10 @@ import { api } from "../lib/api";
 import { useAuth } from "../store/auth";
 import { getSessaoAtiva } from "../lib/sessao";
 import { ProgressRing } from "../components/ProgressRing";
+import { StreakHeatmap } from "../components/StreakHeatmap";
+import { StickyBoard } from "../components/StickyBoard";
+import { carregarHeatmap, type DiaHeatmap } from "../lib/multiApi";
+import { getConcursoId } from "../lib/concurso";
 import { META_DIARIA_DEFAULT } from "../config/prova";
 import { ehDiaDeLegislacao } from "../lib/legislacao";
 import { ehDiaDePortugues } from "../lib/portugues";
@@ -70,8 +73,19 @@ export function Home() {
   const [salvandoMeta, setSalvandoMeta] = useState(false);
   const [salvandoFerias, setSalvandoFerias] = useState(false);
 
+  const [heatmap, setHeatmap] = useState<DiaHeatmap[]>([]);
+
   useEffect(() => {
     api<GoalToday>("/goals/today").then(setGoal).catch(() => null);
+    const cid = getConcursoId();
+    if (cid) {
+      const to = new Date();
+      const from = new Date(to.getTime() - 371 * 864e5);
+      const fmt = (d: Date) => d.toISOString().slice(0, 10);
+      carregarHeatmap(cid, fmt(from), fmt(to))
+        .then((r) => setHeatmap(r.dias))
+        .catch(() => null);
+    }
   }, []);
 
   const meta = goal?.meta ?? usuario?.metaDiaria ?? META_DIARIA_DEFAULT;
@@ -522,6 +536,9 @@ export function Home() {
         </div>
       </div>
 
+      {/* Heatmap anual de sequência (estilo GitHub) */}
+      <StreakHeatmap dias={heatmap} feriasAtivo={feriasAtivo} onToggleFerias={(v) => alternarFerias(v)} />
+
       {/* d2) Revisão espaçada (SRS) — sempre visível: destaque quando há questões
              prontas hoje, ou um card calmo "tudo em dia" quando não há. */}
       {revisaoPendente > 0 ? (
@@ -564,20 +581,23 @@ export function Home() {
       <div>
         <h2 className="font-display text-xl font-extrabold text-brand-ink mb-4">Modos de estudo</h2>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <ModoCard to="/estudar" icon={BookOpen} titulo="Estudar" sub="Feedback imediato + anotações" bg="bg-[#EEF0FF]" cor="text-[#4A57E0]" />
-          <ModoCard to="/flash" icon={Zap} titulo="Flash" sub="10 erradas do Módulo II" bg="bg-[#FFF0E8]" cor="text-[#F5722B]" fill />
+          <ModoCard to="/estudar" icon={BookOpen} titulo="Estudar" sub="Feedback imediato + anotações" bg="bg-brand-100" cor="text-brand-600" />
+          <ModoCard to="/revisar" icon={RefreshCw} titulo="Revisar" sub="Suas erradas em fila" bg="bg-danger-soft" cor="text-danger-from" />
+          <ModoCard to="/caderno" icon={NotebookPen} titulo="Caderno" sub="Anotações por matéria" bg="bg-brand-100" cor="text-brand-700" />
           <ModoCard
             to="/simulado"
             icon={FileText}
             titulo="Simulado"
             sub={diaSimulado ? "70 questões, prova real" : "Disponível aos sábados"}
-            bg="bg-[#E8F7EF]"
-            cor="text-[#12995B]"
+            bg="bg-success-soft"
+            cor="text-success-from"
             locked={!diaSimulado}
           />
-          <ModoCard to="/revisar" icon={RefreshCw} titulo="Revisar" sub="Suas erradas em fila" bg="bg-[#FDECEF]" cor="text-[#E14A5F]" />
         </div>
       </div>
+
+      {/* Mural de post-its arrastáveis */}
+      <StickyBoard />
 
       {/* f) Legislação — destaque quando é "dia de legislação" (ciclo de 2 dias).
              Ao concluir todas as questões de hoje, vira um feedback de conclusão. */}

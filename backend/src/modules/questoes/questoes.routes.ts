@@ -31,14 +31,21 @@ const importSchema = z.object({
   textosBase: z.record(z.string()).default({}),
   deslocarSeColidir: z.boolean().default(true),
   nomeLote: z.string().max(200).optional(), // rótulo do lote (nome do arquivo)
+  concursoId: z.string().min(1).optional(), // concurso ao qual o lote pertence
 });
 
 // GET /questoes — todas as questões + textos base (para o frontend popular o app).
 questoesRouter.get(
   "/",
-  asyncHandler(async (_req, res) => {
+  asyncHandler(async (req, res) => {
+    // Multi-concurso: quando ?concursoId= é enviado, serve só as questões daquele
+    // concurso. Sem o param, serve todas (comportamento legado).
+    const concursoId = req.query.concursoId ? String(req.query.concursoId) : undefined;
     const [linhas, textos] = await Promise.all([
-      prisma.questao.findMany({ orderBy: { id: "asc" } }),
+      prisma.questao.findMany({
+        where: concursoId ? { concursoId } : {},
+        orderBy: { id: "asc" },
+      }),
       prisma.textoBase.findMany(),
     ]);
     const questoes = linhas.map((q) => ({
@@ -66,7 +73,7 @@ questoesRouter.get(
 questoesRouter.post(
   "/import",
   asyncHandler(async (req, res) => {
-    const { questoes, textosBase, deslocarSeColidir, nomeLote } = importSchema.parse(req.body);
+    const { questoes, textosBase, deslocarSeColidir, nomeLote, concursoId } = importSchema.parse(req.body);
 
     // valida gabarito ↔ alternativas (defesa extra além do frontend)
     for (const q of questoes) {
@@ -98,6 +105,7 @@ questoesRouter.post(
       prisma.questao.createMany({
         data: aGravar.map((q) => ({
           id: q.id,
+          concursoId: concursoId ?? null,
           modulo: q.modulo,
           materia: q.materia,
           assunto: q.assunto,

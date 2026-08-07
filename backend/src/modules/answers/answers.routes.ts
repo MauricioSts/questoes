@@ -13,8 +13,16 @@ import { startOfWeekWindow } from "../../lib/date.js";
 export const answersRouter = Router();
 answersRouter.use(requireAuth);
 
+// Filtro de concurso opcional (multi-concurso): quando o cliente envia ?concursoId=,
+// as leituras passam a ser escopadas àquele concurso. Sem o param, comportam-se como antes.
+function cf(req: { query: Record<string, unknown> }): { concursoId?: string } {
+  const c = req.query.concursoId;
+  return c ? { concursoId: String(c) } : {};
+}
+
 const answerSchema = z.object({
   clientId: z.string().min(1).max(64).optional(), // id do cliente p/ deduplicar reenvios
+  concursoId: z.string().min(1).optional(), // concurso da resposta (multi-concurso)
   questaoId: z.number().int(),
   moduloSnapshot: z.string().min(1),
   materiaSnapshot: z.string().min(1),
@@ -67,7 +75,7 @@ answersRouter.get(
   "/ids",
   asyncHandler(async (req, res) => {
     const rows = await prisma.answer.findMany({
-      where: { userId: req.userId! },
+      where: { userId: req.userId!, ...cf(req) },
       select: { questaoId: true, acertou: true },
     });
     const respondidas = new Set<number>();
@@ -127,7 +135,7 @@ answersRouter.get(
 
     const grupos = await prisma.answer.groupBy({
       by: ["questaoId"],
-      where: { userId: req.userId!, acertou: false, ...(modulo ? { moduloSnapshot: modulo } : {}) },
+      where: { userId: req.userId!, acertou: false, ...cf(req), ...(modulo ? { moduloSnapshot: modulo } : {}) },
       _count: { questaoId: true },
       _max: { createdAt: true },
     });
@@ -151,7 +159,7 @@ answersRouter.get(
   "/erradas",
   asyncHandler(async (req, res) => {
     const rows = await prisma.answer.findMany({
-      where: { userId: req.userId! },
+      where: { userId: req.userId!, ...cf(req) },
       orderBy: { createdAt: "asc" },
       select: {
         questaoId: true,
@@ -218,7 +226,7 @@ answersRouter.get(
   asyncHandler(async (req, res) => {
     const limit = Math.min(Number(req.query.limit ?? 60), 200);
     const answers = await prisma.answer.findMany({
-      where: { userId: req.userId! },
+      where: { userId: req.userId!, ...cf(req) },
       select: {
         questaoId: true,
         acertou: true,
@@ -246,7 +254,7 @@ answersRouter.get(
   "/simulados",
   asyncHandler(async (req, res) => {
     const rows = await prisma.answer.findMany({
-      where: { userId: req.userId!, contexto: "SIMULADO" },
+      where: { userId: req.userId!, contexto: "SIMULADO", ...cf(req) },
       orderBy: { createdAt: "asc" },
       select: {
         questaoId: true,
@@ -305,7 +313,7 @@ answersRouter.get(
   asyncHandler(async (req, res) => {
     const desde = startOfWeekWindow();
     const answers = await prisma.answer.findMany({
-      where: { userId: req.userId!, createdAt: { gte: desde } },
+      where: { userId: req.userId!, createdAt: { gte: desde }, ...cf(req) },
       select: {
         questaoId: true,
         acertou: true,

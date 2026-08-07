@@ -1,5 +1,39 @@
 // Cliente HTTP: injeta o access token, faz refresh automático em 401 e reenvia a requisição.
+import { getConcursoId } from "./concurso";
+
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
+
+// Multi-concurso: leituras dependentes de concurso ganham ?concursoId= automaticamente,
+// e escritas de resposta recebem concursoId no corpo — sem tocar cada página.
+const SCOPED_GET = ["/answers", "/goals/today", "/questoes", "/caderno", "/postits", "/stats"];
+const SCOPED_ANSWER_POST = ["/answers", "/answers/batch"];
+
+function scopePath(path: string, method: string): string {
+  const cid = getConcursoId();
+  if (!cid) return path;
+  const [pathname] = path.split("#");
+  const base = pathname.split("?")[0];
+  if (method === "GET" && SCOPED_GET.some((p) => base === p || base.startsWith(p + "/"))) {
+    if (/[?&]concursoId=/.test(path)) return path;
+    return path + (path.includes("?") ? "&" : "?") + "concursoId=" + encodeURIComponent(cid);
+  }
+  return path;
+}
+
+function scopeBody(path: string, method: string, body: unknown): unknown {
+  const cid = getConcursoId();
+  if (!cid || method !== "POST") return body;
+  const base = path.split("?")[0];
+  if (!SCOPED_ANSWER_POST.includes(base)) return body;
+  // /answers recebe um objeto; /answers/batch recebe um array de objetos.
+  if (Array.isArray(body)) {
+    return body.map((b) => (b && typeof b === "object" && !("concursoId" in b) ? { ...b, concursoId: cid } : b));
+  }
+  if (body && typeof body === "object" && !("concursoId" in body)) {
+    return { ...(body as object), concursoId: cid };
+  }
+  return body;
+}
 
 const ACCESS_KEY = "q_access";
 const REFRESH_KEY = "q_refresh";
@@ -65,14 +99,17 @@ export interface ApiOptions {
 export async function api<T = unknown>(path: string, opts: ApiOptions = {}): Promise<T> {
   const { method = "GET", body, auth = true } = opts;
 
+  const scopedPath = scopePath(path, method);
+  const scopedBody = scopeBody(path, method, body);
+
   const doFetch = () => {
     const headers: Record<string, string> = {};
-    if (body !== undefined) headers["Content-Type"] = "application/json";
+    if (scopedBody !== undefined) headers["Content-Type"] = "application/json";
     if (auth && tokenStore.access) headers["Authorization"] = `Bearer ${tokenStore.access}`;
-    return fetch(`${BASE}${path}`, {
+    return fetch(`${BASE}${scopedPath}`, {
       method,
       headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: scopedBody !== undefined ? JSON.stringify(scopedBody) : undefined,
     });
   };
 
