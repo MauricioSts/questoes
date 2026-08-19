@@ -2,6 +2,7 @@
 // ao carregar, buscamos da API e atualizamos o cache; se estiver offline, lemos do cache.
 import type { Questao } from "../types/questao";
 import { api, ApiError } from "./api";
+import { getConcursoId } from "./concurso";
 import { idbGetAllQuestoes, idbPutQuestoes, idbSetKV, idbGetKV, idbLimparTudo } from "./idb";
 
 export interface DadosCarregados {
@@ -36,6 +37,8 @@ export interface ImportarResultado {
 }
 
 // Envia o lote para o backend. A decisão de colisão (recusar x deslocar) é feita no servidor.
+// O concurso ativo vai junto: sem ele a questão nasce sem concurso e GET /questoes (que
+// filtra por concursoId) nunca a devolve, ou seja, o lote some do app.
 export async function importarLote(
   questoes: Questao[],
   textosBase: Record<string, string>,
@@ -49,6 +52,7 @@ export async function importarLote(
         textosBase,
         deslocarSeColidir: opts.deslocarSeColidir,
         nomeLote: opts.nomeLote,
+        concursoId: getConcursoId() ?? undefined,
       },
     });
     return { ok: true, ...r };
@@ -85,15 +89,30 @@ export async function limparTudo(): Promise<void> {
 export interface Lote {
   chave: string;
   nome: string | null;
+  concursoId: string | null; // null = lote órfão (não aparece em nenhum concurso)
   quantidade: number;
   idMin: number | null;
   idMax: number | null;
   criadoEm: string;
 }
 
-export async function listarLotes(): Promise<Lote[]> {
-  const r = await api<{ lotes: Lote[] }>("/questoes/lotes");
-  return r.lotes;
+export interface ListaLotes {
+  lotes: Lote[];
+  semConcurso: number; // total de questões órfãs (todas as importações)
+}
+
+export async function listarLotes(): Promise<ListaLotes> {
+  const r = await api<ListaLotes>("/questoes/lotes");
+  return { lotes: r.lotes, semConcurso: r.semConcurso ?? 0 };
+}
+
+// Vincula ao concurso ativo as questões que ficaram sem concurso (conserto dos lotes
+// importados antes de o import passar a enviar o concurso).
+export async function adotarOrfas(
+  concursoId: string,
+  chave?: string
+): Promise<{ ok: boolean; adotadas: number; totalAgora: number }> {
+  return api("/questoes/adotar-orfas", { method: "POST", body: { concursoId, chave } });
 }
 
 // Exclui um lote inteiro pela chave (createdAt ISO). Preserva o histórico de respostas.

@@ -9,16 +9,19 @@ import {
   parseIdsInput,
   listarLotes,
   excluirLoteGrupo,
+  adotarOrfas,
   type ImportarResultado,
   type ExcluirLoteResultado,
   type Lote,
 } from "../lib/questoesStore";
 import { getQuestao } from "../lib/questoesRepo";
 import { useQuestoes } from "../store/questoes";
+import { useConcurso } from "../store/concurso";
 import exemplo from "../data/questoes.json";
 
 export function Importar() {
   const { total, recarregar } = useQuestoes();
+  const { ativo, refresh: recarregarConcursos } = useConcurso();
   const [validacao, setValidacao] = useState<ResultadoValidacao | null>(null);
   const [nomeArquivo, setNomeArquivo] = useState("");
   const [deslocar, setDeslocar] = useState(true);
@@ -28,15 +31,36 @@ export function Importar() {
 
   // --- lotes (importações) para excluir em bloco ---
   const [lotes, setLotes] = useState<Lote[]>([]);
+  const [semConcurso, setSemConcurso] = useState(0);
   const [excluindoLote, setExcluindoLote] = useState<string | null>(null);
+  const [adotando, setAdotando] = useState(false);
 
   const carregarLotes = useCallback(async () => {
     try {
-      setLotes(await listarLotes());
+      const r = await listarLotes();
+      setLotes(r.lotes);
+      setSemConcurso(r.semConcurso);
     } catch {
       /* offline: some a seção; não bloqueia a tela */
     }
   }, []);
+
+  // Conserto de lotes órfãos: questões gravadas sem concurso não voltam em GET /questoes
+  // (que filtra pelo concurso ativo), então existem no banco mas somem do app.
+  async function vincularOrfas() {
+    if (!ativo) return;
+    setAdotando(true);
+    try {
+      await adotarOrfas(ativo.id);
+      await recarregar();
+      await carregarLotes();
+      await recarregarConcursos();
+    } catch {
+      setErroLeitura("Falha ao vincular as questões ao concurso (sem conexão?). Tente novamente.");
+    } finally {
+      setAdotando(false);
+    }
+  }
 
   useEffect(() => {
     void carregarLotes();
@@ -44,7 +68,7 @@ export function Importar() {
 
   async function excluirLoteInteiro(l: Lote) {
     const rotulo = l.nome ?? `lote de ${formatarData(l.criadoEm)}`;
-    if (!confirm(`Excluir o ${rotulo} (${l.quantidade} questões, IDs ${l.idMin}–${l.idMax})? Não tem volta — seu histórico de respostas é preservado.`)) return;
+    if (!confirm(`Excluir o ${rotulo} (${l.quantidade} questões, IDs ${l.idMin} a ${l.idMax})? Não tem volta, seu histórico de respostas é preservado.`)) return;
     setExcluindoLote(l.chave);
     try {
       await excluirLoteGrupo(l.chave);
@@ -159,6 +183,22 @@ export function Importar() {
         </button>
       </div>
 
+      {semConcurso > 0 && ativo && (
+        <div className="card space-y-2 border border-amber-500 p-4 text-sm">
+          <p className="font-semibold text-amber-500">
+            ⚠️ {semConcurso} questões importadas estão sem concurso
+          </p>
+          <p className="text-xs text-slate-400">
+            Elas estão no banco, mas não aparecem em nenhuma tela porque o app mostra só as
+            questões do concurso ativo. Vincule ao concurso {ativo.iniciais} para voltarem a
+            aparecer.
+          </p>
+          <button onClick={vincularOrfas} disabled={adotando} className="btn-primary w-full">
+            {adotando ? "Vinculando…" : `Vincular ao concurso ${ativo.iniciais}`}
+          </button>
+        </div>
+      )}
+
       {erroLeitura && <p className="card border border-erro p-3 text-sm text-erro">{erroLeitura}</p>}
 
       {/* prévia da validação */}
@@ -168,13 +208,13 @@ export function Importar() {
           <p>
             {validacao.questoes.length} questões
             {validacao.faixaIds && (
-              <> · IDs {validacao.faixaIds[0]}–{validacao.faixaIds[1]}</>
+              <> · IDs {validacao.faixaIds[0]} a {validacao.faixaIds[1]}</>
             )}
           </p>
 
           {validacao.erros.length > 0 ? (
             <div className="space-y-1 text-erro">
-              <p className="font-semibold">❌ {validacao.erros.length} erro(s) — corrija antes de importar:</p>
+              <p className="font-semibold">❌ {validacao.erros.length} erro(s). Corrija antes de importar:</p>
               <ul className="max-h-40 list-disc space-y-0.5 overflow-auto pl-5">
                 {validacao.erros.slice(0, 30).map((e, i) => <li key={i}>{e}</li>)}
               </ul>
@@ -220,7 +260,7 @@ export function Importar() {
               <p className="font-semibold">✓ {resultado.adicionadas} questões importadas!</p>
               {resultado.deslocamento != null && (
                 <p className="text-slate-500">
-                  IDs deslocados em +{resultado.deslocamento} (agora {resultado.faixaFinal?.[0]}–
+                  IDs deslocados em +{resultado.deslocamento} (agora {resultado.faixaFinal?.[0]} a{" "}
                   {resultado.faixaFinal?.[1]}) para evitar colisão.
                 </p>
               )}
@@ -240,7 +280,7 @@ export function Importar() {
         </div>
       )}
 
-      {/* lotes importados — excluir um lote inteiro de uma vez */}
+      {/* lotes importados: excluir um lote inteiro de uma vez */}
       {lotes.length > 0 && (
         <div className="space-y-2">
           <h2 className="text-sm font-semibold">Lotes importados 📦</h2>
@@ -252,8 +292,9 @@ export function Importar() {
                   {l.nome ?? `Lote de ${formatarData(l.criadoEm)}`}
                 </p>
                 <p className="text-xs text-slate-400">
-                  {l.quantidade} questões · IDs {l.idMin}–{l.idMax}
+                  {l.quantidade} questões · IDs {l.idMin} a {l.idMax}
                   {l.nome && <> · {formatarData(l.criadoEm)}</>}
+                  {l.concursoId == null && <span className="text-amber-500"> · sem concurso</span>}
                 </p>
               </div>
               <button

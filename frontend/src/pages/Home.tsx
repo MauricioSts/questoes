@@ -42,7 +42,7 @@ interface GoalToday {
 
 export function Home() {
   const { usuario } = useAuth();
-  const { ativo } = useConcurso();
+  const { ativo, refresh: recarregarConcursos } = useConcurso();
   const navigate = useNavigate();
   const [goal, setGoal] = useState<GoalToday | null>(null);
   const [editandoData, setEditandoData] = useState(false);
@@ -106,12 +106,19 @@ export function Home() {
     }
   }
 
+  // A data vale para o concurso ativo (é dele que o dashboard lê a contagem e a barra
+  // de tempo). Sem concursoId a edição gravaria só no usuário e não teria efeito.
   async function salvarData(valor: string) {
     if (!valor) return;
     setSalvandoData(true);
     try {
-      await api("/goals/prova", { method: "PATCH", body: { dataProva: valor } });
-      setGoal((g) => (g ? { ...g, dataProva: new Date(valor + "T00:00:00").toISOString() } : g));
+      await api("/goals/prova", {
+        method: "PATCH",
+        body: { dataProva: valor, concursoId: getConcursoId() ?? undefined },
+      });
+      const atualizado = await api<GoalToday>("/goals/today");
+      setGoal(atualizado);
+      await recarregarConcursos();
       setEditandoData(false);
     } finally {
       setSalvandoData(false);
@@ -122,8 +129,12 @@ export function Home() {
     if (!Number.isFinite(valor) || valor < 1 || valor > 500) return;
     setSalvandoMeta(true);
     try {
-      const res = await api<{ metaDiaria: number }>("/goals/meta", { method: "PATCH", body: { metaDiaria: valor } });
+      const res = await api<{ metaDiaria: number }>("/goals/meta", {
+        method: "PATCH",
+        body: { metaDiaria: valor, concursoId: getConcursoId() ?? undefined },
+      });
       setGoal((g) => (g ? { ...g, meta: res.metaDiaria } : g));
+      await recarregarConcursos();
       setEditandoMeta(false);
     } finally {
       setSalvandoMeta(false);
@@ -246,7 +257,7 @@ export function Home() {
               <>
                 <p className="mt-2 flex items-end gap-2">
                   <span className="font-display font-bold leading-none text-brand-ink" style={{ fontSize: 38 }}>
-                    {diasProva ?? "—"}
+                    {diasProva ?? "?"}
                   </span>
                   <span className="pb-1 text-sm text-muted">dias restantes</span>
                 </p>

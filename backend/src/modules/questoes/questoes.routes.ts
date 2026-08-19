@@ -34,7 +34,7 @@ const importSchema = z.object({
   concursoId: z.string().min(1).optional(), // concurso ao qual o lote pertence
 });
 
-// GET /questoes — todas as questões + textos base (para o frontend popular o app).
+// GET /questoes: todas as questões + textos base (para o frontend popular o app).
 questoesRouter.get(
   "/",
   asyncHandler(async (req, res) => {
@@ -67,13 +67,29 @@ questoesRouter.get(
   })
 );
 
-// POST /questoes/import — importa um lote. Trata colisão de IDs igual ao combinado:
+// POST /questoes/import: importa um lote. Trata colisão de IDs igual ao combinado:
 // - deslocarSeColidir=false: recusa o lote inteiro (409) listando os IDs em conflito.
 // - deslocarSeColidir=true : renumera o lote para começar após o maior ID existente.
 questoesRouter.post(
   "/import",
   asyncHandler(async (req, res) => {
-    const { questoes, textosBase, deslocarSeColidir, nomeLote, concursoId } = importSchema.parse(req.body);
+    const { questoes, textosBase, deslocarSeColidir, nomeLote, concursoId: concursoEnviado } =
+      importSchema.parse(req.body);
+
+    // Sem concursoId a questão nasceria órfã: gravada no banco, mas invisível no app
+    // (GET /questoes filtra pelo concurso ativo). Por isso, quando o cliente não manda o
+    // campo, caímos no concurso mais antigo do usuário em vez de gravar null.
+    let concursoId: string | null = concursoEnviado ?? null;
+    if (concursoId) {
+      const dono = await prisma.concurso.findFirst({ where: { id: concursoId, userId: req.userId! } });
+      if (!dono) throw new HttpError(404, "Concurso não encontrado.");
+    } else {
+      const padrao = await prisma.concurso.findFirst({
+        where: { userId: req.userId! },
+        orderBy: { createdAt: "asc" },
+      });
+      concursoId = padrao?.id ?? null;
+    }
 
     // valida gabarito ↔ alternativas (defesa extra além do frontend)
     for (const q of questoes) {
@@ -105,7 +121,7 @@ questoesRouter.post(
       prisma.questao.createMany({
         data: aGravar.map((q) => ({
           id: q.id,
-          concursoId: concursoId ?? null,
+          concursoId,
           modulo: q.modulo,
           materia: q.materia,
           assunto: q.assunto,
@@ -137,14 +153,14 @@ questoesRouter.post(
   })
 );
 
-// GET /questoes/lotes — lista os lotes (importações) para exclusão em bloco.
+// GET /questoes/lotes: lista os lotes (importações) para exclusão em bloco.
 // Um lote = todas as questões que compartilham o mesmo createdAt (um único import grava
 // todas com o mesmo timestamp de transação). A chave é esse createdAt em ISO.
 questoesRouter.get(
   "/lotes",
   asyncHandler(async (_req, res) => {
     const grupos = await prisma.questao.groupBy({
-      by: ["createdAt", "loteNome"],
+      by: ["createdAt", "loteNome", "concursoId"],
       _count: { _all: true },
       _min: { id: true },
       _max: { id: true },
@@ -153,16 +169,45 @@ questoesRouter.get(
     const lotes = grupos.map((g) => ({
       chave: g.createdAt.toISOString(),
       nome: g.loteNome ?? null,
+      concursoId: g.concursoId ?? null, // null = lote órfão (não aparece em nenhum concurso)
       quantidade: g._count._all,
       idMin: g._min.id,
       idMax: g._max.id,
       criadoEm: g.createdAt,
     }));
-    res.json({ lotes });
+    const semConcurso = await prisma.questao.count({ where: { concursoId: null } });
+    res.json({ lotes, semConcurso });
   })
 );
 
-// POST /questoes/excluir-lote-grupo — exclui um lote inteiro pela chave (createdAt ISO).
+// POST /questoes/adotar-orfas: vincula ao concurso informado todas as questões que
+// ficaram sem concurso (concursoId null). Serve de conserto para lotes importados antes
+// de o import passar a enviar o concurso: elas existiam no banco mas não apareciam em
+// nenhum concurso, porque GET /questoes filtra por concursoId.
+const adotarSchema = z.object({
+  concursoId: z.string().min(1),
+  chave: z.string().datetime().optional(), // opcional: só o lote desse createdAt
+});
+
+questoesRouter.post(
+  "/adotar-orfas",
+  asyncHandler(async (req, res) => {
+    const { concursoId, chave } = adotarSchema.parse(req.body);
+    const concurso = await prisma.concurso.findFirst({
+      where: { id: concursoId, userId: req.userId! },
+    });
+    if (!concurso) throw new HttpError(404, "Concurso não encontrado.");
+
+    const r = await prisma.questao.updateMany({
+      where: { concursoId: null, ...(chave ? { createdAt: new Date(chave) } : {}) },
+      data: { concursoId },
+    });
+    const totalAgora = await prisma.questao.count({ where: { concursoId } });
+    res.json({ ok: true, adotadas: r.count, totalAgora });
+  })
+);
+
+// POST /questoes/excluir-lote-grupo: exclui um lote inteiro pela chave (createdAt ISO).
 // Remove também as respostas/notas/marcações dessas questões (senão ficariam órfãs e
 // inflariam o contador de "respondidas" acima do total de questões existentes).
 const excluirGrupoSchema = z.object({ chave: z.string().datetime() });
@@ -194,7 +239,7 @@ questoesRouter.post(
   })
 );
 
-// POST /questoes/excluir-lote — exclui só as questões com os IDs informados (admin).
+// POST /questoes/excluir-lote: exclui só as questões com os IDs informados (admin).
 // Usa POST (e não DELETE com body) porque corpo em DELETE é mal suportado por proxies/clients.
 // Remove também respostas/notas/marcações dessas questões na mesma transação, para não
 // deixar dados órfãos (que inflariam o contador de "respondidas").
@@ -234,7 +279,7 @@ questoesRouter.post(
   })
 );
 
-// DELETE /questoes — limpa o banco de questões (admin).
+// DELETE /questoes: limpa o banco de questões (admin).
 questoesRouter.delete(
   "/",
   asyncHandler(async (_req, res) => {

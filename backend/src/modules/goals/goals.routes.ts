@@ -1,5 +1,5 @@
 // Meta diária e streak. Derivados por query sobre Answer (sem tabela dedicada).
-import { Router } from "express";
+import { Router, type Request } from "express";
 import { z } from "zod";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
@@ -11,7 +11,7 @@ import { revisoesPendentes } from "../../lib/srs.js";
 export const goalsRouter = Router();
 goalsRouter.use(requireAuth);
 
-// GET /goals/today — respondidas hoje vs meta + streak + progresso geral do plano.
+// GET /goals/today: respondidas hoje vs meta + streak + progresso geral do plano.
 goalsRouter.get(
   "/today",
   asyncHandler(async (req, res) => {
@@ -56,14 +56,14 @@ goalsRouter.get(
     const respondidasTotal = respondidasDistintas.length;
     const progressoPlano = totalQuestoes > 0 ? Math.round((respondidasTotal / totalQuestoes) * 100) : 0;
 
-    // Total de questões realizadas de todos os tempos (conta repetições — cada
+    // Total de questões realizadas de todos os tempos (conta repetições, cada
     // resposta registrada, não só questões distintas). É o "quanto já resolvi".
     const respondidasSempre = await prisma.answer.count({
       where: { userId: req.userId!, ...cf },
     });
 
     // Legislação: total de questões da matéria + quantas (distintas) foram feitas
-    // hoje — para o feedback de "dia de legislação concluído" no dashboard.
+    // hoje: para o feedback de "dia de legislação concluído" no dashboard.
     const legislacaoWhere = { materia: { contains: "legisl", mode: "insensitive" as const }, ...cf };
     const legislacaoTotal = await prisma.questao.count({ where: legislacaoWhere });
     const legislacaoDistintasHoje = await prisma.answer.findMany({
@@ -108,12 +108,23 @@ goalsRouter.get(
     });
     const revisaoPendente = revisoesPendentes(answersRevisao).length;
 
-    // Progresso de tempo até a prova (0–100%): quanto do período desde a criação
-    // da conta até a data da prova já passou. Só faz sentido com data definida.
+    // Progresso de tempo até a prova (0-100%): quanto da preparação já passou.
+    // O início da preparação é o mais antigo entre a criação da conta, a criação do
+    // concurso e a primeira resposta registrada no escopo. Usar só o createdAt do
+    // concurso zerava a barra sempre que um concurso novo era criado (o seed do
+    // multi-concurso, por exemplo, nasceu com a data de hoje).
     const dataProva = concurso?.dataProva ?? user?.dataProva ?? null;
     let progressoTempo: number | null = null;
     if (dataProva && user) {
-      const inicio = (concurso?.createdAt ?? user.createdAt).getTime();
+      const primeira = await prisma.answer.findFirst({
+        where: { userId: req.userId!, ...cf },
+        orderBy: { createdAt: "asc" },
+        select: { createdAt: true },
+      });
+      const candidatos = [user.createdAt, concurso?.createdAt, primeira?.createdAt]
+        .filter((d): d is Date => !!d)
+        .map((d) => d.getTime());
+      const inicio = Math.min(...candidatos);
       const fim = dataProva.getTime();
       const agora = Date.now();
       progressoTempo =
@@ -144,10 +155,20 @@ goalsRouter.get(
   })
 );
 
-// PATCH /goals/prova — define/atualiza a data alvo da prova do usuário.
+// Concurso do escopo da requisição (query ?concursoId= ou campo no corpo), quando
+// pertence ao usuário. GET /goals/today lê meta e data da prova do concurso ativo, então
+// as escritas abaixo precisam gravar no MESMO lugar, senão a edição não teria efeito.
+async function concursoDoEscopo(req: Request) {
+  const id = req.query.concursoId ?? (req.body as { concursoId?: string } | undefined)?.concursoId;
+  if (!id) return null;
+  return prisma.concurso.findFirst({ where: { id: String(id), userId: req.userId! } });
+}
+
+// PATCH /goals/prova: define/atualiza a data alvo da prova (do concurso ativo).
 const provaSchema = z.object({
   // aceita "YYYY-MM-DD" ou ISO; null limpa a data.
   dataProva: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).nullable(),
+  concursoId: z.string().min(1).optional(),
 });
 
 goalsRouter.patch(
@@ -155,35 +176,46 @@ goalsRouter.patch(
   asyncHandler(async (req, res) => {
     const { dataProva } = provaSchema.parse(req.body);
     const valor = dataProva ? new Date(dataProva) : null;
+
+    const concurso = await concursoDoEscopo(req);
+    // A data do usuário continua sendo mantida (legado / usuários sem concurso).
     const user = await prisma.user.update({
       where: { id: req.userId! },
       data: { dataProva: valor },
     });
-    res.json({ dataProva: user.dataProva });
+    if (concurso && valor) {
+      await prisma.concurso.update({ where: { id: concurso.id }, data: { dataProva: valor } });
+    }
+    res.json({ dataProva: valor ?? user.dataProva });
   })
 );
 
-// PATCH /goals/meta — define/atualiza a meta diária de questões do usuário.
+// PATCH /goals/meta: define/atualiza a meta diária de questões (do concurso ativo).
 const metaSchema = z.object({
   metaDiaria: z.number().int().min(1).max(500),
+  concursoId: z.string().min(1).optional(),
 });
 
 goalsRouter.patch(
   "/meta",
   asyncHandler(async (req, res) => {
     const { metaDiaria } = metaSchema.parse(req.body);
+    const concurso = await concursoDoEscopo(req);
     const user = await prisma.user.update({
       where: { id: req.userId! },
       data: { metaDiaria },
     });
-    res.json({ metaDiaria: user.metaDiaria });
+    if (concurso) {
+      await prisma.concurso.update({ where: { id: concurso.id }, data: { metaDiaria } });
+    }
+    res.json({ metaDiaria: concurso ? metaDiaria : user.metaDiaria });
   })
 );
 
-// PATCH /goals/ferias — liga/desliga o modo férias. Ligar abre uma nova janela
+// PATCH /goals/ferias: liga/desliga o modo férias. Ligar abre uma nova janela
 // (feriasDesde = agora, feriasAte = null); desligar fecha (feriasAte = agora).
 // Enquanto ligado, os dias não quebram a ofensiva; ao desligar, a janela [desde,
-// ate] continua sendo pulada no cálculo — por isso a ofensiva não quebra ao voltar.
+// ate] continua sendo pulada no cálculo: por isso a ofensiva não quebra ao voltar.
 const feriasSchema = z.object({
   ativo: z.boolean(),
 });
@@ -197,7 +229,7 @@ goalsRouter.patch(
     const agora = new Date();
 
     // Idempotente: só age quando o estado muda. Cada viagem vira um FeriasPeriodo
-    // (histórico preservado) — ligar de novo NÃO apaga períodos anteriores.
+    // (histórico preservado). Ligar de novo NÃO apaga períodos anteriores.
     if (ativo && !jaAtivo) {
       // Abre um novo período (se por algum motivo houver um aberto, fecha antes).
       await prisma.feriasPeriodo.updateMany({
