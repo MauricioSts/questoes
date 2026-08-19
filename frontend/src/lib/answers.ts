@@ -1,5 +1,5 @@
 // Envio de respostas com fila offline. As respostas são enfileiradas em localStorage e
-// sincronizadas (em lote) quando há conexão — permite responder offline (PWA).
+// sincronizadas (em lote) quando há conexão: permite responder offline (PWA).
 import { api } from "./api";
 import type { ResultadoResposta } from "./correcao";
 

@@ -6,7 +6,7 @@ import { Atmosfera } from "./Atmosfera";
 export function AppLayout() {
   return (
     <div className="app-root min-h-full">
-      {/* Camadas de atmosfera (grão, vinheta, vela/varredura) — atrás de tudo */}
+      {/* Camadas de atmosfera (grão, vinheta, vela/varredura), atrás de tudo */}
       <Atmosfera />
 
       {/* Navegação: sidebar fixa à esquerda no desktop, barra inferior no mobile */}

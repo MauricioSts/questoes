@@ -15,14 +15,14 @@ function porDiaComMetaEm(offsets: number[]): Map<string, number> {
 
 const diasAtras = (off: number) => new Date(Date.now() - off * 864e5);
 
-describe("calcularStreak — modo férias", () => {
+describe("calcularStreak: modo férias", () => {
   it("sem férias, um buraco recente quebra a ofensiva", () => {
     // Bloco antigo cumprido (10..20), dias recentes (0..9) todos perdidos.
     const porDia = porDiaComMetaEm([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
     expect(calcularStreak(porDia, 1)).toBe(0);
   });
 
-  it("com férias ligado, os dias recentes não quebram — a ofensiva é preservada", () => {
+  it("com férias ligado, os dias recentes não quebram, a ofensiva é preservada", () => {
     const porDia = porDiaComMetaEm([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
     const ferias: FeriasPeriodo[] = [{ inicio: diasAtras(9), fim: null }];
     // Sem férias seria 0; com férias o bloco antigo continua contando.

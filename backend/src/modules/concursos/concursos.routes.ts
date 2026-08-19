@@ -25,7 +25,7 @@ function parseData(v: string): Date {
   return v.includes("T") ? new Date(v) : new Date(`${v}T00:00:00`);
 }
 
-// GET /concursos — lista os concursos do usuário com contadores (respondidas, no banco, dias).
+// GET /concursos: lista os concursos do usuário com contadores (respondidas, no banco, dias).
 concursosRouter.get(
   "/",
   asyncHandler(async (req, res) => {
@@ -67,7 +67,7 @@ concursosRouter.get(
   })
 );
 
-// POST /concursos — cria um concurso (começa vazio).
+// POST /concursos: cria um concurso (começa vazio).
 concursosRouter.post(
   "/",
   asyncHandler(async (req, res) => {
@@ -90,7 +90,7 @@ concursosRouter.post(
 
 const patchSchema = concursoInput.partial().extend({ arquivado: z.boolean().optional() });
 
-// PATCH /concursos/:id — atualiza campos (data, meta, arquivar…).
+// PATCH /concursos/:id: atualiza campos (data, meta, arquivar…).
 concursosRouter.patch(
   "/:id",
   asyncHandler(async (req, res) => {
@@ -120,7 +120,7 @@ const reaproveitarSchema = z.object({
   materias: z.array(z.string()).optional(), // se omitido, todas as matérias de nome equivalente
 });
 
-// POST /concursos/:id/reaproveitar — copia questões de matérias equivalentes de outro
+// POST /concursos/:id/reaproveitar: copia questões de matérias equivalentes de outro
 // concurso do usuário para este. Duplica o conteúdo com novos IDs (globais).
 concursosRouter.post(
   "/:id/reaproveitar",

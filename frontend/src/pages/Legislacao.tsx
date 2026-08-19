@@ -53,7 +53,7 @@ export function Legislacao() {
         <p className="text-sm text-faint mt-1">
           {diaHoje
             ? "Aproveite para revisar tudo de legislação hoje."
-            : "Volta amanhã — mas você pode adiantar quando quiser."}
+            : "Volta amanhã, mas você pode adiantar quando quiser."}
         </p>
       </Card>
 

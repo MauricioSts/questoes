@@ -147,8 +147,8 @@ export function Estudar() {
           }}
           options={[
             { value: "", label: "Todos" },
-            { value: "I", label: "I — Gerais" },
-            { value: "II", label: "II — Específicos" },
+            { value: "I", label: "I · Gerais" },
+            { value: "II", label: "II · Específicos" },
           ]}
         />
         <FilterSelect

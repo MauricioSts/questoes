@@ -58,7 +58,7 @@ function tempoMedio(itens: AnswerLike[]): number | null {
   return Math.round(tempos.reduce((s, t) => s + t, 0) / tempos.length);
 }
 
-// Agregação pura (sem banco) — testável isoladamente.
+// Agregação pura (sem banco): testável isoladamente.
 export function agregarStats(answers: AnswerLike[]): StatsResumo {
   const totalRespondidas = answers.length;
   const totalAcertos = answers.filter((a) => a.acertou).length;

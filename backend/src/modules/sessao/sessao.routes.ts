@@ -20,7 +20,7 @@ const cursorSchema = z.object({
   cursor: z.number().int().min(0),
 });
 
-// GET /sessao — retorna a sessão ativa do usuário (ou null).
+// GET /sessao: retorna a sessão ativa do usuário (ou null).
 sessaoRouter.get(
   "/",
   asyncHandler(async (req, res) => {
@@ -29,7 +29,7 @@ sessaoRouter.get(
   })
 );
 
-// PUT /sessao — cria/substitui a sessão ativa (ao iniciar uma nova sessão de estudo).
+// PUT /sessao: cria/substitui a sessão ativa (ao iniciar uma nova sessão de estudo).
 sessaoRouter.put(
   "/",
   asyncHandler(async (req, res) => {
@@ -43,7 +43,7 @@ sessaoRouter.put(
   })
 );
 
-// PATCH /sessao/cursor — atualiza só o cursor (conforme o usuário avança/volta).
+// PATCH /sessao/cursor: atualiza só o cursor (conforme o usuário avança/volta).
 sessaoRouter.patch(
   "/cursor",
   asyncHandler(async (req, res) => {
@@ -57,7 +57,7 @@ sessaoRouter.patch(
   })
 );
 
-// DELETE /sessao — encerra a sessão ativa (ao finalizar). Idempotente.
+// DELETE /sessao: encerra a sessão ativa (ao finalizar). Idempotente.
 sessaoRouter.delete(
   "/",
   asyncHandler(async (req, res) => {

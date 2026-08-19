@@ -1,4 +1,4 @@
-// "Marcar questão pra revisar depois" — flag booleana por questão/usuário.
+// "Marcar questão pra revisar depois": flag booleana por questão/usuário.
 import { Router } from "express";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
@@ -7,7 +7,7 @@ import { asyncHandler } from "../../lib/asyncHandler.js";
 export const marcadasRouter = Router();
 marcadasRouter.use(requireAuth);
 
-// GET /marcadas — lista de questaoIds marcados.
+// GET /marcadas: lista de questaoIds marcados.
 marcadasRouter.get(
   "/",
   asyncHandler(async (req, res) => {
@@ -20,7 +20,7 @@ marcadasRouter.get(
   })
 );
 
-// PUT /marcadas/:questaoId — marca (idempotente).
+// PUT /marcadas/:questaoId: marca (idempotente).
 marcadasRouter.put(
   "/:questaoId",
   asyncHandler(async (req, res) => {
@@ -34,7 +34,7 @@ marcadasRouter.put(
   })
 );
 
-// DELETE /marcadas/:questaoId — desmarca (idempotente).
+// DELETE /marcadas/:questaoId: desmarca (idempotente).
 marcadasRouter.delete(
   "/:questaoId",
   asyncHandler(async (req, res) => {

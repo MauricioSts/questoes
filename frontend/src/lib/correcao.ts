@@ -1,4 +1,4 @@
-// Correção de acerto/erro — feita 100% no frontend (o backend não conhece o gabarito).
+// Correção de acerto/erro: feita 100% no frontend (o backend não conhece o gabarito).
 import type { Questao, Alternativa } from "../types/questao";
 
 export function corrigir(questao: Questao, marcada: Alternativa): boolean {

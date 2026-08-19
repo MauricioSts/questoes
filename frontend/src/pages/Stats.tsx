@@ -52,7 +52,7 @@ interface Stats {
 }
 
 function fmtTempo(seg: number | null | undefined): string {
-  if (seg == null || seg <= 0) return "—";
+  if (seg == null || seg <= 0) return "n/d";
   const m = Math.floor(seg / 60);
   const s = seg % 60;
   return m > 0 ? `${m}m${s.toString().padStart(2, "0")}s` : `${s}s`;

@@ -14,7 +14,7 @@ async function assertConcurso(userId: string, concursoId: string) {
   if (!c) throw new HttpError(404, "Concurso não encontrado.");
 }
 
-// GET /postits?concursoId= — notas do concurso.
+// GET /postits?concursoId=: notas do concurso.
 postitsRouter.get(
   "/",
   asyncHandler(async (req, res) => {
@@ -37,7 +37,7 @@ const createSchema = z.object({
   cor: z.enum(["amber", "sage", "rose", "slate"]).default("amber"),
 });
 
-// POST /postits — cria uma nota.
+// POST /postits: cria uma nota.
 postitsRouter.post(
   "/",
   asyncHandler(async (req, res) => {
@@ -55,7 +55,7 @@ const patchSchema = z.object({
   cor: z.enum(["amber", "sage", "rose", "slate"]).optional(),
 });
 
-// PATCH /postits/:id — move/edita (debounce no cliente).
+// PATCH /postits/:id: move/edita (debounce no cliente).
 postitsRouter.patch(
   "/:id",
   asyncHandler(async (req, res) => {
@@ -68,7 +68,7 @@ postitsRouter.patch(
   })
 );
 
-// DELETE /postits/:id — remove a nota.
+// DELETE /postits/:id: remove a nota.
 postitsRouter.delete(
   "/:id",
   asyncHandler(async (req, res) => {

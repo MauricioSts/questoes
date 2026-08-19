@@ -148,7 +148,7 @@ export function StickyBoard() {
       >
         {notes.length === 0 && (
           <p className="pointer-events-none absolute inset-0 grid place-items-center text-sm text-faint">
-            Sem notas ainda — crie a primeira.
+            Sem notas ainda. Crie a primeira.
           </p>
         )}
         {notes.map((n) => (

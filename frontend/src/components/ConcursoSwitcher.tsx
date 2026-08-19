@@ -17,14 +17,14 @@ export function ConcursoSwitcher() {
         className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-full border text-xs font-brand font-bold"
         style={{ background: "var(--accentBg)", borderColor: "var(--accentBd)", color: "var(--accentText)" }}
       >
-        {ativo?.iniciais ?? "—"}
+        {ativo?.iniciais ?? "?"}
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate font-display font-bold leading-tight text-brand-ink">
           {ativo?.nome ?? "Selecionar concurso"}
         </span>
         <span className="block truncate text-[11px] uppercase tracking-wide text-faint">
-          {ativo ? `${ativo.banca} · ${ativo.ano}` : "—"}
+          {ativo ? `${ativo.banca} · ${ativo.ano}` : "Nenhum selecionado"}
         </span>
       </span>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"

@@ -88,7 +88,7 @@ export function carregarHeatmap(concursoId: string, from: string, to: string) {
   return api<{ dias: DiaHeatmap[]; periodos: PeriodoFerias[] }>(`/stats/heatmap?${qs}`);
 }
 
-// Matérias por edital já mapeadas — usadas no estado "concurso vazio".
+// Matérias por edital já mapeadas: usadas no estado "concurso vazio".
 export const MATERIAS_POR_EDITAL: Record<string, string[]> = {
   "Dataprev": [
     "Língua Portuguesa", "Língua Inglesa", "Raciocínio Lógico-Matemático",

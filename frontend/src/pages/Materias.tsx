@@ -12,7 +12,7 @@ import { materias as listarMaterias, filtrar } from "../lib/questoesRepo";
 import { useProgresso } from "../hooks/useProgresso";
 import type { Questao } from "../types/questao";
 
-// Cor da barra de acerto (spec §7): verde ≥75%, muted 55–74%, accent <55%.
+// Cor da barra de acerto (spec §7): verde ≥75%, muted 55 a 74%, accent <55%.
 function corAcerto(pct: number | null): string {
   if (pct == null) return "var(--track)";
   if (pct >= 75) return "var(--good)";
@@ -151,7 +151,7 @@ export function Materias() {
                       <div className="h-full rounded-full" style={{ width: `${acerto ?? 0}%`, background: corAcerto(acerto) }} />
                     </div>
                     <span className="w-12 text-right text-xs font-semibold text-muted">
-                      {acerto == null ? "—" : `${acerto}%`}
+                      {acerto == null ? "n/d" : `${acerto}%`}
                     </span>
                   </div>
                 </div>

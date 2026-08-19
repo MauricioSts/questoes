@@ -1,4 +1,4 @@
-# Frontend — Banco de Questões (PWA)
+# Frontend: Banco de Questões (PWA)
 
 Vite + React + TypeScript + TailwindCSS + React Router + Recharts. PWA instalável.
 
@@ -8,8 +8,8 @@ build (vão para o bundle, cacheadas pelo service worker → funciona offline). 
 arquivo de exemplo pelo completo mantendo o formato `{ meta, textos_base, questoes }`.
 
 ## Regras de negócio (frontend)
-- [src/lib/correcao.ts](src/lib/correcao.ts) — correção de acerto/erro (compara com o gabarito).
-- [src/lib/sessionBuilder.ts](src/lib/sessionBuilder.ts) — montagem de Flash, Simulado
+- [src/lib/correcao.ts](src/lib/correcao.ts): correção de acerto/erro (compara com o gabarito).
+- [src/lib/sessionBuilder.ts](src/lib/sessionBuilder.ts): montagem de Flash, Simulado
   (proporção da prova + ênfase nas erradas) e Tópico. Config central em
   [src/config/prova.ts](src/config/prova.ts).
 

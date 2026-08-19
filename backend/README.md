@@ -1,4 +1,4 @@
-# Backend — API de Questões
+# Backend: API de Questões
 
 Express + TypeScript + Prisma + PostgreSQL. JWT (access + refresh), bcrypt.
 
@@ -43,7 +43,7 @@ npm run dev
    npx prisma migrate deploy   # aplica migrations em produção
    npm run seed             # (só na 1ª vez)
    ```
-3. **Rodar**: `NODE_ENV=production node dist/server.js` — recomendado sob **pm2** ou
+3. **Rodar**: `NODE_ENV=production node dist/server.js`, recomendado sob **pm2** ou
    **systemd**, atrás de um reverse proxy (nginx) com HTTPS.
 4. **CORS**: em produção defina `CORS_ORIGIN=https://mauriciosts.com` (aceita lista separada
    por vírgula).

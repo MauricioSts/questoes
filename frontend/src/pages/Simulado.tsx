@@ -47,12 +47,12 @@ export function Simulado() {
       const r = await api<{ questoes: SemanaItem[] }>("/answers/week");
       semana = r.questoes;
     } catch {
-      setAviso("Sem conexão — montando o simulado sem histórico da semana.");
+      setAviso("Sem conexão. Montando o simulado sem histórico da semana.");
     }
     const sim = montarSimulado({ semana, todas: todas() });
     if (sim.length < TOTAL_SIMULADO) {
       setAviso(
-        `Só foi possível montar ${sim.length}/${TOTAL_SIMULADO} questões — adicione mais questões ao banco para fechar a proporção.`
+        `Só foi possível montar ${sim.length}/${TOTAL_SIMULADO} questões. Adicione mais questões ao banco para fechar a proporção.`
       );
     }
     setQuestoes(sim);
@@ -162,7 +162,7 @@ export function Simulado() {
               label="Cronômetro de 4h"
               ariaLabel="Ativar cronômetro para simular tempo real da prova"
             />
-            <p className="text-xs text-faint mt-3">Pausável — zera e finaliza sozinho</p>
+            <p className="text-xs text-faint mt-3">Pausável, zera e finaliza sozinho</p>
           </Card>
         </div>
       </div>

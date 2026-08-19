@@ -1,4 +1,4 @@
-// Caderno — páginas de anotação tipo Notion, escopadas por usuário + concurso + matéria.
+// Caderno: páginas de anotação tipo Notion, escopadas por usuário + concurso + matéria.
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../../prisma.js";
@@ -15,7 +15,7 @@ async function assertConcurso(userId: string, concursoId: string) {
   if (!c) throw new HttpError(404, "Concurso não encontrado.");
 }
 
-// GET /caderno?concursoId= — páginas do concurso, mais recentes primeiro.
+// GET /caderno?concursoId=: páginas do concurso, mais recentes primeiro.
 cadernoRouter.get(
   "/",
   asyncHandler(async (req, res) => {
@@ -37,7 +37,7 @@ const createSchema = z.object({
   conteudo: z.string().default(""),
 });
 
-// POST /caderno — cria uma página.
+// POST /caderno: cria uma página.
 cadernoRouter.post(
   "/",
   asyncHandler(async (req, res) => {
@@ -56,7 +56,7 @@ const patchSchema = z.object({
   materia: z.string().min(1).max(120).optional(),
 });
 
-// PATCH /caderno/:id — salva título/conteúdo/matéria (debounce no cliente).
+// PATCH /caderno/:id: salva título/conteúdo/matéria (debounce no cliente).
 cadernoRouter.patch(
   "/:id",
   asyncHandler(async (req, res) => {
@@ -69,7 +69,7 @@ cadernoRouter.patch(
   })
 );
 
-// DELETE /caderno/:id — remove a página.
+// DELETE /caderno/:id: remove a página.
 cadernoRouter.delete(
   "/:id",
   asyncHandler(async (req, res) => {

@@ -1,4 +1,4 @@
-// Estatísticas agregadas — heatmap de sequência (estilo GitHub).
+// Estatísticas agregadas: heatmap de sequência (estilo GitHub).
 import { Router } from "express";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
@@ -8,7 +8,7 @@ import { localDateKey } from "../../lib/date.js";
 export const statsRouter = Router();
 statsRouter.use(requireAuth);
 
-// GET /stats/heatmap?concursoId=&from=&to= — total de questões respondidas por dia
+// GET /stats/heatmap?concursoId=&from=&to=: total de questões respondidas por dia
 // (fuso America/Fortaleza), para o heatmap anual. from/to em ISO ou YYYY-MM-DD.
 statsRouter.get(
   "/heatmap",

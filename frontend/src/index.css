@@ -166,7 +166,7 @@ body {
 .atmos-vignette {
   background: radial-gradient(120% 90% at 50% 40%, transparent var(--vigStop), var(--vignette) 100%);
 }
-/* Halos de vela — só Grimório */
+/* Halos de vela: só Grimório */
 .atmos-candle { display: none; }
 [data-theme='grimorio'] .atmos-candle { display: block; }
 .atmos-candle .halo {
@@ -182,7 +182,7 @@ body {
   background: radial-gradient(circle, rgba(91,71,136,.22), transparent 70%);
   animation-duration: 7s;
 }
-/* Varredura — só Neon */
+/* Varredura: só Neon */
 .atmos-scan { display: none; }
 [data-theme='neon'] .atmos-scan {
   display: block; position: absolute; inset-inline: 0; height: 120px;

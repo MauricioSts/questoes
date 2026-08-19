@@ -34,7 +34,7 @@ const answerSchema = z.object({
   contexto: z.enum(["ESTUDO", "FLASH", "SIMULADO", "TOPICO"]),
 });
 
-// POST /answers — registra uma resposta. Idempotente por clientId: um reenvio
+// POST /answers: registra uma resposta. Idempotente por clientId: um reenvio
 // da fila offline com o mesmo clientId não cria duplicata.
 answersRouter.post(
   "/",
@@ -55,7 +55,7 @@ answersRouter.post(
   })
 );
 
-// POST /answers/batch — registra um lote (usado no simulado: 70 de uma vez).
+// POST /answers/batch: registra um lote (usado no simulado: 70 de uma vez).
 // skipDuplicates ignora respostas cujo clientId já foi registrado (reenvio offline).
 answersRouter.post(
   "/batch",
@@ -69,7 +69,7 @@ answersRouter.post(
   })
 );
 
-// GET /answers/ids — conjuntos de IDs respondidos e (algum dia) errados pelo usuário.
+// GET /answers/ids: conjuntos de IDs respondidos e (algum dia) errados pelo usuário.
 // Usado nos filtros "só não respondidas" / "só erradas" (modo Estudo e Tópico).
 answersRouter.get(
   "/ids",
@@ -88,7 +88,7 @@ answersRouter.get(
   })
 );
 
-// GET /answers/export — backup completo do progresso do usuário (JSON).
+// GET /answers/export: backup completo do progresso do usuário (JSON).
 answersRouter.get(
   "/export",
   asyncHandler(async (req, res) => {
@@ -105,7 +105,7 @@ answersRouter.get(
   })
 );
 
-// GET /answers/stats?period=7d|30d|all — agregados p/ dashboard "onde estou errando".
+// GET /answers/stats?period=7d|30d|all: agregados p/ dashboard "onde estou errando".
 answersRouter.get(
   "/stats",
   asyncHandler(async (req, res) => {
@@ -121,7 +121,7 @@ answersRouter.get(
   })
 );
 
-// GET /answers/wrong?modulo=II&limit=10 — IDs de questões erradas priorizadas (Flash).
+// GET /answers/wrong?modulo=II&limit=10: IDs de questões erradas priorizadas (Flash).
 // Prioriza: mais vezes errada, e erro mais recente como desempate.
 answersRouter.get(
   "/wrong",
@@ -149,7 +149,7 @@ answersRouter.get(
   })
 );
 
-// GET /answers/erradas — questões cujo ÚLTIMO resultado foi erro (para a aba "Revisar").
+// GET /answers/erradas: questões cujo ÚLTIMO resultado foi erro (para a aba "Revisar").
 // Assim que o usuário acerta numa revisão, a questão deixa de aparecer aqui.
 answersRouter.get(
   "/erradas",
@@ -215,7 +215,7 @@ answersRouter.get(
   })
 );
 
-// GET /answers/revisao?limit=30 — questões prontas para revisão espaçada (SRS) hoje.
+// GET /answers/revisao?limit=30: questões prontas para revisão espaçada (SRS) hoje.
 // Ordena as mais atrasadas primeiro. Também informa o total pendente (para o card da home).
 answersRouter.get(
   "/revisao",
@@ -243,7 +243,7 @@ answersRouter.get(
   })
 );
 
-// GET /answers/simulados — histórico de simulados anteriores, com as respostas de cada um.
+// GET /answers/simulados: histórico de simulados anteriores, com as respostas de cada um.
 // Não há coluna de sessão: um simulado é um lote enviado de uma vez (mesmo instante), então
 // agrupamos as respostas de contexto SIMULADO por proximidade de tempo (gap > 30min = novo).
 answersRouter.get(
@@ -302,7 +302,7 @@ answersRouter.get(
   })
 );
 
-// GET /answers/week — questões respondidas nos últimos 7 dias + flag de erro (Simulado).
+// GET /answers/week: questões respondidas nos últimos 7 dias + flag de erro (Simulado).
 // O frontend usa isso para sortear mantendo a proporção, com ênfase nas erradas.
 answersRouter.get(
   "/week",

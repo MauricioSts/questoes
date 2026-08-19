@@ -1,4 +1,4 @@
-// MONTAGEM DE SESSÕES — regra de negócio que roda no FRONTEND (tem o JSON).
+// MONTAGEM DE SESSÕES: regra de negócio que roda no FRONTEND (tem o JSON).
 // O backend só fornece IDs (erradas, semana); aqui decidimos a composição final.
 import type { Questao, Dificuldade } from "../types/questao";
 import { PROPORCAO_SIMULADO, PESO_ERRADA } from "../config/prova";
@@ -150,7 +150,7 @@ export function montarSimulado(input: SimuladoInput): Questao[] {
 
 // Seleciona `alvo` questões de um grupo: sorteia dentre as da semana com ênfase nas
 // erradas (peso maior) e, se faltar volume, completa com questões do grupo não vistas
-// na semana — mantendo a proporção.
+// na semana: mantendo a proporção.
 function selecionarGrupo(
   candidatas: Questao[],
   alvo: number,

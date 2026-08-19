@@ -62,7 +62,7 @@ export function calcularStreak(
   let streak = 0;
   while (true) {
     if (bateuNoDia(cursor)) {
-      // Bateu a meta: conta — mesmo em descanso (estudar sempre conta).
+      // Bateu a meta: conta mesmo em descanso (estudar sempre conta).
       streak++;
       cursor = diaAntes(cursor);
       continue;

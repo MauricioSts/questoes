@@ -17,7 +17,7 @@ export function questoesLegislacao(): Questao[] {
 // alterna a cada dia (par de dias desde a âncora → dia de legislação).
 const ANCORA = Date.UTC(2026, 6, 9);
 
-// Meia-noite local (em ms UTC) de uma data — para contar dias de calendário.
+// Meia-noite local (em ms UTC) de uma data: para contar dias de calendário.
 function diaLocal(d: Date): number {
   return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
 }

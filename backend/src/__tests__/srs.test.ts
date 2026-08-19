@@ -13,7 +13,7 @@ function mk(questaoId: number, acertou: boolean, diasAtras: number): AnswerRev {
   };
 }
 
-describe("srs — repetição espaçada", () => {
+describe("srs: repetição espaçada", () => {
   it("erro recente reseta o intervalo (streak 0 → 1 dia)", () => {
     // Errou há 2 dias → dueDate = ontem → está pendente.
     const [item] = calcularRevisoes([mk(1, false, 2)]);

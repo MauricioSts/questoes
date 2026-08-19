@@ -43,8 +43,8 @@ function questaoDeReserva(r: RespostaHist): Questao {
     materia: r.materiaSnapshot,
     assunto: r.assuntoSnapshot,
     dificuldade: (r.dificuldadeSnapshot as Questao["dificuldade"]) ?? "media",
-    enunciado: "(Enunciado não disponível neste dispositivo — importe o banco de questões para revisar o conteúdo.)",
-    alternativas: { [marcada]: "—", [gabarito]: "—" },
+    enunciado: "(Enunciado não disponível neste dispositivo. Importe o banco de questões para revisar o conteúdo.)",
+    alternativas: { [marcada]: "(texto indisponível)", [gabarito]: "(texto indisponível)" },
     gabarito,
     explicacao: "",
   };

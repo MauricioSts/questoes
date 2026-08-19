@@ -18,7 +18,7 @@ async function main() {
 
   console.log(`Usuário inicial pronto: ${user.email} (id: ${user.id})`);
 
-  // Concurso padrão (Dataprev) para o usuário — o app é multi-concurso e sempre
+  // Concurso padrão (Dataprev) para o usuário: o app é multi-concurso e sempre
   // precisa de ao menos um concurso ativo. Id determinístico ("seed_<userId>")
   // para casar com o backfill da migração multi_concurso.
   const concursoId = `seed_${user.id}`;
@@ -28,7 +28,7 @@ async function main() {
     create: {
       id: concursoId,
       userId: user.id,
-      nome: "Dataprev — Analista de TI",
+      nome: "Dataprev: Analista de TI",
       iniciais: "TI",
       banca: "FGV",
       ano: 2026,

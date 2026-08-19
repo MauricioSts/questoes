@@ -1,4 +1,4 @@
-// Prisma schema — banco de questões.
+// Prisma schema: banco de questões.
 // Regra central: o backend NUNCA guarda enunciado/alternativas/gabarito. Só o resultado
 // da resposta com snapshots de modulo/materia/assunto/dificuldade, o que permite gerar
 // estatística e priorizar erradas sem depender do JSON de questões.
@@ -141,7 +141,7 @@ model FeriasPeriodo {
 }
 
 // Sessão de estudo em andamento (uma por usuário). Guarda apenas a ORDEM dos IDs e
-// o cursor — o conteúdo continua no frontend e as respostas são persistidas em Answer.
+// o cursor: o conteúdo continua no frontend e as respostas são persistidas em Answer.
 // Permite ao usuário sair no meio e retomar de onde parou ("Continuar estudando").
 model SessaoAtiva {
   id         String   @id @default(cuid())
@@ -177,7 +177,7 @@ model Answer {
   @@index([userId, questaoId])
 }
 
-// Anotação do usuário na questão — uma por questão por usuário.
+// Anotação do usuário na questão: uma por questão por usuário.
 model Nota {
   id         String   @id @default(cuid())
   userId     String
@@ -190,7 +190,7 @@ model Nota {
   @@unique([userId, questaoId])
 }
 
-// "Marcar questão pra revisar depois" — flag por questão por usuário.
+// "Marcar questão pra revisar depois": flag por questão por usuário.
 model Marcada {
   id         String   @id @default(cuid())
   userId     String

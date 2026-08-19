@@ -36,7 +36,7 @@ export function Login() {
             <Shield size={32} className="text-white" strokeWidth={1.5} />
           </div>
           <h1 className="font-display text-3xl font-extrabold text-brand-ink">Entrar</h1>
-          <p className="text-sm text-faint">Banco de Questões — Dataprev 2026</p>
+          <p className="text-sm text-faint">Banco de Questões · Dataprev 2026</p>
         </div>
 
         {/* Formulário */}

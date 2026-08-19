@@ -1,4 +1,4 @@
-// Tema do app: dois temas alternáveis a qualquer momento — 'grimorio' (escuro,
+// Tema do app: dois temas alternáveis a qualquer momento, 'grimorio' (escuro,
 // mística) e 'neon' (claro, cyberpunk). Aplica data-theme na raiz (<html>) e
 // persiste a escolha em localStorage. Grimório também liga a classe .dark para
 // manter utilitários dark: coerentes.

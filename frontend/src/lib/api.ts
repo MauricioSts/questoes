@@ -4,7 +4,7 @@ import { getConcursoId } from "./concurso";
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
 
 // Multi-concurso: leituras dependentes de concurso ganham ?concursoId= automaticamente,
-// e escritas de resposta recebem concursoId no corpo — sem tocar cada página.
+// e escritas de resposta recebem concursoId no corpo, sem tocar cada página.
 const SCOPED_GET = ["/answers", "/goals/today", "/questoes", "/caderno", "/postits", "/stats"];
 const SCOPED_ANSWER_POST = ["/answers", "/answers/batch"];
 

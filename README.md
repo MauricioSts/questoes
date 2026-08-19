@@ -1,4 +1,4 @@
-# Banco de Questões — Concurso Dataprev 2026 (FGV)
+# Banco de Questões: Concurso Dataprev 2026 (FGV)
 
 App de estudo por questões, mobile-first e PWA. Frontend estático (Vercel) + backend
 Node/Express/Postgres (servidor próprio).
@@ -6,7 +6,7 @@ Node/Express/Postgres (servidor próprio).
 ## Arquitetura
 
 - **Conteúdo estático:** as questões vivem em `frontend/src/data/questoes.json` e são
-  empacotadas no bundle. O backend **nunca** armazena enunciado/alternativas/gabarito — só
+  empacotadas no bundle. O backend **nunca** armazena enunciado/alternativas/gabarito, só
   conhece a questão pelo `id` (inteiro). A correção acontece no frontend e só o resultado
   (acertou, alternativa, tempo, snapshots) é persistido.
 - **Quem decide o quê:** montagem de sessão que depende de proporção/sorteio (simulado, flash,

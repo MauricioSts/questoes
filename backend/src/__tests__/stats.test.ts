@@ -5,7 +5,7 @@ function mk(materia: string, assunto: string, acertou: boolean): AnswerLike {
   return { materiaSnapshot: materia, assuntoSnapshot: assunto, acertou, createdAt: new Date("2026-07-01T12:00:00Z") };
 }
 
-describe("agregarStats — onde estou errando", () => {
+describe("agregarStats: onde estou errando", () => {
   it("calcula taxa global e por matéria", () => {
     const answers: AnswerLike[] = [
       mk("Portugues", "Crase", true),

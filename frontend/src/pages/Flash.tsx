@@ -28,7 +28,7 @@ export function Flash() {
         quantidade: 10,
       });
       if (r.completadoComNaoRespondidas) {
-        setAviso("Você tem menos de 10 erradas no Módulo II — completamos com questões novas.");
+        setAviso("Você tem menos de 10 erradas no Módulo II, completamos com questões novas.");
       }
       setResultado(null);
       setSessao(r.questoes);
@@ -40,7 +40,7 @@ export function Flash() {
         respondidasIds: progresso.respondidas,
         quantidade: 10,
       });
-      setAviso("Sem conexão — montamos o Flash com os dados locais.");
+      setAviso("Sem conexão. Montamos o Flash com os dados locais.");
       setSessao(r.questoes);
     } finally {
       setCarregando(false);
@@ -93,7 +93,7 @@ export function Flash() {
 
           {/* Descrição */}
           <p className="text-sm leading-relaxed opacity-95">
-            10 questões do <strong>Módulo II</strong> que você já errou — revisão espaçada em 5 minutos
+            10 questões do <strong>Módulo II</strong> que você já errou. Revisão espaçada em 5 minutos
           </p>
 
           {/* Badges */}

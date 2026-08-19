@@ -1,4 +1,4 @@
-// Caderno — anotações tipo Notion. Coluna esquerda: árvore de matérias/páginas.
+// Caderno: anotações tipo Notion. Coluna esquerda: árvore de matérias/páginas.
 // Coluna direita: editor contenteditable com salvamento por debounce (~800ms).
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronRight, FileText, Plus, Trash2 } from "lucide-react";

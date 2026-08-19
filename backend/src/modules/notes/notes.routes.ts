@@ -8,7 +8,7 @@ import { asyncHandler } from "../../lib/asyncHandler.js";
 export const notesRouter = Router();
 notesRouter.use(requireAuth);
 
-// GET /notes — todas as anotações do usuário.
+// GET /notes: todas as anotações do usuário.
 notesRouter.get(
   "/",
   asyncHandler(async (req, res) => {
@@ -20,7 +20,7 @@ notesRouter.get(
   })
 );
 
-// GET /notes/:questaoId — anotação de uma questão (ou null).
+// GET /notes/:questaoId: anotação de uma questão (ou null).
 notesRouter.get(
   "/:questaoId",
   asyncHandler(async (req, res) => {
@@ -34,7 +34,7 @@ notesRouter.get(
 
 const putSchema = z.object({ texto: z.string() });
 
-// PUT /notes/:questaoId — cria/atualiza (upsert). Texto vazio remove a nota.
+// PUT /notes/:questaoId: cria/atualiza (upsert). Texto vazio remove a nota.
 notesRouter.put(
   "/:questaoId",
   asyncHandler(async (req, res) => {

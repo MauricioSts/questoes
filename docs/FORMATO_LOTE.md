@@ -23,26 +23,26 @@ está em [frontend/src/data/questoes.json](../frontend/src/data/questoes.json) (
 | `id` | ✅ | inteiro **único** no lote. No 1º lote (v1) use 1, 2, 3, … |
 | `modulo` | ✅ | exatamente `"I"` (gerais) ou `"II"` (específicos) |
 | `materia` | ✅ | **exatamente** um dos valores da lista abaixo (com acento) |
-| `assunto` | ✅ | texto livre e consistente (ex.: `"Crase"`, `"SQL"`) — agrupa as estatísticas |
-| `dificuldade` | ✅ | exatamente `"facil"`, `"media"` ou `"dificil"` (minúsculo, **sem acento** — é um código) |
+| `assunto` | ✅ | texto livre e consistente (ex.: `"Crase"`, `"SQL"`), agrupa as estatísticas |
+| `dificuldade` | ✅ | exatamente `"facil"`, `"media"` ou `"dificil"` (minúsculo, **sem acento**, é um código) |
 | `enunciado` | ✅ | português **acentuado** (UTF-8). Não coloque código aqui |
 | `codigo` | opcional | bloco de código com quebras de linha reais (`\n` no JSON). Vai renderizado como bloco monoespaçado |
 | `linguagem` | opcional | rótulo do código: `"java"`, `"sql"`, `"python"`, etc. |
 | `texto_base` | opcional | chave de `textos_base` (só para leitura em inglês) |
 | `alternativas` | ✅ | objeto `{ "A": "...", "B": "...", "C": "...", "D": "...", "E": "..." }` (5 opções) |
-| `gabarito` | ✅ | a letra correta: `"A"`–`"E"` (deve existir em `alternativas`) |
-| `explicacao` | ✅ | por que a correta está certa (e, se útil, por que as outras erram) — acentuado |
+| `gabarito` | ✅ | a letra correta: `"A"` a `"E"` (deve existir em `alternativas`) |
+| `explicacao` | ✅ | por que a correta está certa (e, se útil, por que as outras erram), acentuado |
 
 ### Valores exatos de `materia`
 
-**Módulo I (gerais) — os nomes precisam ser EXATAMENTE estes (o simulado depende disso):**
+**Módulo I (gerais): os nomes precisam ser EXATAMENTE estes (o simulado depende disso):**
 - `"Língua Portuguesa"`
 - `"Língua Inglesa"`
 - `"Raciocínio Lógico-Matemático"`
 - `"Atualidades e IA"`
 - `"Legislação (SI e Proteção de Dados)"`
 
-**Módulo II (específicos) — use estes nomes de forma consistente:**
+**Módulo II (específicos): use estes nomes de forma consistente:**
 - `"Desenvolvimento de Software"`
 - `"Banco de Dados / BI / Big Data"`
 - `"Segurança da Informação"`
@@ -94,7 +94,7 @@ está em [frontend/src/data/questoes.json](../frontend/src/data/questoes.json) (
 >   crie o texto em `textos_base` (ex.: chave "TB_ENG_1") e referencie via `texto_base`.
 > - Quando a questão envolver código (SQL, Java, Python…), coloque o código no campo `codigo`
 >   com quebras de linha reais e informe `linguagem`. **Não** coloque código dentro do enunciado.
-> - Cada questão tem 5 alternativas (A–E) e exatamente um gabarito.
+> - Cada questão tem 5 alternativas (A a E) e exatamente um gabarito.
 > - `explicacao` deve justificar a resposta correta.
 > - O `gabarito` precisa corresponder a uma alternativa existente.
 >

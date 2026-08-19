@@ -90,7 +90,7 @@ export function Revisar() {
   const srs = modo === "srs";
   const vazioTitulo = srs ? "Nada para revisar hoje" : "Nenhuma questão errada pendente";
   const vazioSub = srs
-    ? "Volte amanhã — vamos te lembrar na hora certa de cada questão."
+    ? "Volte amanhã. Vamos te lembrar na hora certa de cada questão."
     : "Continue estudando para melhorar!";
 
   return (
@@ -99,7 +99,7 @@ export function Revisar() {
         rotulo="Revisão"
         titulo={srs ? "Revisão do dia" : "O que ficou pendente"}
         subtitulo={
-          srs ? "A questão certa, no dia certo — revisão espaçada." : "Assim que você acerta, a questão sai desta lista."
+          srs ? "A questão certa, no dia certo. Revisão espaçada." : "Assim que você acerta, a questão sai desta lista."
         }
       />
 

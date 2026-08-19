@@ -1,7 +1,7 @@
-// CONFIG CENTRAL DA PROVA — ajuste aqui a proporção, os pesos e a nota de corte.
+// CONFIG CENTRAL DA PROVA: ajuste aqui a proporção, os pesos e a nota de corte.
 // (Referência: FGV / Dataprev 2026.)
 
-// Proporção do SIMULADO — mantém a proporção da prova real. Total = 70.
+// Proporção do SIMULADO: mantém a proporção da prova real. Total = 70.
 // As chaves de Módulo I devem casar com o campo `materia` do questoes.json.
 export const PROPORCAO_SIMULADO = {
   // As chaves precisam casar EXATAMENTE com o campo `materia` das questões (com acento).
