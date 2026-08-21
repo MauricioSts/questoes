@@ -74,7 +74,10 @@ model PaginaCaderno {
   concurso   Concurso @relation(fields: [concursoId], references: [id], onDelete: Cascade)
   materia    String
   titulo     String   @default("")
-  conteudo   String   @default("") // markdown ou JSON de blocos
+  conteudo   String   @default("") // HTML saneado quando formato = "html"
+  // "html" = conteúdo do editor rico; "texto" = páginas antigas, salvas como texto puro
+  // (o cliente converte para parágrafos ao abrir e regrava já como html).
+  formato    String   @default("html")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

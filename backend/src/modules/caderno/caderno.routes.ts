@@ -30,11 +30,17 @@ cadernoRouter.get(
   })
 );
 
+// O conteúdo é HTML do editor rico (já saneado no cliente). O teto de 400k caracteres
+// existe só para barrar payload absurdo — uma página de anotação fica na casa dos KB.
+const CONTEUDO_MAX = 400_000;
+const formato = z.enum(["html", "texto"]);
+
 const createSchema = z.object({
   concursoId: z.string().min(1),
   materia: z.string().min(1).max(120),
   titulo: z.string().max(200).default(""),
-  conteudo: z.string().default(""),
+  conteudo: z.string().max(CONTEUDO_MAX).default(""),
+  formato: formato.default("html"),
 });
 
 // POST /caderno: cria uma página.
@@ -52,8 +58,9 @@ cadernoRouter.post(
 
 const patchSchema = z.object({
   titulo: z.string().max(200).optional(),
-  conteudo: z.string().optional(),
+  conteudo: z.string().max(CONTEUDO_MAX).optional(),
   materia: z.string().min(1).max(120).optional(),
+  formato: formato.optional(),
 });
 
 // PATCH /caderno/:id: salva título/conteúdo/matéria (debounce no cliente).

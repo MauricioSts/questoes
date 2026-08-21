@@ -34,16 +34,26 @@ export interface PaginaCaderno {
   materia: string;
   titulo: string;
   conteudo: string;
+  // "html" = conteúdo do editor rico; "texto" = páginas criadas antes dele, que o
+  // cliente converte para parágrafos ao abrir.
+  formato?: "html" | "texto";
+  createdAt?: string;
   updatedAt: string;
 }
 
 export function listarPaginas(concursoId: string) {
   return api<{ paginas: PaginaCaderno[] }>(`/caderno?concursoId=${encodeURIComponent(concursoId)}`);
 }
-export function criarPagina(concursoId: string, materia: string) {
-  return api<{ pagina: PaginaCaderno }>("/caderno", { method: "POST", body: { concursoId, materia } });
+export function criarPagina(concursoId: string, materia: string, titulo = "") {
+  return api<{ pagina: PaginaCaderno }>("/caderno", {
+    method: "POST",
+    body: { concursoId, materia, titulo, formato: "html" },
+  });
 }
-export function salvarPagina(id: string, data: { titulo?: string; conteudo?: string; materia?: string }) {
+export function salvarPagina(
+  id: string,
+  data: { titulo?: string; conteudo?: string; materia?: string; formato?: "html" | "texto" }
+) {
   return api<{ pagina: PaginaCaderno }>(`/caderno/${id}`, { method: "PATCH", body: data });
 }
 export function excluirPagina(id: string) {

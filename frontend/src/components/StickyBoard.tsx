@@ -188,8 +188,10 @@ export function StickyBoard() {
                 contentEditable
                 suppressContentEditableWarning
                 data-ph="Escreva…"
-                onInput={(e) => persistir(n.id, { texto: e.currentTarget.textContent ?? "" })}
-                className="min-h-[76px] px-3 pb-3 text-sm leading-snug text-[#2A2440] outline-none"
+                // innerText (e não textContent) preserva as quebras de linha que o
+                // contenteditable representa como <div>/<br>.
+                onInput={(e) => persistir(n.id, { texto: e.currentTarget.innerText })}
+                className="min-h-[76px] whitespace-pre-wrap px-3 pb-3 text-sm leading-snug text-[#2A2440] outline-none"
               >
                 {n.texto}
               </div>
