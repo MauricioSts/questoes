@@ -4,6 +4,7 @@ import { getTextoBase } from "../lib/questoesRepo";
 import { Card } from "./Card";
 import { MetaPill } from "./MetaPill";
 import { comRealce } from "./Realce";
+import { ImagensQuestao } from "./ImagemQuestao";
 
 const LETRAS: Alternativa[] = ["A", "B", "C", "D", "E"];
 
@@ -57,6 +58,9 @@ export function QuestaoView({
         {comRealce(questao.enunciado)}
       </h2>
 
+      {/* Imagens do enunciado (antes do código, que costuma ser o "modelo a seguir") */}
+      <ImagensQuestao imagens={questao.imagens} posicao="enunciado" />
+
       {/* Código (se houver) */}
       {questao.codigo && (
         <div className="overflow-hidden rounded-xl border border-hair">
@@ -70,6 +74,9 @@ export function QuestaoView({
           </pre>
         </div>
       )}
+
+      {/* Imagens que pertencem às alternativas */}
+      <ImagensQuestao imagens={questao.imagens} posicao="alternativas" />
 
       {/* Alternativas */}
       <ul className="space-y-3" role="radiogroup" aria-label="Alternativas">

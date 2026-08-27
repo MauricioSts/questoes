@@ -35,6 +35,9 @@ model Questao {
   alternativas Json // { "A": "...", "B": "...", ... }
   gabarito     String
   explicacao   String
+  // Figuras da questão: [{ arquivo, legenda, posicao, dados }], com a imagem embutida
+  // como data URI em `dados`. null/ausente na maioria das questões.
+  imagens      Json?
   loteNome     String? // rótulo do lote (nome do arquivo importado); null p/ imports antigos
   createdAt    DateTime @default(now()) // idêntico p/ toda questão de um mesmo import → chave do lote
 

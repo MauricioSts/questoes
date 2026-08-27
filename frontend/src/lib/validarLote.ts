@@ -13,6 +13,11 @@ export interface ResultadoValidacao {
 
 const DIFS = ["facil", "media", "dificil"];
 const MODS = ["I", "II"];
+const POSICOES = ["enunciado", "alternativas"];
+
+// Aceita só data URI de imagem: o campo vai direto no src, então um valor com http(s)
+// ou caminho de arquivo significaria uma imagem que nunca vai carregar no app.
+const DATA_URI_IMG = /^data:image\/(png|jpeg|jpg|gif|webp|svg\+xml);base64,[A-Za-z0-9+/=\s]+$/;
 
 export function validarLote(json: unknown): ResultadoValidacao {
   const erros: string[] = [];
@@ -57,6 +62,22 @@ export function validarLote(json: unknown): ResultadoValidacao {
     else if (!q.alternativas[q.gabarito])
       erros.push(`${ref}: gabarito "${q.gabarito}" não corresponde a nenhuma alternativa.`);
     if (!q?.explicacao) avisos.push(`${ref}: sem explicação (recomendado).`);
+    if (q?.imagens !== undefined) {
+      if (!Array.isArray(q.imagens)) {
+        erros.push(`${ref}: "imagens" precisa ser uma lista.`);
+      } else {
+        q.imagens.forEach((img, j) => {
+          const refImg = `${ref}, imagem ${j + 1}`;
+          if (!img?.dados) erros.push(`${refImg}: sem o campo "dados" (data URI da imagem).`);
+          else if (!DATA_URI_IMG.test(img.dados))
+            erros.push(`${refImg}: "dados" não é um data URI de imagem em base64.`);
+          if (!POSICOES.includes(img?.posicao))
+            erros.push(`${refImg}: posição inválida (use "enunciado" ou "alternativas").`);
+          if (!img?.legenda) avisos.push(`${refImg}: sem legenda (vira o alt da imagem).`);
+          if (!img?.arquivo) avisos.push(`${refImg}: sem nome de arquivo (convenção: q{id}_{descricao}.png).`);
+        });
+      }
+    }
     if (q?.texto_base && !textosBase[q.texto_base])
       erros.push(`${ref}: referencia texto_base "${q.texto_base}" que não está no lote.`);
     // aviso de acentuação: texto puramente ASCII costuma indicar falta de acentos

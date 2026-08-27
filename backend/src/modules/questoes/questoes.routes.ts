@@ -11,6 +11,14 @@ import type { Prisma } from "@prisma/client";
 export const questoesRouter = Router();
 questoesRouter.use(requireAuth);
 
+// Figuras da questão: a imagem chega embutida como data URI dentro do próprio lote.
+const imagemSchema = z.object({
+  arquivo: z.string().min(1),
+  legenda: z.string().default(""),
+  posicao: z.enum(["enunciado", "alternativas"]),
+  dados: z.string().regex(/^data:image\//, "dados precisa ser um data URI de imagem"),
+});
+
 const questaoSchema = z.object({
   id: z.number().int(),
   modulo: z.enum(["I", "II"]),
@@ -24,6 +32,7 @@ const questaoSchema = z.object({
   alternativas: z.record(z.string()),
   gabarito: z.string().min(1),
   explicacao: z.string().default(""),
+  imagens: z.array(imagemSchema).max(10).optional(),
 });
 
 const importSchema = z.object({
@@ -61,6 +70,7 @@ questoesRouter.get(
       alternativas: q.alternativas,
       gabarito: q.gabarito,
       explicacao: q.explicacao,
+      imagens: q.imagens ?? undefined,
     }));
     const textosBase = Object.fromEntries(textos.map((t) => [t.chave, t.texto]));
     res.json({ questoes, textosBase });
@@ -133,6 +143,7 @@ questoesRouter.post(
           alternativas: q.alternativas as Prisma.InputJsonValue,
           gabarito: q.gabarito,
           explicacao: q.explicacao,
+          imagens: (q.imagens ?? undefined) as Prisma.InputJsonValue | undefined,
           loteNome: nomeLote ?? null,
         })),
       }),
