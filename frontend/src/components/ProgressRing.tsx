@@ -1,3 +1,6 @@
+// Anel da meta diária. Cores vêm dos tokens do tema: o trilho e os rótulos estavam
+// fixos em branco, o que só funcionava no tema escuro — no Cyberpunk o cartão é
+// branco e sumiam os dois, sobrando só o arco preenchido no ar.
 interface Props {
   valor: number;
   meta: number;
@@ -27,7 +30,7 @@ export function ProgressRing({ valor, meta, size = 148, strokeWidth = 13 }: Prop
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="rgba(255, 255, 255, 0.16)"
+          stroke="var(--track)"
           strokeWidth={strokeWidth}
           strokeLinecap="round"
         />
@@ -57,8 +60,8 @@ export function ProgressRing({ valor, meta, size = 148, strokeWidth = 13 }: Prop
       </svg>
 
       <div className="absolute flex flex-col items-center gap-0.5">
-        <div className="text-2xl font-display font-extrabold text-white">{valor}</div>
-        <div className="text-xs text-white/80">de {meta} hoje</div>
+        <div className="text-2xl font-display font-extrabold text-brand-ink">{valor}</div>
+        <div className="text-xs text-muted">de {meta} hoje</div>
       </div>
     </div>
   );
