@@ -34,12 +34,12 @@
   60% { transform: translateX(-5px); }
   80% { transform: translateX(5px); }
 }
-/* Halos de vela (Grimório): oscilação suave de opacidade/escala */
+/* Halos de vela (Fantasy): oscilação suave de opacidade/escala */
 @keyframes candle {
   0%, 100% { opacity: 0.55; transform: scale(1); }
   50% { opacity: 0.85; transform: scale(1.06); }
 }
-/* Varredura (Neon): linha horizontal descendo a tela */
+/* Varredura (Cyberpunk): linha horizontal descendo a tela */
 @keyframes scanline {
   from { transform: translateY(-10vh); }
   to { transform: translateY(110vh); }
@@ -49,8 +49,8 @@
  * Cada tema define (1) canais RGB "r g b" para o Tailwind (chassi + acento) e
  * (2) os tokens hex do design (usados por app-root e componentes premium). */
 
-/* ---------- GRIMÓRIO (escuro, mística/biblioteca antiga) ---------- */
-[data-theme='grimorio'] {
+/* ---------- FANTASY (escuro, mística/biblioteca antiga) ---------- */
+[data-theme='fantasy'] {
   /* canais RGB p/ Tailwind */
   --brand-50: 34 26 60;
   --brand-100: 48 36 73;
@@ -97,8 +97,8 @@
   color-scheme: dark;
 }
 
-/* ---------- NEON (claro, cyberpunk divertido) ---------- */
-[data-theme='neon'] {
+/* ---------- CYBERPUNK (claro, divertido) ---------- */
+[data-theme='cyberpunk'] {
   --brand-50: 244 241 255;
   --brand-100: 235 228 255;
   --brand-200: 201 188 255;
@@ -166,9 +166,9 @@ body {
 .atmos-vignette {
   background: radial-gradient(120% 90% at 50% 40%, transparent var(--vigStop), var(--vignette) 100%);
 }
-/* Halos de vela: só Grimório */
+/* Halos de vela: só Fantasy */
 .atmos-candle { display: none; }
-[data-theme='grimorio'] .atmos-candle { display: block; }
+[data-theme='fantasy'] .atmos-candle { display: block; }
 .atmos-candle .halo {
   position: absolute; border-radius: 999px; filter: blur(60px);
   animation: candle 6s ease-in-out infinite;
@@ -182,9 +182,9 @@ body {
   background: radial-gradient(circle, rgba(91,71,136,.22), transparent 70%);
   animation-duration: 7s;
 }
-/* Varredura: só Neon */
+/* Varredura: só Cyberpunk */
 .atmos-scan { display: none; }
-[data-theme='neon'] .atmos-scan {
+[data-theme='cyberpunk'] .atmos-scan {
   display: block; position: absolute; inset-inline: 0; height: 120px;
   background: linear-gradient(180deg, transparent, rgba(0,194,255,.06) 45%, rgba(230,0,126,.05) 55%, transparent);
   animation: scanline 7s linear infinite;
@@ -259,7 +259,7 @@ body {
 /* ======================= EDITOR DO CADERNO ("mini Docs") =======================
  * A folha (.doc) tem estilos próprios porque o preflight do Tailwind zera títulos,
  * listas, tabelas e citações — dentro do editor eles precisam voltar a parecer o
- * que são. Tudo usa os tokens do tema, então o documento acompanha Grimório/Neon. */
+ * que são. Tudo usa os tokens do tema, então o documento acompanha Fantasy/Cyberpunk. */
 
 .doc-wrap { display: flex; flex-direction: column; min-height: 0; }
 

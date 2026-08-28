@@ -16,11 +16,11 @@ const navItems = [
 // Extra só no desktop.
 const desktopExtra = [{ to: "/simulado", label: "Simulado", icon: FileText }];
 
-// Logo por tema: eclipse dourado (Grimório) / quadrado NEON (Neon).
-function Marca({ grimorio }: { grimorio: boolean }) {
+// Logo por tema: eclipse dourado (Fantasy) / quadrado neon (Cyberpunk).
+function Marca({ fantasy }: { fantasy: boolean }) {
   return (
     <div className="flex items-center gap-2.5 px-4 pt-4 pb-3">
-      {grimorio ? (
+      {fantasy ? (
         <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden>
           <circle cx="17" cy="17" r="15" fill="none" stroke="var(--accent)" strokeWidth="1.4" opacity=".8" />
           <path d="M17 4a13 13 0 100 26 10 10 0 010-26z" fill="var(--accent)" opacity=".9" />
@@ -33,7 +33,7 @@ function Marca({ grimorio }: { grimorio: boolean }) {
       )}
       <div className="leading-tight">
         <span className="block font-brand text-[15px] font-bold text-brand-ink" style={{ letterSpacing: "var(--brandTrack)" }}>
-          {grimorio ? "GRIMÓRIO" : "NEON//VGL"}
+          {fantasy ? "FANTASY" : "CYBERPUNK"}
         </span>
         <span className="block text-[10px] uppercase tracking-[.14em] text-faint">Banco de questões</span>
       </div>
@@ -45,7 +45,7 @@ export function BottomTab() {
   const { tema, alternar } = useTheme();
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const grimorio = tema === "grimorio";
+  const fantasy = tema === "fantasy";
 
   function sair() {
     logout();
@@ -60,7 +60,7 @@ export function BottomTab() {
     >
       {/* Marca (desktop) */}
       <div className="hidden lg:block">
-        <Marca grimorio={grimorio} />
+        <Marca fantasy={fantasy} />
       </div>
 
       {/* Trocador de concurso (desktop) */}
@@ -85,10 +85,10 @@ export function BottomTab() {
           onClick={alternar}
           className="mb-2 flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-sm font-semibold transition"
           style={{ borderColor: "var(--accentBd)", background: "var(--accentBg)", color: "var(--accentText)" }}
-          aria-label={grimorio ? "Mudar para Modo Neon" : "Mudar para Modo Grimório"}
+          aria-label={fantasy ? "Mudar para Modo Cyberpunk" : "Mudar para Modo Fantasy"}
         >
-          {grimorio ? <Flame size={17} strokeWidth={1.8} fill="currentColor" /> : <Sun size={17} strokeWidth={1.8} />}
-          <span className="flex-1 text-left">{grimorio ? "Modo Grimório" : "Modo Neon"}</span>
+          {fantasy ? <Flame size={17} strokeWidth={1.8} fill="currentColor" /> : <Sun size={17} strokeWidth={1.8} />}
+          <span className="flex-1 text-left">{fantasy ? "Modo Fantasy" : "Modo Cyberpunk"}</span>
           <span className="h-2 w-2 rounded-full" style={{ background: "var(--accent)", animation: "flamewave 2s ease-in-out infinite" }} />
         </button>
         <Link to="/importar" className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold text-muted transition hover:text-brand-ink">

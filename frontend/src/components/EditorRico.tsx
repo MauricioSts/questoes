@@ -52,7 +52,7 @@ const CORES_TEXTO = [
   "#00C2FF", "#00B39A", "#4E8F6D", "#EF4444", "#F59E0B", "#94A3B8",
 ];
 
-// Marca-texto em rgba: fica legível tanto no Grimório (escuro) quanto no Neon (claro).
+// Marca-texto em rgba: fica legível tanto no Fantasy (escuro) quanto no Cyberpunk (claro).
 const CORES_MARCA = [
   "rgba(201,162,39,.38)", "rgba(230,0,126,.28)", "rgba(139,92,246,.32)",
   "rgba(0,194,255,.30)", "rgba(0,179,154,.32)", "rgba(239,68,68,.28)",

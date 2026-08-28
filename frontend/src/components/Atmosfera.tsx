@@ -1,5 +1,5 @@
 // Camadas de atmosfera fixas atrás do conteúdo. Nunca capturam clique.
-// Grão + vinheta em ambos os temas; halos de vela só no Grimório; varredura só no Neon.
+// Grão + vinheta em ambos os temas; halos de vela só no Fantasy; varredura só no Cyberpunk.
 export function Atmosfera() {
   return (
     <>

@@ -16,7 +16,7 @@ export function TopBar() {
   const { ativo } = useConcurso();
   const { logout } = useAuth();
   const [goal, setGoal] = useState<GoalToday | null>(null);
-  const grimorio = tema === "grimorio";
+  const fantasy = tema === "fantasy";
 
   useEffect(() => {
     api<GoalToday>("/goals/today").then(setGoal).catch(() => null);
@@ -35,7 +35,7 @@ export function TopBar() {
         {/* Esquerda: título + badge */}
         <div className="flex items-center gap-3">
           <span className="font-brand text-xl font-bold text-brand-ink" style={{ letterSpacing: "var(--brandTrack)" }}>
-            {grimorio ? "Grimório" : "NEON//VGL"}
+            {fantasy ? "Fantasy" : "CYBERPUNK"}
           </span>
           {ativo && (
             <span className="hidden sm:inline rounded-full bg-brand-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-brand-700">
@@ -73,14 +73,14 @@ export function TopBar() {
             <span className="hidden sm:inline">Sair</span>
           </button>
 
-          {/* Alternar tema Grimório/Neon (ícone no header no mobile) */}
+          {/* Alternar tema Fantasy/Cyberpunk (ícone no header no mobile) */}
           <button
             onClick={alternar}
             className="flex items-center rounded-lg px-2 py-1.5 text-muted hover:text-brand-500 transition lg:hidden"
-            aria-label={grimorio ? "Mudar para Modo Neon" : "Mudar para Modo Grimório"}
-            title={grimorio ? "Modo Neon" : "Modo Grimório"}
+            aria-label={fantasy ? "Mudar para Modo Cyberpunk" : "Mudar para Modo Fantasy"}
+            title={fantasy ? "Modo Cyberpunk" : "Modo Fantasy"}
           >
-            {grimorio ? <Flame size={18} strokeWidth={1.8} fill="currentColor" /> : <Sun size={18} strokeWidth={1.8} />}
+            {fantasy ? <Flame size={18} strokeWidth={1.8} fill="currentColor" /> : <Sun size={18} strokeWidth={1.8} />}
           </button>
         </div>
       </div>

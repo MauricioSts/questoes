@@ -7,7 +7,7 @@ import { ImageOff, X } from "lucide-react";
 import type { ImagemQuestao as DadosImagem } from "../types/questao";
 
 // Fundo branco fixo (não tematizado) porque os diagramas têm fundo transparente e
-// traço escuro: no tema Grimório/Neon eles somem contra a superfície.
+// traço escuro: nos temas Fantasy/Cyberpunk eles somem contra a superfície.
 const MOLDURA = "rounded-xl border border-hair p-3";
 
 export function ImagemQuestao({ imagem }: { imagem: DadosImagem }) {
