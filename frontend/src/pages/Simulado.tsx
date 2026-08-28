@@ -80,7 +80,7 @@ export function Simulado() {
         questoes={questoes}
         contexto="SIMULADO"
         feedbackImediato={false}
-        permiteNota={false}
+        permiteCaderno={false}
         permiteMarcar={false}
         onFinalizar={finalizar}
         cabecalho={

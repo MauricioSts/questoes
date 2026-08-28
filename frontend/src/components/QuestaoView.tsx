@@ -1,4 +1,4 @@
-import { Check, X, PencilIcon, Bookmark } from "lucide-react";
+import { Check, X } from "lucide-react";
 import type { Questao, Alternativa } from "../types/questao";
 import { getTextoBase } from "../lib/questoesRepo";
 import { Card } from "./Card";
@@ -14,8 +14,6 @@ interface Props {
   revelado: boolean;
   mostrarTextoBase?: boolean;
   onSelecionar: (alt: Alternativa) => void;
-  onAnotar?: () => void;
-  onMarcar?: () => void;
 }
 
 export function QuestaoView({
@@ -24,8 +22,6 @@ export function QuestaoView({
   revelado,
   mostrarTextoBase = true,
   onSelecionar,
-  onAnotar,
-  onMarcar,
 }: Props) {
   const textoBase = getTextoBase(questao.texto_base);
   const acertou = revelado && selecionada === questao.gabarito;
@@ -166,31 +162,6 @@ export function QuestaoView({
             {comRealce(questao.explicacao)}
           </div>
 
-          {/* Ações (anotar, marcar) */}
-          {(onAnotar || onMarcar) && (
-            <div className="flex gap-2 pt-2 border-t border-current border-opacity-20">
-              {onAnotar && (
-                <button
-                  onClick={onAnotar}
-                  className="tap flex items-center gap-2 text-xs font-semibold text-brand-500 hover:text-brand-600"
-                  aria-label="Anotar"
-                >
-                  <PencilIcon size={16} strokeWidth={1.5} />
-                  Anotar
-                </button>
-              )}
-              {onMarcar && (
-                <button
-                  onClick={onMarcar}
-                  className="tap flex items-center gap-2 text-xs font-semibold text-brand-500 hover:text-brand-600"
-                  aria-label="Marcar para revisar"
-                >
-                  <Bookmark size={16} strokeWidth={1.5} />
-                  Marcar
-                </button>
-              )}
-            </div>
-          )}
         </Card>
       )}
     </article>

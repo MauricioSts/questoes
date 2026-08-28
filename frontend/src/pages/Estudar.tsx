@@ -116,7 +116,7 @@ export function Estudar() {
         questoes={sessao}
         contexto="ESTUDO"
         feedbackImediato
-        permiteNota
+        permiteCaderno
         permiteMarcar
         initialIndex={cursorInicial}
         onCursorChange={(i) => void atualizarCursor(i)}

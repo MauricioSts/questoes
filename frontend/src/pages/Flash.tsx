@@ -61,7 +61,7 @@ export function Flash() {
         questoes={sessao}
         contexto="FLASH"
         feedbackImediato
-        permiteNota
+        permiteCaderno
         permiteMarcar
         onFinalizar={finalizar}
       />

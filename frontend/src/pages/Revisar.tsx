@@ -80,7 +80,7 @@ export function Revisar() {
         questoes={sessao}
         contexto="ESTUDO"
         feedbackImediato
-        permiteNota
+        permiteCaderno
         permiteMarcar
         onFinalizar={finalizar}
       />

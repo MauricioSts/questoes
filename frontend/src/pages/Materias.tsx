@@ -73,7 +73,7 @@ export function Materias() {
         questoes={sessao}
         contexto="TOPICO"
         feedbackImediato
-        permiteNota
+        permiteCaderno
         permiteMarcar
         onFinalizar={finalizar}
       />

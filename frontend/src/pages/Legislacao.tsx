@@ -25,7 +25,7 @@ export function Legislacao() {
         questoes={sessao}
         contexto="ESTUDO"
         feedbackImediato
-        permiteNota
+        permiteCaderno
         permiteMarcar
         onFinalizar={(rs) => { setResultado(rs); setSessao(null); }}
       />

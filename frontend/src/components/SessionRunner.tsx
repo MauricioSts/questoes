@@ -1,13 +1,15 @@
 // Executor de sessão reutilizável pelos modos Estudo, Flash, Tópico e Simulado.
 // - feedbackImediato=true  → revela acerto/erro + explicação a cada resposta e já persiste.
 // - feedbackImediato=false → modo prova (simulado): sem feedback; envia tudo no final.
+// O botão flutuante do caderno (permiteCaderno) abre as anotações da matéria da questão
+// num painel lateral, para anotar DURANTE a questão e não só depois de respondê-la.
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ReactNode } from "react";
-import { ChevronLeft, Bookmark } from "lucide-react";
+import { ChevronLeft, Bookmark, NotebookPen } from "lucide-react";
 import type { Questao, Alternativa, Contexto } from "../types/questao";
 import { corrigir, montarResultado } from "../lib/correcao";
 import { enviarResposta } from "../lib/answers";
 import { QuestaoView } from "./QuestaoView";
-import { NotaEditor } from "./NotaEditor";
+import { CadernoDrawer } from "./CadernoDrawer";
 import { useMarcadas } from "../hooks/useMarcadas";
 
 export interface RespostaSessao {
@@ -21,7 +23,9 @@ interface Props {
   questoes: Questao[];
   contexto: Contexto;
   feedbackImediato: boolean;
-  permiteNota: boolean;
+  // Botão flutuante que abre o Caderno da matéria da questão ao lado dela.
+  // Desligado no simulado, onde consultar anotação seria consultar a prova.
+  permiteCaderno: boolean;
   permiteMarcar: boolean;
   onFinalizar: (respostas: RespostaSessao[]) => void;
   onProgresso?: () => void; // chamado após cada resposta (ex.: atualizar meta)
@@ -53,7 +57,7 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
     questoes,
     contexto,
     feedbackImediato,
-    permiteNota,
+    permiteCaderno,
     permiteMarcar,
     onFinalizar,
     onProgresso,
@@ -68,7 +72,9 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   const [respostas, setRespostas] = useState<Map<number, RespostaSessao>>(new Map());
   const [selecionada, setSelecionada] = useState<Alternativa | undefined>();
   const [revelado, setRevelado] = useState(false);
-  const [mostrarNota, setMostrarNota] = useState(false);
+  // O caderno fica aberto entre uma questão e outra: quem anota estudando não quer
+  // reabrir o painel a cada "Próxima questão".
+  const [cadernoAberto, setCadernoAberto] = useState(false);
   const inicioRef = useRef<number>(Date.now());
 
   const marcadas = useMarcadas();
@@ -81,7 +87,6 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
     const r = respostas.get(questao.id);
     setSelecionada(r?.marcada);
     setRevelado(feedbackImediato && !!r);
-    setMostrarNota(false);
     inicioRef.current = Date.now();
     onCursorChange?.(idx);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -147,7 +152,12 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   const progresso = ((idx + 1) / questoes.length) * 100;
 
   return (
-    <div className="mx-auto max-w-[620px] space-y-4 py-4" style={{ animation: "pop .35s ease both" }}>
+    <div
+      className={`mx-auto max-w-[620px] space-y-4 py-4 transition-[margin] ${
+        cadernoAberto ? "xl:mr-[580px]" : ""
+      }`}
+      style={{ animation: "pop .35s ease both" }}
+    >
       {cabecalho}
 
       {/* Topo: voltar + "Questão X de N" + timer + barra de progresso */}
@@ -199,13 +209,8 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
           revelado={revelado}
           mostrarTextoBase={!ehCompartilhado(idx)}
           onSelecionar={selecionar}
-          onAnotar={permiteNota && revelado ? () => setMostrarNota((v) => !v) : undefined}
-          onMarcar={permiteMarcar && revelado ? () => marcadas.alternar(questao.id) : undefined}
         />
       </div>
-
-      {/* Editor de anotação (aparece ao clicar "Anotar"; simulado não usa) */}
-      {permiteNota && (mostrarNota || (!feedbackImediato && false)) && <NotaEditor questaoId={questao.id} />}
 
       {/* Navegação inferior */}
       <div className="flex items-center justify-between gap-3 pt-1">
@@ -228,6 +233,28 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
           {ultima ? "Finalizar" : "Próxima questão"}
         </button>
       </div>
+
+      {/* Caderno da matéria, ao lado da questão */}
+      {permiteCaderno && (
+        <>
+          {!cadernoAberto && (
+            <button
+              onClick={() => setCadernoAberto(true)}
+              className="fixed bottom-24 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full transition hover:-translate-y-0.5 lg:bottom-8"
+              style={{ background: "var(--accent)", color: "var(--onAccent)", boxShadow: "0 10px 28px rgba(0,0,0,.32)" }}
+              aria-label={`Abrir caderno de ${questao.materia}`}
+              title={`Anotar em ${questao.materia}`}
+            >
+              <NotebookPen size={22} strokeWidth={1.9} />
+            </button>
+          )}
+          <CadernoDrawer
+            materia={questao.materia}
+            aberto={cadernoAberto}
+            onFechar={() => setCadernoAberto(false)}
+          />
+        </>
+      )}
     </div>
   );
 });
