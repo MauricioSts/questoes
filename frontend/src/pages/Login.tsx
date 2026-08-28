@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Shield } from "lucide-react";
 import { useAuth } from "../store/auth";
 import { Card } from "../components/Card";
@@ -81,14 +81,6 @@ export function Login() {
             </Button>
           </form>
         </Card>
-
-        {/* Link de registro */}
-        <p className="text-center text-sm text-faint">
-          Não tem conta?{" "}
-          <Link to="/registro" className="font-semibold text-brand-500 hover:text-brand-600 transition">
-            Criar conta
-          </Link>
-        </p>
       </div>
     </div>
   );

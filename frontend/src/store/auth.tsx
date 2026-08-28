@@ -1,4 +1,5 @@
-// Contexto de autenticação: login/registro/logout, sessão persistida via refresh token.
+// Contexto de autenticação: login/logout, sessão persistida via refresh token.
+// Não há registro: o app é de uso pessoal e o backend recusa /auth/register.
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { api, tokenStore } from "../lib/api";
 
@@ -13,7 +14,6 @@ interface AuthContextValue {
   usuario: Usuario | null;
   carregando: boolean;
   login: (email: string, password: string) => Promise<void>;
-  registrar: (nome: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -57,16 +57,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUsuario(data.user);
   }
 
-  async function registrar(nome: string, email: string, password: string) {
-    const data = await api<AuthResposta>("/auth/register", {
-      method: "POST",
-      body: { nome, email, password },
-      auth: false,
-    });
-    tokenStore.set(data.accessToken, data.refreshToken);
-    setUsuario(data.user);
-  }
-
   async function logout() {
     try {
       if (tokenStore.refresh) {
@@ -83,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ usuario, carregando, login, registrar, logout }}>
+    <AuthContext.Provider value={{ usuario, carregando, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

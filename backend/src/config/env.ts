@@ -11,6 +11,12 @@ const schema = z.object({
   ACCESS_TOKEN_TTL: z.string().default("15m"),
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().default(30),
   USER_TIMEZONE: z.string().default("America/Fortaleza"),
+  // Criação de conta. O app é de uso pessoal: fica fechado a menos que se ligue
+  // explicitamente no .env (REGISTRO_ABERTO=true).
+  REGISTRO_ABERTO: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((v) => v === "true"),
 });
 
 const parsed = schema.safeParse(process.env);

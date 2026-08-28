@@ -1,10 +1,11 @@
-// Rotas de autenticação: register, login, refresh, logout.
+// Rotas de autenticação: register (fechado), login, refresh, logout.
 // Fluxo de token: access token JWT curto (15m) + refresh token opaco (30d) guardado
 // como hash no banco. O refresh é rotacionado a cada uso e revogado no logout.
 import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "../../prisma.js";
+import { env } from "../../config/env.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { HttpError } from "../../middleware/error.js";
 import { requireAuth } from "../../middleware/auth.js";
@@ -45,9 +46,12 @@ async function issueTokens(user: { id: string; email: string }) {
   return { accessToken, refreshToken: token };
 }
 
+// Registro fechado: só abre com REGISTRO_ABERTO=true no .env. O app é de uso
+// pessoal, e a rota aberta era a única porta para contas de terceiros no banco.
 authRouter.post(
   "/register",
   asyncHandler(async (req, res) => {
+    if (!env.REGISTRO_ABERTO) throw new HttpError(403, "Criação de conta desativada");
     const { email, password, nome } = registerSchema.parse(req.body);
     const existe = await prisma.user.findUnique({ where: { email } });
     if (existe) throw new HttpError(409, "E-mail já cadastrado");

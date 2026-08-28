@@ -6,7 +6,6 @@ import { QuestoesProvider } from "./store/questoes";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout } from "./components/AppLayout";
 import { Login } from "./pages/Login";
-import { Register } from "./pages/Register";
 import { Home } from "./pages/Home";
 import { Estudar } from "./pages/Estudar";
 import { Flash } from "./pages/Flash";
@@ -29,7 +28,6 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/registro" element={<Register />} />
             <Route
               element={
                 <ProtectedRoute>
