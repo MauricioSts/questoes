@@ -1,7 +1,7 @@
 // Editor de uma página do Caderno (cabeçalho de status + título + EditorRico).
 //
 // Vive aqui, e não dentro da página do Caderno, porque duas telas usam o mesmo
-// editor: o Caderno em si e o painel lateral que abre por cima da questão
+// editor: o Caderno em si e o painel que abre ao lado da questão
 // (CadernoDrawer) para anotar sem sair da questão.
 //
 // O salvamento é por debounce (800ms parado) e, além disso, é forçado ao trocar de
@@ -153,7 +153,7 @@ export function EditorPagina({ pagina, materias, onSalvo, onExcluir, compacto = 
               style={{
                 background:
                   estado === "salvo" ? "var(--good)"
-                  : estado === "erro" ? "var(--danger-from, #e00)"
+                  : estado === "erro" ? "rgb(var(--danger-from))"
                   : "var(--accent)",
               }}
             />

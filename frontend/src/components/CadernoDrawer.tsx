@@ -1,4 +1,4 @@
-// Painel lateral do Caderno, aberto por cima da questão pelo botão flutuante do
+// Painel do Caderno que abre ao lado da questão, pelo botão flutuante do
 // SessionRunner.
 //
 // Por que existe: antes só dava para anotar DEPOIS de responder (o editor de nota
@@ -8,6 +8,15 @@
 //
 // Ele já entra filtrado pela matéria da questão e cria a primeira página daquela
 // matéria com um clique quando ainda não existe nenhuma.
+//
+// Layout: a partir de md ele é um elemento EM FLUXO (coluna ao lado da questão,
+// sticky), não uma camada por cima — foi o erro da primeira versão, que usava
+// `fixed` e só abria espaço a partir de xl, então em qualquer tela menor o painel
+// tapava a questão inteira. Em md já cabem as duas colunas (a barra lateral do app
+// só existe a partir de lg, então sobra largura). Abaixo de md vira uma folha
+// ancorada embaixo com 58vh, altura medida para o enunciado continuar visível
+// acima dela; as alternativas ficam cobertas, o que num celular não tem escapatória
+// — daí o painel fechar com um toque.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FileText, Plus, X } from "lucide-react";
 import { useConcurso } from "../store/concurso";
@@ -101,8 +110,16 @@ export function CadernoDrawer({ materia, aberto, onFechar }: Props) {
   return (
     // Sem fundo escurecendo a tela: a questão precisa continuar legível ao lado.
     <aside
-      className="fixed inset-y-0 right-0 z-40 flex w-full flex-col border-l border-hair sm:w-[min(560px,92vw)]"
-      style={{ background: "var(--surface)", boxShadow: "-18px 0 48px rgba(0,0,0,.28)", animation: "pop .2s ease both" }}
+      className="
+        fixed inset-x-0 bottom-[64px] z-40 flex h-[58vh] flex-col rounded-t-2xl border-t border-hair bg-surface
+        md:sticky md:top-4 md:bottom-auto md:inset-x-auto md:z-10 md:h-[calc(100vh-2rem)]
+        md:w-[min(460px,38vw)] md:min-w-[320px] md:flex-shrink-0
+        md:rounded-2xl md:border
+      "
+      // bg-surface (classe) e não `background: var(--surface)`: o token é uma tripla
+      // de canais RGB para o Tailwind, então usá-lo direto vira CSS inválido e o
+      // painel fica sem fundo nenhum, com a questão aparecendo através dele.
+      style={{ boxShadow: "0 -18px 48px rgba(0,0,0,.28)", animation: "pop .2s ease both" }}
       role="dialog"
       aria-label={`Caderno — ${materia}`}
     >

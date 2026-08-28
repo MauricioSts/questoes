@@ -152,95 +152,111 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   const progresso = ((idx + 1) / questoes.length) * 100;
 
   return (
-    <div
-      className={`mx-auto max-w-[620px] space-y-4 py-4 transition-[margin] ${
-        cadernoAberto ? "xl:mr-[580px]" : ""
-      }`}
-      style={{ animation: "pop .35s ease both" }}
-    >
-      {cabecalho}
+    // O caderno é uma coluna irmã da questão (a partir de lg), não uma camada por
+    // cima: assim ele nunca tapa o enunciado, seja qual for a largura da tela.
+    <div className="flex items-start justify-center gap-4 py-4">
+      <div className="min-w-0 max-w-[620px] flex-1 space-y-4" style={{ animation: "pop .35s ease both" }}>
+        {cabecalho}
 
-      {/* Topo: voltar + "Questão X de N" + timer + barra de progresso */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-3">
-          {onSair && (
-            <button
-              onClick={onSair}
-              className="h-[38px] w-[38px] rounded-xl border border-hair bg-surface flex items-center justify-center text-muted hover:text-brand-500 transition flex-shrink-0"
-              aria-label="Sair da sessão"
-              title="Sair (você pode continuar depois)"
-            >
-              <ChevronLeft size={20} strokeWidth={2} />
-            </button>
-          )}
-          <span className="text-xs font-bold uppercase tracking-[.16em] text-muted">
-            Questão {idx + 1} de {questoes.length}
-          </span>
-          <div className="ml-auto flex items-center gap-3">
-            {permiteMarcar && (
+        {/* Topo: voltar + "Questão X de N" + timer + barra de progresso */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            {onSair && (
               <button
-                onClick={() => marcadas.alternar(questao.id)}
-                className={`h-[38px] w-[38px] rounded-xl border flex items-center justify-center transition ${
-                  marcadas.ids.has(questao.id)
-                    ? "border-brand-500 bg-brand-50 text-brand-500"
-                    : "border-hair bg-surface text-faint hover:text-brand-500"
-                }`}
-                aria-pressed={marcadas.ids.has(questao.id)}
-                aria-label="Marcar para revisar depois"
-                title="Marcar para revisar depois"
+                onClick={onSair}
+                className="h-[38px] w-[38px] rounded-xl border border-hair bg-surface flex items-center justify-center text-muted hover:text-brand-500 transition flex-shrink-0"
+                aria-label="Sair da sessão"
+                title="Sair (você pode continuar depois)"
               >
-                <Bookmark size={18} strokeWidth={1.8} fill={marcadas.ids.has(questao.id) ? "currentColor" : "none"} />
+                <ChevronLeft size={20} strokeWidth={2} />
               </button>
             )}
-            {!cabecalho && <Timer inicio={inicioRef.current} />}
+            <span className="text-xs font-bold uppercase tracking-[.16em] text-muted">
+              Questão {idx + 1} de {questoes.length}
+            </span>
+            <div className="ml-auto flex items-center gap-3">
+              {/* Em telas estreitas o botão do caderno vive aqui, na linha de ações:
+                  qualquer botão flutuante sobre a coluna da questão cairia em cima
+                  das alternativas, que ocupam a largura toda. */}
+              {permiteCaderno && !cadernoAberto && (
+                <button
+                  onClick={() => setCadernoAberto(true)}
+                  className="flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-hair bg-surface text-faint transition hover:text-brand-500 lg:hidden"
+                  aria-label={`Abrir caderno de ${questao.materia}`}
+                  title={`Anotar em ${questao.materia}`}
+                >
+                  <NotebookPen size={18} strokeWidth={1.8} />
+                </button>
+              )}
+              {permiteMarcar && (
+                <button
+                  onClick={() => marcadas.alternar(questao.id)}
+                  className={`h-[38px] w-[38px] rounded-xl border flex items-center justify-center transition ${
+                    marcadas.ids.has(questao.id)
+                      ? "border-brand-500 bg-brand-50 text-brand-500"
+                      : "border-hair bg-surface text-faint hover:text-brand-500"
+                  }`}
+                  aria-pressed={marcadas.ids.has(questao.id)}
+                  aria-label="Marcar para revisar depois"
+                  title="Marcar para revisar depois"
+                >
+                  <Bookmark size={18} strokeWidth={1.8} fill={marcadas.ids.has(questao.id) ? "currentColor" : "none"} />
+                </button>
+              )}
+              {!cabecalho && <Timer inicio={inicioRef.current} />}
+            </div>
+          </div>
+
+          <div className="h-1 w-full overflow-hidden rounded-full" style={{ background: "var(--track)" }}>
+            <div className="h-full rounded-full transition-all" style={{ width: `${progresso}%`, background: "var(--accent)" }} />
           </div>
         </div>
 
-        <div className="h-1 w-full overflow-hidden rounded-full" style={{ background: "var(--track)" }}>
-          <div className="h-full rounded-full transition-all" style={{ width: `${progresso}%`, background: "var(--accent)" }} />
+        {/* Cartão da questão */}
+        <div className="card p-6">
+          <QuestaoView
+            questao={questao}
+            selecionada={selecionada}
+            revelado={revelado}
+            mostrarTextoBase={!ehCompartilhado(idx)}
+            onSelecionar={selecionar}
+          />
         </div>
-      </div>
 
-      {/* Cartão da questão */}
-      <div className="card p-6">
-        <QuestaoView
-          questao={questao}
-          selecionada={selecionada}
-          revelado={revelado}
-          mostrarTextoBase={!ehCompartilhado(idx)}
-          onSelecionar={selecionar}
-        />
-      </div>
-
-      {/* Navegação inferior */}
-      <div className="flex items-center justify-between gap-3 pt-1">
-        {!feedbackImediato ? (
+        {/* Navegação inferior */}
+        <div className="flex items-center justify-between gap-3 pt-1">
+          {!feedbackImediato ? (
+            <button
+              onClick={voltar}
+              disabled={idx === 0}
+              className="rounded-2xl px-5 py-3 font-display font-bold text-muted disabled:opacity-30 hover:text-brand-500 transition"
+            >
+              ← Anterior
+            </button>
+          ) : (
+            <span />
+          )}
           <button
-            onClick={voltar}
-            disabled={idx === 0}
-            className="rounded-2xl px-5 py-3 font-display font-bold text-muted disabled:opacity-30 hover:text-brand-500 transition"
+            onClick={avancar}
+            disabled={!podeAvancar}
+            className="btn-primary ml-auto max-w-xs flex-1 disabled:opacity-40"
           >
-            ← Anterior
+            {ultima ? "Finalizar" : "Próxima questão"}
           </button>
-        ) : (
-          <span />
-        )}
-        <button
-          onClick={avancar}
-          disabled={!podeAvancar}
-          className="btn-primary ml-auto max-w-xs flex-1 disabled:opacity-40"
-        >
-          {ultima ? "Finalizar" : "Próxima questão"}
-        </button>
+        </div>
       </div>
 
       {/* Caderno da matéria, ao lado da questão */}
       {permiteCaderno && (
         <>
+          {/* Botão flutuante, só a partir de lg: ali a coluna da questão está limitada
+              a 620px e sobra calha livre entre a barra lateral e o cartão, então ele
+              não cobre nada. À direita cobria o "Próxima questão"; em telas menores
+              não existe ponto livre sobre a coluna, e o botão do cabeçalho assume. */}
           {!cadernoAberto && (
             <button
               onClick={() => setCadernoAberto(true)}
-              className="fixed bottom-24 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full transition hover:-translate-y-0.5 lg:bottom-8"
+              className="fixed bottom-6 left-[234px] z-30 hidden h-14 w-14 items-center justify-center rounded-full transition hover:-translate-y-0.5 lg:flex"
               style={{ background: "var(--accent)", color: "var(--onAccent)", boxShadow: "0 10px 28px rgba(0,0,0,.32)" }}
               aria-label={`Abrir caderno de ${questao.materia}`}
               title={`Anotar em ${questao.materia}`}
