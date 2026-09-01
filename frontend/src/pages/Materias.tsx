@@ -16,7 +16,7 @@ import type { Questao } from "../types/questao";
 function corAcerto(pct: number | null): string {
   if (pct == null) return "var(--track)";
   if (pct >= 75) return "var(--good)";
-  if (pct >= 55) return "var(--muted)";
+  if (pct >= 55) return "rgb(var(--muted))";
   return "var(--accent)";
 }
 

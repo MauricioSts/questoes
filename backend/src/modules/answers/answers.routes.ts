@@ -165,6 +165,9 @@ answersRouter.get(
         materiaSnapshot: true,
         assuntoSnapshot: true,
         dificuldadeSnapshot: true,
+        // Alternativa da última tentativa: o export de erros mostra ao Claude qual
+        // distrator o usuário escolheu, não só que ele errou.
+        alternativaMarcada: true,
       },
     });
 
@@ -181,6 +184,7 @@ answersRouter.get(
         tentativas: number;
         acertouUltima: boolean;
         ultimaData: Date;
+        alternativaMarcada: string;
       }
     >();
     for (const r of rows) {
@@ -195,6 +199,7 @@ answersRouter.get(
           tentativas: 0,
           acertouUltima: false,
           ultimaData: r.createdAt,
+          alternativaMarcada: r.alternativaMarcada,
         };
       cur.tentativas++;
       if (!r.acertou) cur.erros++;
@@ -204,6 +209,7 @@ answersRouter.get(
       cur.materia = r.materiaSnapshot;
       cur.assunto = r.assuntoSnapshot;
       cur.dificuldade = r.dificuldadeSnapshot;
+      cur.alternativaMarcada = r.alternativaMarcada;
       map.set(r.questaoId, cur);
     }
 

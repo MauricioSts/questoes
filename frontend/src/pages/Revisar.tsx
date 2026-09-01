@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { ArrowRight, Target } from "lucide-react";
 import { api } from "../lib/api";
 import { getQuestoes } from "../lib/questoesRepo";
 import { SessionRunner, type RespostaSessao } from "../components/SessionRunner";
@@ -105,6 +105,7 @@ export function Revisar() {
 
       {/* Abas com contagem (underline) */}
       <div className="mb-5 flex items-center gap-6 border-b border-hair">
+        {/* (o link "Meus erros" fica no fim da linha: mesmo diagnóstico, agrupado por matéria) */}
         {([
           { id: "erradas", label: "Erradas pendentes", n: contagem.erradas },
           { id: "srs", label: "Revisão do dia", n: contagem.srs },
@@ -122,6 +123,13 @@ export function Revisar() {
             </button>
           );
         })}
+        <Link
+          to="/erros"
+          className="ml-auto -mb-px inline-flex items-center gap-1.5 pb-2.5 text-sm font-display font-bold text-faint transition hover:text-brand-ink"
+        >
+          <Target size={15} strokeWidth={2} />
+          Por matéria
+        </Link>
       </div>
 
       {carregando ? (

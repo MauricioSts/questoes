@@ -1,5 +1,5 @@
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import { Home, BookOpen, RefreshCw, NotebookPen, Library, BarChart3, FileText, Flame, Sun, Upload, LogOut } from "lucide-react";
+import { Home, BookOpen, RefreshCw, NotebookPen, Library, BarChart3, FileText, Target, Flame, Sun, Upload, LogOut } from "lucide-react";
 import { useTheme } from "../store/theme";
 import { useAuth } from "../store/auth";
 import { ConcursoSwitcher } from "./ConcursoSwitcher";
@@ -14,7 +14,10 @@ const navItems = [
   { to: "/stats", label: "Estatísticas", icon: BarChart3 },
 ];
 // Extra só no desktop.
-const desktopExtra = [{ to: "/simulado", label: "Simulado", icon: FileText }];
+const desktopExtra = [
+  { to: "/simulado", label: "Simulado", icon: FileText },
+  { to: "/erros", label: "Meus erros", icon: Target },
+];
 
 // Logo por tema: eclipse dourado (Fantasy) / quadrado neon (Cyberpunk).
 function Marca({ fantasy }: { fantasy: boolean }) {

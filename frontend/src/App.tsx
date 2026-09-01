@@ -15,6 +15,7 @@ import { Stats } from "./pages/Stats";
 import { Marcadas } from "./pages/Marcadas";
 import { Anotacoes } from "./pages/Anotacoes";
 import { Legislacao } from "./pages/Legislacao";
+import { Erros } from "./pages/Erros";
 import { Materias } from "./pages/Materias";
 import { Revisar } from "./pages/Revisar";
 import { Importar } from "./pages/Importar";
@@ -52,6 +53,7 @@ export default function App() {
               <Route path="/anotacoes" element={<Anotacoes />} />
               <Route path="/legislacao" element={<Legislacao />} />
               <Route path="/materias" element={<Materias />} />
+              <Route path="/erros" element={<Erros />} />
               <Route path="/importar" element={<Importar />} />
             </Route>
           </Routes>

@@ -18,3 +18,9 @@ Thumbs.db
 .idea/
 # prisma
 backend/prisma/*.db
+
+# CodeGraph local index
+.codegraph/
+
+# TypeScript incremental build
+*.tsbuildinfo
