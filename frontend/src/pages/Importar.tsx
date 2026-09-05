@@ -134,6 +134,7 @@ export function Importar() {
     setGravando(true);
     try {
       const r = await importarLote(validacao.questoes, validacao.textosBase, {
+        provas: validacao.provas,
         deslocarSeColidir: deslocar,
         nomeLote: nomeArquivo || undefined,
       });

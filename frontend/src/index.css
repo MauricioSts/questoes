@@ -254,6 +254,13 @@ body {
   .meta-dificuldade-facil { @apply bg-success-soft text-success-from; }
   .meta-dificuldade-media { @apply bg-brand-100 text-brand-700; }
   .meta-dificuldade-dificil { @apply bg-danger-soft text-danger-from; }
+  /* Procedência. Questão de prova ganha contorno (é a que "vale"); gerada usa o
+   * acento do tema; autoral fica discreta. --accentBg/--accentText já são cores
+   * prontas (ao contrário de --hair e cia., que são triplas RGB para o Tailwind). */
+  .meta-origem-oficial { @apply bg-surface2 text-brand-ink border border-brand-400; }
+  .meta-origem-adaptada { @apply bg-surface2 text-muted border border-hair; }
+  .meta-origem-gerada { background: var(--accentBg); color: var(--accentText); }
+  .meta-origem-autoral { @apply bg-surface2 text-faint border border-hair; }
 }
 
 /* ======================= EDITOR DO CADERNO ("mini Docs") =======================

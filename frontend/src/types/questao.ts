@@ -4,6 +4,24 @@ export type Dificuldade = "facil" | "media" | "dificil";
 export type Alternativa = "A" | "B" | "C" | "D" | "E";
 export type Contexto = "ESTUDO" | "FLASH" | "SIMULADO" | "TOPICO";
 
+// Procedência da questão:
+// - "oficial":  caiu numa prova real, texto preservado (exige `prova`)
+// - "adaptada": baseada numa prova real, com texto alterado (exige `prova`)
+// - "gerada":   criada como reforço a partir das questões que eu errei
+// - "autoral":  escrita sem prova de referência (é o padrão dos lotes antigos)
+export type Origem = "oficial" | "adaptada" | "gerada" | "autoral";
+
+// Prova de onde a questão veio. Fica no root do lote (como textos_base), porque dezenas
+// de questões compartilham a mesma prova.
+export interface Prova {
+  banca: string; // "FGV", "Cesgranrio", ...
+  orgao: string; // "TCE-TO", "DATAPREV", ...
+  ano: number;
+  cargo?: string;
+  tipo?: string; // caderno, quando a banca embaralha versões (FGV: "1", "2", "3")
+  url?: string; // PDF oficial
+}
+
 export interface Questao {
   id: number;
   modulo: Modulo;
@@ -18,6 +36,10 @@ export interface Questao {
   gabarito: Alternativa;
   explicacao: string;
   imagens?: ImagemQuestao[]; // 0, 1 ou 2 figuras; a maioria das questões não tem nenhuma
+  origem?: Origem; // ausente = "autoral" (lotes anteriores à procedência)
+  prova?: string; // chave em `provas` (só em origem oficial/adaptada)
+  numero?: number; // número que a questão tinha na prova de origem
+  geradaDe?: number[]; // IDs das questões erradas que motivaram este reforço
 }
 
 export interface QuestoesRoot {
@@ -27,6 +49,7 @@ export interface QuestoesRoot {
     [k: string]: unknown;
   };
   textos_base: Record<string, string>;
+  provas?: Record<string, Prova>;
   questoes: Questao[];
 }
 

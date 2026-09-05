@@ -19,6 +19,8 @@ export interface ResultadoResposta {
   materiaSnapshot: string;
   assuntoSnapshot: string;
   dificuldadeSnapshot: string;
+  origemSnapshot?: string; // procedência no momento da resposta (oficial|adaptada|gerada|autoral)
+  provaSnapshot?: string; // chave da prova de origem, quando havia
   alternativaMarcada: Alternativa;
   acertou: boolean;
   tempoSegundos?: number;
@@ -38,6 +40,8 @@ export function montarResultado(
     materiaSnapshot: questao.materia,
     assuntoSnapshot: questao.assunto,
     dificuldadeSnapshot: questao.dificuldade,
+    origemSnapshot: questao.origem ?? "autoral",
+    provaSnapshot: questao.prova,
     alternativaMarcada: marcada,
     acertou: corrigir(questao, marcada),
     tempoSegundos,

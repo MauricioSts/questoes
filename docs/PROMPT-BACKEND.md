@@ -82,11 +82,35 @@ model Questao {
   explicacao   String
   imagens      Json?                   // [{ arquivo, legenda, posicao, dados }] com data URI
   loteNome     String?
+  // Procedência: de onde a questão veio. Legado importado antes disso = "autoral".
+  origem         String  @default("autoral") // oficial | adaptada | gerada | autoral
+  provaChave     String?                     // prova de origem; null fora de oficial/adaptada
+  prova          Prova?  @relation(fields: [provaChave], references: [chave], onDelete: SetNull)
+  numeroOriginal Int?                        // número que a questão tinha na prova
+  geradaDe       Json?                       // IDs das erradas que motivaram o reforço
   createdAt    DateTime @default(now())// idêntico para todo o lote → é a chave do lote
 
   @@index([modulo, materia])
   @@index([createdAt])
   @@index([concursoId])
+  @@index([origem])
+  @@index([provaChave])
+}
+
+// Prova de concurso de onde uma ou mais questões vieram. Fica fora de Questao porque
+// dezenas de questões compartilham a mesma prova (mesmo padrão de TextoBase).
+model Prova {
+  chave     String    @id      // ex.: "FGV_TCE-TO_2022_ANALISTA-TI"
+  banca     String
+  orgao     String
+  ano       Int
+  cargo     String?
+  tipo      String?            // caderno, quando a banca embaralha versões ("1", "2")
+  url       String?            // PDF oficial
+  createdAt DateTime  @default(now())
+  questoes  Questao[]
+
+  @@index([banca, ano])
 }
 
 model TextoBase { chave String @id  texto String }
@@ -132,6 +156,8 @@ model Answer {
   materiaSnapshot     String
   assuntoSnapshot     String
   dificuldadeSnapshot String
+  origemSnapshot      String?  // oficial | adaptada | gerada | autoral (null = legado)
+  provaSnapshot       String?  // chave da prova de origem, quando havia
   alternativaMarcada  String
   acertou             Boolean
   tempoSegundos       Int?
@@ -285,7 +311,7 @@ Rotas de leitura aceitam `?concursoId=` **opcional**: quando presente, filtram p
 
 ### `/questoes` (conteúdo; toda a rota exige auth)
 
-- `GET /questoes?concursoId=` → `{ questoes, textosBase }`. Os itens saem no formato do arquivo de lote (`texto_base`, `imagens`, campos opcionais como `undefined`), ordenados por id. Sem o parâmetro, devolve tudo.
+- `GET /questoes?concursoId=` → `{ questoes, textosBase, provas }`. Os itens saem no formato do arquivo de lote (`texto_base`, `imagens`, `origem`, `prova`, `numero`, `geradaDe`, campos opcionais como `undefined`), ordenados por id. `provas` é o mapa `chave → { banca, orgao, ano, cargo?, tipo?, url? }` com **todas** as provas do banco. Sem o parâmetro, devolve tudo.
 - `POST /questoes/import` → importa um lote:
   ```jsonc
   {
@@ -294,9 +320,14 @@ Rotas de leitura aceitam `?concursoId=` **opcional**: quando presente, filtram p
       "dificuldade": "facil"|"media"|"dificil",
       "texto_base": "chave?", "enunciado": "...", "codigo": "?", "linguagem": "?",
       "alternativas": { "A": "...", "B": "..." }, "gabarito": "A",
-      "explicacao": "", "imagens": [{ "arquivo", "legenda", "posicao": "enunciado"|"alternativas", "dados": "data:image/..." }]
+      "explicacao": "", "imagens": [{ "arquivo", "legenda", "posicao": "enunciado"|"alternativas", "dados": "data:image/..." }],
+      "origem": "oficial"|"adaptada"|"gerada"|"autoral",  // default "autoral"
+      "prova": "FGV_TCE-TO_2022_ANALISTA-TI",             // chave em "provas"
+      "numero": 37,                                        // número na prova de origem
+      "geradaDe": [12, 40]                                 // IDs das erradas que geraram o reforço
     }],
     "textosBase": { "chave": "texto" },
+    "provas": { "FGV_TCE-TO_2022_ANALISTA-TI": { "banca": "FGV", "orgao": "TCE-TO", "ano": 2022, "cargo": "?", "tipo": "?", "url": "?" } },
     "deslocarSeColidir": true,
     "nomeLote": "arquivo.json",
     "concursoId": "..."
@@ -306,8 +337,9 @@ Rotas de leitura aceitam `?concursoId=` **opcional**: quando presente, filtram p
   1. Se `concursoId` vier, valide a posse; se não vier, **caia no concurso mais antigo do usuário** em vez de gravar `null` — questão com `concursoId` nulo fica invisível no app (o GET filtra por concurso) e vira lixo silencioso.
   2. Rejeite com `400` se algum `gabarito` não existir entre as `alternativas` daquela questão (defesa extra, além da validação do cliente).
   3. Colisão de IDs com o que já existe: com `deslocarSeColidir: false` → `409 { error: "IDs em conflito", colisoes: number[] }` e nada é gravado; com `true` → renumere **o lote inteiro** somando `maxIdExistente - menorIdDoLote + 1`, preservando a ordem relativa.
-  4. Grave questões e `TextoBase` (upsert por chave) na **mesma transação**.
-  5. Responda `201 { ok: true, adicionadas, deslocamento?, faixaFinal: [min, max], totalAgora }`.
+  4. Procedência: rejeite com `400` a questão `oficial`/`adaptada` **sem** `prova` (origem que ninguém consegue conferir) e a que cite uma `prova` ausente tanto de `provas` quanto do banco — uma prova já importada não precisa ser redeclarada.
+  5. Grave `Prova` (upsert por chave), questões e `TextoBase` (upsert por chave) na **mesma transação**.
+  6. Responda `201 { ok: true, adicionadas, deslocamento?, faixaFinal: [min, max], totalAgora }`.
 - `GET /questoes/lotes` → `{ lotes, semConcurso }`. Um lote é o conjunto de questões que compartilham o mesmo `createdAt` (um import grava todas com o timestamp da transação); a chave do lote é esse `createdAt` em ISO. Cada item: `{ chave, nome, concursoId, quantidade, idMin, idMax, criadoEm }`. `semConcurso` conta as questões órfãs.
 - `POST /questoes/adotar-orfas` → `{ concursoId, chave? }`. Vincula ao concurso todas as questões com `concursoId` nulo (ou só as do lote daquele `createdAt`). Responde `{ ok: true, adotadas, totalAgora }`. Serve de conserto para lotes importados antes de o cliente passar a enviar o concurso.
 - `POST /questoes/excluir-lote-grupo` → `{ chave }` (createdAt ISO). Exclui o lote inteiro **e**, na mesma transação, as respostas, notas e marcações daquelas questões — senão sobram dados órfãos que inflam o contador de "respondidas" acima do total existente. `404` se o lote não existir.
@@ -316,13 +348,19 @@ Rotas de leitura aceitam `?concursoId=` **opcional**: quando presente, filtram p
 
 ### `/answers`
 
-- `POST /answers` → registra uma resposta. Corpo: `{ clientId?, concursoId?, questaoId, moduloSnapshot, materiaSnapshot, assuntoSnapshot, dificuldadeSnapshot, alternativaMarcada, acertou, tempoSegundos?, contexto }`. **Idempotente por `clientId`**: se o insert violar a unicidade (Prisma `P2002`), responda `200 { id, duplicate: true }` com a resposta já existente em vez de erro — é um reenvio da fila offline. Sucesso → `201 { id }`.
+- `POST /answers` → registra uma resposta. Corpo: `{ clientId?, concursoId?, questaoId, moduloSnapshot, materiaSnapshot, assuntoSnapshot, dificuldadeSnapshot, origemSnapshot?, provaSnapshot?, alternativaMarcada, acertou, tempoSegundos?, contexto }`. Os dois snapshots de procedência são opcionais (resposta legada não os tem) e existem para a estatística por prova/origem não depender de reler a questão. **Idempotente por `clientId`**: se o insert violar a unicidade (Prisma `P2002`), responda `200 { id, duplicate: true }` com a resposta já existente em vez de erro — é um reenvio da fila offline. Sucesso → `201 { id }`.
 - `POST /answers/batch` → array das mesmas respostas (usado no simulado, ~70 de uma vez, e no flush da fila offline). Use `createMany({ skipDuplicates: true })`. → `201 { count }`.
 - `GET /answers/ids` → `{ respondidas: number[], erradas: number[] }` — conjuntos de IDs para os filtros "só não respondidas" e "só erradas".
 - `GET /answers/export` → backup JSON completo do progresso: `{ exportadoEm, user, answers, notas, marcadas }`.
 - `GET /answers/stats?period=7d|30d|all` → o objeto de `agregarStats` mais `streak`. Atenção: o filtro de período **não** afeta o streak, que sempre considera o histórico completo.
 - `GET /answers/wrong?modulo=II&limit=10` → IDs de questões erradas priorizadas (modo Flash): agrupe as respostas erradas por questão e ordene por **número de erros desc**, desempatando pelo **erro mais recente**. `limit` no máximo 100. → `{ ids, detalhes: [{ questaoId, erros, ultimoErro }] }`.
-- `GET /answers/erradas` → questões cujo **último** resultado foi erro (aba "Revisar"). Reduza o histórico ao estado atual de cada questão (a última resposta vence) e filtre por `!acertouUltima`; ordene por erros desc, depois por data desc. Cada item traz `{ questaoId, modulo, materia, assunto, dificuldade, erros, tentativas, acertouUltima, ultimaData, alternativaMarcada }` — a alternativa da última tentativa importa porque o cliente exporta qual **distrator** foi escolhido. Assim que o usuário acerta numa revisão, a questão some daqui.
+- `GET /answers/erradas?period=7d|30d|all&estado=pendentes|todas` → histórico de erro por questão. Dois eixos independentes:
+  - `period` (default `all`) recorta **quais respostas contam**: `7d`/`30d` são janelas móveis sobre `createdAt`.
+  - `estado` (default `pendentes`, retrocompatível) decide **quem fica na lista**: `pendentes` só as de último resultado errado — é o que a aba "Revisar" consome, e a questão some assim que o usuário acerta numa revisão; `todas` mantém toda questão já errada no período depois de recuperada, para servir de base de estudo em "Meus erros".
+
+  Reduza o histórico ao estado atual de cada questão (a última resposta vence), mantenha só as com `erros > 0` e ordene por erros desc, último erro desc, data desc. Cada item traz `{ questaoId, modulo, materia, assunto, dificuldade, origem?, prova?, erros, acertos, tentativas, acertouUltima, ultimaData, ultimoErro, alternativaMarcada }`. Resposta: `{ period, estado, desde, ids, questoes }`.
+
+  **Armadilha:** `alternativaMarcada` tem de ser a do **último erro**, não a da última tentativa. Numa questão já recuperada a última marcada é a correta, e exportá-la como "o que eu marquei" apaga justamente o distrator que explica o erro.
 - `GET /answers/revisao?limit=60` → SRS de hoje: `{ total, ids, questoes }` com `total` = todas as pendentes e `ids/questoes` limitados (teto 200).
 - `GET /answers/simulados` → histórico de simulados. Não existe coluna de sessão: agrupe as respostas de `contexto: SIMULADO` por proximidade temporal — **intervalo maior que 30 minutos entre respostas inicia um novo simulado**. Cada sessão: `{ id (ISO da primeira resposta), data, total, acertos, tempoTotalSegundos, respostas[] }`, mais recentes primeiro.
 - `GET /answers/week` → questões respondidas nos últimos 7 dias, agregadas por questão: `{ desde, questoes: [{ questaoId, modulo, materia, erros, total }] }`. O cliente usa para sortear o simulado mantendo a proporção da prova e enfatizando as erradas.

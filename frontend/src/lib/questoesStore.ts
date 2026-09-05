@@ -1,6 +1,6 @@
 // Fonte da verdade das questões = BACKEND (Postgres). O IndexedDB é só cache offline:
 // ao carregar, buscamos da API e atualizamos o cache; se estiver offline, lemos do cache.
-import type { Questao } from "../types/questao";
+import type { Questao, Prova } from "../types/questao";
 import { api, ApiError } from "./api";
 import { getConcursoId } from "./concurso";
 import { idbGetAllQuestoes, idbPutQuestoes, idbSetKV, idbGetKV, idbLimparTudo } from "./idb";
@@ -8,6 +8,7 @@ import { idbGetAllQuestoes, idbPutQuestoes, idbSetKV, idbGetKV, idbLimparTudo } 
 export interface DadosCarregados {
   questoes: Questao[];
   textosBase: Record<string, string>;
+  provas: Record<string, Prova>;
 }
 
 // Carrega da API; em sucesso atualiza o cache offline; em falha (offline) usa o cache.
@@ -17,13 +18,15 @@ export async function carregarTudo(): Promise<DadosCarregados> {
     await idbLimparTudo();
     await idbPutQuestoes(d.questoes);
     await idbSetKV("textos_base", d.textosBase);
-    return d;
+    await idbSetKV("provas", d.provas ?? {});
+    return { ...d, provas: d.provas ?? {} };
   } catch {
-    const [questoes, textosBase] = await Promise.all([
+    const [questoes, textosBase, provas] = await Promise.all([
       idbGetAllQuestoes<Questao>(),
       idbGetKV<Record<string, string>>("textos_base"),
+      idbGetKV<Record<string, Prova>>("provas"),
     ]);
-    return { questoes, textosBase: textosBase ?? {} };
+    return { questoes, textosBase: textosBase ?? {}, provas: provas ?? {} };
   }
 }
 
@@ -42,7 +45,7 @@ export interface ImportarResultado {
 export async function importarLote(
   questoes: Questao[],
   textosBase: Record<string, string>,
-  opts: { deslocarSeColidir: boolean; nomeLote?: string }
+  opts: { deslocarSeColidir: boolean; nomeLote?: string; provas?: Record<string, Prova> }
 ): Promise<ImportarResultado> {
   try {
     const r = await api<Omit<ImportarResultado, "ok">>("/questoes/import", {
@@ -50,6 +53,7 @@ export async function importarLote(
       body: {
         questoes,
         textosBase,
+        provas: opts.provas ?? {},
         deslocarSeColidir: opts.deslocarSeColidir,
         nomeLote: opts.nomeLote,
         concursoId: getConcursoId() ?? undefined,

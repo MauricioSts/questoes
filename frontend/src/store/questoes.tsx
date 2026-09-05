@@ -20,8 +20,8 @@ export function QuestoesProvider({ children }: { children: ReactNode }) {
   const { activeId } = useConcurso();
 
   const recarregar = useCallback(async () => {
-    const { questoes, textosBase } = await carregarTudo();
-    setDados(questoes, textosBase);
+    const { questoes, textosBase, provas } = await carregarTudo();
+    setDados(questoes, textosBase, provas);
     setTotal(totalQuestoes());
   }, []);
 

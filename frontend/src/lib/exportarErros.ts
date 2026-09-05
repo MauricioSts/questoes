@@ -3,8 +3,11 @@
 // de volta um JSON no MESMO schema que /importar aceita (QuestoesRoot) — fechando o ciclo
 // errar → gerar questões novas do ponto fraco → importar.
 import type { Questao, Alternativa } from "../types/questao";
+import { rotuloOrigem } from "./questoesRepo";
 
 // Uma questão errada, do jeito que GET /answers/erradas devolve.
+// Com estado=todas, a questão CONTINUA aqui depois de recuperada (acertouUltima=true):
+// o histórico de erro é a base de estudo, não uma fila que esvazia.
 export interface MetaErro {
   questaoId: number;
   modulo: string;
@@ -12,8 +15,17 @@ export interface MetaErro {
   assunto: string;
   dificuldade: string;
   erros: number;
+  acertos?: number;
   tentativas: number;
+  acertouUltima?: boolean;
+  ultimoErro?: string | null;
+  origem?: string;
+  prova?: string;
   alternativaMarcada?: string;
+}
+
+export function recuperada(m: MetaErro): boolean {
+  return m.acertouUltima === true;
 }
 
 export interface ItemErro {
@@ -23,8 +35,11 @@ export interface ItemErro {
 
 export interface GrupoAssunto {
   assunto: string;
+  materia: string;
   itens: ItemErro[];
   erros: number; // soma de erros do assunto
+  pendentes: number; // ainda não recuperadas
+  recuperadas: number; // já acertei depois de errar
   taxa: number | null; // 0..1 de acerto histórico (vem do /answers/stats), null se sem dado
 }
 
@@ -32,6 +47,8 @@ export interface GrupoMateria {
   materia: string;
   itens: ItemErro[];
   erros: number;
+  pendentes: number;
+  recuperadas: number;
   taxa: number | null;
   assuntos: GrupoAssunto[];
 }
@@ -57,8 +74,11 @@ export function agruparPorMateria(itens: ItemErro[], taxas: TaxasPorChave = {}):
     const assuntos: GrupoAssunto[] = [...porAssunto.entries()]
       .map(([assunto, doAssunto]) => ({
         assunto,
+        materia,
         itens: doAssunto.sort((a, b) => b.meta.erros - a.meta.erros),
         erros: doAssunto.reduce((s, i) => s + i.meta.erros, 0),
+        pendentes: doAssunto.filter((i) => !recuperada(i.meta)).length,
+        recuperadas: doAssunto.filter((i) => recuperada(i.meta)).length,
         taxa: taxas[`${materia}›${assunto}`] ?? null,
       }))
       .sort((a, b) => b.erros - a.erros || b.itens.length - a.itens.length);
@@ -67,13 +87,15 @@ export function agruparPorMateria(itens: ItemErro[], taxas: TaxasPorChave = {}):
       materia,
       itens: doMateria,
       erros: doMateria.reduce((s, i) => s + i.meta.erros, 0),
+      pendentes: doMateria.filter((i) => !recuperada(i.meta)).length,
+      recuperadas: doMateria.filter((i) => recuperada(i.meta)).length,
       taxa: taxas[materia] ?? null,
       assuntos,
     };
   });
 
-  // Pior primeiro: mais pendentes, e mais erros como desempate.
-  return grupos.sort((a, b) => b.itens.length - a.itens.length || b.erros - a.erros);
+  // Pior primeiro: quem me custou mais erros no período, e mais questões como desempate.
+  return grupos.sort((a, b) => b.erros - a.erros || b.itens.length - a.itens.length);
 }
 
 const ORDEM: Alternativa[] = ["A", "B", "C", "D", "E"];
@@ -81,7 +103,14 @@ const ORDEM: Alternativa[] = ["A", "B", "C", "D", "E"];
 function questaoEmMarkdown(it: ItemErro): string {
   const { meta, questao } = it;
   const linhas: string[] = [];
-  linhas.push(`#### [id ${questao.id}] ${meta.assunto} · ${meta.dificuldade} · errei ${meta.erros}× em ${meta.tentativas} tentativa(s)`);
+  const estado = recuperada(meta) ? "já recuperei depois" : "ainda não recuperei";
+  linhas.push(
+    `#### [id ${questao.id}] ${meta.assunto} · ${meta.dificuldade} · errei ${meta.erros}× em ${meta.tentativas} tentativa(s) · ${estado}`
+  );
+  linhas.push("");
+  // Procedência: o Claude precisa saber se está olhando uma questão de prova real ou
+  // um reforço que ele mesmo gerou antes — muda o que faz sentido gerar em cima.
+  linhas.push(`_Origem: ${rotuloOrigem(questao)}._`);
   linhas.push("");
   linhas.push(questao.enunciado.trim());
   if (questao.codigo) {
@@ -101,7 +130,7 @@ function questaoEmMarkdown(it: ItemErro): string {
   }
   linhas.push("");
   const marcada = meta.alternativaMarcada ? `**${meta.alternativaMarcada}**` : "não registrada";
-  linhas.push(`Marquei: ${marcada} · Gabarito: **${questao.gabarito}**`);
+  linhas.push(`Marquei quando errei: ${marcada} · Gabarito: **${questao.gabarito}**`);
   if (questao.explicacao?.trim()) {
     linhas.push("");
     linhas.push(`Explicação do banco: ${questao.explicacao.trim()}`);
@@ -111,12 +140,18 @@ function questaoEmMarkdown(it: ItemErro): string {
 
 // O JSON de exemplo usa a matéria/assunto REAL de um dos erros: além de ilustrar o schema,
 // mostra ao Claude a grafia exata que ele precisa repetir nos campos.
-function instrucoes(porAssunto: number, exemplo: { modulo: string; materia: string; assunto: string; dificuldade: string }): string {
+function instrucoes(
+  porAssunto: number,
+  exemplo: { modulo: string; materia: string; assunto: string; dificuldade: string },
+  ctx: { periodo: string; pendentes: number; recuperadas: number }
+): string {
   return [
     "## O que eu quero de você",
     "",
-    "As questões abaixo são as que eu **errei** e ainda não recuperei. Gere questões NOVAS de",
-    "concurso sobre os mesmos assuntos, para eu treinar exatamente onde estou falhando.",
+    `As questões abaixo são todas as que eu **errei** ${ctx.periodo} — ${ctx.pendentes} que ainda não`,
+    `recuperei e ${ctx.recuperadas} que já acertei numa tentativa posterior. As recuperadas continuam`,
+    "aqui de propósito: acertar uma vez não prova domínio do conteúdo, e elas mostram onde eu",
+    "tropecei. Gere questões NOVAS sobre esses assuntos, para eu treinar onde estou falhando.",
     "",
     "Regras:",
     "",
@@ -125,7 +160,8 @@ function instrucoes(porAssunto: number, exemplo: { modulo: string; materia: stri
     "3. Ataque o motivo provável do meu erro: quando eu marquei um distrator específico, cubra a confusão que ele representa.",
     "4. Cada questão: 5 alternativas (A–E), uma única correta, e uma `explicacao` que justifique a correta E diga por que os distratores caem.",
     "5. Mantenha `materia` e `assunto` escritos EXATAMENTE como aparecem aqui (é assim que meu app agrupa).",
-    "6. Responda **somente** com um bloco de código JSON no schema abaixo — é o formato que meu app importa.",
+    '6. Marque toda questão com `"origem": "gerada"` e liste em `geradaDe` os `id`s daqui que motivaram cada uma — é assim que meu app distingue reforço de questão de prova real.',
+    "7. Responda **somente** com um bloco de código JSON no schema abaixo — é o formato que meu app importa.",
     "",
     "```json",
     "{",
@@ -138,6 +174,8 @@ function instrucoes(porAssunto: number, exemplo: { modulo: string; materia: stri
     `      "materia": ${JSON.stringify(exemplo.materia)},`,
     `      "assunto": ${JSON.stringify(exemplo.assunto)},`,
     `      "dificuldade": ${JSON.stringify(exemplo.dificuldade)},`,
+    '      "origem": "gerada",',
+    '      "geradaDe": [123, 456],',
     '      "enunciado": "…",',
     '      "alternativas": { "A": "…", "B": "…", "C": "…", "D": "…", "E": "…" },',
     '      "gabarito": "C",',
@@ -148,7 +186,8 @@ function instrucoes(porAssunto: number, exemplo: { modulo: string; materia: stri
     "```",
     "",
     "Campos: `id` inteiro sequencial a partir de 1 (meu app desloca os IDs sozinho se colidirem),",
-    "`modulo` é `\"I\"` ou `\"II\"`, `dificuldade` é `\"facil\"`, `\"media\"` ou `\"dificil\"`.",
+    "`modulo` é `\"I\"` ou `\"II\"`, `dificuldade` é `\"facil\"`, `\"media\"` ou `\"dificil\"`,",
+    "`geradaDe` são os ids das questões desta lista que a questão nova está treinando.",
     "Sem texto fora do bloco JSON.",
   ].join("\n");
 }
@@ -157,6 +196,7 @@ export interface OpcoesExport {
   concurso?: string;
   materia?: string; // export de uma matéria só
   questoesPorAssunto?: number;
+  periodo?: string; // rótulo do recorte de tempo ("nos últimos 7 dias", "desde sempre")
 }
 
 export function montarMarkdownErros(itens: ItemErro[], opts: OpcoesExport = {}): string {
@@ -164,13 +204,20 @@ export function montarMarkdownErros(itens: ItemErro[], opts: OpcoesExport = {}):
   const totalAssuntos = grupos.reduce((s, g) => s + g.assuntos.length, 0);
   const hoje = new Date().toISOString().slice(0, 10);
 
+  const periodo = opts.periodo ?? "desde sempre";
+  const pendentes = itens.filter((i) => !recuperada(i.meta)).length;
+  const recuperadas = itens.length - pendentes;
+  const totalErros = itens.reduce((s, i) => s + i.meta.erros, 0);
+
   const cabecalho = [
     `# Questões que eu errei${opts.materia ? ` — ${opts.materia}` : ""}`,
     "",
     [
       opts.concurso ? `Concurso: **${opts.concurso}**` : null,
+      `Recorte: ${periodo}`,
       `Exportado em ${hoje}`,
-      `${itens.length} questão(ões) errada(s) pendente(s)`,
+      `${itens.length} questão(ões) errada(s) — ${pendentes} pendente(s), ${recuperadas} recuperada(s)`,
+      `${totalErros} erro(s) no total`,
       `${grupos.length} matéria(s)`,
       `${totalAssuntos} assunto(s)`,
     ]
@@ -179,28 +226,48 @@ export function montarMarkdownErros(itens: ItemErro[], opts: OpcoesExport = {}):
     "",
   ].join("\n");
 
+  // Ranking por conteúdo: o que interessa é onde eu gastei mais erros, independentemente
+  // de já ter recuperado a questão depois.
+  const ranking = grupos
+    .flatMap((g) => g.assuntos)
+    .sort((a, b) => b.erros - a.erros || b.itens.length - a.itens.length)
+    .slice(0, 15);
+
   const panorama = [
-    "## Onde eu mais erro",
+    "## Onde eu mais erro (assuntos, por número de erros)",
     "",
-    ...grupos.map((g) => {
-      const piores = g.assuntos.slice(0, 5).map((a) => `${a.assunto} (${a.itens.length})`).join(", ");
-      return `- **${g.materia}** — ${g.itens.length} pendente(s), ${g.erros} erro(s): ${piores}`;
-    }),
+    ...ranking.map(
+      (a, i) =>
+        `${i + 1}. **${a.materia} › ${a.assunto}** — ${a.erros} erro(s) em ${a.itens.length} questão(ões) (${a.pendentes} pendente(s), ${a.recuperadas} recuperada(s))`
+    ),
     "",
   ].join("\n");
 
   const corpo = grupos
-    .map((g) => {
-      const secoes = g.assuntos
-        .map((a) => [`### ${g.materia} › ${a.assunto} — ${a.itens.length} pendente(s)`, ...a.itens.map(questaoEmMarkdown)].join("\n\n"))
-        .join("\n\n");
-      return secoes;
-    })
+    .map((g) =>
+      g.assuntos
+        .map((a) =>
+          [
+            `### ${g.materia} › ${a.assunto} — ${a.erros} erro(s) em ${a.itens.length} questão(ões)`,
+            ...a.itens.map(questaoEmMarkdown),
+          ].join("\n\n")
+        )
+        .join("\n\n")
+    )
     .join("\n\n");
 
   const exemplo = itens[0]?.meta ?? { modulo: "II", materia: "Matéria", assunto: "Assunto", dificuldade: "media" };
 
-  return [cabecalho, instrucoes(opts.questoesPorAssunto ?? 3, exemplo), "", panorama, "## As questões que eu errei", "", corpo, ""].join("\n");
+  return [
+    cabecalho,
+    instrucoes(opts.questoesPorAssunto ?? 3, exemplo, { periodo, pendentes, recuperadas }),
+    "",
+    panorama,
+    "## As questões que eu errei",
+    "",
+    corpo,
+    "",
+  ].join("\n");
 }
 
 // Nome de arquivo seguro: sem acento, espaço vira hífen.

@@ -28,6 +28,8 @@ const answerSchema = z.object({
   materiaSnapshot: z.string().min(1),
   assuntoSnapshot: z.string().min(1),
   dificuldadeSnapshot: z.string().min(1),
+  origemSnapshot: z.string().min(1).optional(), // oficial | adaptada | gerada | autoral
+  provaSnapshot: z.string().min(1).optional(), // chave da prova de origem, quando havia
   alternativaMarcada: z.string().min(1),
   acertou: z.boolean(),
   tempoSegundos: z.number().int().nonnegative().optional(),
@@ -149,13 +151,23 @@ answersRouter.get(
   })
 );
 
-// GET /answers/erradas: questões cujo ÚLTIMO resultado foi erro (para a aba "Revisar").
-// Assim que o usuário acerta numa revisão, a questão deixa de aparecer aqui.
+// GET /answers/erradas?period=7d|30d|all&estado=pendentes|todas
+// Histórico de erro por questão. Dois eixos independentes:
+// - `period` recorta QUAIS respostas contam (7d/30d = janela móvel; all = tudo).
+// - `estado`: "pendentes" (padrão, retrocompatível: só as que o último resultado foi erro,
+//   é o que a aba Revisar consome) ou "todas" (toda questão já errada no período CONTINUA
+//   na lista depois de acertada, para servir de base de estudo em "Meus erros").
 answersRouter.get(
   "/erradas",
   asyncHandler(async (req, res) => {
+    const period = String(req.query.period ?? "all");
+    const estado = String(req.query.estado ?? "pendentes");
+    let desde: Date | undefined;
+    if (period === "7d") desde = new Date(Date.now() - 7 * 864e5);
+    else if (period === "30d") desde = new Date(Date.now() - 30 * 864e5);
+
     const rows = await prisma.answer.findMany({
-      where: { userId: req.userId!, ...cf(req) },
+      where: { userId: req.userId!, ...cf(req), ...(desde ? { createdAt: { gte: desde } } : {}) },
       orderBy: { createdAt: "asc" },
       select: {
         questaoId: true,
@@ -165,6 +177,8 @@ answersRouter.get(
         materiaSnapshot: true,
         assuntoSnapshot: true,
         dificuldadeSnapshot: true,
+        origemSnapshot: true,
+        provaSnapshot: true,
         // Alternativa da última tentativa: o export de erros mostra ao Claude qual
         // distrator o usuário escolheu, não só que ele errou.
         alternativaMarcada: true,
@@ -180,11 +194,15 @@ answersRouter.get(
         materia: string;
         assunto: string;
         dificuldade: string;
+        origem?: string;
+        prova?: string;
         erros: number;
+        acertos: number;
         tentativas: number;
         acertouUltima: boolean;
         ultimaData: Date;
-        alternativaMarcada: string;
+        ultimoErro: Date | null;
+        alternativaMarcada: string; // do ÚLTIMO erro (é o distrator que interessa ao Claude)
       }
     >();
     for (const r of rows) {
@@ -195,29 +213,49 @@ answersRouter.get(
           materia: r.materiaSnapshot,
           assunto: r.assuntoSnapshot,
           dificuldade: r.dificuldadeSnapshot,
+          origem: undefined as string | undefined,
+          prova: undefined as string | undefined,
           erros: 0,
+          acertos: 0,
           tentativas: 0,
           acertouUltima: false,
           ultimaData: r.createdAt,
+          ultimoErro: null as Date | null,
           alternativaMarcada: r.alternativaMarcada,
         };
       cur.tentativas++;
-      if (!r.acertou) cur.erros++;
+      if (r.acertou) {
+        cur.acertos++;
+      } else {
+        cur.erros++;
+        cur.ultimoErro = r.createdAt;
+        // Só o erro atualiza a alternativa: numa questão já recuperada, a última marcada
+        // é a certa, e mostrar a certa como "o que eu marquei" esconde o motivo do erro.
+        cur.alternativaMarcada = r.alternativaMarcada;
+      }
       cur.acertouUltima = r.acertou;
       cur.ultimaData = r.createdAt;
       cur.modulo = r.moduloSnapshot;
       cur.materia = r.materiaSnapshot;
       cur.assunto = r.assuntoSnapshot;
       cur.dificuldade = r.dificuldadeSnapshot;
-      cur.alternativaMarcada = r.alternativaMarcada;
+      cur.origem = r.origemSnapshot ?? cur.origem;
+      cur.prova = r.provaSnapshot ?? cur.prova;
       map.set(r.questaoId, cur);
     }
 
+    // Entram só as questões com pelo menos um erro no período. Em "pendentes", as já
+    // recuperadas saem; em "todas", ficam (marcadas por acertouUltima).
     const erradas = [...map.values()]
-      .filter((x) => !x.acertouUltima)
-      .sort((a, b) => b.erros - a.erros || b.ultimaData.getTime() - a.ultimaData.getTime());
+      .filter((x) => x.erros > 0 && (estado === "todas" || !x.acertouUltima))
+      .sort(
+        (a, b) =>
+          b.erros - a.erros ||
+          (b.ultimoErro?.getTime() ?? 0) - (a.ultimoErro?.getTime() ?? 0) ||
+          b.ultimaData.getTime() - a.ultimaData.getTime()
+      );
 
-    res.json({ ids: erradas.map((x) => x.questaoId), questoes: erradas });
+    res.json({ period, estado, desde: desde ?? null, ids: erradas.map((x) => x.questaoId), questoes: erradas });
   })
 );
 

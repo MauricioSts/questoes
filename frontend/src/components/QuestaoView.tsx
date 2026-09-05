@@ -1,6 +1,6 @@
 import { Check, X } from "lucide-react";
 import type { Questao, Alternativa } from "../types/questao";
-import { getTextoBase } from "../lib/questoesRepo";
+import { getTextoBase, getProva, origemDe, rotuloOrigem } from "../lib/questoesRepo";
 import { Card } from "./Card";
 import { MetaPill } from "./MetaPill";
 import { comRealce } from "./Realce";
@@ -26,6 +26,23 @@ export function QuestaoView({
   const textoBase = getTextoBase(questao.texto_base);
   const acertou = revelado && selecionada === questao.gabarito;
 
+  // Procedência: de que prova a questão veio, ou que ela é adaptada/gerada/autoral.
+  const origem = origemDe(questao);
+  const prova = getProva(questao.prova);
+  const selo = (
+    <MetaPill
+      type={`origem-${origem}` as const}
+      label={rotuloOrigem(questao)}
+      title={
+        prova
+          ? [prova.cargo, prova.tipo ? `Caderno ${prova.tipo}` : null].filter(Boolean).join(" · ") || undefined
+          : origem === "gerada"
+            ? `Gerada a partir de ${questao.geradaDe?.length ?? 0} questão(ões) que eu errei`
+            : undefined
+      }
+    />
+  );
+
   return (
     <article
       className="space-y-4"
@@ -47,6 +64,14 @@ export function QuestaoView({
           type={questao.dificuldade === "facil" ? "dificuldade-facil" : questao.dificuldade === "media" ? "dificuldade-media" : "dificuldade-dificil"}
           label={questao.dificuldade === "facil" ? "Fácil" : questao.dificuldade === "media" ? "Média" : "Difícil"}
         />
+        {/* O selo vira link quando a prova de origem tem PDF oficial. */}
+        {prova?.url ? (
+          <a href={prova.url} target="_blank" rel="noreferrer" className="tap">
+            {selo}
+          </a>
+        ) : (
+          selo
+        )}
       </div>
 
       {/* Enunciado */}

@@ -12,6 +12,17 @@ está em [frontend/src/data/questoes.json](../frontend/src/data/questoes.json) (
   "textos_base": {
     "TB_ENG_1": "texto longo em inglês, usado por 1+ questões de leitura..."
   },
+  "provas": {
+    // opcional: provas de onde as questões vieram (ver "Procedência" abaixo)
+    "FGV_TCE-TO_2022_ANALISTA-TI": {
+      "banca": "FGV",
+      "orgao": "TCE-TO",
+      "ano": 2022,
+      "cargo": "Analista Técnico - Tecnologia da Informação",
+      "tipo": "1",
+      "url": "https://conhecimento.fgv.br/.../prova.pdf"
+    }
+  },
   "questoes": [ /* array de questões (ver abaixo) */ ]
 }
 ```
@@ -32,6 +43,30 @@ está em [frontend/src/data/questoes.json](../frontend/src/data/questoes.json) (
 | `alternativas` | ✅ | objeto `{ "A": "...", "B": "...", "C": "...", "D": "...", "E": "..." }` (5 opções) |
 | `gabarito` | ✅ | a letra correta: `"A"` a `"E"` (deve existir em `alternativas`) |
 | `explicacao` | ✅ | por que a correta está certa (e, se útil, por que as outras erram), acentuado |
+| `origem` | opcional | `"oficial"`, `"adaptada"`, `"gerada"` ou `"autoral"` (padrão) — ver abaixo |
+| `prova` | condicional | chave em `provas`. **Obrigatório** quando `origem` é `oficial` ou `adaptada` |
+| `numero` | opcional | número que a questão tinha na prova de origem (inteiro positivo) |
+| `geradaDe` | opcional | lista de `id`s das questões erradas que motivaram este reforço |
+
+### Procedência (`origem`)
+
+O app mostra um selo em cada questão dizendo de onde ela veio, e o filtro/estatística usam
+esse campo. Valores:
+
+| Valor | Significa | Exige `prova`? |
+|---|---|---|
+| `oficial` | caiu numa prova real, texto preservado | ✅ |
+| `adaptada` | baseada numa prova real, com texto alterado | ✅ |
+| `gerada` | criada como reforço a partir das questões que eu errei | não (use `geradaDe`) |
+| `autoral` | escrita sem prova de referência — **é o padrão** quando o campo falta | não |
+
+Cada chave de `provas` exige `banca`, `orgao` e `ano`; `cargo`, `tipo` (caderno, quando a
+banca embaralha versões) e `url` (PDF oficial) são opcionais. Quando há `url`, o selo da
+questão vira link para o PDF. Uma prova já importada antes não precisa ser redeclarada: basta
+citar a chave (o validador avisa, mas o backend aceita se a chave existir no banco).
+
+Convenção de chave: `BANCA_ORGAO_ANO_CARGO` em maiúsculas, sem acento
+(ex.: `FGV_TCE-TO_2022_ANALISTA-TI`).
 
 ### Valores exatos de `materia`
 

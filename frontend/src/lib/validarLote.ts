@@ -1,6 +1,6 @@
 // Valida e normaliza um JSON de lote antes de importar.
 // Aceita { meta?, textos_base?, questoes: [...] } OU um array puro de questões.
-import type { Questao, QuestoesRoot } from "../types/questao";
+import type { Questao, QuestoesRoot, Prova } from "../types/questao";
 
 export interface ResultadoValidacao {
   ok: boolean;
@@ -8,12 +8,14 @@ export interface ResultadoValidacao {
   avisos: string[];
   questoes: Questao[];
   textosBase: Record<string, string>;
+  provas: Record<string, Prova>;
   faixaIds: [number, number] | null; // menor e maior id do lote
 }
 
 const DIFS = ["facil", "media", "dificil"];
 const MODS = ["I", "II"];
 const POSICOES = ["enunciado", "alternativas"];
+const ORIGENS = ["oficial", "adaptada", "gerada", "autoral"];
 
 // Aceita só data URI de imagem: o campo vai direto no src, então um valor com http(s)
 // ou caminho de arquivo significaria uma imagem que nunca vai carregar no app.
@@ -26,14 +28,25 @@ export function validarLote(json: unknown): ResultadoValidacao {
   // normaliza formato: array puro ou objeto raiz
   let questoes: Questao[] = [];
   let textosBase: Record<string, string> = {};
+  let provas: Record<string, Prova> = {};
   if (Array.isArray(json)) {
     questoes = json as Questao[];
   } else if (json && typeof json === "object" && "questoes" in json) {
     const root = json as QuestoesRoot;
     questoes = root.questoes ?? [];
     textosBase = root.textos_base ?? {};
+    provas = root.provas ?? {};
   } else {
-    return { ok: false, erros: ["JSON não tem o formato esperado ({ questoes: [...] } ou um array)."], avisos, questoes: [], textosBase: {}, faixaIds: null };
+    return { ok: false, erros: ["JSON não tem o formato esperado ({ questoes: [...] } ou um array)."], avisos, questoes: [], textosBase: {}, provas: {}, faixaIds: null };
+  }
+
+  // Provas declaradas no root: sem banca/órgão/ano o selo de procedência não se sustenta.
+  for (const [chave, p] of Object.entries(provas)) {
+    const ref = `Prova "${chave}"`;
+    if (!p?.banca) erros.push(`${ref}: sem banca.`);
+    if (!p?.orgao) erros.push(`${ref}: sem órgão.`);
+    if (typeof p?.ano !== "number" || !Number.isInteger(p.ano)) erros.push(`${ref}: ano ausente ou não é inteiro.`);
+    if (p?.url && !/^https?:\/\//.test(p.url)) avisos.push(`${ref}: url não começa com http(s).`);
   }
 
   if (questoes.length === 0) erros.push("Nenhuma questão encontrada no arquivo.");
@@ -80,6 +93,17 @@ export function validarLote(json: unknown): ResultadoValidacao {
     }
     if (q?.texto_base && !textosBase[q.texto_base])
       erros.push(`${ref}: referencia texto_base "${q.texto_base}" que não está no lote.`);
+    // Procedência. Campo ausente = "autoral" (compatível com os lotes antigos).
+    if (q?.origem !== undefined && !ORIGENS.includes(q.origem))
+      erros.push(`${ref}: origem inválida (use ${ORIGENS.map((o) => `"${o}"`).join(" | ")}).`);
+    if ((q?.origem === "oficial" || q?.origem === "adaptada") && !q?.prova)
+      erros.push(`${ref}: origem "${q.origem}" exige o campo "prova" (chave em "provas").`);
+    if (q?.prova && !provas[q.prova])
+      avisos.push(`${ref}: prova "${q.prova}" não está no lote (só passa se já existir no banco).`);
+    if (q?.numero !== undefined && (!Number.isInteger(q.numero) || q.numero <= 0))
+      erros.push(`${ref}: "numero" precisa ser um inteiro positivo (número da questão na prova).`);
+    if (q?.geradaDe !== undefined && (!Array.isArray(q.geradaDe) || q.geradaDe.some((n) => !Number.isInteger(n))))
+      erros.push(`${ref}: "geradaDe" precisa ser uma lista de IDs inteiros.`);
     // aviso de acentuação: texto puramente ASCII costuma indicar falta de acentos
     if (q?.enunciado && !/[À-ÿ]/.test(q.enunciado) && /\b(nao|voce|questao|codigo|opcao)\b/i.test(q.enunciado))
       avisos.push(`${ref}: enunciado parece sem acentuação.`);
@@ -91,6 +115,7 @@ export function validarLote(json: unknown): ResultadoValidacao {
     avisos,
     questoes,
     textosBase,
+    provas,
     faixaIds: idsVistos.size ? [min, max] : null,
   };
 }

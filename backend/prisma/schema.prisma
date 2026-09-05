@@ -39,11 +39,38 @@ model Questao {
   // como data URI em `dados`. null/ausente na maioria das questões.
   imagens      Json?
   loteNome     String? // rótulo do lote (nome do arquivo importado); null p/ imports antigos
+  // Procedência da questão: "oficial" (texto igual ao da prova), "adaptada" (baseada numa
+  // prova, com texto alterado), "gerada" (criada como reforço a partir dos meus erros) ou
+  // "autoral" (escrita sem prova de referência). Legado importado antes disso = "autoral".
+  origem         String  @default("autoral")
+  provaChave     String? // prova de onde veio (oficial/adaptada); null nas demais origens
+  prova          Prova?  @relation(fields: [provaChave], references: [chave], onDelete: SetNull)
+  numeroOriginal Int? // número que a questão tinha na prova de origem
+  // Reforço: IDs das questões erradas que motivaram a geração desta. [] / null nas demais.
+  geradaDe       Json?
   createdAt    DateTime @default(now()) // idêntico p/ toda questão de um mesmo import → chave do lote
 
   @@index([modulo, materia])
   @@index([createdAt])
   @@index([concursoId])
+  @@index([origem])
+  @@index([provaChave])
+}
+
+// Prova de concurso de onde uma ou mais questões vieram. Vive fora da Questao porque
+// dezenas de questões compartilham a mesma prova (mesmo padrão de TextoBase).
+model Prova {
+  chave     String    @id // ex.: "FGV_TCE-TO_2022_ANALISTA-TI"
+  banca     String
+  orgao     String
+  ano       Int
+  cargo     String? // cargo/perfil da prova
+  tipo      String? // caderno, quando a banca embaralha versões (FGV: "1", "2", "3")
+  url       String? // PDF oficial
+  createdAt DateTime  @default(now())
+  questoes  Questao[]
+
+  @@index([banca, ano])
 }
 
 // Concurso do usuário. O app é multi-concurso: cada concurso tem seu próprio conjunto de
@@ -172,6 +199,8 @@ model Answer {
   materiaSnapshot     String
   assuntoSnapshot     String
   dificuldadeSnapshot String // facil | media | dificil
+  origemSnapshot      String? // oficial | adaptada | gerada | autoral (null = resposta legada)
+  provaSnapshot       String? // chave da prova de origem, quando havia
   alternativaMarcada  String
   acertou             Boolean
   tempoSegundos       Int?

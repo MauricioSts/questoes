@@ -19,12 +19,28 @@ const imagemSchema = z.object({
   dados: z.string().regex(/^data:image\//, "dados precisa ser um data URI de imagem"),
 });
 
+// Procedência: de onde a questão veio. "oficial"/"adaptada" exigem uma prova de origem.
+const origemSchema = z.enum(["oficial", "adaptada", "gerada", "autoral"]);
+
+const provaSchema = z.object({
+  banca: z.string().min(1),
+  orgao: z.string().min(1),
+  ano: z.number().int().min(1900).max(2200),
+  cargo: z.string().optional(),
+  tipo: z.string().optional(),
+  url: z.string().optional(),
+});
+
 const questaoSchema = z.object({
   id: z.number().int(),
   modulo: z.enum(["I", "II"]),
   materia: z.string().min(1),
   assunto: z.string().min(1),
   dificuldade: z.enum(["facil", "media", "dificil"]),
+  origem: origemSchema.default("autoral"),
+  prova: z.string().optional(), // chave em `provas` (obrigatória se origem = oficial|adaptada)
+  numero: z.number().int().positive().optional(), // número da questão na prova de origem
+  geradaDe: z.array(z.number().int()).optional(), // IDs que motivaram o reforço
   texto_base: z.string().optional(),
   enunciado: z.string().min(1),
   codigo: z.string().optional(),
@@ -38,6 +54,8 @@ const questaoSchema = z.object({
 const importSchema = z.object({
   questoes: z.array(questaoSchema).min(1),
   textosBase: z.record(z.string()).default({}),
+  provas: z.record(provaSchema).default({}), // provas de origem citadas pelo lote
+
   deslocarSeColidir: z.boolean().default(true),
   nomeLote: z.string().max(200).optional(), // rótulo do lote (nome do arquivo)
   concursoId: z.string().min(1).optional(), // concurso ao qual o lote pertence
@@ -50,12 +68,13 @@ questoesRouter.get(
     // Multi-concurso: quando ?concursoId= é enviado, serve só as questões daquele
     // concurso. Sem o param, serve todas (comportamento legado).
     const concursoId = req.query.concursoId ? String(req.query.concursoId) : undefined;
-    const [linhas, textos] = await Promise.all([
+    const [linhas, textos, provasLinhas] = await Promise.all([
       prisma.questao.findMany({
         where: concursoId ? { concursoId } : {},
         orderBy: { id: "asc" },
       }),
       prisma.textoBase.findMany(),
+      prisma.prova.findMany(),
     ]);
     const questoes = linhas.map((q) => ({
       id: q.id,
@@ -71,9 +90,26 @@ questoesRouter.get(
       gabarito: q.gabarito,
       explicacao: q.explicacao,
       imagens: q.imagens ?? undefined,
+      origem: q.origem,
+      prova: q.provaChave ?? undefined,
+      numero: q.numeroOriginal ?? undefined,
+      geradaDe: q.geradaDe ?? undefined,
     }));
     const textosBase = Object.fromEntries(textos.map((t) => [t.chave, t.texto]));
-    res.json({ questoes, textosBase });
+    const provas = Object.fromEntries(
+      provasLinhas.map((p) => [
+        p.chave,
+        {
+          banca: p.banca,
+          orgao: p.orgao,
+          ano: p.ano,
+          cargo: p.cargo ?? undefined,
+          tipo: p.tipo ?? undefined,
+          url: p.url ?? undefined,
+        },
+      ])
+    );
+    res.json({ questoes, textosBase, provas });
   })
 );
 
@@ -83,7 +119,7 @@ questoesRouter.get(
 questoesRouter.post(
   "/import",
   asyncHandler(async (req, res) => {
-    const { questoes, textosBase, deslocarSeColidir, nomeLote, concursoId: concursoEnviado } =
+    const { questoes, textosBase, provas, deslocarSeColidir, nomeLote, concursoId: concursoEnviado } =
       importSchema.parse(req.body);
 
     // Sem concursoId a questão nasceria órfã: gravada no banco, mas invisível no app
@@ -108,6 +144,24 @@ questoesRouter.post(
       }
     }
 
+    // Procedência: a chave de prova citada precisa existir no lote ou já estar no banco, e
+    // questão oficial/adaptada sem prova viraria uma alegação de origem que ninguém consegue
+    // conferir — por isso é recusada aqui, não só no frontend.
+    const chavesCitadas = [...new Set(questoes.map((q) => q.prova).filter((c): c is string => !!c))];
+    const jaNoBanco = new Set(
+      (await prisma.prova.findMany({ where: { chave: { in: chavesCitadas } }, select: { chave: true } })).map(
+        (p) => p.chave
+      )
+    );
+    for (const q of questoes) {
+      if ((q.origem === "oficial" || q.origem === "adaptada") && !q.prova) {
+        throw new HttpError(400, `Questão ${q.id}: origem "${q.origem}" exige o campo "prova".`);
+      }
+      if (q.prova && !provas[q.prova] && !jaNoBanco.has(q.prova)) {
+        throw new HttpError(400, `Questão ${q.id}: prova "${q.prova}" não está em "provas" nem no banco.`);
+      }
+    }
+
     const existentes = await prisma.questao.findMany({ select: { id: true } });
     const idsExistentes = new Set(existentes.map((q) => q.id));
     const maxId = existentes.reduce((m, q) => Math.max(m, q.id), 0);
@@ -126,8 +180,15 @@ questoesRouter.post(
       aGravar = questoes.map((q) => ({ ...q, id: q.id + deslocamento! }));
     }
 
-    // grava numa transação: questões + textos base (upsert)
+    // grava numa transação: provas + questões + textos base (upsert)
     await prisma.$transaction([
+      ...Object.entries(provas).map(([chave, p]) =>
+        prisma.prova.upsert({
+          where: { chave },
+          update: { banca: p.banca, orgao: p.orgao, ano: p.ano, cargo: p.cargo ?? null, tipo: p.tipo ?? null, url: p.url ?? null },
+          create: { chave, banca: p.banca, orgao: p.orgao, ano: p.ano, cargo: p.cargo ?? null, tipo: p.tipo ?? null, url: p.url ?? null },
+        })
+      ),
       prisma.questao.createMany({
         data: aGravar.map((q) => ({
           id: q.id,
@@ -145,6 +206,10 @@ questoesRouter.post(
           explicacao: q.explicacao,
           imagens: (q.imagens ?? undefined) as Prisma.InputJsonValue | undefined,
           loteNome: nomeLote ?? null,
+          origem: q.origem,
+          provaChave: q.prova ?? null,
+          numeroOriginal: q.numero ?? null,
+          geradaDe: (q.geradaDe ?? undefined) as Prisma.InputJsonValue | undefined,
         })),
       }),
       ...Object.entries(textosBase).map(([chave, texto]) =>
