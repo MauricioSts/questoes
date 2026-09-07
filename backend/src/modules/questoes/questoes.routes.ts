@@ -37,7 +37,10 @@ const questaoSchema = z.object({
   materia: z.string().min(1),
   assunto: z.string().min(1),
   dificuldade: z.enum(["facil", "media", "dificil"]),
-  origem: origemSchema.default("autoral"),
+  // Sem default: um lote que esquece a flag é RECUSADO, não vira "autoral" caladamente.
+  // Foi esse default que fez 280 questões vindas de prova entrarem marcadas como autorais.
+  // Para importar um lote antigo sem o campo, mande "origemPadrao" na raiz do lote.
+  origem: origemSchema.optional(),
   prova: z.string().optional(), // chave em `provas` (obrigatória se origem = oficial|adaptada)
   numero: z.number().int().positive().optional(), // número da questão na prova de origem
   geradaDe: z.array(z.number().int()).optional(), // IDs que motivaram o reforço
@@ -55,6 +58,10 @@ const importSchema = z.object({
   questoes: z.array(questaoSchema).min(1),
   textosBase: z.record(z.string()).default({}),
   provas: z.record(provaSchema).default({}), // provas de origem citadas pelo lote
+  // Prova de que este lote foi montado: vale para todas as questões, inclusive as autorais.
+  provaBase: z.string().optional(),
+  // Escape hatch explícito para lote sem "origem" por questão (importação de arquivo antigo).
+  origemPadrao: origemSchema.optional(),
 
   deslocarSeColidir: z.boolean().default(true),
   nomeLote: z.string().max(200).optional(), // rótulo do lote (nome do arquivo)
@@ -92,6 +99,7 @@ questoesRouter.get(
       imagens: q.imagens ?? undefined,
       origem: q.origem,
       prova: q.provaChave ?? undefined,
+      prova_base: q.provaBaseChave ?? undefined,
       numero: q.numeroOriginal ?? undefined,
       geradaDe: q.geradaDe ?? undefined,
     }));
@@ -119,7 +127,7 @@ questoesRouter.get(
 questoesRouter.post(
   "/import",
   asyncHandler(async (req, res) => {
-    const { questoes, textosBase, provas, deslocarSeColidir, nomeLote, concursoId: concursoEnviado } =
+    const { questoes, textosBase, provas, provaBase, origemPadrao, deslocarSeColidir, nomeLote, concursoId: concursoEnviado } =
       importSchema.parse(req.body);
 
     // Sem concursoId a questão nasceria órfã: gravada no banco, mas invisível no app
@@ -147,15 +155,32 @@ questoesRouter.post(
     // Procedência: a chave de prova citada precisa existir no lote ou já estar no banco, e
     // questão oficial/adaptada sem prova viraria uma alegação de origem que ninguém consegue
     // conferir — por isso é recusada aqui, não só no frontend.
-    const chavesCitadas = [...new Set(questoes.map((q) => q.prova).filter((c): c is string => !!c))];
+    const semOrigem = questoes.filter((q) => !q.origem && !origemPadrao).map((q) => q.id);
+    if (semOrigem.length > 0) {
+      throw new HttpError(
+        400,
+        `Questões sem o campo "origem": ${semOrigem.slice(0, 10).join(", ")}${semOrigem.length > 10 ? `… (${semOrigem.length} no total)` : ""}. ` +
+          `Use "oficial" | "adaptada" | "gerada" | "autoral" em cada questão, ou "origemPadrao" na raiz do lote.`
+      );
+    }
+
+    const chavesCitadas = [
+      ...new Set(
+        [...questoes.map((q) => q.prova), provaBase].filter((c): c is string => !!c)
+      ),
+    ];
     const jaNoBanco = new Set(
       (await prisma.prova.findMany({ where: { chave: { in: chavesCitadas } }, select: { chave: true } })).map(
         (p) => p.chave
       )
     );
+    if (provaBase && !provas[provaBase] && !jaNoBanco.has(provaBase)) {
+      throw new HttpError(400, `provaBase "${provaBase}" não está em "provas" nem no banco.`);
+    }
     for (const q of questoes) {
-      if ((q.origem === "oficial" || q.origem === "adaptada") && !q.prova) {
-        throw new HttpError(400, `Questão ${q.id}: origem "${q.origem}" exige o campo "prova".`);
+      const origem = q.origem ?? origemPadrao!;
+      if ((origem === "oficial" || origem === "adaptada") && !q.prova) {
+        throw new HttpError(400, `Questão ${q.id}: origem "${origem}" exige o campo "prova".`);
       }
       if (q.prova && !provas[q.prova] && !jaNoBanco.has(q.prova)) {
         throw new HttpError(400, `Questão ${q.id}: prova "${q.prova}" não está em "provas" nem no banco.`);
@@ -206,8 +231,9 @@ questoesRouter.post(
           explicacao: q.explicacao,
           imagens: (q.imagens ?? undefined) as Prisma.InputJsonValue | undefined,
           loteNome: nomeLote ?? null,
-          origem: q.origem,
+          origem: q.origem ?? origemPadrao!,
           provaChave: q.prova ?? null,
+          provaBaseChave: provaBase ?? null,
           numeroOriginal: q.numero ?? null,
           geradaDe: (q.geradaDe ?? undefined) as Prisma.InputJsonValue | undefined,
         })),

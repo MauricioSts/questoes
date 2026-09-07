@@ -44,7 +44,12 @@ model Questao {
   // "autoral" (escrita sem prova de referência). Legado importado antes disso = "autoral".
   origem         String  @default("autoral")
   provaChave     String? // prova de onde veio (oficial/adaptada); null nas demais origens
-  prova          Prova?  @relation(fields: [provaChave], references: [chave], onDelete: SetNull)
+  prova          Prova?  @relation("QuestaoOrigem", fields: [provaChave], references: [chave], onDelete: SetNull)
+  // Prova de que o LOTE foi montado. Vale para todas as questões dele, inclusive as
+  // autorais escritas junto — por isso é separada de provaChave, que afirma que o texto
+  // saiu da prova. Estatística por prova usa provaChave; "de que lote veio" usa esta.
+  provaBaseChave String?
+  provaBase      Prova?  @relation("QuestaoLoteBase", fields: [provaBaseChave], references: [chave], onDelete: SetNull)
   numeroOriginal Int? // número que a questão tinha na prova de origem
   // Reforço: IDs das questões erradas que motivaram a geração desta. [] / null nas demais.
   geradaDe       Json?
@@ -55,6 +60,7 @@ model Questao {
   @@index([concursoId])
   @@index([origem])
   @@index([provaChave])
+  @@index([provaBaseChave])
 }
 
 // Prova de concurso de onde uma ou mais questões vieram. Vive fora da Questao porque
@@ -68,7 +74,8 @@ model Prova {
   tipo      String? // caderno, quando a banca embaralha versões (FGV: "1", "2", "3")
   url       String? // PDF oficial
   createdAt DateTime  @default(now())
-  questoes  Questao[]
+  questoes  Questao[] @relation("QuestaoOrigem")
+  lotes     Questao[] @relation("QuestaoLoteBase") // questões de lotes montados a partir dela
 
   @@index([banca, ano])
 }
