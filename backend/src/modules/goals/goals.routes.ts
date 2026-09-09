@@ -7,6 +7,7 @@ import { asyncHandler } from "../../lib/asyncHandler.js";
 import { startOfToday, weekDayKeys } from "../../lib/date.js";
 import { contarPorDia, calcularStreak, carregarFeriasPeriodos } from "../../lib/streak.js";
 import { revisoesPendentes } from "../../lib/srs.js";
+import { srsDesde, filtroSrs } from "../../lib/srsReset.js";
 
 export const goalsRouter = Router();
 goalsRouter.use(requireAuth);
@@ -94,8 +95,11 @@ goalsRouter.get(
     const portuguesFeitasHoje = portuguesDistintasHoje.length;
 
     // Revisão espaçada: quantas questões estão "prontas" para revisar hoje (SRS).
+    // Respeita o reinício do SRS (srsResetAt): a fila zerada tem de aparecer zerada aqui
+    // também, senão o banner da Home continuaria chamando para uma revisão que não existe.
+    const srsInicio = await srsDesde(req.userId!, concursoId);
     const answersRevisao = await prisma.answer.findMany({
-      where: { userId: req.userId!, ...cf },
+      where: { userId: req.userId!, ...cf, ...filtroSrs(srsInicio) },
       select: {
         questaoId: true,
         acertou: true,

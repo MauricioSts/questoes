@@ -1,20 +1,39 @@
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import { Home, BookOpen, RefreshCw, NotebookPen, Library, BarChart3, FileText, Target, Flame, Sun, Upload, LogOut } from "lucide-react";
+import {
+  Home,
+  BookOpen,
+  RefreshCw,
+  NotebookPen,
+  Library,
+  BarChart3,
+  FileText,
+  Target,
+  Bookmark,
+  ClipboardList,
+  Flame,
+  Sun,
+  Upload,
+  LogOut,
+} from "lucide-react";
 import { useTheme } from "../store/theme";
 import { useAuth } from "../store/auth";
 import { ConcursoSwitcher } from "./ConcursoSwitcher";
 
-// Itens principais (barra inferior no mobile = 6 itens).
+// Itens principais (barra inferior no mobile = 6 itens). `labelCurto` é o rótulo do
+// mobile: na barra inferior cabe pouco texto, mas na sidebar o nome inteiro é o que
+// diz o que a tela faz ("Revisão espaçada" não é a mesma coisa que "revisar").
 const navItems = [
   { to: "/", label: "Início", icon: Home, end: true },
   { to: "/estudar", label: "Estudar", icon: BookOpen },
-  { to: "/revisar", label: "Revisar", icon: RefreshCw },
+  { to: "/revisar", label: "Revisão espaçada", labelCurto: "Revisão", icon: RefreshCw },
   { to: "/materias", label: "Matérias", icon: Library },
   { to: "/caderno", label: "Caderno", icon: NotebookPen },
-  { to: "/stats", label: "Estatísticas", icon: BarChart3 },
+  { to: "/stats", label: "Estatísticas", labelCurto: "Stats", icon: BarChart3 },
 ];
 // Extra só no desktop.
 const desktopExtra = [
+  { to: "/marcadas", label: "Marcadas", icon: Bookmark },
+  { to: "/provas", label: "Provas e origens", icon: ClipboardList },
   { to: "/simulado", label: "Simulado", icon: FileText },
   { to: "/erros", label: "Meus erros", icon: Target },
 ];
@@ -75,10 +94,10 @@ export function BottomTab() {
         {navItems.map((item) => (
           <NavItem key={item.to} {...item} />
         ))}
+        {/* Estes itens só existem na sidebar: no mobile a barra inferior já está cheia.
+            O "hidden" vai no próprio <li> do NavItem — <li> dentro de <li> é HTML inválido. */}
         {desktopExtra.map((item) => (
-          <li key={item.to} className="hidden lg:block">
-            <NavItem {...item} />
-          </li>
+          <NavItem key={item.to} {...item} soDesktop />
         ))}
       </ul>
 
@@ -105,15 +124,29 @@ export function BottomTab() {
   );
 }
 
-function NavItem({ to, label, icon: Icon, end }: { to: string; label: string; icon: typeof Home; end?: boolean }) {
+function NavItem({
+  to,
+  label,
+  labelCurto,
+  icon: Icon,
+  end,
+  soDesktop = false,
+}: {
+  to: string;
+  label: string;
+  labelCurto?: string;
+  icon: typeof Home;
+  end?: boolean;
+  soDesktop?: boolean;
+}) {
   return (
-    <li className="flex-1 lg:flex-none">
+    <li className={soDesktop ? "hidden lg:block" : "flex-1 lg:flex-none"}>
       <NavLink
         to={to}
         end={end}
         className={({ isActive }) =>
-          `flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-semibold transition
-           lg:flex-row lg:justify-start lg:gap-3 lg:rounded-lg lg:border-l-2 lg:px-3 lg:py-2.5 lg:text-sm
+          `flex min-h-[56px] flex-col items-center justify-center gap-1 py-3 text-[11px] font-semibold transition
+           lg:min-h-0 lg:flex-row lg:justify-start lg:gap-3 lg:rounded-lg lg:border-l-2 lg:px-3 lg:py-2.5 lg:text-sm
            ${isActive
              ? "text-brand-500 lg:border-brand-500 lg:bg-brand-500/10"
              : "text-faint hover:text-brand-ink lg:border-transparent"}`
@@ -124,7 +157,8 @@ function NavItem({ to, label, icon: Icon, end }: { to: string; label: string; ic
         {({ isActive }) => (
           <>
             <Icon size={22} strokeWidth={isActive ? 2.2 : 1.8} className="lg:h-[19px] lg:w-[19px]" />
-            <span>{label}</span>
+            <span className="lg:hidden">{labelCurto ?? label}</span>
+            <span className="hidden lg:inline">{label}</span>
           </>
         )}
       </NavLink>

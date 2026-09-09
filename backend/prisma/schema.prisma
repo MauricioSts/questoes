@@ -94,6 +94,10 @@ model Concurso {
   dataProva  DateTime
   metaDiaria Int      @default(30)
   arquivado  Boolean  @default(false)
+  // Marco de reinício da revisão espaçada: respostas anteriores a esta data não contam
+  // no agendamento do SRS (a fila volta a zero sem apagar nenhuma resposta, então
+  // estatística, ofensiva e histórico de erros continuam intactos).
+  srsResetAt DateTime?
   createdAt  DateTime @default(now())
 
   paginas PaginaCaderno[]
@@ -153,6 +157,7 @@ model User {
   feriasAtivo  Boolean   @default(false) // modo férias ligado: dias não quebram a ofensiva
   feriasDesde  DateTime? // instante em que o modo férias foi ligado (janela atual/última)
   feriasAte    DateTime? // instante em que foi desligado (null enquanto ativo)
+  srsResetAt   DateTime? // reinício do SRS fora de concurso (ver Concurso.srsResetAt)
   createdAt    DateTime  @default(now())
 
   answers        Answer[]

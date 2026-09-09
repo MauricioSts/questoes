@@ -197,6 +197,25 @@ body {
 
 .fadeup { animation: fadeUp 400ms ease both; }
 
+/* Brilho do topo, deslocado por paralaxe (ver components/Movimento.tsx). Fica numa camada
+ * própria porque o grão e a vinheta NÃO podem se mover: presos à viewport, eles cobrem a
+ * tela inteira; deslocados, aparece uma faixa sem tratamento na borda ao rolar. */
+.brilho-topo {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 55% at 72% 0%, var(--bg-glow), transparent 70%);
+}
+
+/* ---------- Foco visível ----------
+ * Acessibilidade nível 1: navegar por teclado tem de mostrar onde o foco está. Os
+ * componentes usam classes de hover/active, mas nenhum desenhava o foco, e o outline
+ * padrão do navegador desaparece contra o fundo escuro do tema Fantasy. */
+:where(a, button, [role="button"], input, select, textarea, [contenteditable], [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--rSm);
+}
+
 /* Placeholders de campos contenteditable (Caderno / post-its) */
 [contenteditable]:empty:before {
   content: attr(data-ph);

@@ -4,6 +4,7 @@ import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { localDateKey } from "../../lib/date.js";
+import { calcularProcedencia } from "../../lib/procedencia.js";
 
 export const statsRouter = Router();
 statsRouter.use(requireAuth);
@@ -53,5 +54,16 @@ statsRouter.get(
     }));
 
     res.json({ dias, periodos });
+  })
+);
+
+// GET /stats/procedencia?concursoId=: desempenho por prova de origem e por tipo de questão
+// (oficial/adaptada/gerada/autoral). Devolve, para cada grupo, quantas questões existem,
+// quantas faltam responder, quantas estão certas/erradas hoje e quantas estão marcadas.
+statsRouter.get(
+  "/procedencia",
+  asyncHandler(async (req, res) => {
+    const concursoId = req.query.concursoId ? String(req.query.concursoId) : undefined;
+    res.json(await calcularProcedencia(req.userId!, concursoId));
   })
 );

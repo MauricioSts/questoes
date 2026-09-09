@@ -13,6 +13,7 @@ import { Topico } from "./pages/Topico";
 import { Simulado } from "./pages/Simulado";
 import { Stats } from "./pages/Stats";
 import { Marcadas } from "./pages/Marcadas";
+import { Provas } from "./pages/Provas";
 import { Anotacoes } from "./pages/Anotacoes";
 import { Legislacao } from "./pages/Legislacao";
 import { Erros } from "./pages/Erros";
@@ -50,6 +51,7 @@ export default function App() {
               <Route path="/caderno" element={<Caderno />} />
               <Route path="/stats" element={<Stats />} />
               <Route path="/marcadas" element={<Marcadas />} />
+              <Route path="/provas" element={<Provas />} />
               <Route path="/anotacoes" element={<Anotacoes />} />
               <Route path="/legislacao" element={<Legislacao />} />
               <Route path="/materias" element={<Materias />} />

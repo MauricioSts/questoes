@@ -1,4 +1,4 @@
-import { Check, X } from "lucide-react";
+import { Check, X, History } from "lucide-react";
 import type { Questao, Alternativa } from "../types/questao";
 import { getTextoBase, getProva, origemDe, rotuloOrigem } from "../lib/questoesRepo";
 import { Card } from "./Card";
@@ -8,11 +8,19 @@ import { ImagensQuestao } from "./ImagemQuestao";
 
 const LETRAS: Alternativa[] = ["A", "B", "C", "D", "E"];
 
+// Histórico da questão ANTES desta tentativa: quantas vezes ela já foi respondida e
+// quantas vezes eu errei. É o que transforma "de novo essa?" em informação útil.
+export interface HistoricoNaQuestao {
+  tentativas: number;
+  erros: number;
+}
+
 interface Props {
   questao: Questao;
   selecionada?: Alternativa;
   revelado: boolean;
   mostrarTextoBase?: boolean;
+  historico?: HistoricoNaQuestao;
   onSelecionar: (alt: Alternativa) => void;
 }
 
@@ -21,6 +29,7 @@ export function QuestaoView({
   selecionada,
   revelado,
   mostrarTextoBase = true,
+  historico,
   onSelecionar,
 }: Props) {
   const textoBase = getTextoBase(questao.texto_base);
@@ -71,6 +80,25 @@ export function QuestaoView({
           </a>
         ) : (
           selo
+        )}
+
+        {/* Reincidência: nº de vezes que já refiz esta questão e quantas vezes errei.
+            Aparece só quando existe histórico (primeira vez não tem nada a dizer). */}
+        {historico && historico.tentativas > 0 && (
+          <span
+            className="meta-pill border border-hair bg-surface2 text-muted"
+            title={
+              historico.erros > 0
+                ? `Você já respondeu esta questão ${historico.tentativas}× e errou ${historico.erros}×`
+                : `Você já respondeu esta questão ${historico.tentativas}× e nunca errou`
+            }
+          >
+            <History size={13} strokeWidth={2} />
+            {historico.tentativas + 1}ª vez
+            {historico.erros > 0 && (
+              <b style={{ color: "var(--accentText)" }}>· errou {historico.erros}×</b>
+            )}
+          </span>
         )}
       </div>
 

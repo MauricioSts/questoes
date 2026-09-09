@@ -48,6 +48,11 @@ export default defineConfig({
         manualChunks: {
           react: ["react", "react-dom", "react-router-dom"],
           charts: ["recharts"],
+          // motion.dev NÃO tem chunk próprio de propósito: medido nas duas formas, deixar
+          // o componente mínimo junto do app custa ~20 kB gzip bloqueantes, contra ~27 kB
+          // num chunk separado que também bloqueia (é importado no boot). Os recursos de
+          // animação ficam num chunk dinâmico (src/lib/motionFeatures.ts), fora do caminho
+          // crítico — é de lá que vem a maior parte do peso da biblioteca.
         },
       },
     },

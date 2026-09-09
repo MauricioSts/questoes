@@ -71,10 +71,56 @@ export function rotuloOrigem(q: Questao): string {
   return "Autoral";
 }
 
+// Prova à qual a questão pertence para fins de filtro/estatística: a prova de onde o
+// texto saiu e, quando não há, a prova de que o lote foi montado. É o que faz "questões
+// da prova AMAZUL/FGV" incluir as autorais escritas junto com aquele lote.
+export function provaDe(q: Questao): string | undefined {
+  return q.prova ?? q.prova_base;
+}
+
+// Rótulo de uma prova pela chave: "FGV · AMAZUL · 2024".
+export function rotuloProva(chave: string): string {
+  const p = _provas[chave];
+  if (!p) return chave;
+  return [p.banca, p.orgao, String(p.ano)].join(" · ");
+}
+
+export interface ProvaComContagem {
+  chave: string;
+  rotulo: string;
+  banca: string;
+  orgao: string;
+  ano: number;
+  total: number; // questões do banco atual que pertencem a esta prova
+}
+
+// Provas presentes no conjunto carregado, com quantas questões cada uma tem.
+// Alimenta o seletor de prova das sessões (só mostra prova que tem questão).
+export function provasComContagem(): ProvaComContagem[] {
+  const contagem = new Map<string, number>();
+  for (const q of _questoes) {
+    const chave = provaDe(q);
+    if (chave) contagem.set(chave, (contagem.get(chave) ?? 0) + 1);
+  }
+  return [...contagem.entries()]
+    .map(([chave, total]) => {
+      const p = _provas[chave];
+      return {
+        chave,
+        rotulo: rotuloProva(chave),
+        banca: p?.banca ?? "",
+        orgao: p?.orgao ?? "",
+        ano: p?.ano ?? 0,
+        total,
+      };
+    })
+    .sort((a, b) => b.ano - a.ano || b.total - a.total || a.rotulo.localeCompare(b.rotulo));
+}
+
 export function bancas(): string[] {
   const set = new Set<string>();
   for (const q of _questoes) {
-    const p = getProva(q.prova);
+    const p = getProva(provaDe(q));
     if (p) set.add(p.banca);
   }
   return [...set].sort();
@@ -83,7 +129,7 @@ export function bancas(): string[] {
 export function anosDeProva(): number[] {
   const set = new Set<number>();
   for (const q of _questoes) {
-    const p = getProva(q.prova);
+    const p = getProva(provaDe(q));
     if (p) set.add(p.ano);
   }
   return [...set].sort((a, b) => b - a);
@@ -110,11 +156,15 @@ export interface FiltroQuestoes {
   origem?: Origem;
   banca?: string;
   ano?: number;
+  prova?: string; // chave da prova (origem ou prova-base do lote)
 }
 
 export function filtrar(f: FiltroQuestoes): Questao[] {
   return _questoes.filter((q) => {
-    const prova = getProva(q.prova);
+    // A banca/ano do filtro seguem a mesma prova usada por `prova`: senão uma questão
+    // autoral do lote da FGV não apareceria ao filtrar banca = FGV.
+    const chaveProva = provaDe(q);
+    const prova = getProva(chaveProva);
     return (
       (!f.modulo || q.modulo === f.modulo) &&
       (!f.materia || q.materia === f.materia) &&
@@ -122,7 +172,8 @@ export function filtrar(f: FiltroQuestoes): Questao[] {
       (!f.dificuldade || q.dificuldade === f.dificuldade) &&
       (!f.origem || origemDe(q) === f.origem) &&
       (!f.banca || prova?.banca === f.banca) &&
-      (!f.ano || prova?.ano === f.ano)
+      (!f.ano || prova?.ano === f.ano) &&
+      (!f.prova || chaveProva === f.prova)
     );
   });
 }

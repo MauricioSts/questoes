@@ -38,6 +38,9 @@ export interface Questao {
   imagens?: ImagemQuestao[]; // 0, 1 ou 2 figuras; a maioria das questões não tem nenhuma
   origem?: Origem; // ausente = "autoral" (lotes anteriores à procedência)
   prova?: string; // chave em `provas` (só em origem oficial/adaptada)
+  // Prova de que o LOTE foi montado: vale mesmo para as questões autorais escritas junto.
+  // É o que permite estudar/medir "as questões da prova X" sem afirmar que o texto saiu dela.
+  prova_base?: string;
   numero?: number; // número que a questão tinha na prova de origem
   geradaDe?: number[]; // IDs das questões erradas que motivaram este reforço
 }

@@ -8,6 +8,7 @@ import { asyncHandler } from "../../lib/asyncHandler.js";
 import { calcularStats } from "../../lib/stats.js";
 import { calcularStreakUsuario } from "../../lib/streak.js";
 import { revisoesPendentes } from "../../lib/srs.js";
+import { srsDesde, filtroSrs, marcarSrsReset } from "../../lib/srsReset.js";
 import { startOfWeekWindow } from "../../lib/date.js";
 
 export const answersRouter = Router();
@@ -261,12 +262,16 @@ answersRouter.get(
 
 // GET /answers/revisao?limit=30: questões prontas para revisão espaçada (SRS) hoje.
 // Ordena as mais atrasadas primeiro. Também informa o total pendente (para o card da home).
+// Respostas anteriores ao último reinício do SRS (srsResetAt) são ignoradas AQUI e só aqui:
+// elas continuam contando em estatística, ofensiva e "meus erros".
 answersRouter.get(
   "/revisao",
   asyncHandler(async (req, res) => {
     const limit = Math.min(Number(req.query.limit ?? 60), 200);
+    const escopo = cf(req);
+    const desde = await srsDesde(req.userId!, escopo.concursoId);
     const answers = await prisma.answer.findMany({
-      where: { userId: req.userId!, ...cf(req) },
+      where: { userId: req.userId!, ...escopo, ...filtroSrs(desde) },
       select: {
         questaoId: true,
         acertou: true,
@@ -280,10 +285,54 @@ answersRouter.get(
     const pendentes = revisoesPendentes(answers);
     const recorte = pendentes.slice(0, limit);
     res.json({
+      resetadoEm: desde,
       total: pendentes.length,
       ids: recorte.map((i) => i.questaoId),
       questoes: recorte,
     });
+  })
+);
+
+// POST /answers/revisao/reset: zera a fila da revisão espaçada — e SÓ ela.
+// Não apaga nenhuma resposta: grava a data do reinício e o agendamento passa a considerar
+// apenas respostas posteriores. Cada questão volta para o SRS ao ser respondida de novo.
+answersRouter.post(
+  "/revisao/reset",
+  asyncHandler(async (req, res) => {
+    const concursoId = (req.body as { concursoId?: string } | undefined)?.concursoId ?? cf(req).concursoId;
+    const resetadoEm = await marcarSrsReset(req.userId!, concursoId);
+    res.json({ ok: true, resetadoEm });
+  })
+);
+
+// GET /answers/por-questao: histórico compacto de cada questão já respondida —
+// quantas vezes foi refeita, quantas vezes o usuário errou e qual foi o último resultado.
+// Uma chamada por sessão alimenta o selo "3ª vez · errou 2×" na tela da questão (o
+// alternativo, uma chamada por questão exibida, multiplicaria a latência por questão).
+answersRouter.get(
+  "/por-questao",
+  asyncHandler(async (req, res) => {
+    const rows = await prisma.answer.findMany({
+      where: { userId: req.userId!, ...cf(req) },
+      orderBy: { createdAt: "asc" },
+      select: { questaoId: true, acertou: true, createdAt: true },
+    });
+    const map = new Map<
+      number,
+      { questaoId: number; tentativas: number; acertos: number; erros: number; acertouUltima: boolean; ultima: Date }
+    >();
+    for (const r of rows) {
+      const cur =
+        map.get(r.questaoId) ??
+        { questaoId: r.questaoId, tentativas: 0, acertos: 0, erros: 0, acertouUltima: false, ultima: r.createdAt };
+      cur.tentativas++;
+      if (r.acertou) cur.acertos++;
+      else cur.erros++;
+      cur.acertouUltima = r.acertou;
+      cur.ultima = r.createdAt;
+      map.set(r.questaoId, cur);
+    }
+    res.json({ questoes: [...map.values()] });
   })
 );
 

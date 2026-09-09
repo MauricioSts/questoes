@@ -1,8 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import type { Questao, Modulo, Dificuldade } from "../types/questao";
-import { filtrar, materias as listarMaterias, assuntos as listarAssuntos, getQuestoes } from "../lib/questoesRepo";
+import type { Questao, Modulo, Dificuldade, Origem } from "../types/questao";
+import {
+  filtrar,
+  materias as listarMaterias,
+  assuntos as listarAssuntos,
+  getQuestoes,
+  provasComContagem,
+} from "../lib/questoesRepo";
 import { shuffle } from "../lib/sessionBuilder";
 import { useProgresso } from "../hooks/useProgresso";
 import { SessionRunner, type RespostaSessao } from "../components/SessionRunner";
@@ -27,6 +33,11 @@ export function Estudar() {
   const [materia, setMateria] = useState("");
   const [assunto, setAssunto] = useState("");
   const [dificuldade, setDificuldade] = useState<Dificuldade | "">("");
+  // Procedência: estudar só as questões de uma prova ("as da AMAZUL/FGV") ou só de um tipo
+  // (autorais, adaptadas, de prova, geradas). Vêm pré-preenchidos quando a tela é aberta
+  // pelos cartões de /provas.
+  const [prova, setProva] = useState(params.get("prova") ?? "");
+  const [origem, setOrigem] = useState<Origem | "">((params.get("origem") as Origem | null) ?? "");
   const [soNaoRespondidas, setSoNaoRespondidas] = useState(false);
   const [soErradas, setSoErradas] = useState(false);
   const [priorizarErradas, setPriorizarErradas] = useState(false);
@@ -34,6 +45,7 @@ export function Estudar() {
 
   const materiasDisp = useMemo(() => listarMaterias(modulo || undefined), [modulo]);
   const assuntosDisp = useMemo(() => listarAssuntos(materia || undefined), [materia]);
+  const provasDisp = useMemo(() => provasComContagem(), []);
 
   // Retomar sessão ativa quando vier de "Continuar estudando" (?continuar=1).
   useEffect(() => {
@@ -51,20 +63,37 @@ export function Estudar() {
       })
       .finally(() => {
         setCarregandoRetomar(false);
-        setParams({}, { replace: true }); // limpa o ?continuar da URL
+        // Limpa só o ?continuar: prova/origem vêm de /provas e precisam sobreviver.
+        setParams(
+          (atual) => {
+            const proximo = new URLSearchParams(atual);
+            proximo.delete("continuar");
+            return proximo;
+          },
+          { replace: true }
+        );
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function iniciar() {
-    let pool = filtrar({
+  // Pool = tudo que bate com os filtros atuais. Calculado aqui (e não só ao começar) para
+  // a tela dizer ANTES quantas questões existem: pedir 20 e receber 3 sem aviso é o jeito
+  // mais rápido de achar que o filtro está quebrado.
+  const pool = useMemo(() => {
+    let lista = filtrar({
       modulo: modulo || undefined,
       materia: materia || undefined,
       assunto: assunto || undefined,
       dificuldade: dificuldade || undefined,
+      origem: origem || undefined,
+      prova: prova || undefined,
     });
-    if (soNaoRespondidas) pool = pool.filter((q) => !progresso.respondidas.has(q.id));
-    if (soErradas) pool = pool.filter((q) => progresso.erradas.has(q.id));
+    if (soNaoRespondidas) lista = lista.filter((q) => !progresso.respondidas.has(q.id));
+    if (soErradas) lista = lista.filter((q) => progresso.erradas.has(q.id));
+    return lista;
+  }, [modulo, materia, assunto, dificuldade, origem, prova, soNaoRespondidas, soErradas, progresso]);
+
+  async function iniciar() {
     // "Priorizar as que errei mais": as erradas vêm primeiro na seleção.
     let sel: Questao[];
     if (priorizarErradas) {
@@ -173,6 +202,32 @@ export function Estudar() {
           ]}
         />
 
+        {/* Procedência: de que prova / que tipo de questão. Fica junto porque as duas
+            perguntas são a mesma — "quero treinar exatamente este material". */}
+        <div className="grid gap-4 border-t border-hair pt-4 sm:grid-cols-2">
+          <FilterSelect
+            label="Prova"
+            value={prova}
+            onChange={(v) => setProva(v as string)}
+            options={[
+              { value: "", label: "Todas as provas" },
+              ...provasDisp.map((p) => ({ value: p.chave, label: `${p.rotulo} (${p.total})` })),
+            ]}
+          />
+          <FilterSelect
+            label="Tipo de questão"
+            value={origem}
+            onChange={(v) => setOrigem(v as Origem | "")}
+            options={[
+              { value: "", label: "Qualquer origem" },
+              { value: "oficial", label: "De prova oficial" },
+              { value: "adaptada", label: "Adaptada de prova" },
+              { value: "gerada", label: "Gerada para reforço" },
+              { value: "autoral", label: "Autoral" },
+            ]}
+          />
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
           <FilterSelect
             label="Dificuldade"
@@ -219,9 +274,26 @@ export function Estudar() {
         </div>
       </Card>
 
+      {/* Quantas questões o filtro alcança, antes de começar */}
+      <p className="mt-5 text-center text-sm text-muted" aria-live="polite">
+        {pool.length === 0 ? (
+          <span className="text-danger-from">Nenhuma questão bate com esses filtros.</span>
+        ) : (
+          <>
+            <b className="text-brand-ink">{pool.length}</b>{" "}
+            {pool.length === 1 ? "questão disponível" : "questões disponíveis"} · a sessão vai usar{" "}
+            <b className="text-brand-ink">{Math.min(quantidade, pool.length)}</b>
+          </>
+        )}
+      </p>
+
       {/* Botão */}
-      <Button onClick={iniciar} fullWidth size="lg" className="mt-6">
-        Começar sessão <ArrowRight size={20} strokeWidth={1.5} className="ml-2" />
+      <Button onClick={iniciar} fullWidth size="lg" className="mt-3" disabled={pool.length === 0}>
+        {/* inline-flex no conteúdo: sem isso a seta quebra para a linha de baixo no
+            botão de largura total, porque o texto é centralizado como texto corrido. */}
+        <span className="inline-flex items-center justify-center gap-2">
+          Começar sessão <ArrowRight size={20} strokeWidth={1.5} />
+        </span>
       </Button>
     </div>
   );

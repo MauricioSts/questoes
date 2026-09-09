@@ -11,6 +11,7 @@ import { enviarResposta } from "../lib/answers";
 import { QuestaoView } from "./QuestaoView";
 import { CadernoDrawer } from "./CadernoDrawer";
 import { useMarcadas } from "../hooks/useMarcadas";
+import { useHistoricoQuestoes } from "../hooks/useHistoricoQuestoes";
 
 export interface RespostaSessao {
   questao: Questao;
@@ -78,6 +79,10 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   const inicioRef = useRef<number>(Date.now());
 
   const marcadas = useMarcadas();
+  // Histórico buscado UMA vez no início da sessão: o selo da questão precisa mostrar o
+  // estado de antes desta tentativa, e uma chamada por questão exibida multiplicaria a
+  // latência sem trazer nada novo.
+  const { mapa: historico } = useHistoricoQuestoes();
   const questao = questoes[idx];
 
   // Ao trocar de questão: restaura resposta anterior (voltar no simulado), reinicia o timer
@@ -219,6 +224,7 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
             selecionada={selecionada}
             revelado={revelado}
             mostrarTextoBase={!ehCompartilhado(idx)}
+            historico={historico.get(questao.id)}
             onSelecionar={selecionar}
           />
         </div>

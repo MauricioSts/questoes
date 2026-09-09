@@ -11,6 +11,8 @@ import {
   NotebookPen,
   Lock,
   CalendarClock,
+  ClipboardList,
+  ArrowUpRight,
 } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../store/auth";
@@ -23,6 +25,8 @@ import { getConcursoId } from "../lib/concurso";
 import { useConcurso } from "../store/concurso";
 import { META_DIARIA_DEFAULT } from "../config/prova";
 import { ehDiaDeSimulado } from "../lib/agenda";
+import { useMarcadas } from "../hooks/useMarcadas";
+import { Paralaxe, Revelar, Toque } from "../components/Movimento";
 
 interface GoalToday {
   meta: number;
@@ -49,6 +53,7 @@ export function Home() {
   const [editandoMeta, setEditandoMeta] = useState(false);
   const [salvandoData, setSalvandoData] = useState(false);
   const [salvandoMeta, setSalvandoMeta] = useState(false);
+  const marcadas = useMarcadas();
   const [heatmap, setHeatmap] = useState<DiaHeatmap[]>([]);
   const [periodosFerias, setPeriodosFerias] = useState<PeriodoFerias[]>([]);
 
@@ -152,8 +157,9 @@ export function Home() {
 
   return (
     <div className="fadeup space-y-6 pt-2">
-      {/* 1. Cabeçalho */}
-      <header>
+      {/* 1. Cabeçalho (com paralaxe leve: desliza um pouco mais devagar que a rolagem) */}
+      <Paralaxe distancia={14}>
+        <header>
         <p className="text-[11px] font-bold uppercase tracking-[.18em] text-faint">{dataFmt}</p>
         <h1 className="mt-1 font-display leading-none text-brand-ink" style={{ fontSize: 42, fontWeight: "var(--displayWeight)" as never }}>
           {saudacao}, {usuario?.nome}
@@ -167,7 +173,8 @@ export function Home() {
             <>Defina a data da sua prova para acompanhar a contagem regressiva.</>
           )}
         </p>
-      </header>
+        </header>
+      </Paralaxe>
 
       {/* 2. Faixa de 4 KPIs (um cartão dividido por border-right) */}
       <div className="card grid grid-cols-2 sm:grid-cols-4 divide-hair">
@@ -314,7 +321,7 @@ export function Home() {
             <p className="font-display font-bold text-brand-ink">
               {revisaoPendente} {revisaoPendente === 1 ? "questão pronta" : "questões prontas"} para revisar
             </p>
-            <p className="text-sm text-muted">Revisão espaçada: reveja agora enquanto está fresco na memória.</p>
+            <p className="text-sm text-muted">Revisão espaçada: cada uma volta no dia em que você ia esquecer.</p>
           </div>
           <ArrowRight size={20} strokeWidth={2.4} className="flex-shrink-0 text-faint" />
         </Link>
@@ -328,7 +335,7 @@ export function Home() {
         <h2 className="mb-4 font-display text-xl font-bold text-brand-ink">Modos de estudo</h2>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <ModoCard to="/estudar" icon={BookOpen} titulo="Estudar" sub="Feedback imediato + anotações" />
-          <ModoCard to="/revisar" icon={RefreshCw} titulo="Revisar" sub="Suas erradas em fila" />
+          <ModoCard to="/revisar" icon={RefreshCw} titulo="Revisão espaçada" sub="A questão certa, no dia certo" />
           <ModoCard to="/caderno" icon={NotebookPen} titulo="Caderno" sub="Anotações por matéria" />
           <ModoCard
             to="/simulado"
@@ -340,14 +347,55 @@ export function Home() {
         </div>
       </div>
 
-      {/* 8. Atalhos */}
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Link to="/anotacoes" className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-hair py-4 font-display font-bold text-muted transition hover:border-brand-300 hover:text-brand-500">
-          <NotebookPen size={18} strokeWidth={1.8} /> Questões com anotações
-        </Link>
-        <Link to="/marcadas" className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-hair py-4 font-display font-bold text-muted transition hover:border-brand-300 hover:text-brand-500">
-          <Bookmark size={18} strokeWidth={1.8} /> Marcadas para revisar
-        </Link>
+      {/* 8. Atalhos em destaque: a fila manual de marcadas e o painel por prova.
+             As "questões com anotações" saíram — o Caderno assumiu esse papel e o botão
+             só competia por atenção com as duas coisas que eu realmente abro daqui. */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Revelar>
+          <Toque className="h-full">
+            <Link
+              to="/marcadas"
+              className="card flex h-full items-center gap-4 p-5"
+              aria-label={`Marcadas para revisar: ${marcadas.ids.size} questões`}
+            >
+              <div
+                className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-2xl"
+                style={{ background: "var(--accentBg)", color: "var(--accentText)" }}
+              >
+                <Bookmark size={22} strokeWidth={2} fill="currentColor" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-display font-bold text-brand-ink">Marcadas para revisar</p>
+                <p className="text-sm text-muted">
+                  {marcadas.carregando
+                    ? "Carregando…"
+                    : marcadas.ids.size === 0
+                      ? "Nada marcado — use o marcador durante o estudo"
+                      : `${marcadas.ids.size} ${marcadas.ids.size === 1 ? "questão separada" : "questões separadas"} por você`}
+                </p>
+              </div>
+              <ArrowUpRight size={18} strokeWidth={2.2} className="flex-shrink-0 text-faint" />
+            </Link>
+          </Toque>
+        </Revelar>
+
+        <Revelar atraso={0.06}>
+          <Toque className="h-full">
+            <Link to="/provas" className="card flex h-full items-center gap-4 p-5">
+              <div
+                className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-2xl"
+                style={{ background: "var(--accentBg)", color: "var(--accentText)" }}
+              >
+                <ClipboardList size={22} strokeWidth={2} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-display font-bold text-brand-ink">Provas e origens</p>
+                <p className="text-sm text-muted">Acertos, erros e o que falta em cada prova</p>
+              </div>
+              <ArrowUpRight size={18} strokeWidth={2.2} className="flex-shrink-0 text-faint" />
+            </Link>
+          </Toque>
+        </Revelar>
       </div>
     </div>
   );
