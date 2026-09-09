@@ -27,6 +27,21 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+/* Meta diária batida: onda saindo do anel, brilho e um salto no número. */
+@keyframes metaburst {
+  0%   { transform: scale(1); opacity: .8; }
+  100% { transform: scale(1.45); opacity: 0; }
+}
+@keyframes metaglow {
+  0%, 100% { filter: none; }
+  40%      { filter: drop-shadow(0 0 14px var(--accentHi)); }
+}
+@keyframes metanum {
+  0%   { transform: scale(1); }
+  32%  { transform: scale(1.16); }
+  62%  { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
 @keyframes shakeX {
   0%, 100% { transform: translateX(0); }
   20% { transform: translateX(-8px); }
@@ -34,16 +49,85 @@
   60% { transform: translateX(-5px); }
   80% { transform: translateX(5px); }
 }
-/* Halos de vela (Fantasy): oscilação suave de opacidade/escala */
-@keyframes candle {
-  0%, 100% { opacity: 0.55; transform: scale(1); }
-  50% { opacity: 0.85; transform: scale(1.06); }
+
+
+/* Ofensiva na barra de topo. O fundo era um degradê pastel fixo (#FFE8D6→#FFDCE4) que
+   não pertence a nenhum dos dois temas: no Fantasy virava uma mancha bege clara com o
+   dourado por cima, quase ilegível. Agora sai dos tokens de acento. */
+.streak-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--accentBd);
+  background: var(--accentBg);
+  color: var(--accentText);
+  font-weight: 800;
+  line-height: 1;
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
-/* Varredura (Cyberpunk): linha horizontal descendo a tela */
-@keyframes scanline {
-  from { transform: translateY(-10vh); }
-  to { transform: translateY(110vh); }
+.streak-chip--ativa {
+  border-color: var(--accent);
+  box-shadow:
+    inset 0 0 12px -6px var(--accent),
+    0 0 18px -8px var(--accent);
 }
+.streak-chip--ativa .streak-chip__chama {
+  color: var(--accentHi);
+  animation: flamewave 2.2s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+.streak-chip--zerada {
+  border-color: rgb(var(--hair));
+  background: transparent;
+  color: rgb(var(--muted));
+}
+
+/* Selo de meta concluída no cartão da meta diária. */
+.selo-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--accentBd);
+  background: var(--accentBg);
+  color: var(--accentText);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.meta-burst {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: metaburst 900ms ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Selo de meta concluída no cartão da meta diária. */
+.selo-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--accentBd);
+  background: var(--accentBg);
+  color: var(--accentText);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.meta-burst { animation: none; }
+  .streak-chip--ativa .streak-chip__chama { animation: none; }
+}
+
 
 /* ============================ TEMAS ============================ *
  * Cada tema define (1) canais RGB "r g b" para o Tailwind (chassi + acento) e
@@ -147,8 +231,7 @@ html, body, #root { height: 100%; }
 
 body {
   @apply text-brand-ink;
-  background: radial-gradient(1200px 600px at 80% -10%, var(--bg-glow), transparent 60%),
-    rgb(var(--bg));
+  background: rgb(var(--bg));
   -webkit-font-smoothing: antialiased;
   padding-bottom: env(safe-area-inset-bottom);
 }
@@ -156,55 +239,11 @@ body {
 /* ---------- OBRIGATÓRIO: sem isto o texto herda a cor do body ao trocar tema ---------- */
 .app-root { color: var(--text); background: transparent; }
 
-/* ---------- Camadas de atmosfera (fixas, não capturam clique) ---------- */
-.atmos { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-.atmos-grain {
-  opacity: var(--grain);
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-}
-.atmos-vignette {
-  background: radial-gradient(120% 90% at 50% 40%, transparent var(--vigStop), var(--vignette) 100%);
-}
-/* Halos de vela: só Fantasy */
-.atmos-candle { display: none; }
-[data-theme='fantasy'] .atmos-candle { display: block; }
-.atmos-candle .halo {
-  position: absolute; border-radius: 999px; filter: blur(60px);
-  animation: candle 6s ease-in-out infinite;
-}
-.atmos-candle .halo-amber {
-  width: 42vw; height: 42vw; left: -6vw; top: 8vh;
-  background: radial-gradient(circle, rgba(201,162,39,.20), transparent 70%);
-}
-.atmos-candle .halo-violet {
-  width: 38vw; height: 38vw; right: -8vw; bottom: 4vh;
-  background: radial-gradient(circle, rgba(91,71,136,.22), transparent 70%);
-  animation-duration: 7s;
-}
-/* Varredura: só Cyberpunk */
-.atmos-scan { display: none; }
-[data-theme='cyberpunk'] .atmos-scan {
-  display: block; position: absolute; inset-inline: 0; height: 120px;
-  background: linear-gradient(180deg, transparent, rgba(0,194,255,.06) 45%, rgba(230,0,126,.05) 55%, transparent);
-  animation: scanline 7s linear infinite;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .atmos-candle .halo, .atmos-scan { animation: none !important; }
   .fadeup { animation: none !important; }
 }
 
 .fadeup { animation: fadeUp 400ms ease both; }
-
-/* Brilho do topo, deslocado por paralaxe (ver components/Movimento.tsx). Fica numa camada
- * própria porque o grão e a vinheta NÃO podem se mover: presos à viewport, eles cobrem a
- * tela inteira; deslocados, aparece uma faixa sem tratamento na borda ao rolar. */
-.brilho-topo {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(60% 55% at 72% 0%, var(--bg-glow), transparent 70%);
-}
 
 /* ---------- Foco visível ----------
  * Acessibilidade nível 1: navegar por teclado tem de mostrar onde o foco está. Os

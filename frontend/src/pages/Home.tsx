@@ -13,11 +13,15 @@ import {
   CalendarClock,
   ClipboardList,
   ArrowUpRight,
+  Trophy,
+  Flame,
 } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../store/auth";
 import { getSessaoAtiva } from "../lib/sessao";
 import { ProgressRing } from "../components/ProgressRing";
+import { BrilhoBorda } from "../components/BrilhoBorda";
+import { Contador } from "../components/Contador";
 import { StreakHeatmap } from "../components/StreakHeatmap";
 import { StickyBoard } from "../components/StickyBoard";
 import { carregarHeatmap, type DiaHeatmap, type PeriodoFerias } from "../lib/multiApi";
@@ -46,7 +50,7 @@ interface GoalToday {
 
 export function Home() {
   const { usuario } = useAuth();
-  const { ativo, refresh: recarregarConcursos } = useConcurso();
+  const { ativo, activeId, refresh: recarregarConcursos } = useConcurso();
   const navigate = useNavigate();
   const [goal, setGoal] = useState<GoalToday | null>(null);
   const [editandoData, setEditandoData] = useState(false);
@@ -57,21 +61,33 @@ export function Home() {
   const [heatmap, setHeatmap] = useState<DiaHeatmap[]>([]);
   const [periodosFerias, setPeriodosFerias] = useState<PeriodoFerias[]>([]);
 
+  // Depende de activeId: na primeira carga o concurso ativo pode ainda não estar
+  // resolvido (o provider busca /concursos de forma assíncrona), e sem isso o heatmap
+  // ficava vazio para sempre — o efeito rodava uma vez só, com a lista ainda em branco.
+  // Também faz o painel reagir à troca de concurso.
   useEffect(() => {
     api<GoalToday>("/goals/today").then(setGoal).catch(() => null);
-    const cid = getConcursoId();
-    if (cid) {
-      const to = new Date();
-      const from = new Date(to.getTime() - 371 * 864e5);
-      const fmt = (d: Date) => d.toISOString().slice(0, 10);
-      carregarHeatmap(cid, fmt(from), fmt(to))
-        .then((r) => {
-          setHeatmap(r.dias);
-          setPeriodosFerias(r.periodos);
-        })
-        .catch(() => null);
-    }
-  }, []);
+  }, [activeId]);
+
+  useEffect(() => {
+    const cid = activeId ?? getConcursoId();
+    if (!cid) return;
+    // Data local, não UTC: o backend interpreta from/to como `${data}T00:00:00` no fuso
+    // dele e filtra com `lte`, então mandar a data de hoje corta o dia inteiro de hoje —
+    // era isso que zerava a sequência e comia as questões de hoje do total. Fechamos em
+    // amanhã, que inclui todo o dia corrente.
+    const diaLocal = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const hoje = new Date();
+    const inicio = new Date(hoje.getTime() - 371 * 864e5);
+    const fim = new Date(hoje.getTime() + 864e5);
+    carregarHeatmap(cid, diaLocal(inicio), diaLocal(fim))
+      .then((r) => {
+        setHeatmap(r.dias);
+        setPeriodosFerias(r.periodos);
+      })
+      .catch(() => null);
+  }, [activeId]);
 
   const meta = goal?.meta ?? ativo?.metaDiaria ?? META_DIARIA_DEFAULT;
   const respondidas = goal?.respondidasHoje ?? 0;
@@ -187,9 +203,10 @@ export function Home() {
       {/* 3. Meta diária + coluna direita (contagem + progresso no banco) */}
       <div className="grid gap-5 lg:grid-cols-2">
         {/* Meta diária (anel) */}
-        <div className="card flex items-center gap-6 p-7">
-          <ProgressRing valor={respondidas} meta={meta} size={116} />
-          <div className="flex-1 space-y-2">
+        <BrilhoBorda animated className="h-full" glowRadius={40}>
+          <div className="flex flex-1 flex-wrap items-center justify-center gap-7 p-8 sm:flex-nowrap sm:justify-start">
+          <ProgressRing valor={respondidas} meta={meta} size={148} />
+          <div className="min-w-0 flex-1 space-y-2.5">
             <div className="flex items-center gap-2">
               <p className="text-[11px] font-bold uppercase tracking-[.16em] text-faint">Meta diária</p>
               {!editandoMeta && (
@@ -218,22 +235,42 @@ export function Home() {
               </form>
             ) : (
               <>
-                <p className="font-display text-2xl font-bold leading-tight text-brand-ink">
+                {cumpriuHoje && (
+                  <span className="selo-meta">
+                    <Trophy size={13} strokeWidth={2.4} />
+                    Meta do dia concluída
+                  </span>
+                )}
+                <p className="font-display text-[28px] font-bold leading-[1.15] text-brand-ink">
                   {cumpriuHoje ? "Meta batida" : `Faltam ${faltamMeta} ${faltamMeta === 1 ? "questão" : "questões"}`}
                 </p>
-                <p className="text-sm text-muted">
+                <p className="text-[15px] leading-relaxed text-muted">
                   {cumpriuHoje
-                    ? `${respondidas} de ${meta} hoje · ofensiva de ${streak} ${streak === 1 ? "dia" : "dias"}.`
+                    ? `Você fez ${respondidas} de ${meta} hoje. Tudo daqui pra frente é vantagem.`
                     : "Cada questão te aproxima da ofensiva de hoje."}
                 </p>
-                <button onClick={continuarEstudando} className="btn-primary mt-1 inline-flex items-center gap-2 text-base">
+
+                {/* Fecha o dia: como foi, não só quanto. Sem isto o cartão ficava com
+                    um título e um botão dentro de uma caixa alta e vazia. */}
+                <div className="mt-1 flex flex-wrap items-stretch gap-x-6 gap-y-3 border-t border-hair pt-3">
+                  <MiniDado rotulo="acertos" valor={acertosHoje} cor="var(--goodText)" />
+                  <MiniDado rotulo="erros" valor={errosHoje} cor="var(--accentText)" />
+                  <MiniDado
+                    rotulo={streak === 1 ? "dia de ofensiva" : "dias de ofensiva"}
+                    valor={streak}
+                    icone={<Flame size={14} strokeWidth={2.4} />}
+                  />
+                </div>
+
+                <button onClick={continuarEstudando} className="btn-primary mt-2 inline-flex items-center gap-2 text-base">
                   {cumpriuHoje ? "Seguir treinando" : "Continuar estudando"}
                   <ArrowRight size={18} strokeWidth={2.4} />
                 </button>
               </>
             )}
           </div>
-        </div>
+          </div>
+        </BrilhoBorda>
 
         {/* Coluna direita empilhada */}
         <div className="space-y-5">
@@ -264,7 +301,7 @@ export function Home() {
               <>
                 <p className="mt-2 flex items-end gap-2">
                   <span className="font-display font-bold leading-none text-brand-ink" style={{ fontSize: 38 }}>
-                    {diasProva ?? "?"}
+                    {diasProva == null ? "?" : <Contador valor={diasProva} fontSize={38} cor="var(--text)" fontWeight={700} />}
                   </span>
                   <span className="pb-1 text-sm text-muted">dias restantes</span>
                 </p>
@@ -305,7 +342,14 @@ export function Home() {
       </div>
 
       {/* 4. Heatmap anual */}
-      <StreakHeatmap dias={heatmap} periodos={periodosFerias} feriasAtivo={feriasAtivo} onToggleFerias={(v) => alternarFerias(v)} />
+      <StreakHeatmap
+        dias={heatmap}
+        periodos={periodosFerias}
+        feriasAtivo={feriasAtivo}
+        onToggleFerias={(v) => alternarFerias(v)}
+        meta={meta}
+        streakAtual={goal ? streak : undefined}
+      />
 
       {/* 5. Banner de revisão pendente */}
       {revisaoPendente > 0 && (
@@ -401,6 +445,32 @@ export function Home() {
   );
 }
 
+// Número pequeno com rótulo, para a linha de fechamento do cartão da meta.
+function MiniDado({
+  rotulo,
+  valor,
+  cor,
+  icone,
+}: {
+  rotulo: string;
+  valor: number;
+  cor?: string;
+  icone?: React.ReactNode;
+}) {
+  return (
+    <div className="leading-none">
+      <p
+        className="flex items-center gap-1.5 font-display text-xl font-bold"
+        style={{ color: cor ?? "var(--text)" }}
+      >
+        {icone}
+        {valor.toLocaleString("pt-BR")}
+      </p>
+      <p className="mt-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-faint">{rotulo}</p>
+    </div>
+  );
+}
+
 function Kpi({
   rotulo,
   valor,
@@ -417,8 +487,8 @@ function Kpi({
   return (
     <div className={`px-5 py-5 ${borda ? "sm:border-l border-hair" : ""}`}>
       <p className="text-[10px] font-bold uppercase tracking-[.14em] text-faint">{rotulo}</p>
-      <p className="mt-2 font-display font-bold leading-none" style={{ fontSize: 34, color: cor ?? "var(--text)" }}>
-        {valor.toLocaleString("pt-BR")}
+      <p className="mt-2 font-display font-bold leading-none" style={{ fontSize: 34 }}>
+        <Contador valor={valor} fontSize={34} cor={cor ?? "var(--text)"} fontWeight={700} />
       </p>
       <p className="mt-1.5 text-xs text-muted">{sub}</p>
     </div>
@@ -458,8 +528,10 @@ function ModoCard({
     );
   }
   return (
-    <Link to={to} className="card p-5 transition hover:-translate-y-0.5">
-      {conteudo}
-    </Link>
+    <BrilhoBorda className="h-full" glowRadius={26} fillOpacity={0.38}>
+      <Link to={to} className="flex h-full flex-col p-5">
+        {conteudo}
+      </Link>
+    </BrilhoBorda>
   );
 }

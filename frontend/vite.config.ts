@@ -12,8 +12,8 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg"],
       manifest: {
-        name: "Banco de Questões — Dataprev",
-        short_name: "Questões",
+        name: "devconcursado — banco de questões",
+        short_name: "devconcursado",
         description: "Estudo por questões para concurso",
         theme_color: "#4f46e5",
         background_color: "#0f172a",
@@ -40,6 +40,19 @@ export default defineConfig({
   ],
   resolve: {
     alias: { "@": path.resolve(__dirname, "src") },
+  },
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://questoesapi.mauriciosts.com",
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+        headers: {
+          Origin: "https://questoes.mauriciosts.com",
+        },
+      },
+    },
   },
   build: {
     rollupOptions: {

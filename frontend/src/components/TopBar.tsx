@@ -4,6 +4,7 @@ import { LogOut, Flame, Upload, Sun } from "lucide-react";
 import { useAuth } from "../store/auth";
 import { useTheme } from "../store/theme";
 import { useConcurso } from "../store/concurso";
+import { Logo } from "./Logo";
 import { api } from "../lib/api";
 
 interface GoalToday {
@@ -13,14 +14,17 @@ interface GoalToday {
 export function TopBar() {
   const navigate = useNavigate();
   const { tema, alternar } = useTheme();
-  const { ativo } = useConcurso();
+  const { ativo, activeId } = useConcurso();
   const { logout } = useAuth();
   const [goal, setGoal] = useState<GoalToday | null>(null);
   const fantasy = tema === "fantasy";
 
+  // Mesmo motivo do painel: /goals/today é escopado pelo concurso ativo, que pode não
+  // estar resolvido no primeiro render. Sem esta dependência a ofensiva ficava no valor
+  // do concurso anterior (ou em zero) até um F5.
   useEffect(() => {
     api<GoalToday>("/goals/today").then(setGoal).catch(() => null);
-  }, []);
+  }, [activeId]);
 
   const handleLogout = () => {
     logout();
@@ -34,9 +38,10 @@ export function TopBar() {
       <div className="flex items-center justify-between gap-3 px-5 py-3">
         {/* Esquerda: título + badge */}
         <div className="flex items-center gap-3">
-          <span className="font-brand text-xl font-bold text-brand-ink" style={{ letterSpacing: "var(--brandTrack)" }}>
-            {fantasy ? "Fantasy" : "CYBERPUNK"}
-          </span>
+          <Link to="/" aria-label="devconcursado — início">
+            <Logo tamanho={28} fonte={16} className="lg:hidden" />
+            <Logo tamanho={28} fonte={16} somenteSimbolo className="hidden lg:inline-flex" />
+          </Link>
           {ativo && (
             <span className="hidden sm:inline rounded-full bg-brand-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-brand-700">
               {ativo.iniciais} · {ativo.banca}
@@ -47,9 +52,19 @@ export function TopBar() {
         {/* Direita: streak + sair */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Streak chip */}
-          <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#FFE8D6] to-[#FFDCE4] px-3 py-1.5">
-            <Flame size={16} className="text-flame-text" strokeWidth={2.2} fill="currentColor" />
-            <span className="text-sm font-extrabold text-flame-text">{streak}</span>
+          <div
+            className={`streak-chip ${streak > 0 ? "streak-chip--ativa" : "streak-chip--zerada"}`}
+            title={
+              streak > 0
+                ? `Ofensiva: ${streak} ${streak === 1 ? "dia seguido" : "dias seguidos"}`
+                : "Sem ofensiva. Responda uma questão hoje para começar."
+            }
+          >
+            <Flame className="streak-chip__chama" size={16} strokeWidth={2.2} fill="currentColor" />
+            <span className="text-sm">{streak}</span>
+            <span className="hidden text-[11px] font-bold uppercase tracking-[.1em] opacity-70 sm:inline">
+              {streak === 1 ? "dia" : "dias"}
+            </span>
           </div>
 
           {/* Importar questões */}
