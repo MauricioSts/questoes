@@ -81,7 +81,7 @@ export function BottomTab() {
         <CabecalhoMarca />
       </div>
 
-      {/* Desktop: Novo LineSidebar interativo com linhas, escala por proximidade e índice */}
+      {/* Desktop: sidebar com traços à esquerda e destaque de hover/rota ativa */}
       <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:overflow-y-auto lg:py-2">
         <LineSidebar
           items={allSidebarItems}
@@ -92,9 +92,6 @@ export function BottomTab() {
           markerGap={8}
           itemGap={48}
           fillHeight
-          maxShift={8}
-          proximityRadius={55}
-          smoothing={60}
           showIndex={false}
         />
       </div>

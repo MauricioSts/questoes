@@ -5,10 +5,8 @@
   --marker-length: 32px;
   --marker-gap: 8px;
   --tick-scale: 0.45;
-  --max-shift: 10px;
   --item-gap: 48px;
   --font-size: clamp(0.82rem, 1.15vh, 1.05rem);
-  --smoothing: 60ms;
   position: relative;
   display: flex;
   justify-content: flex-start;
@@ -33,20 +31,18 @@
 
 .line-sidebar__list {
   list-style: none;
-  min-width: 0;
   margin: 0;
   padding: 0.25rem 0;
   display: flex;
   flex-direction: column;
   gap: var(--item-gap);
   width: 100%;
+  min-width: 0;
 }
 
 .line-sidebar__item {
   position: relative;
   min-width: 0;
-  cursor: pointer;
-  user-select: none;
 }
 
 .line-sidebar__link {
@@ -56,43 +52,85 @@
   width: 100%;
   min-width: 0;
   padding: 2px 0;
+  color: var(--text-color);
+  transition: color 0.18s ease;
+}
+
+.line-sidebar__link:hover,
+.line-sidebar__link:focus-visible,
+.line-sidebar__link[aria-current="page"] {
+  color: var(--accent-color);
+}
+
+.line-sidebar__link:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+  border-radius: 6px;
 }
 
 .line-sidebar__label {
-  position: relative;
   display: flex;
   align-items: center;
   width: 100%;
   min-width: 0;
   font-size: var(--font-size);
   line-height: 1.2;
-  color: color-mix(in srgb, var(--accent-color) calc(var(--effect, 0) * 100%), var(--text-color));
-  transform: translateX(calc(var(--effect, 0) * var(--max-shift)));
-  padding-right: var(--max-shift);
   font-weight: 600;
   letter-spacing: -0.01em;
-  transition: color 0.15s ease;
+  color: inherit;
+}
+
+.line-sidebar__link[aria-current="page"] .line-sidebar__label {
+  font-weight: 700;
+}
+
+.line-sidebar__icon {
+  margin-right: 0.625rem;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.line-sidebar__text {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .line-sidebar__index {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   margin-right: 0.5rem;
   font-size: 0.78em;
-  opacity: calc(0.5 + var(--effect, 0) * 0.5);
+  opacity: 0.6;
   font-weight: 700;
 }
 
+.line-sidebar__link:hover .line-sidebar__index,
+.line-sidebar__link[aria-current="page"] .line-sidebar__index {
+  opacity: 1;
+}
+
+/* Traço à esquerda de cada item: cresce e acende no hover/ativo. */
 .line-sidebar__marker {
   position: absolute;
   top: 50%;
   left: calc(-1 * var(--marker-length) - var(--marker-gap));
   height: 1.5px;
   width: var(--marker-length);
-  background-color: color-mix(in srgb, var(--accent-color) calc(var(--effect, 0) * 100%), var(--marker-color));
+  background-color: var(--marker-color);
   transform-origin: left center;
-  transform: translateY(-50%) scaleX(calc(0.65 + var(--effect, 0) * 0.55));
+  transform: translateY(-50%) scaleX(0.65);
+  transition: transform 0.18s ease, background-color 0.18s ease;
 }
 
+.line-sidebar__item:hover .line-sidebar__marker,
+.line-sidebar__item:has(.line-sidebar__link[aria-current="page"]) .line-sidebar__marker {
+  background-color: var(--accent-color);
+  transform: translateY(-50%) scaleX(1);
+}
+
+/* Tique menor entre os itens. */
 .line-sidebar--markers .line-sidebar__item:not(:last-child):after {
   content: "";
   position: absolute;
@@ -103,15 +141,4 @@
   background-color: var(--marker-color);
   opacity: 0.4;
   transform: translateY(-50%);
-}
-
-.line-sidebar--scale-tick .line-sidebar__item:not(:last-child):after {
-  transform-origin: left center;
-  transform: translateY(-50%) scaleX(calc(0.65 + var(--effect, 0) * 0.55));
-}
-
-/* Permite que o texto encolha e trunque em vez de estourar a largura da sidebar. */
-.line-sidebar__label > .truncate {
-  min-width: 0;
-  flex: 1 1 auto;
 }
