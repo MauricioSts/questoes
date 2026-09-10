@@ -56,7 +56,7 @@ export function LineSidebar({
   showIndex = false,
   showMarker = true,
   proximityRadius = 55,
-  maxShift = 60,
+  maxShift = 10,
   falloff = "smooth",
   markerLength = 32,
   markerGap = 8,

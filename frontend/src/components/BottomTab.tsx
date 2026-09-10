@@ -92,7 +92,7 @@ export function BottomTab() {
           markerGap={8}
           itemGap={48}
           fillHeight
-          maxShift={60}
+          maxShift={8}
           proximityRadius={55}
           smoothing={60}
           showIndex={false}

@@ -5,7 +5,7 @@
   --marker-length: 32px;
   --marker-gap: 8px;
   --tick-scale: 0.45;
-  --max-shift: 60px;
+  --max-shift: 10px;
   --item-gap: 48px;
   --font-size: clamp(0.82rem, 1.15vh, 1.05rem);
   --smoothing: 60ms;
@@ -13,6 +13,7 @@
   display: flex;
   justify-content: flex-start;
   width: 100%;
+  min-width: 0;
 }
 
 .line-sidebar--fill {
@@ -32,6 +33,7 @@
 
 .line-sidebar__list {
   list-style: none;
+  min-width: 0;
   margin: 0;
   padding: 0.25rem 0;
   display: flex;
@@ -42,6 +44,7 @@
 
 .line-sidebar__item {
   position: relative;
+  min-width: 0;
   cursor: pointer;
   user-select: none;
 }
@@ -51,17 +54,21 @@
   align-items: center;
   text-decoration: none;
   width: 100%;
+  min-width: 0;
   padding: 2px 0;
 }
 
 .line-sidebar__label {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  width: 100%;
+  min-width: 0;
   font-size: var(--font-size);
   line-height: 1.2;
   color: color-mix(in srgb, var(--accent-color) calc(var(--effect, 0) * 100%), var(--text-color));
   transform: translateX(calc(var(--effect, 0) * var(--max-shift)));
+  padding-right: var(--max-shift);
   font-weight: 600;
   letter-spacing: -0.01em;
   transition: color 0.15s ease;
@@ -101,4 +108,10 @@
 .line-sidebar--scale-tick .line-sidebar__item:not(:last-child):after {
   transform-origin: left center;
   transform: translateY(-50%) scaleX(calc(0.65 + var(--effect, 0) * 0.55));
+}
+
+/* Permite que o texto encolha e trunque em vez de estourar a largura da sidebar. */
+.line-sidebar__label > .truncate {
+  min-width: 0;
+  flex: 1 1 auto;
 }
