@@ -1,8 +1,11 @@
 // Heatmap anual estilo GitHub: 53 semanas × 7 dias terminando hoje.
 // 5 níveis por volume diário (0 / <8 / <18 / <32 / ≥32) → --heat0..--heat4.
+// Por cima das células anda a cobrinha (components/Cobra.tsx), que come os dias com
+// atividade e os deixa crescer de volta.
 import { useMemo } from "react";
 import { Palmtree } from "lucide-react";
 import type { DiaHeatmap, PeriodoFerias } from "../lib/multiApi";
+import { Cobra } from "./Cobra";
 
 const DIA_MS = 864e5;
 // Geometria do grid. Ficam num só lugar porque quatro linhas diferentes (rótulos de mês,
@@ -121,6 +124,11 @@ export function StreakHeatmap({
     return { semanas, total, atual, maior, mesLabels, feriasWeeks };
   }, [dias, periodos, meta]);
 
+  const celulasCobra = useMemo(
+    () => semanas.map((col) => col.map((cel) => ({ nivel: nivel(cel.total), futuro: cel.futuro }))),
+    [semanas],
+  );
+
   // O backend é a fonte da verdade da ofensiva (é ele que a navbar mostra). O cálculo
   // local existe só como fallback enquanto /goals/today não respondeu.
   const sequenciaAtual = streakAtual ?? atual;
@@ -179,7 +187,8 @@ export function StreakHeatmap({
                 </span>
               ))}
             </div>
-            {/* Células */}
+            {/* Células (+ a cobrinha por cima, no mesmo sistema de coordenadas) */}
+            <div className="relative">
             <div
               className="grid"
               style={{ gridTemplateRows: `repeat(7, ${CELULA}px)`, gridAutoFlow: "column", gap: ESPACO }}
@@ -214,6 +223,8 @@ export function StreakHeatmap({
                   );
                 })
               )}
+            </div>
+            <Cobra celulas={celulasCobra} celula={CELULA} espaco={ESPACO} />
             </div>
           </div>
           {/* Marcadores de férias: uma palmeira sob cada semana que teve modo férias */}

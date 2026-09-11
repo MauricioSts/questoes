@@ -32,6 +32,8 @@ import { ehDiaDeSimulado } from "../lib/agenda";
 import { useMarcadas } from "../hooks/useMarcadas";
 import { Paralaxe, Revelar, Toque } from "../components/Movimento";
 import { TituloVivo } from "../components/TituloVivo";
+import { PainelMalha } from "../components/PainelMalha";
+import { useTheme } from "../store/theme";
 
 interface GoalToday {
   meta: number;
@@ -51,6 +53,7 @@ interface GoalToday {
 
 export function Home() {
   const { usuario } = useAuth();
+  const { tema } = useTheme();
   const { ativo, activeId, refresh: recarregarConcursos } = useConcurso();
   const navigate = useNavigate();
   const [goal, setGoal] = useState<GoalToday | null>(null);
@@ -276,8 +279,8 @@ export function Home() {
 
         {/* Coluna direita empilhada */}
         <div className="space-y-5">
-          {/* Contagem para a prova */}
-          <div className="card p-6">
+          {/* Contagem para a prova (no Cyberpunk, painel com malha elástica) */}
+          <Cartao malha={tema === "cyberpunk"} className="p-6">
             <div className="flex items-start justify-between">
               <p className="legenda text-[11px] font-bold uppercase tracking-[.16em] text-faint">Contagem para a prova</p>
               {!editandoData && (
@@ -322,7 +325,7 @@ export function Home() {
                 )}
               </>
             )}
-          </div>
+          </Cartao>
 
           {/* Progresso no banco */}
           <div className="card p-6">
@@ -380,10 +383,11 @@ export function Home() {
       <div>
         <h2 className="mb-4 font-display text-xl font-bold text-brand-ink">Modos de estudo</h2>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <ModoCard to="/estudar" icon={BookOpen} titulo="Estudar" sub="Feedback imediato + anotações" />
-          <ModoCard to="/revisar" icon={RefreshCw} titulo="Revisão espaçada" sub="A questão certa, no dia certo" />
-          <ModoCard to="/caderno" icon={NotebookPen} titulo="Caderno" sub="Anotações por matéria" />
+          <ModoCard malha={tema === "cyberpunk"} to="/estudar" icon={BookOpen} titulo="Estudar" sub="Feedback imediato + anotações" />
+          <ModoCard malha={tema === "cyberpunk"} to="/revisar" icon={RefreshCw} titulo="Revisão espaçada" sub="A questão certa, no dia certo" />
+          <ModoCard malha={tema === "cyberpunk"} to="/caderno" icon={NotebookPen} titulo="Caderno" sub="Anotações por matéria" />
           <ModoCard
+            malha={tema === "cyberpunk"}
             to="/simulado"
             icon={FileText}
             titulo="Simulado"
@@ -497,18 +501,26 @@ function Kpi({
   );
 }
 
+// Cartão comum ou, no Cyberpunk, com a malha elástica de fundo.
+function Cartao({ malha, className, children }: { malha: boolean; className: string; children: React.ReactNode }) {
+  if (malha) return <PainelMalha conteudoClassName={className}>{children}</PainelMalha>;
+  return <div className={`card ${className}`}>{children}</div>;
+}
+
 function ModoCard({
   to,
   icon: Icon,
   titulo,
   sub,
   locked = false,
+  malha = false,
 }: {
   to: string;
   icon: typeof BookOpen;
   titulo: string;
   sub: string;
   locked?: boolean;
+  malha?: boolean;
 }) {
   const conteudo = (
     <>
@@ -529,11 +541,15 @@ function ModoCard({
       </div>
     );
   }
+  const link = (
+    <Link to={to} className="flex h-full flex-col p-5">
+      {conteudo}
+    </Link>
+  );
+  if (malha) return <PainelMalha className="h-full">{link}</PainelMalha>;
   return (
     <BrilhoBorda className="h-full" glowRadius={26} fillOpacity={0.38}>
-      <Link to={to} className="flex h-full flex-col p-5">
-        {conteudo}
-      </Link>
+      {link}
     </BrilhoBorda>
   );
 }

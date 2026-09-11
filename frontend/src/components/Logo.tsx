@@ -3,7 +3,10 @@
 // O símbolo é o prompt `>_` de um terminal: o nome junta "dev" com "concursado", e o
 // prompt é a metade que os dois lados reconhecem. Desenhado em SVG (não em fonte) para
 // ficar nítido em qualquer tamanho e trocar de cor com o tema — o selo usa o acento
-// (ouro no fantasy, magenta no cyberpunk) e o traço usa a cor de contraste do acento.
+// (ultramar no fantasy, magenta no rose, amarelo no cyberpunk) e o traço usa a cor de
+// contraste do acento.
+import { useId } from "react";
+
 interface SimboloProps {
   /** Lado do selo em px. */
   tamanho?: number;
@@ -11,6 +14,10 @@ interface SimboloProps {
 }
 
 export function LogoSimbolo({ tamanho = 32, className = "" }: SimboloProps) {
+  // id único por instância: o app monta dois logos (barra lateral e topo) e um deles
+  // sempre está em display:none. Com o mesmo id, o url(#...) resolvia para o degradê do
+  // logo escondido, que não pinta, e o selo do celular saía sem preenchimento.
+  const gradId = `dc-selo-${useId().replace(/:/g, "")}`;
   return (
     <svg
       width={tamanho}
@@ -21,12 +28,12 @@ export function LogoSimbolo({ tamanho = 32, className = "" }: SimboloProps) {
       aria-hidden
     >
       <defs>
-        <linearGradient id="dc-selo" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="var(--accentHi)" />
           <stop offset="100%" stopColor="var(--accent)" />
         </linearGradient>
       </defs>
-      <rect x="0.5" y="0.5" width="31" height="31" rx="9" fill="url(#dc-selo)" />
+      <rect x="0.5" y="0.5" width="31" height="31" rx="9" fill={`url(#${gradId})`} />
       <rect
         x="0.5"
         y="0.5"

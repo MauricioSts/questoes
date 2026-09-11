@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, Flame, Upload, Sun, Mountain } from "lucide-react";
+import { LogOut, Flame, Upload } from "lucide-react";
 import { useAuth } from "../store/auth";
-import { useTheme } from "../store/theme";
 import { useConcurso } from "../store/concurso";
 import { Logo } from "./Logo";
+import { BotaoProximoTema } from "./SeletorTema";
 import { api } from "../lib/api";
 
 interface GoalToday {
@@ -13,11 +13,9 @@ interface GoalToday {
 
 export function TopBar() {
   const navigate = useNavigate();
-  const { tema, alternar } = useTheme();
   const { ativo, activeId } = useConcurso();
   const { logout } = useAuth();
   const [goal, setGoal] = useState<GoalToday | null>(null);
-  const fantasy = tema === "fantasy";
 
   // Mesmo motivo do painel: /goals/today é escopado pelo concurso ativo, que pode não
   // estar resolvido no primeiro render. Sem esta dependência a ofensiva ficava no valor
@@ -88,15 +86,8 @@ export function TopBar() {
             <span className="hidden sm:inline">Sair</span>
           </button>
 
-          {/* Alternar tema Fantasy/Cyberpunk (ícone no header no mobile) */}
-          <button
-            onClick={alternar}
-            className="flex items-center rounded-lg px-2 py-1.5 text-muted hover:text-brand-500 transition lg:hidden"
-            aria-label={fantasy ? "Mudar para Modo Cyberpunk" : "Mudar para Modo Topography"}
-            title={fantasy ? "Modo Cyberpunk" : "Modo Topography"}
-          >
-            {fantasy ? <Mountain size={18} strokeWidth={1.8} /> : <Sun size={18} strokeWidth={1.8} />}
-          </button>
+          {/* Trocar de tema (no celular; no desktop fica na barra lateral) */}
+          <BotaoProximoTema className="flex items-center rounded-lg px-2 py-1.5 text-muted hover:text-brand-500 transition lg:hidden" />
         </div>
       </div>
     </header>

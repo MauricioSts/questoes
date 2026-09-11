@@ -1,12 +1,12 @@
 // Anel da meta diária. Cores vêm dos tokens do tema: o trilho e os rótulos estavam
-// fixos em branco, o que só funcionava no tema escuro — no Cyberpunk o cartão é
+// fixos em branco, o que só funcionava no tema escuro — no Rose o cartão é
 // branco e sumiam os dois, sobrando só o arco preenchido no ar.
 //
 // Os gradientes também eram hex fixos (um verde-menta e um verde vivo) que não
 // pertenciam a nenhuma das duas paletas. Agora saem dos tokens de acento: em progresso
-// o anel é discreto, e ao bater a meta ele fica no acento cheio — ouro no fantasy,
-// magenta no cyberpunk. Bater a meta é a conquista do dia, então merece a cor da marca,
-// não um verde de status. A virada dispara uma comemoração de uma vez só.
+// o anel é discreto, e ao bater a meta ele fica no acento cheio — ultramar no fantasy,
+// magenta no rose, amarelo no cyberpunk. Bater a meta é a conquista do dia, então merece
+// a cor da marca, não um verde de status. A virada dispara uma comemoração de uma vez só.
 import { useEffect, useRef, useState } from "react";
 import { Contador } from "./Contador";
 

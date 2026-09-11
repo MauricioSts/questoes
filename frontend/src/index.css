@@ -181,11 +181,14 @@
   --heat1:rgba(108,77,255,.32); --heat2:rgba(108,77,255,.58);
   --heat3:#8B74FF; --heat4:#ECEAFF;
   --dot:#1B1844;
+  --cobraCabeca:#ECEAFF; --cobraCauda:#4B22F0; --cobraOlho:#2800C9; --cobraRaio:99px;
+  --cobraBrilho:0 0 9px rgba(139,116,255,.8); --cobraMordida:#FFA46B;
   color-scheme: dark;
 }
 
-/* ---------- CYBERPUNK (claro, divertido) ---------- */
-[data-theme='cyberpunk'] {
+/* ---------- ROSE (claro, divertido) ----------
+ * O tema que se chamava Cyberpunk: magenta e lilás sobre lavanda, fundo Molten Metal. */
+[data-theme='rose'] {
   --brand-50: 244 241 255;
   --brand-100: 235 228 255;
   --brand-200: 201 188 255;
@@ -227,7 +230,67 @@
   --heat1:rgba(0,194,255,.45); --heat2:rgba(139,92,246,.55);
   --heat3:rgba(230,0,126,.65); --heat4:#E6007E;
   --dot:#DED4FF;
+  --cobraCabeca:#E6007E; --cobraCauda:#FFB3DC; --cobraOlho:#FFFFFF; --cobraRaio:5px;
+  --cobraBrilho:0 2px 5px rgba(194,0,107,.35); --cobraMordida:#00C2FF;
   color-scheme: light;
+}
+
+/* ---------- CYBERPUNK (escuro · "Night City") ----------
+ * Referência: a interface de Cyberpunk 2077 e a paleta de Cyberpunk: Edgerunners. Três
+ * cores com papel fixo, nunca misturadas à toa:
+ *   amarelo #FCEE0A  ação (botão primário, rota ativa, meta, o topo do heatmap);
+ *   ciano   #00F0FF  dado e progresso (acertos, heatmap, cantos de HUD, links);
+ *   magenta #FF2A6D  quente (erros, ofensiva, o "//" das legendas).
+ * Sobre quase-preto azulado. Rajdhani (a parente livre da Blender, a fonte da UI do
+ * jogo) nos títulos e botões, em maiúsculas; Share Tech Mono nas legendas de HUD; o
+ * corpo continua em Plus Jakarta porque enunciado de questão precisa ser lido rápido.
+ * Fundo: Pixel Blast (components/reactbits/PixelBlast.tsx) + linhas de varredura. */
+[data-theme='cyberpunk'] {
+  --brand-50: 5 5 9;
+  --brand-100: 36 34 8;
+  --brand-200: 70 66 10;
+  --brand-300: 120 112 12;
+  --brand-400: 0 240 255;
+  --brand-500: 252 238 10;
+  --brand-600: 214 200 0;
+  --brand-700: 255 246 140;
+  --ink: 234 246 255;
+  --muted: 142 160 184;
+  --faint: 98 110 138;
+  --hair: 30 30 46;
+  --surface: 12 11 18;
+  --surface-2: 18 16 27;
+  --bg: 5 5 9;
+  --bg-glow: rgba(255, 42, 109, 0.18);
+  --flame-text: 255 42 109;
+  --success-from: 0 240 255;
+  --success-soft: 4 30 36;
+  --danger-from: 255 42 109;
+  --danger-soft: 42 8 20;
+  --cyan-from: 0 240 255;
+  --cyan-to: 255 42 109;
+
+  --text:#EAF6FF; --dim:#3C4258;
+  --surfaceHex:#0C0B12; --surface2:#12101B;
+  --line:#1E1E2E; --lineSoft:#15141F; --lineStrong:#2A2940; --lineHi:#00B8C4;
+  --accent:#FCEE0A; --accentHi:#FFF86B; --accentText:#FCEE0A;
+  --accentBd:#6E680C; --accentBg:rgba(252,238,10,.09);
+  --good:#00F0FF; --goodText:#5EF6FF; --goodBd:#0B5F66; --goodBg:rgba(0,240,255,.10);
+  --onAccent:#07060B;
+  --track:#1A1926; --trackSoft:#14131E; --bar:#262538;
+  --display:'Rajdhani', 'Chakra Petch', sans-serif; --displayWeight:700;
+  --brandFont:'Rajdhani', 'Chakra Petch', sans-serif; --brandWeight:700; --brandTrack:.08em;
+  --r:3px; --rSm:2px; --rChip:2px;
+  --grain:0; --vignette:rgba(0,0,0,.9); --vigStop:45%;
+  --cardGlow: 0 24px 50px -30px rgba(0,0,0,.95);
+  --heat0:#0E0D16; --heat0bd:#1C1B2A;
+  --heat1:rgba(0,240,255,.22); --heat2:rgba(0,240,255,.5);
+  --heat3:#00F0FF; --heat4:#FCEE0A;
+  --dot:#1C1B2A;
+  --cobraCabeca:#FCEE0A; --cobraCauda:#00F0FF; --cobraOlho:#07060B; --cobraRaio:1px;
+  --cobraBrilho:0 0 7px rgba(0,240,255,.75); --cobraMordida:#FF2A6D;
+  --cpAmarelo:#FCEE0A; --cpCiano:#00F0FF; --cpMagenta:#FF2A6D;
+  color-scheme: dark;
 }
 
 html, body, #root { height: 100%; }
@@ -336,7 +399,7 @@ body {
 /* ======================= EDITOR DO CADERNO ("mini Docs") =======================
  * A folha (.doc) tem estilos próprios porque o preflight do Tailwind zera títulos,
  * listas, tabelas e citações — dentro do editor eles precisam voltar a parecer o
- * que são. Tudo usa os tokens do tema, então o documento acompanha Fantasy/Cyberpunk. */
+ * que são. Tudo usa os tokens do tema, então o documento acompanha os três temas. */
 
 .doc-wrap { display: flex; flex-direction: column; min-height: 0; }
 
@@ -493,8 +556,8 @@ body {
 .doc-preview * { font-size: inherit !important; font-weight: inherit !important; margin: 0 !important; padding: 0 !important; list-style: none !important; }
 
 /* ======================= FANTASY: acabamento =======================
- * Só o que os tokens não alcançam. Tudo escopado em [data-theme='fantasy'] — o
- * Cyberpunk não passa por aqui. */
+ * Só o que os tokens não alcançam. Tudo escopado em [data-theme='fantasy'] — os
+ * outros temas não passam por aqui. */
 
 [data-theme='fantasy'] body {
   background: radial-gradient(900px 520px at 78% -12%, rgba(40,0,201,.28), transparent 62%), rgb(var(--bg));
@@ -557,7 +620,7 @@ body {
 }
 [data-theme='fantasy'] .streak-chip--ativa .streak-chip__chama { color: #FFA46B; }
 
-/* Barra lateral e topo: um pouco mais transparentes que no Cyberpunk para o relevo
+/* Barra lateral e topo: um pouco mais transparentes que no Rose para o relevo
  * continuar por baixo. */
 [data-theme='fantasy'] .nav-app { background-color: rgba(7, 6, 18, .86); border-color: rgba(139,116,255,.14); }
 [data-theme='fantasy'] .topo-app { background-color: rgba(4, 4, 12, .62); border-color: rgba(139,116,255,.12); }
@@ -578,3 +641,232 @@ body {
 @media (max-width: 1023px) {
   [data-theme='fantasy'] .grade-cartoes { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ======================= CYBERPUNK: acabamento =======================
+ * Night City. Só o que os tokens não alcançam, tudo escopado em [data-theme='cyberpunk']. */
+
+[data-theme='cyberpunk'] body {
+  background:
+    radial-gradient(900px 620px at 6% -12%, rgba(255,42,109,.16), transparent 62%),
+    radial-gradient(820px 620px at 104% 108%, rgba(0,240,255,.10), transparent 60%),
+    rgb(var(--bg));
+}
+[data-theme='cyberpunk'] ::selection { background: #FCEE0A; color: #07060B; }
+[data-theme='cyberpunk'] { scrollbar-color: #2A2940 transparent; }
+
+/* Tudo anguloso: os cantos arredondados do Tailwind viram quinas de 2–3px. */
+[data-theme='cyberpunk'] :is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl) { border-radius: 3px; }
+[data-theme='cyberpunk'] .rounded-full { border-radius: 2px; }
+
+/* Texto direto sobre os pixels do fundo (cabeçalho das telas): halo escuro. */
+[data-theme='cyberpunk'] .sobre-fundo {
+  text-shadow: 0 0 2px #050509, 0 0 8px rgba(5,5,9,.95), 0 0 18px rgba(5,5,9,.8);
+}
+[data-theme='cyberpunk'] .sobre-fundo :is(button, a, input, select, svg) { text-shadow: none; }
+/* Título em maiúsculas + botões largos (Rajdhani espaçada) não cabem na mesma linha no
+ * celular: o que está à direita do título desce para a linha de baixo. */
+[data-theme='cyberpunk'] .sobre-fundo.flex { flex-wrap: wrap; row-gap: 12px; }
+[data-theme='cyberpunk'] .cabecalho-texto { min-width: 0; }
+
+/* Cartão = painel de HUD: vidro escuro, filete ciano e duas quinas marcadas (ciano no
+ * canto de cima, amarelo no de baixo). As quinas são degradês de fundo, não pseudo-
+ * elementos: .card aparece com position fixed/absolute/sticky pelo app e um ::before
+ * exigiria position relative em todos. */
+[data-theme='cyberpunk'] .card {
+  background-color: rgba(12, 11, 18, .88);
+  background-image:
+    linear-gradient(#00F0FF, #00F0FF), linear-gradient(#00F0FF, #00F0FF),
+    linear-gradient(#FCEE0A, #FCEE0A), linear-gradient(#FCEE0A, #FCEE0A);
+  background-size: 14px 1px, 1px 14px, 14px 1px, 1px 14px;
+  background-position: 0 0, 0 0, 100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  border-color: rgba(0, 240, 255, .13);
+  border-radius: 3px;
+}
+
+/* Botão primário: a placa amarela de canto cortado do jogo. O clip-path corta também o
+ * contorno de foco (fica fora da caixa), então o foco é desenhado por dentro. */
+[data-theme='cyberpunk'] :is(.btn-primary, .botao-primario) {
+  border-radius: 0;
+  font-family: 'Rajdhani', 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: #07060B;
+  background: #FCEE0A;
+  box-shadow: none;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+[data-theme='cyberpunk'] :is(.btn-primary, .botao-primario):hover:not(:disabled) { background: #00F0FF; }
+[data-theme='cyberpunk'] :is(.btn-primary, .botao-primario):focus-visible {
+  outline: 2px solid #07060B;
+  outline-offset: -5px;
+}
+[data-theme='cyberpunk'] .btn-secondary {
+  border-radius: 0;
+  font-family: 'Rajdhani', 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: #00F0FF;
+  background: rgba(0, 240, 255, .06);
+  border-color: rgba(0, 240, 255, .45);
+}
+[data-theme='cyberpunk'] .btn-secondary:hover { background: rgba(0, 240, 255, .14); box-shadow: 0 0 20px -6px #00F0FF; }
+
+[data-theme='cyberpunk'] .filter-select {
+  background-color: rgba(18, 16, 27, .9);
+  border-color: rgba(0, 240, 255, .2);
+}
+
+/* Ofensiva: magenta, o ponto quente do tema, em placa de cantos cortados. */
+[data-theme='cyberpunk'] .streak-chip,
+[data-theme='cyberpunk'] .selo-meta {
+  border-radius: 0;
+  font-family: 'Share Tech Mono', ui-monospace, monospace;
+  font-weight: 400;
+  clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+}
+[data-theme='cyberpunk'] .streak-chip--ativa {
+  border-color: #FF2A6D;
+  background: rgba(255, 42, 109, .12);
+  color: #FF8AAD;
+  box-shadow: inset 0 0 14px -6px #FF2A6D;
+}
+[data-theme='cyberpunk'] .streak-chip--ativa .streak-chip__chama { color: #FF2A6D; }
+
+/* Topo e barra lateral: pretos quase opacos; o topo ganha o filete neon
+ * magenta → amarelo → ciano na borda de baixo. */
+[data-theme='cyberpunk'] .nav-app { background-color: rgba(5, 5, 9, .92); border-color: rgba(0, 240, 255, .12); }
+[data-theme='cyberpunk'] .topo-app {
+  background-color: rgba(5, 5, 9, .74);
+  border-color: transparent;
+  background-image: linear-gradient(90deg, #FF2A6D, #FCEE0A 32%, #00F0FF 64%, rgba(0,240,255,0));
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+}
+
+/* Legendas (maiúsculas espaçadas) viram leitura de HUD: mono e prefixo "//" magenta. */
+[data-theme='cyberpunk'] .legenda {
+  font-family: 'Share Tech Mono', ui-monospace, monospace;
+  font-weight: 400;
+  letter-spacing: .16em;
+}
+[data-theme='cyberpunk'] .legenda::before { content: '//'; margin-right: .55em; color: #FF2A6D; letter-spacing: 0; }
+
+[data-theme='cyberpunk'] .toggle { background: #1A1926; box-shadow: inset 0 0 0 1px rgba(0,240,255,.25); }
+[data-theme='cyberpunk'] .toggle-circle { background: #626E8A; }
+[data-theme='cyberpunk'] .toggle.active { background: #00F0FF; box-shadow: 0 0 14px -4px #00F0FF; }
+[data-theme='cyberpunk'] .toggle.active .toggle-circle { background: #07060B; }
+
+/* ---------- Fundo do Cyberpunk: Pixel Blast + varredura + vinheta ---------- */
+.fundo-cyber { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.fundo-cyber__pixels { position: absolute; inset: 0; opacity: .5; }
+.fundo-cyber__pixels canvas { animation: topoIn 1.2s ease both; }
+.fundo-cyber__varredura {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,.028) 0 1px, transparent 1px 3px);
+}
+/* Faixa de luz que desce devagar, como num monitor CRT. */
+.fundo-cyber__varredura::after {
+  content: ''; position: absolute; left: 0; right: 0; top: -30%; height: 30%;
+  background: linear-gradient(180deg, transparent, rgba(0,240,255,.05) 50%, transparent);
+  animation: varredura 9s linear infinite;
+}
+@keyframes varredura { to { transform: translateY(433%); } }
+.fundo-cyber__vinheta {
+  position: absolute; inset: 0;
+  background: radial-gradient(125% 95% at 50% 42%, transparent 45%, rgba(0,0,0,.9) 100%);
+}
+
+/* ---------- Título com glitch (TituloVivo no Cyberpunk) ----------
+ * Duas cópias do texto (::before ciano, ::after magenta) ficam escondidas por clip-path
+ * e, a cada ~6 s, aparecem em fatias deslocadas por um instante. A separação RGB fixa
+ * de 1px no text-shadow é o único efeito permanente. */
+.titulo-glitch {
+  position: relative;
+  font-family: var(--display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  line-height: 1;
+  color: var(--text);
+  text-shadow: -1px 0 rgba(0,240,255,.55), 1px 0 rgba(255,42,109,.55), 0 0 18px rgba(5,5,9,.9);
+}
+.titulo-glitch::before,
+.titulo-glitch::after {
+  content: attr(data-texto);
+  position: absolute; inset: 0;
+  pointer-events: none;
+  text-shadow: none;
+  clip-path: inset(0 0 100% 0);
+}
+.titulo-glitch::before { color: #00F0FF; animation: glitchA 6.5s steps(1, end) infinite; }
+.titulo-glitch::after  { color: #FF2A6D; animation: glitchB 6.5s steps(1, end) infinite; }
+@keyframes glitchA {
+  0%, 86%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
+  87% { clip-path: inset(8% 0 62% 0);  transform: translate(-4px, -1px); }
+  89% { clip-path: inset(54% 0 22% 0); transform: translate(3px, 1px); }
+  91% { clip-path: inset(30% 0 48% 0); transform: translate(-2px, 0); }
+  93% { clip-path: inset(78% 0 4% 0);  transform: translate(5px, 0); }
+  95% { clip-path: inset(0 0 100% 0); }
+}
+@keyframes glitchB {
+  0%, 87%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
+  88% { clip-path: inset(62% 0 12% 0); transform: translate(4px, 1px); }
+  90% { clip-path: inset(18% 0 58% 0); transform: translate(-3px, -1px); }
+  92% { clip-path: inset(44% 0 36% 0); transform: translate(2px, 0); }
+  94% { clip-path: inset(100% 0 0 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .titulo-glitch::before, .titulo-glitch::after { animation: none; }
+  .fundo-cyber__varredura::after { animation: none; display: none; }
+}
+
+/* ======================= COBRINHA DO HEATMAP =======================
+ * Anda pela grade da ofensiva comendo os dias com atividade, como a cobrinha do
+ * GitHub (components/Cobra.tsx). Cores, cantos e brilho vêm de --cobra* em cada tema;
+ * o dia comido pisca na cor da mordida, apaga e volta a crescer. */
+.cobra { position: absolute; left: 0; top: 0; pointer-events: none; }
+.cobra__gomo {
+  position: absolute; left: 0; top: 0;
+  border-radius: var(--cobraRaio);
+  transition: transform var(--cobraPasso, 130ms) linear;
+  will-change: transform;
+}
+.cobra__gomo--cabeca { z-index: 2; box-shadow: var(--cobraBrilho); }
+.cobra__olho { position: absolute; width: 3px; height: 3px; border-radius: 99px; background: var(--cobraOlho); }
+.cobra__mordida {
+  position: absolute; left: 0; top: 0;
+  border-radius: var(--rSm);
+  animation: cobraMordida 7s ease-in forwards;
+}
+@keyframes cobraMordida {
+  0%   { background: var(--cobraMordida); box-shadow: 0 0 12px var(--cobraMordida); opacity: 1; }
+  7%   { background: var(--heat0); box-shadow: inset 0 0 0 1px var(--heat0bd); opacity: 1; }
+  70%  { background: var(--heat0); box-shadow: inset 0 0 0 1px var(--heat0bd); opacity: 1; }
+  100% { background: var(--heat0); box-shadow: inset 0 0 0 1px var(--heat0bd); opacity: 0; }
+}
+/* Cyberpunk: a cabeça dá uns trancos de sinal ruim. */
+[data-theme='cyberpunk'] .cobra__gomo--cabeca { animation: cobraSinal 2.4s steps(1, end) infinite; }
+@keyframes cobraSinal {
+  0%, 90%, 100% { filter: none; }
+  92% { filter: drop-shadow(-2px 0 #FF2A6D) drop-shadow(2px 0 #00F0FF); }
+  95% { filter: none; }
+  97% { filter: drop-shadow(2px 0 #FF2A6D); }
+}
+
+/* Cartão com malha elástica (components/PainelMalha.tsx, só no Cyberpunk): o canvas cobre
+ * o fundo do cartão, então as quinas de HUD voltam numa camada por cima dele. */
+.painel-malha__quinas {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background-image:
+    linear-gradient(#00F0FF, #00F0FF), linear-gradient(#00F0FF, #00F0FF),
+    linear-gradient(#FCEE0A, #FCEE0A), linear-gradient(#FCEE0A, #FCEE0A);
+  background-size: 14px 1px, 1px 14px, 14px 1px, 1px 14px;
+  background-position: 0 0, 0 0, 100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+}
+.painel-malha > .relative { z-index: 2; }

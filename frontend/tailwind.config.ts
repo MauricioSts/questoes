@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss";
 
 // Todas as cores de "chassi" e de acento agora vêm de CSS vars em canais RGB
 // (r g b) definidas por [data-theme] em index.css → o app inteiro re-tematiza
-// (Grimório/Neon) só trocando o atributo data-theme na raiz, mantendo o layout.
+// (Topography/Rose/Cyberpunk) só trocando o atributo data-theme na raiz, mantendo o layout.
 const ch = (name: string) => `rgb(var(${name}) / <alpha-value>)`;
 
 export default {
@@ -49,7 +49,7 @@ export default {
         hair: ch("--hair"),
       },
       fontFamily: {
-        // display = fonte de destaque do tema (Fraunces no Fantasy, Chakra no Cyberpunk)
+        // display = fonte de destaque do tema (Fraunces no Fantasy, Chakra no Rose, Rajdhani no Cyberpunk)
         display: ["var(--display)", '"Bricolage Grotesque"', "serif"],
         brand: ["var(--brandFont)", "serif"],
         sans: ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],

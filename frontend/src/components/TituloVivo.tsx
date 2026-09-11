@@ -1,9 +1,11 @@
 // Título de página. No Fantasy o texto é desenhado pelo WarpText (WebGL, distorção
-// viva); no Cyberpunk é o <h1> de sempre. O leitor de tela lê o <span class="sr-only">,
-// o canvas é só decoração.
+// viva) e o leitor de tela lê o <span class="sr-only">, o canvas é só decoração. No
+// Cyberpunk é um <h1> com glitch em CSS (.titulo-glitch, index.css: as cópias ciano e
+// magenta vêm de data-texto, pseudo-elementos que o leitor de tela ignora). No Rose é o
+// <h1> de sempre.
 //
-// O WarpText (e a biblioteca ogl) chegam por import dinâmico: quem usa o Cyberpunk nunca
-// baixa. Enquanto o pedaço carrega, o fallback mostra o mesmo texto na mesma fonte e
+// O WarpText (e a biblioteca ogl) chegam por import dinâmico: quem usa os outros temas
+// nunca baixa. Enquanto o pedaço carrega, o fallback mostra o mesmo texto na mesma fonte e
 // entrelinha, então o título não pula quando o canvas assume.
 import { lazy, Suspense } from "react";
 import { useTheme } from "../store/theme";
@@ -16,6 +18,14 @@ const ENTRELINHA = 1.08;
 
 export function TituloVivo({ texto, tamanho = 40, className = "" }: { texto: string; tamanho?: number; className?: string }) {
   const { tema } = useTheme();
+
+  if (tema === "cyberpunk") {
+    return (
+      <h1 className={`titulo-glitch ${className}`} data-texto={texto} style={{ fontSize: tamanho }}>
+        {texto}
+      </h1>
+    );
+  }
 
   if (tema !== "fantasy") {
     return (
