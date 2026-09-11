@@ -1,5 +1,5 @@
 // Casca temática do BorderGlow (React Bits): fecha as cores nos tokens do app para
-// não repetir hex em toda tela. Fantasy = ouro sobre noite; cyberpunk = neon magenta
+// não repetir hex em toda tela. Fantasy = ultramar e branco-lua sobre noite (a escala do relevo do fundo); cyberpunk = neon magenta
 // sobre superfície clara (o BorderGlow troca sozinho para a variante clara).
 import type { ReactNode } from "react";
 import BorderGlow from "./BorderGlow";
@@ -39,11 +39,11 @@ export function BrilhoBorda({
       glowIntensity={glowIntensity}
       fillOpacity={fillOpacity}
       edgeSensitivity={edgeSensitivity}
-      backgroundColor={fantasy ? "#1A1430" : "#FFFFFF"}
-      glowColor={fantasy ? "45 78 58" : "327 100 62"}
+      backgroundColor={fantasy ? "#0B0A1C" : "#FFFFFF"}
+      glowColor={fantasy ? "250 100 73" : "327 100 62"}
       colors={
         fantasy
-          ? ["#E4BC45", "#C9A227", "#8B6FD4"]
+          ? ["#ECEAFF", "#8B74FF", "#4B22F0"]
           : ["#E6007E", "#8B5CF6", "#00B39A"]
       }
     >

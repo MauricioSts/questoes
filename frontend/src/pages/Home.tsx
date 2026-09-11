@@ -31,6 +31,7 @@ import { META_DIARIA_DEFAULT } from "../config/prova";
 import { ehDiaDeSimulado } from "../lib/agenda";
 import { useMarcadas } from "../hooks/useMarcadas";
 import { Paralaxe, Revelar, Toque } from "../components/Movimento";
+import { TituloVivo } from "../components/TituloVivo";
 
 interface GoalToday {
   meta: number;
@@ -176,10 +177,8 @@ export function Home() {
       {/* 1. Cabeçalho (com paralaxe leve: desliza um pouco mais devagar que a rolagem) */}
       <Paralaxe distancia={14}>
         <header>
-        <p className="text-[11px] font-bold uppercase tracking-[.18em] text-faint">{dataFmt}</p>
-        <h1 className="mt-1 font-display leading-none text-brand-ink" style={{ fontSize: 42, fontWeight: "var(--displayWeight)" as never }}>
-          {saudacao}, {usuario?.nome}
-        </h1>
+        <p className="legenda text-[11px] font-bold uppercase tracking-[.18em] text-faint">{dataFmt}</p>
+        <TituloVivo texto={`${saudacao}, ${usuario?.nome ?? ""}`} tamanho={42} className="mt-1 leading-none" />
         <p className="mt-2 text-muted">
           {diasProva != null ? (
             <>
@@ -208,7 +207,7 @@ export function Home() {
           <ProgressRing valor={respondidas} meta={meta} size={148} />
           <div className="min-w-0 flex-1 space-y-2.5">
             <div className="flex items-center gap-2">
-              <p className="text-[11px] font-bold uppercase tracking-[.16em] text-faint">Meta diária</p>
+              <p className="legenda text-[11px] font-bold uppercase tracking-[.16em] text-faint">Meta diária</p>
               {!editandoMeta && (
                 <button onClick={() => setEditandoMeta(true)} className="text-faint transition hover:text-brand-500" aria-label="Alterar meta diária">
                   <Pencil size={13} strokeWidth={2} />
@@ -277,7 +276,7 @@ export function Home() {
           {/* Contagem para a prova */}
           <div className="card p-6">
             <div className="flex items-start justify-between">
-              <p className="text-[11px] font-bold uppercase tracking-[.16em] text-faint">Contagem para a prova</p>
+              <p className="legenda text-[11px] font-bold uppercase tracking-[.16em] text-faint">Contagem para a prova</p>
               {!editandoData && (
                 <button onClick={() => setEditandoData(true)} className="text-faint transition hover:text-brand-500" aria-label="Alterar data da prova">
                   {dataProva ? <Pencil size={14} strokeWidth={1.8} /> : <CalendarDays size={16} strokeWidth={1.8} />}
@@ -325,7 +324,7 @@ export function Home() {
           {/* Progresso no banco */}
           <div className="card p-6">
             <div className="flex items-center justify-between">
-              <p className="text-[11px] font-bold uppercase tracking-[.16em] text-faint">Seu progresso no banco</p>
+              <p className="legenda text-[11px] font-bold uppercase tracking-[.16em] text-faint">Seu progresso no banco</p>
               <span className="font-display font-bold text-brand-ink">{progressoPlano}%</span>
             </div>
             <p className="mt-2 text-sm text-muted">
@@ -486,7 +485,7 @@ function Kpi({
 }) {
   return (
     <div className={`px-5 py-5 ${borda ? "sm:border-l border-hair" : ""}`}>
-      <p className="text-[10px] font-bold uppercase tracking-[.14em] text-faint">{rotulo}</p>
+      <p className="legenda text-[10px] font-bold uppercase tracking-[.14em] text-faint">{rotulo}</p>
       <p className="mt-2 font-display font-bold leading-none" style={{ fontSize: 34 }}>
         <Contador valor={valor} fontSize={34} cor={cor ?? "var(--text)"} fontWeight={700} />
       </p>

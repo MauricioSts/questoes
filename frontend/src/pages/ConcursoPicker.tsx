@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { useConcurso, type Concurso, type EstadoConcurso } from "../store/concurso";
 import { criarConcurso } from "../lib/multiApi";
+import { TituloVivo } from "../components/TituloVivo";
 
 const BADGE: Record<EstadoConcurso, { texto: string; cls: string }> = {
   EM_CURSO: { texto: "EM CURSO", cls: "border border-[color:var(--accentBd)] text-[color:var(--accentText)]" },
@@ -25,9 +26,7 @@ export function ConcursoPicker() {
   return (
     <div className="fadeup space-y-6 pt-4">
       <div>
-        <h1 className="font-display text-4xl font-bold text-brand-ink" style={{ fontWeight: "var(--displayWeight)" as never }}>
-          Seus concursos
-        </h1>
+        <TituloVivo texto="Seus concursos" tamanho={36} className="text-4xl font-bold" />
         <p className="text-muted mt-1">Escolha o concurso que você vai estudar agora.</p>
       </div>
 

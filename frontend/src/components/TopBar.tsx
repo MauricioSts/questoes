@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, Flame, Upload, Sun } from "lucide-react";
+import { LogOut, Flame, Upload, Sun, Mountain } from "lucide-react";
 import { useAuth } from "../store/auth";
 import { useTheme } from "../store/theme";
 import { useConcurso } from "../store/concurso";
@@ -34,7 +34,7 @@ export function TopBar() {
   const streak = goal?.streak ?? 0;
 
   return (
-    <header className="sticky top-0 z-20 border-b border-hair bg-brand-50/82 backdrop-blur">
+    <header className="topo-app sticky top-0 z-20 border-b border-hair bg-brand-50/82 backdrop-blur">
       <div className="flex items-center justify-between gap-3 px-5 py-3">
         {/* Esquerda: título + badge */}
         <div className="flex items-center gap-3">
@@ -95,7 +95,7 @@ export function TopBar() {
             aria-label={fantasy ? "Mudar para Modo Cyberpunk" : "Mudar para Modo Fantasy"}
             title={fantasy ? "Modo Cyberpunk" : "Modo Fantasy"}
           >
-            {fantasy ? <Flame size={18} strokeWidth={1.8} fill="currentColor" /> : <Sun size={18} strokeWidth={1.8} />}
+            {fantasy ? <Mountain size={18} strokeWidth={1.8} /> : <Sun size={18} strokeWidth={1.8} />}
           </button>
         </div>
       </div>

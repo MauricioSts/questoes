@@ -153,7 +153,7 @@ export function Provas() {
       <div className="mx-auto max-w-[900px] space-y-6 pt-2">
         <Skeleton className="h-10 w-64" />
         <Skeleton className="h-28" />
-        <div className="grid gap-5 lg:grid-cols-2">
+        <div className="grade-cartoes grid gap-5 lg:grid-cols-2">
           <Skeleton className="h-64" />
           <Skeleton className="h-64" />
         </div>
@@ -221,7 +221,7 @@ export function Provas() {
           </p>
         </Card>
       ) : (
-        <div className="grid gap-5 lg:grid-cols-2">
+        <div className="grade-cartoes grid gap-5 lg:grid-cols-2">
           {provas.map((g, i) => (
             <Revelar key={g.chave} atraso={Math.min(i, 6) * 0.04}>
               <CartaoGrupo g={g} href={`/estudar?prova=${encodeURIComponent(g.chave)}`} />
@@ -232,7 +232,7 @@ export function Provas() {
 
       {/* Por tipo de questão */}
       <h2 className="mb-4 mt-8 font-display text-xl font-bold text-brand-ink">Por tipo de questão</h2>
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grade-cartoes grid gap-5 lg:grid-cols-2">
         {origens.map((g, i) => (
           <Revelar key={g.chave} atraso={Math.min(i, 6) * 0.04}>
             <CartaoGrupo g={g} href={`/estudar?origem=${encodeURIComponent(g.chave)}`} />

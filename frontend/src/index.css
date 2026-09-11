@@ -133,51 +133,57 @@
  * Cada tema define (1) canais RGB "r g b" para o Tailwind (chassi + acento) e
  * (2) os tokens hex do design (usados por app-root e componentes premium). */
 
-/* ---------- FANTASY (escuro, mística/biblioteca antiga) ---------- */
+/* ---------- FANTASY (escuro · "atlas noturno") ----------
+ * Um mapa de relevo à noite: curvas de nível em ultramar (#2800C9) que clareiam até o
+ * branco nas altitudes (o fundo Topography, ver components/Atmosfera.tsx). A paleta sai
+ * dessa mesma escala — ultramar para acento/preenchimento, lavanda clara para texto de
+ * destaque, branco-lua para o texto — e o único ponto quente é a brasa da ofensiva.
+ * Tipografia: Fraunces (serifa de ótica variável) nos títulos; o título de cada tela é
+ * desenhado pelo WarpText (components/TituloVivo.tsx). */
 [data-theme='fantasy'] {
   /* canais RGB p/ Tailwind */
-  --brand-50: 34 26 60;
-  --brand-100: 48 36 73;
-  --brand-200: 91 71 136;
-  --brand-300: 91 71 136;
-  --brand-400: 228 188 69;
-  --brand-500: 201 162 39;
-  --brand-600: 165 133 31;
-  --brand-700: 231 206 134;
-  --ink: 239 230 210;
-  --muted: 176 162 203;
-  --faint: 133 119 153;
-  --hair: 48 36 73;
-  --surface: 26 20 48;
-  --surface-2: 34 26 60;
-  --bg: 18 14 30;
-  --bg-glow: rgba(201, 162, 39, 0.10);
-  --flame-text: 228 188 69;
-  --success-from: 78 143 109;
-  --success-soft: 30 45 37;
-  --danger-from: 201 162 39;
-  --danger-soft: 33 26 20;
-  --cyan-from: 228 188 69;
-  --cyan-to: 201 162 39;
+  --brand-50: 9 8 24;
+  --brand-100: 24 20 60;
+  --brand-200: 52 44 120;
+  --brand-300: 74 63 176;
+  --brand-400: 170 155 255;
+  --brand-500: 139 116 255;
+  --brand-600: 108 77 255;
+  --brand-700: 185 173 255;
+  --ink: 236 234 255;
+  --muted: 164 160 206;
+  --faint: 124 120 170;
+  --hair: 32 29 72;
+  --surface: 11 10 28;
+  --surface-2: 17 15 40;
+  --bg: 4 4 12;
+  --bg-glow: rgba(40, 0, 201, 0.30);
+  --flame-text: 255 164 107;
+  --success-from: 94 230 176;
+  --success-soft: 12 36 32;
+  --danger-from: 255 112 142;
+  --danger-soft: 42 12 26;
+  --cyan-from: 139 116 255;
+  --cyan-to: 40 0 201;
 
   /* tokens hex do design */
-  --text:#EFE6D2; --dim:#5C4F7C;
-  --surfaceHex:#1A1430; --surface2:#221A3C;
-  --line:#302449; --lineSoft:#241B38; --lineStrong:#3D2F5C; --lineHi:#5B4788;
-  --accent:#C9A227; --accentHi:#E4BC45; --accentText:#E7CE86;
-  --accentBd:#5C4620; --accentBg:rgba(201,162,39,.12);
-  --good:#4E8F6D; --goodText:#8FCFA9; --goodBd:#2C5541; --goodBg:rgba(78,143,109,.12);
-  --onAccent:#1A1206;
-  --track:#2A2040; --trackSoft:#241B38; --bar:#362A52;
-  --display:'Cormorant Garamond', serif; --displayWeight:600;
-  --brandFont:'Cinzel', serif; --brandWeight:600; --brandTrack:.06em;
-  --r:6px; --rSm:4px; --rChip:3px;
-  --grain:.045; --vignette:rgba(8,4,16,.78); --vigStop:52%;
-  --cardGlow: inset 0 1px 0 rgba(231,206,134,.05), 0 24px 50px -34px rgba(0,0,0,.9);
-  --heat0:#211A38; --heat0bd:#2A2144;
-  --heat1:rgba(201,162,39,.28); --heat2:rgba(201,162,39,.5);
-  --heat3:rgba(201,162,39,.74); --heat4:#E4BC45;
-  --dot:#2A2144;
+  --text:#ECEAFF; --dim:#4F4A86;
+  --surfaceHex:#0B0A1C; --surface2:#110F28;
+  --line:#201D48; --lineSoft:#16143A; --lineStrong:#2C2866; --lineHi:#4A3FB0;
+  --accent:#6C4DFF; --accentHi:#9C8BFF; --accentText:#B9ADFF;
+  --accentBd:#3A2DA0; --accentBg:rgba(108,77,255,.14);
+  --good:#3FCB95; --goodText:#7FEFC2; --goodBd:#1D5C47; --goodBg:rgba(63,203,149,.12);
+  --onAccent:#FFFFFF;
+  --track:#191640; --trackSoft:#131132; --bar:#262160;
+  --display:'Fraunces', Georgia, serif; --displayWeight:600;
+  --brandFont:'Fraunces', Georgia, serif; --brandWeight:600; --brandTrack:0;
+  --r:12px; --rSm:8px; --rChip:999px;
+  --grain:.035; --vignette:rgba(2,2,8,.88); --vigStop:42%;
+  --cardGlow: inset 0 1px 0 rgba(185,173,255,.07), 0 28px 60px -38px rgba(40,0,201,.65);
+  --heat0:#100E28; --heat0bd:#1B1844;
+  --heat1:rgba(108,77,255,.32); --heat2:rgba(108,77,255,.58);
+  --heat3:#8B74FF; --heat4:#ECEAFF;
+  --dot:#1B1844;
   color-scheme: dark;
 }
 
@@ -238,6 +244,15 @@ body {
 
 /* ---------- OBRIGATÓRIO: sem isto o texto herda a cor do body ao trocar tema ---------- */
 .app-root { color: var(--text); background: transparent; }
+
+/* ---------- Fundo do Fantasy: relevo animado (Topography, WebGL) + vinheta ---------- */
+.fundo-topo { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+@keyframes topoIn { from { opacity: 0; } to { opacity: 1; } }
+.fundo-topo canvas { animation: topoIn 1.6s ease both; }
+.fundo-topo__vinheta {
+  position: absolute; inset: 0;
+  background: radial-gradient(120% 90% at 50% 40%, transparent 42%, rgba(2,2,8,.88) 100%);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .fadeup { animation: none !important; }
@@ -479,3 +494,89 @@ body {
 /* Prévia do conteúdo fora do editor (lista de páginas na barra lateral) */
 .doc-preview { font-size: 12px; line-height: 1.45; color: var(--faint); }
 .doc-preview * { font-size: inherit !important; font-weight: inherit !important; margin: 0 !important; padding: 0 !important; list-style: none !important; }
+
+/* ======================= FANTASY: acabamento =======================
+ * Só o que os tokens não alcançam. Tudo escopado em [data-theme='fantasy'] — o
+ * Cyberpunk não passa por aqui. */
+
+[data-theme='fantasy'] body {
+  background: radial-gradient(900px 520px at 78% -12%, rgba(40,0,201,.28), transparent 62%), rgb(var(--bg));
+}
+/* Halo escuro no texto: invisível sobre os cartões, mas separa as letras das curvas de
+ * nível quando o texto fica direto sobre o fundo (cabeçalho das telas). */
+[data-theme='fantasy'] main { text-shadow: 0 0 1px #04040C, 0 0 4px #04040C, 0 0 9px rgba(4,4,12,.95), 0 0 18px rgba(4,4,12,.75); }
+[data-theme='fantasy'] main :is(.btn-primary, .botao-primario, button, svg) { text-shadow: none; }
+[data-theme='fantasy'] ::selection { background: rgba(108,77,255,.45); color: #fff; }
+[data-theme='fantasy'] { scrollbar-color: #2C2866 transparent; }
+
+/* Cartões: vidro escuro quase opaco. As curvas de nível aparecem de leve por trás, como
+ * papel vegetal sobre o mapa — sem backdrop-filter, que recalcularia o desfoque a cada
+ * quadro do fundo animado. */
+[data-theme='fantasy'] .card {
+  background-color: rgba(11, 10, 28, .80);
+  background-image: linear-gradient(180deg, rgba(139,116,255,.055), transparent 38%);
+  border-color: rgba(139, 116, 255, .16);
+  border-radius: 16px;
+}
+
+[data-theme='fantasy'] .btn-primary,
+[data-theme='fantasy'] .botao-primario {
+  border-radius: 12px;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: .01em;
+  color: #fff;
+  background: linear-gradient(135deg, #7458FF 0%, #4B22F0 55%, #2800C9 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 0 0 1px rgba(139,116,255,.35),
+              0 14px 34px -14px rgba(40,0,201,.95);
+}
+[data-theme='fantasy'] .btn-primary:hover:not(:disabled),
+[data-theme='fantasy'] .botao-primario:hover:not(:disabled) {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 0 0 1px rgba(185,173,255,.55),
+              0 18px 44px -12px rgba(76,40,255,1);
+}
+[data-theme='fantasy'] .btn-secondary {
+  border-radius: 12px;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 700;
+  color: var(--accentText);
+  background: rgba(17, 15, 40, .7);
+  border-color: rgba(139, 116, 255, .28);
+}
+
+[data-theme='fantasy'] .filter-select {
+  background-color: rgba(17, 15, 40, .85);
+  border-color: rgba(139, 116, 255, .2);
+}
+
+/* Ofensiva: brasa, o único ponto quente do tema (o chip usa o acento nos dois temas;
+ * aqui a ofensiva ativa ganha cor de fogo em vez do ultramar). */
+[data-theme='fantasy'] .streak-chip--ativa {
+  border-color: rgba(255, 164, 107, .55);
+  background: rgba(255, 140, 80, .10);
+  color: #FFC29A;
+  box-shadow: inset 0 0 12px -6px #FF8C50, 0 0 18px -8px #FF8C50;
+}
+[data-theme='fantasy'] .streak-chip--ativa .streak-chip__chama { color: #FFA46B; }
+
+/* Barra lateral e topo: um pouco mais transparentes que no Cyberpunk para o relevo
+ * continuar por baixo. */
+[data-theme='fantasy'] .nav-app { background-color: rgba(7, 6, 18, .86); border-color: rgba(139,116,255,.14); }
+[data-theme='fantasy'] .topo-app { background-color: rgba(4, 4, 12, .62); border-color: rgba(139,116,255,.12); }
+
+/* Rótulos de cabeçalho/KPI (maiúsculas espaçadas) viram legenda de mapa. */
+[data-theme='fantasy'] .legenda { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 500; letter-spacing: .14em; }
+
+[data-theme='fantasy'] .toggle { background: #1B1844; box-shadow: inset 0 0 0 1px rgba(139,116,255,.28); }
+[data-theme='fantasy'] .toggle-circle { background: #7C78AA; }
+[data-theme='fantasy'] .toggle.active { background: linear-gradient(135deg, #7458FF, #2800C9); box-shadow: inset 0 0 0 1px rgba(185,173,255,.45); }
+[data-theme='fantasy'] .toggle.active .toggle-circle { background: #FFFFFF; }
+
+/* Layout que só o Fantasy precisa: o título é um canvas (mede o pai, então o bloco de
+ * texto do cabeçalho tem de ocupar a sobra da linha) e a Fraunces é mais larga que a
+ * Cormorant antiga (o conteúdo mínimo dos cartões de Provas passava de 350px no
+ * celular e empurrava a página para o lado). */
+[data-theme='fantasy'] .cabecalho-texto { min-width: 0; flex: 1 1 0%; }
+@media (max-width: 1023px) {
+  [data-theme='fantasy'] .grade-cartoes { grid-template-columns: minmax(0, 1fr); }
+}

@@ -10,7 +10,7 @@ import {
   Target,
   Bookmark,
   ClipboardList,
-  Flame,
+  Mountain,
   Sun,
   Upload,
   LogOut,
@@ -72,7 +72,7 @@ export function BottomTab() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-hair bg-surface/95 backdrop-blur
+      className="nav-app fixed inset-x-0 bottom-0 z-30 border-t border-hair bg-surface/95 backdrop-blur
                  lg:inset-y-0 lg:right-auto lg:w-[236px] lg:flex lg:flex-col lg:border-r lg:border-t-0"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
@@ -85,9 +85,9 @@ export function BottomTab() {
       <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:overflow-y-auto lg:py-2">
         <LineSidebar
           items={allSidebarItems}
-          accentColor={fantasy ? "#E4BC45" : "#E6007E"}
-          textColor={fantasy ? "#B0A2CB" : "#5F55A8"}
-          markerColor={fantasy ? "#4A3870" : "#D8CEFF"}
+          accentColor={fantasy ? "#B9ADFF" : "#E6007E"}
+          textColor={fantasy ? "#A4A0CE" : "#5F55A8"}
+          markerColor={fantasy ? "#2C2866" : "#D8CEFF"}
           markerLength={30}
           markerGap={8}
           itemGap={48}
@@ -111,7 +111,7 @@ export function BottomTab() {
           style={{ borderColor: "var(--accentBd)", background: "var(--accentBg)", color: "var(--accentText)" }}
           aria-label={fantasy ? "Mudar para Modo Cyberpunk" : "Mudar para Modo Fantasy"}
         >
-          {fantasy ? <Flame size={16} strokeWidth={1.8} fill="currentColor" /> : <Sun size={16} strokeWidth={1.8} />}
+          {fantasy ? <Mountain size={16} strokeWidth={1.8} /> : <Sun size={16} strokeWidth={1.8} />}
           <span className="flex-1 text-left">{fantasy ? "Modo Fantasy" : "Modo Cyberpunk"}</span>
           <span className="h-2 w-2 rounded-full" style={{ background: "var(--accent)", animation: "flamewave 2s ease-in-out infinite" }} />
         </button>

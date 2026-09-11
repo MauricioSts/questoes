@@ -1,31 +1,52 @@
+// Fundo fixo atrás do conteúdo. Nunca captura clique.
+// Fantasy: relevo animado (Topography, React Bits) + vinheta.
+// Cyberpunk: Molten Metal (WebGL) nas cores do tema.
+import { lazy, Suspense } from "react";
 import { useTheme } from "../store/theme";
 import { MoltenMetal } from "./MoltenMetal";
 
-// Background fixo atrás do conteúdo.
-// Mantém apenas o novo fundo WebGL Molten Metal com as cores relativas ao tema, sem camadas antigas de ruído, halos ou blur.
+// ogl + shader do relevo só descem para quem está no Fantasy.
+const Topography = lazy(() => import("./reactbits/Topography"));
+
+// Cores pedidas (reactbits.dev/backgrounds/topography?lowColor=2800c9&midColor=ffffff&highColor=ffffff);
+// o resto são os valores da demonstração do React Bits, com opacidade reduzida para o
+// relevo não brigar com o texto por cima. Exportado à parte porque o Login também usa.
+export function FundoFantasy() {
+  const { tema } = useTheme();
+  if (tema !== "fantasy") return null;
+  return (
+    <div className="fundo-topo" aria-hidden>
+      <Suspense fallback={null}>
+        <Topography lowColor="#2800c9" midColor="#ffffff" highColor="#ffffff" scale={2} opacity={0.6} />
+      </Suspense>
+      <div className="fundo-topo__vinheta" />
+    </div>
+  );
+}
+
 export function Atmosfera() {
   const { tema } = useTheme();
-  const fantasy = tema === "fantasy";
+  if (tema === "fantasy") return <FundoFantasy />;
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden>
       <MoltenMetal
         key={tema}
-        backgroundColor={fantasy ? "#120E1E" : "#F4F1FF"}
-        color1={fantasy ? "#2E1E54" : "#00C2FF"}
-        color2={fantasy ? "#C9A227" : "#E6007E"}
-        color3={fantasy ? "#FCEAA7" : "#8B5CF6"}
-        colorMode={fantasy ? "ember" : "molten"}
-        lightMode={!fantasy}
-        speed={fantasy ? 0.28 : 0.35}
+        backgroundColor="#F4F1FF"
+        color1="#00C2FF"
+        color2="#E6007E"
+        color3="#8B5CF6"
+        colorMode="molten"
+        lightMode
+        speed={0.35}
         scale={3.6}
         detail={3}
-        glow={fantasy ? 1.7 : 1.5}
+        glow={1.5}
         coreSize={0.12}
         swirl={1.1}
         fold={-0.22}
         blackPoint={0.05}
-        brightness={fantasy ? 1.25 : 1.15}
+        brightness={1.15}
         grain={false}
         mouseInteraction={false}
         opacity={1.0}

@@ -49,7 +49,7 @@ export default {
         hair: ch("--hair"),
       },
       fontFamily: {
-        // display = fonte de destaque do tema (Cormorant no Grimório, Chakra no Neon)
+        // display = fonte de destaque do tema (Fraunces no Fantasy, Chakra no Cyberpunk)
         display: ["var(--display)", '"Bricolage Grotesque"', "serif"],
         brand: ["var(--brandFont)", "serif"],
         sans: ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],
