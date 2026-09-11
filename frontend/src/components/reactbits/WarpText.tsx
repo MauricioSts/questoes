@@ -9,9 +9,11 @@
 //   rente às letras, sem ocupar espaço no layout nem capturar clique;
 // - o campo de distorção é medido em alturas de linha, não em fração do canvas: numa
 //   faixa larga e baixa o original esticava tudo na horizontal;
-// - sem WebGL 2 o texto aparece normal.
+// - sem WebGL 2 o texto aparece normal; com WebGL por software (gpu.ts) ele é desenhado
+//   uma vez, sem distorção, e não anima.
 import { useEffect, useRef, useState } from "react";
 import { Renderer, Program, Mesh, Triangle, Texture } from "ogl";
+import { webglLento } from "./gpu";
 
 export interface WarpTextProps {
   text: string;
@@ -246,6 +248,7 @@ export default function WarpText({
     const geometry = new Triangle(gl);
     const reduzirMq = window.matchMedia?.("(prefers-reduced-motion: reduce)");
     let reduzir = reduzirMq?.matches ?? false;
+    const lento = webglLento(gl as unknown as WebGL2RenderingContext);
     const program = new Program(gl, {
       vertex,
       fragment,
@@ -265,7 +268,7 @@ export default function WarpText({
         uPointerStrength: { value: pointerStrength },
         uRefraction: { value: refraction },
         uRipple: { value: ripple ? 1 : 0 },
-        uMotion: { value: reduzir ? 0 : 1 },
+        uMotion: { value: reduzir || lento ? 0 : 1 },
       },
     });
     const mesh = new Mesh(gl, { geometry, program });
@@ -377,7 +380,7 @@ export default function WarpText({
       raf = requestAnimationFrame(loop);
     };
     const start = () => {
-      if (visivel && paginaVisivel && !raf && !lost) raf = requestAnimationFrame(loop);
+      if (visivel && paginaVisivel && !raf && !lost && !lento) raf = requestAnimationFrame(loop);
     };
     const stop = () => {
       if (raf) cancelAnimationFrame(raf);
@@ -399,7 +402,7 @@ export default function WarpText({
     };
     const onReduce = (e: MediaQueryListEvent) => {
       reduzir = e.matches;
-      program.uniforms.uMotion.value = reduzir ? 0 : 1;
+      program.uniforms.uMotion.value = reduzir || lento ? 0 : 1;
     };
     const onLost = (e: Event) => {
       e.preventDefault();

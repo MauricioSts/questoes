@@ -109,10 +109,10 @@ export function BottomTab() {
           onClick={alternar}
           className="mb-2 flex w-full items-center gap-2.5 rounded-xl border px-3 py-2 text-xs font-semibold transition"
           style={{ borderColor: "var(--accentBd)", background: "var(--accentBg)", color: "var(--accentText)" }}
-          aria-label={fantasy ? "Mudar para Modo Cyberpunk" : "Mudar para Modo Fantasy"}
+          aria-label={fantasy ? "Mudar para Modo Cyberpunk" : "Mudar para Modo Topography"}
         >
           {fantasy ? <Mountain size={16} strokeWidth={1.8} /> : <Sun size={16} strokeWidth={1.8} />}
-          <span className="flex-1 text-left">{fantasy ? "Modo Fantasy" : "Modo Cyberpunk"}</span>
+          <span className="flex-1 text-left">{fantasy ? "Modo Topography" : "Modo Cyberpunk"}</span>
           <span className="h-2 w-2 rounded-full" style={{ background: "var(--accent)", animation: "flamewave 2s ease-in-out infinite" }} />
         </button>
         <Link to="/importar" className="flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold text-muted transition hover:text-brand-ink">

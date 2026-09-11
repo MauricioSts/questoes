@@ -5,13 +5,15 @@
 // - o canvas não recebe clique (a camada é pointer-events: none), então o relevo que
 //   segue o mouse escuta a janela inteira em vez do próprio canvas;
 // - resolução limitada a 1.5x: são linhas finas e suaves, 2x só custava bateria;
-// - prefers-reduced-motion congela o relevo num quadro parado;
+// - prefers-reduced-motion congela o relevo num quadro parado, e WebGL por software
+//   (ver gpu.ts) também;
 // - `paused` congela o relevo onde ele estiver (sessão de questões) e, ao soltar, ele
 //   continua do mesmo ponto — o tempo do shader só anda enquanto o laço roda;
 // - sem WebGL 2 (navegador antigo, contexto perdido) a camada some e o fundo sólido do
 //   tema continua lá — nada quebra.
 import { useEffect, useRef } from "react";
 import { Renderer, Program, Mesh, Triangle } from "ogl";
+import { webglLento } from "./gpu";
 
 export type ColorMode = "elevation" | "uniform" | "alternating";
 
@@ -263,18 +265,27 @@ export default function Topography({
     };
 
     const reduzir = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    const lento = webglLento(gl as unknown as WebGL2RenderingContext);
+    const parado = () => lento || !!reduzir?.matches;
     // Um quadro parado bonito (t=0 dá um relevo quase simétrico).
     const TEMPO_PARADO = 40;
+    // Tempo acumulado só com o laço rodando: pausar e voltar não dá salto no relevo. O
+    // passo é limitado a 100 ms para um quadro atrasado não virar um pulo.
+    let tempo = 0;
+    let ultimo = 0;
 
     const draw = () => renderer.render({ scene: mesh });
 
+    // Todo desenho fora do laço (montagem, resize) recalcula os pontos de controle. Sem
+    // isso, um relevo que nasce pausado — trocar de tema com uma sessão de questões aberta
+    // e voltar — desenhava com os controles zerados: campo constante, tela toda azul.
     const setSize = () => {
       const rect = container.getBoundingClientRect();
       renderer.setSize(Math.max(1, Math.floor(rect.width)), Math.max(1, Math.floor(rect.height)));
       const res = program.uniforms.iResolution.value as Float32Array;
       res[0] = gl.drawingBufferWidth;
       res[1] = gl.drawingBufferHeight;
-      if (reduzir?.matches) setCtrl(TEMPO_PARADO);
+      setCtrl(parado() ? TEMPO_PARADO : tempo);
       draw();
     };
     const ro = new ResizeObserver(setSize);
@@ -301,10 +312,6 @@ export default function Topography({
     let raf = 0;
     let pageVisible = !document.hidden;
     let lost = false;
-    // Tempo acumulado só com o laço rodando: pausar e voltar não dá salto no relevo. O
-    // passo é limitado a 100 ms para um quadro atrasado não virar um pulo.
-    let tempo = 0;
-    let ultimo = 0;
 
     const loop = (t: number) => {
       if (ultimo) tempo += Math.min(t - ultimo, 100) * 0.001;
@@ -322,7 +329,7 @@ export default function Topography({
       raf = requestAnimationFrame(loop);
     };
     const start = () => {
-      if (lost || !pageVisible || reduzir?.matches || pausadoRef.current || raf !== 0) return;
+      if (lost || !pageVisible || parado() || pausadoRef.current || raf !== 0) return;
       ultimo = 0;
       raf = requestAnimationFrame(loop);
     };
@@ -337,7 +344,7 @@ export default function Topography({
       else stop();
     };
     const onReduce = () => {
-      if (reduzir?.matches) {
+      if (parado()) {
         stop();
         setCtrl(TEMPO_PARADO);
         draw();

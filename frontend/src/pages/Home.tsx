@@ -204,7 +204,10 @@ export function Home() {
         {/* Meta diária (anel) */}
         <BrilhoBorda animated className="h-full" glowRadius={40}>
           <div className="flex flex-1 flex-wrap items-center justify-center gap-7 p-8 sm:flex-nowrap sm:justify-start">
-          <ProgressRing valor={respondidas} meta={meta} size={148} />
+          {/* key: o anel remonta quando /goals/today chega. Assim ele desenha a partir do
+              valor real e a referência da comemoração nasce com a meta já batida (ou não) —
+              antes, todo F5 com a meta cumprida disparava a comemoração de novo. */}
+          <ProgressRing key={goal ? "pronto" : "carregando"} valor={respondidas} meta={meta} size={148} />
           <div className="min-w-0 flex-1 space-y-2.5">
             <div className="flex items-center gap-2">
               <p className="legenda text-[11px] font-bold uppercase tracking-[.16em] text-faint">Meta diária</p>

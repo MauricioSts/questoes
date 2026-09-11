@@ -16,9 +16,6 @@
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
-@keyframes ringdraw {
-  from { stroke-dashoffset: 327; }
-}
 @keyframes flamewave {
   0%, 100% { transform: scaleY(1) translateY(0); }
   50% { transform: scaleY(1.08) translateY(-2px); }
@@ -179,7 +176,7 @@
   --brandFont:'Fraunces', Georgia, serif; --brandWeight:600; --brandTrack:0;
   --r:12px; --rSm:8px; --rChip:999px;
   --grain:.035; --vignette:rgba(2,2,8,.88); --vigStop:42%;
-  --cardGlow: inset 0 1px 0 rgba(185,173,255,.07), 0 28px 60px -38px rgba(40,0,201,.65);
+  --cardGlow: inset 0 1px 0 rgba(185,173,255,.07), 0 24px 50px -34px rgba(0,0,0,.9);
   --heat0:#100E28; --heat0bd:#1B1844;
   --heat1:rgba(108,77,255,.32); --heat2:rgba(108,77,255,.58);
   --heat3:#8B74FF; --heat4:#ECEAFF;

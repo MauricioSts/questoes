@@ -34,6 +34,23 @@ export function ProgressRing({ valor, meta, size = 148, strokeWidth = 13 }: Prop
   const [celebrar, setCelebrar] = useState(false);
   const anterior = useRef(completed);
 
+  // Entrada do arco por TRANSIÇÃO (vazio -> valor), não mais por @keyframes com fill
+  // forwards: sem keyframe final, o navegador usa o valor do atributo, e alguns (Safari)
+  // congelam esse valor no início da animação. Como o anel monta antes de /goals/today
+  // responder, depois de um F5 ele ficava parado no zero. Com transição, qualquer valor
+  // que chegue depois — ou a meta editada — anima até o lugar certo.
+  const [desenhado, setDesenhado] = useState(false);
+  useEffect(() => {
+    let r2 = 0;
+    const r1 = requestAnimationFrame(() => {
+      r2 = requestAnimationFrame(() => setDesenhado(true));
+    });
+    return () => {
+      cancelAnimationFrame(r1);
+      cancelAnimationFrame(r2);
+    };
+  }, []);
+
   useEffect(() => {
     if (completed && !anterior.current) {
       setCelebrar(true);
@@ -87,12 +104,10 @@ export function ProgressRing({ valor, meta, size = 148, strokeWidth = 13 }: Prop
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}
-          strokeDashoffset={dashOffset}
-          className="transition-all duration-1000"
           style={{
-            animation: celebrar
-              ? "ringdraw 1.1s ease-out forwards, metaglow 1.6s ease-out"
-              : "ringdraw 1.1s ease-out forwards",
+            strokeDashoffset: desenhado ? dashOffset : circumference,
+            transition: "stroke-dashoffset 1.1s ease-out",
+            animation: celebrar ? "metaglow 1.6s ease-out" : undefined,
             filter: completed && !celebrar ? "drop-shadow(0 0 7px var(--accentBd))" : undefined,
           }}
         />

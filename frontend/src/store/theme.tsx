@@ -1,5 +1,7 @@
-// Tema do app: dois temas alternáveis a qualquer momento, 'fantasy' (escuro,
-// mística) e 'cyberpunk' (claro). Aplica data-theme na raiz (<html>) e persiste a
+// Tema do app: dois temas alternáveis a qualquer momento, 'fantasy' (escuro; na tela
+// se chama "Topography", pelo fundo de curvas de nível — a chave interna continua
+// 'fantasy' para não perder a escolha salva nem mexer nos seletores do CSS) e
+// 'cyberpunk' (claro). Aplica data-theme na raiz (<html>) e persiste a
 // escolha em localStorage. Fantasy também liga a classe .dark para manter
 // utilitários dark: coerentes.
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";

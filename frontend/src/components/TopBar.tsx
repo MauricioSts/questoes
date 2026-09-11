@@ -92,8 +92,8 @@ export function TopBar() {
           <button
             onClick={alternar}
             className="flex items-center rounded-lg px-2 py-1.5 text-muted hover:text-brand-500 transition lg:hidden"
-            aria-label={fantasy ? "Mudar para Modo Cyberpunk" : "Mudar para Modo Fantasy"}
-            title={fantasy ? "Modo Cyberpunk" : "Modo Fantasy"}
+            aria-label={fantasy ? "Mudar para Modo Cyberpunk" : "Mudar para Modo Topography"}
+            title={fantasy ? "Modo Cyberpunk" : "Modo Topography"}
           >
             {fantasy ? <Mountain size={18} strokeWidth={1.8} /> : <Sun size={18} strokeWidth={1.8} />}
           </button>
