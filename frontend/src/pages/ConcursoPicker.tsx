@@ -25,7 +25,7 @@ export function ConcursoPicker() {
 
   return (
     <div className="fadeup space-y-6 pt-4">
-      <div>
+      <div className="sobre-fundo">
         <TituloVivo texto="Seus concursos" tamanho={36} className="text-4xl font-bold" />
         <p className="text-muted mt-1">Escolha o concurso que você vai estudar agora.</p>
       </div>

@@ -6,6 +6,8 @@
 //   segue o mouse escuta a janela inteira em vez do próprio canvas;
 // - resolução limitada a 1.5x: são linhas finas e suaves, 2x só custava bateria;
 // - prefers-reduced-motion congela o relevo num quadro parado;
+// - `paused` congela o relevo onde ele estiver (sessão de questões) e, ao soltar, ele
+//   continua do mesmo ponto — o tempo do shader só anda enquanto o laço roda;
 // - sem WebGL 2 (navegador antigo, contexto perdido) a camada some e o fundo sólido do
 //   tema continua lá — nada quebra.
 import { useEffect, useRef } from "react";
@@ -33,6 +35,8 @@ export interface TopographyProps {
   mouseInteraction?: boolean;
   mouseRadius?: number;
   mouseStrength?: number;
+  /** Congela no quadro atual enquanto verdadeiro. */
+  paused?: boolean;
   className?: string;
 }
 
@@ -172,10 +176,13 @@ export default function Topography({
   mouseInteraction = true,
   mouseRadius = 0.3,
   mouseStrength = 0.4,
+  paused = false,
   className = "",
 }: TopographyProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const programRef = useRef<Program | null>(null);
+  const pausadoRef = useRef(paused);
+  const controleRef = useRef<{ start: () => void; stop: () => void } | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -279,7 +286,7 @@ export default function Topography({
     let mouseActive = 0;
     let mouseActiveTarget = 0;
     const onPointerMove = (e: PointerEvent) => {
-      if (e.pointerType === "touch") return;
+      if (e.pointerType === "touch" || !program.uniforms.uMouseEnabled.value) return;
       const rect = canvas.getBoundingClientRect();
       target[0] = (e.clientX - rect.left) / rect.width;
       target[1] = 1 - (e.clientY - rect.top) / rect.height;
@@ -294,12 +301,16 @@ export default function Topography({
     let raf = 0;
     let pageVisible = !document.hidden;
     let lost = false;
-    const t0 = performance.now();
+    // Tempo acumulado só com o laço rodando: pausar e voltar não dá salto no relevo. O
+    // passo é limitado a 100 ms para um quadro atrasado não virar um pulo.
+    let tempo = 0;
+    let ultimo = 0;
 
     const loop = (t: number) => {
-      const time = (t - t0) * 0.001;
-      program.uniforms.iTime.value = time;
-      setCtrl(time);
+      if (ultimo) tempo += Math.min(t - ultimo, 100) * 0.001;
+      ultimo = t;
+      program.uniforms.iTime.value = tempo;
+      setCtrl(tempo);
       current[0] += 0.05 * (target[0] - current[0]);
       current[1] += 0.05 * (target[1] - current[1]);
       const m = program.uniforms.uMouse.value as Float32Array;
@@ -311,7 +322,9 @@ export default function Topography({
       raf = requestAnimationFrame(loop);
     };
     const start = () => {
-      if (!lost && pageVisible && !reduzir?.matches && raf === 0) raf = requestAnimationFrame(loop);
+      if (lost || !pageVisible || reduzir?.matches || pausadoRef.current || raf !== 0) return;
+      ultimo = 0;
+      raf = requestAnimationFrame(loop);
     };
     const stop = () => {
       if (raf) cancelAnimationFrame(raf);
@@ -339,10 +352,12 @@ export default function Topography({
     document.addEventListener("visibilitychange", onVisibility);
     reduzir?.addEventListener("change", onReduce);
     canvas.addEventListener("webglcontextlost", onLost);
+    controleRef.current = { start, stop };
     start();
 
     return () => {
       stop();
+      controleRef.current = null;
       ro.disconnect();
       window.removeEventListener("pointermove", onPointerMove);
       document.removeEventListener("pointerout", onPointerOut);
@@ -356,6 +371,12 @@ export default function Topography({
     // Os valores iniciais entram na criação; as mudanças seguintes vão pelo efeito abaixo.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    pausadoRef.current = paused;
+    if (paused) controleRef.current?.stop();
+    else controleRef.current?.start();
+  }, [paused]);
 
   useEffect(() => {
     const program = programRef.current;

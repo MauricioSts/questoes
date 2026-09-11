@@ -502,10 +502,11 @@ body {
 [data-theme='fantasy'] body {
   background: radial-gradient(900px 520px at 78% -12%, rgba(40,0,201,.28), transparent 62%), rgb(var(--bg));
 }
-/* Halo escuro no texto: invisível sobre os cartões, mas separa as letras das curvas de
- * nível quando o texto fica direto sobre o fundo (cabeçalho das telas). */
-[data-theme='fantasy'] main { text-shadow: 0 0 1px #04040C, 0 0 4px #04040C, 0 0 9px rgba(4,4,12,.95), 0 0 18px rgba(4,4,12,.75); }
-[data-theme='fantasy'] main :is(.btn-primary, .botao-primario, button, svg) { text-shadow: none; }
+/* Halo escuro no texto que fica DIRETO sobre o relevo (cabeçalho das telas, classe
+ * .sobre-fundo): separa as letras das curvas de nível. Só ali — aplicado no <main> inteiro
+ * ele borrava o texto escuro dos post-its e de qualquer superfície clara. */
+[data-theme='fantasy'] .sobre-fundo { text-shadow: 0 0 1px #04040C, 0 0 4px #04040C, 0 0 9px rgba(4,4,12,.95), 0 0 18px rgba(4,4,12,.75); }
+[data-theme='fantasy'] .sobre-fundo :is(button, a, input, select, svg) { text-shadow: none; }
 [data-theme='fantasy'] ::selection { background: rgba(108,77,255,.45); color: #fff; }
 [data-theme='fantasy'] { scrollbar-color: #2C2866 transparent; }
 

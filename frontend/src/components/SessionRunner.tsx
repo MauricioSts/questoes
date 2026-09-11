@@ -12,6 +12,7 @@ import { QuestaoView } from "./QuestaoView";
 import { CadernoDrawer } from "./CadernoDrawer";
 import { useMarcadas } from "../hooks/useMarcadas";
 import { useHistoricoQuestoes } from "../hooks/useHistoricoQuestoes";
+import { usePausarFundo } from "../store/fundo";
 
 export interface RespostaSessao {
   questao: Questao;
@@ -84,6 +85,10 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   // latência sem trazer nada novo.
   const { mapa: historico } = useHistoricoQuestoes();
   const questao = questoes[idx];
+
+  // Resolvendo questão, o relevo animado do Fantasy fica parado: movimento no canto do
+  // olho atrapalha a leitura do enunciado.
+  usePausarFundo();
 
   // Ao trocar de questão: restaura resposta anterior (voltar no simulado), reinicia o timer
   // e persiste o cursor no backend (para retomar depois).

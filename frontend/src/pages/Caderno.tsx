@@ -118,7 +118,7 @@ export function Caderno() {
 
   return (
     <div className="fadeup pt-2">
-      <div className="mb-5 flex items-end justify-between gap-3">
+      <div className="sobre-fundo mb-5 flex items-end justify-between gap-3">
         <div className="cabecalho-texto">
           <p className="legenda text-[11px] font-bold uppercase tracking-[.16em] text-faint">Caderno · {ativo?.nome ?? ""}</p>
           <TituloVivo texto="Suas anotações" tamanho={40} className="mt-1 font-bold" />

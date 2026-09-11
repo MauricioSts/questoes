@@ -3,6 +3,7 @@
 // Cyberpunk: Molten Metal (WebGL) nas cores do tema.
 import { lazy, Suspense } from "react";
 import { useTheme } from "../store/theme";
+import { useFundoPausado } from "../store/fundo";
 import { MoltenMetal } from "./MoltenMetal";
 
 // ogl + shader do relevo só descem para quem está no Fantasy.
@@ -10,14 +11,25 @@ const Topography = lazy(() => import("./reactbits/Topography"));
 
 // Cores pedidas (reactbits.dev/backgrounds/topography?lowColor=2800c9&midColor=ffffff&highColor=ffffff);
 // o resto são os valores da demonstração do React Bits, com opacidade reduzida para o
-// relevo não brigar com o texto por cima. Exportado à parte porque o Login também usa.
+// relevo não brigar com o texto por cima. Sem interação com o mouse (pedido do usuário) e
+// parado durante sessões de questões (store/fundo.ts). Exportado à parte porque o Login
+// também usa.
 export function FundoFantasy() {
   const { tema } = useTheme();
+  const pausado = useFundoPausado();
   if (tema !== "fantasy") return null;
   return (
     <div className="fundo-topo" aria-hidden>
       <Suspense fallback={null}>
-        <Topography lowColor="#2800c9" midColor="#ffffff" highColor="#ffffff" scale={2} opacity={0.6} />
+        <Topography
+          lowColor="#2800c9"
+          midColor="#ffffff"
+          highColor="#ffffff"
+          scale={2}
+          opacity={0.6}
+          mouseInteraction={false}
+          paused={pausado}
+        />
       </Suspense>
       <div className="fundo-topo__vinheta" />
     </div>

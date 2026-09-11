@@ -15,7 +15,7 @@ export function PageHeader({
   right?: ReactNode;
 }) {
   return (
-    <div className="mb-5 flex items-start justify-between gap-3">
+    <div className="sobre-fundo mb-5 flex items-start justify-between gap-3">
       {/* cabecalho-texto: no Fantasy vira min-w-0 flex-1 (index.css) — o título é um
           canvas sem largura própria e mede o pai */}
       <div className="cabecalho-texto">

@@ -176,7 +176,7 @@ export function Home() {
     <div className="fadeup space-y-6 pt-2">
       {/* 1. Cabeçalho (com paralaxe leve: desliza um pouco mais devagar que a rolagem) */}
       <Paralaxe distancia={14}>
-        <header>
+        <header className="sobre-fundo">
         <p className="legenda text-[11px] font-bold uppercase tracking-[.18em] text-faint">{dataFmt}</p>
         <TituloVivo texto={`${saudacao}, ${usuario?.nome ?? ""}`} tamanho={42} className="mt-1 leading-none" />
         <p className="mt-2 text-muted">
