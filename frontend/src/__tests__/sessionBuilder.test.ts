@@ -109,6 +109,50 @@ describe("montarSimulado (proporção da prova)", () => {
   });
 });
 
+describe("montarSimulado (blocos por disciplina)", () => {
+  const todas: Questao[] = [
+    ...Array.from({ length: 30 }, (_, i) => q(1 + i, "I", "Língua Portuguesa")),
+    ...Array.from({ length: 30 }, (_, i) => q(100 + i, "I", "Língua Inglesa")),
+    ...Array.from({ length: 30 }, (_, i) => q(200 + i, "I", "Raciocínio Lógico-Matemático")),
+    ...Array.from({ length: 30 }, (_, i) => q(300 + i, "I", "Atualidades e IA")),
+    ...Array.from({ length: 30 }, (_, i) => q(400 + i, "I", "Legislação (SI e Proteção de Dados)")),
+    ...Array.from({ length: 30 }, (_, i) => q(500 + i, "II", "Banco de Dados")),
+    ...Array.from({ length: 30 }, (_, i) => q(600 + i, "II", "Segurança da Informação")),
+  ];
+
+  it("cada disciplina aparece num bloco seguido, sem intercalar", () => {
+    const sim = montarSimulado({ semana: [], todas });
+    const blocos: string[] = [];
+    for (const x of sim) if (blocos[blocos.length - 1] !== x.materia) blocos.push(x.materia);
+    // uma entrada por matéria: se intercalasse, a mesma matéria abriria bloco duas vezes
+    expect(blocos.length).toBe(new Set(blocos).size);
+  });
+
+  it("segue a ordem do caderno no Módulo I e deixa o Módulo II no fim", () => {
+    const sim = montarSimulado({ semana: [], todas });
+    const blocos: string[] = [];
+    for (const x of sim) if (blocos[blocos.length - 1] !== x.materia) blocos.push(x.materia);
+    expect(blocos.slice(0, 5)).toEqual([
+      "Língua Portuguesa",
+      "Língua Inglesa",
+      "Raciocínio Lógico-Matemático",
+      "Atualidades e IA",
+      "Legislação (SI e Proteção de Dados)",
+    ]);
+    expect(sim.slice(40).every((x) => x.modulo === "II")).toBe(true);
+  });
+
+  it("mantém juntas as questões que dividem o mesmo texto base", () => {
+    const comTexto = todas.map((x) =>
+      x.materia === "Língua Inglesa" && x.id % 2 === 0 ? { ...x, texto_base: "t1" } : x
+    );
+    const sim = montarSimulado({ semana: [], todas: comTexto });
+    const idx = sim.map((x, i) => (x.texto_base === "t1" ? i : -1)).filter((i) => i >= 0);
+    expect(idx.length).toBeGreaterThan(1);
+    expect(idx[idx.length - 1] - idx[0]).toBe(idx.length - 1); // contíguas
+  });
+});
+
 describe("montarSimulado (sorteio: todo o tema entra, oficiais/adaptadas na frente)", () => {
   // Uma matéria de Módulo I com 30 questões para 12 vagas: metade oficial, metade autoral.
   function bancoMisto(): Questao[] {

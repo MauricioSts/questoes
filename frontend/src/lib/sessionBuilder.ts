@@ -119,33 +119,67 @@ export interface SimuladoInput {
   rng?: Rng;
 }
 
-// Sorteia dentre as questões da semana (ênfase nas erradas). Se faltar volume numa
-// matéria pra fechar a proporção, completa com questões daquela matéria não vistas
-// na semana, mantendo o total e a proporção.
+// Sorteia as 70 questões com a proporção da prova e as entrega EM BLOCOS POR
+// DISCIPLINA, na ordem do caderno: Português, Inglês, RLM, Atualidades, Legislação e,
+// no fim, o Módulo II (também em blocos, uma matéria de cada vez). Dentro do bloco a
+// ordem é sorteada. Prova de verdade não embaralha disciplina: quem está resolvendo
+// inglês não cai em banco de dados na questão seguinte.
 export function montarSimulado(input: SimuladoInput): Questao[] {
   const rng = input.rng ?? Math.random;
   const semanaMap = new Map(input.semana.map((s) => [s.questaoId, s]));
   const jaEscolhidos = new Set<number>();
-  const resultado: Questao[] = [];
+  const blocos: Questao[][] = [];
 
-  // Módulo I: por matéria, conforme a proporção.
+  // Módulo I: um bloco por matéria, conforme a proporção.
   for (const [materia, alvo] of Object.entries(PROPORCAO_SIMULADO.moduloI)) {
     const candidatas = input.todas.filter((q) => q.modulo === "I" && q.materia === materia);
-    selecionarGrupo(candidatas, alvo, semanaMap, jaEscolhidos, resultado, rng);
+    const bloco: Questao[] = [];
+    selecionarGrupo(candidatas, alvo, semanaMap, jaEscolhidos, bloco, rng);
+    if (bloco.length) blocos.push(ordenarBloco(bloco, rng));
   }
 
-  // Módulo II: total, sorteio livre entre as matérias específicas.
+  // Módulo II: o total é sorteado livremente entre as matérias específicas (nenhuma
+  // tem cota fixa), mas o resultado é reagrupado por matéria antes de ir para a tela.
   const candidatasII = input.todas.filter((q) => q.modulo === "II");
+  const sorteadasII: Questao[] = [];
   selecionarGrupo(
     candidatasII,
     PROPORCAO_SIMULADO.moduloIITotal,
     semanaMap,
     jaEscolhidos,
-    resultado,
+    sorteadasII,
     rng
   );
+  for (const materia of [...new Set(sorteadasII.map((q) => q.materia))].sort((a, b) =>
+    a.localeCompare(b, "pt-BR")
+  )) {
+    blocos.push(ordenarBloco(sorteadasII.filter((q) => q.materia === materia), rng));
+  }
 
-  return shuffle(resultado, rng);
+  return blocos.flat();
+}
+
+// Ordem dentro de um bloco: sorteada, mas com as questões que dividem o mesmo texto
+// base (inglês) coladas uma na outra — o texto aparece uma vez, nas questões dele.
+function ordenarBloco(bloco: Questao[], rng: Rng): Questao[] {
+  const embaralhado = shuffle(bloco, rng);
+  const grupos = new Map<string, Questao[]>();
+  const saida: Questao[] = [];
+  for (const q of embaralhado) {
+    if (!q.texto_base) {
+      saida.push(q);
+      continue;
+    }
+    const atual = grupos.get(q.texto_base);
+    if (atual) {
+      atual.push(q);
+    } else {
+      const novo = [q];
+      grupos.set(q.texto_base, novo);
+      saida.push(q); // reserva o lugar do grupo na ordem sorteada
+    }
+  }
+  return saida.flatMap((q) => (q.texto_base ? grupos.get(q.texto_base)! : [q]));
 }
 
 // Peso de sorteio de uma questão no simulado. Multiplicativo e NUNCA zero: toda questão

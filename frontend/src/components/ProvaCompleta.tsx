@@ -6,6 +6,7 @@
 // - nada de gabarito/explicação até apertar "Finalizar prova".
 import {
   forwardRef,
+  Fragment,
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -126,6 +127,24 @@ export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function Pro
     [questoes, marcadas]
   );
 
+  // Blocos por disciplina: trechos seguidos da mesma matéria, como as partes do
+  // caderno. O sorteio já entrega as questões agrupadas (ver montarSimulado).
+  const blocos = useMemo(() => {
+    const out: { materia: string; modulo: string; inicio: number; fim: number }[] = [];
+    questoes.forEach((q, i) => {
+      const ultimo = out[out.length - 1];
+      if (ultimo && ultimo.materia === q.materia) ultimo.fim = i;
+      else out.push({ materia: q.materia, modulo: q.modulo, inicio: i, fim: i });
+    });
+    return out;
+  }, [questoes]);
+
+  // Bloco que começa em cada índice, para cravar o cabeçalho antes da questão.
+  const blocoQueComeca = useMemo(
+    () => new Map(blocos.map((b) => [b.inicio, b])),
+    [blocos]
+  );
+
   const pct = total ? (respondidas / total) * 100 : 0;
   const decorridoMin = Math.round((Date.now() - inicioRef.current) / 60000);
 
@@ -168,29 +187,52 @@ export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function Pro
 
       {cabecalho && <div className="mb-4">{cabecalho}</div>}
 
-      {/* Folheador: grade com o número de cada questão; cheio = respondida. */}
-      <div className="card mb-5 p-4">
-        <p className="mb-3 text-[11px] font-bold uppercase tracking-[.14em] text-faint">Folhear</p>
-        <div className="flex flex-wrap gap-1.5">
-          {questoes.map((q, i) => {
-            const feita = marcadas.has(q.id);
-            return (
-              <button
-                key={q.id}
-                onClick={() => irPara(i)}
-                title={`Ir para a questão ${i + 1}`}
-                className={`h-7 w-7 rounded-lg border text-[11px] font-bold tabular-nums transition ${
-                  feita
-                    ? "border-transparent text-white"
-                    : "border-hair bg-surface text-muted hover:border-brand-400"
-                }`}
-                style={feita ? { background: "var(--accent)", color: "var(--onAccent)" } : undefined}
-              >
-                {i + 1}
-              </button>
-            );
-          })}
-        </div>
+      {/* Folheador: um grupo de números por disciplina; cheio = respondida. */}
+      <div className="card mb-5 space-y-3 p-4">
+        <p className="text-[11px] font-bold uppercase tracking-[.14em] text-faint">Folhear</p>
+        {blocos.map((bloco) => {
+          const feitasNoBloco = questoes
+            .slice(bloco.inicio, bloco.fim + 1)
+            .filter((q) => marcadas.has(q.id)).length;
+          const totalNoBloco = bloco.fim - bloco.inicio + 1;
+          return (
+            <div key={`${bloco.materia}-${bloco.inicio}`}>
+              <div className="mb-1.5 flex items-baseline justify-between gap-2">
+                <button
+                  onClick={() => irPara(bloco.inicio)}
+                  className="truncate text-left text-xs font-bold text-brand-ink transition hover:text-brand-500"
+                  title={`Ir para ${bloco.materia}`}
+                >
+                  {bloco.materia}
+                </button>
+                <span className="flex-shrink-0 text-[11px] tabular-nums text-faint">
+                  {feitasNoBloco}/{totalNoBloco}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {questoes.slice(bloco.inicio, bloco.fim + 1).map((q, j) => {
+                  const i = bloco.inicio + j;
+                  const feita = marcadas.has(q.id);
+                  return (
+                    <button
+                      key={q.id}
+                      onClick={() => irPara(i)}
+                      title={`Ir para a questão ${i + 1}`}
+                      className={`h-7 w-7 rounded-lg border text-[11px] font-bold tabular-nums transition ${
+                        feita
+                          ? "border-transparent text-white"
+                          : "border-hair bg-surface text-muted hover:border-brand-400"
+                      }`}
+                      style={feita ? { background: "var(--accent)", color: "var(--onAccent)" } : undefined}
+                    >
+                      {i + 1}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Caderno: as questões, em bloco de 4 por rolada. */}
@@ -199,26 +241,41 @@ export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function Pro
           // Texto base compartilhado (inglês): só aparece na primeira questão do grupo.
           const compartilhado =
             i > 0 && !!questao.texto_base && questoes[i - 1]?.texto_base === questao.texto_base;
+          const bloco = blocoQueComeca.get(i);
           return (
-            <section
-              key={questao.id}
-              ref={(el) => {
-                itensRef.current[i] = el;
-              }}
-              className="card scroll-mt-32 p-6"
-            >
-              <p className="mb-3 text-xs font-bold uppercase tracking-[.16em] text-muted">
-                Questão {i + 1} de {total}
-              </p>
-              <QuestaoView
-                questao={questao}
-                selecionada={marcadas.get(questao.id)}
-                revelado={false}
-                metadados="origem"
-                mostrarTextoBase={!compartilhado}
-                onSelecionar={(alt) => alternar(questao, alt)}
-              />
-            </section>
+            <Fragment key={questao.id}>
+              {/* Abertura do bloco da disciplina, como a folha de rosto da parte. */}
+              {bloco && (
+                <header className="scroll-mt-32 pt-3 first:pt-0">
+                  <div className="flex items-baseline justify-between gap-3 border-b-2 border-hair pb-2">
+                    <h2 className="font-display text-lg font-extrabold text-brand-ink">
+                      {bloco.materia}
+                    </h2>
+                    <span className="flex-shrink-0 text-[11px] font-bold uppercase tracking-[.14em] text-faint">
+                      Módulo {bloco.modulo} · questões {bloco.inicio + 1}–{bloco.fim + 1}
+                    </span>
+                  </div>
+                </header>
+              )}
+                <section
+                ref={(el) => {
+                  itensRef.current[i] = el;
+                }}
+                className="card scroll-mt-32 p-6"
+              >
+                <p className="mb-3 text-xs font-bold uppercase tracking-[.16em] text-muted">
+                  Questão {i + 1} de {total}
+                </p>
+                <QuestaoView
+                  questao={questao}
+                  selecionada={marcadas.get(questao.id)}
+                  revelado={false}
+                  metadados="origem"
+                  mostrarTextoBase={!compartilhado}
+                  onSelecionar={(alt) => alternar(questao, alt)}
+                />
+              </section>
+            </Fragment>
           );
         })}
       </div>
