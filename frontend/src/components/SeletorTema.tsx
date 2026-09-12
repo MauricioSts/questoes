@@ -1,10 +1,10 @@
 // Troca de tema. Com três temas o botão de alternar deixou de dizer para onde vai, então
 // a barra lateral mostra os três lado a lado (o ativo com nome) e o topo do celular,
 // sem espaço, gira para o próximo e diz qual é no rótulo.
-import { Cpu, Flower2, Mountain, type LucideIcon } from "lucide-react";
+import { Bird, Cpu, Mountain, type LucideIcon } from "lucide-react";
 import { TEMAS, nomeDoTema, proximoTema, useTheme, type Tema } from "../store/theme";
 
-const ICONES: Record<Tema, LucideIcon> = { fantasy: Mountain, rose: Flower2, cyberpunk: Cpu };
+const ICONES: Record<Tema, LucideIcon> = { fantasy: Mountain, rose: Bird, cyberpunk: Cpu };
 
 export function IconeTema({ tema, size = 16 }: { tema: Tema; size?: number }) {
   const Icone = ICONES[tema];

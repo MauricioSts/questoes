@@ -5,7 +5,7 @@
 // Os gradientes também eram hex fixos (um verde-menta e um verde vivo) que não
 // pertenciam a nenhuma das duas paletas. Agora saem dos tokens de acento: em progresso
 // o anel é discreto, e ao bater a meta ele fica no acento cheio — ultramar no fantasy,
-// magenta no rose, amarelo no cyberpunk. Bater a meta é a conquista do dia, então merece
+// azul do Lugia no rose, amarelo no cyberpunk. Bater a meta é a conquista do dia, então merece
 // a cor da marca, não um verde de status. A virada dispara uma comemoração de uma vez só.
 import { useEffect, useRef, useState } from "react";
 import { Contador } from "./Contador";

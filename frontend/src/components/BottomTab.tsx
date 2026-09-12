@@ -23,7 +23,7 @@ import { SeletorTema } from "./SeletorTema";
 // Cores da barra lateral (o LineSidebar recebe hex, não lê os tokens).
 const CORES_LINHA: Record<Tema, { destaque: string; texto: string; marcador: string }> = {
   fantasy: { destaque: "#B9ADFF", texto: "#A4A0CE", marcador: "#2C2866" },
-  rose: { destaque: "#E6007E", texto: "#5F55A8", marcador: "#D8CEFF" },
+  rose: { destaque: "#1B3E8B", texto: "#4A5B7A", marcador: "#DBE4F1" },
   cyberpunk: { destaque: "#FCEE0A", texto: "#8EA0B8", marcador: "#2A2940" },
 };
 

@@ -1,15 +1,22 @@
 // Fundo fixo atrás do conteúdo. Nunca captura clique.
 // Fantasy: relevo animado (Topography, React Bits) + vinheta.
-// Rose: Molten Metal (WebGL) nas cores do tema.
+// Rose ("Lugia", claro): Iridescence (React Bits) sob véu branco.
 // Cyberpunk: Pixel Blast (React Bits) + linhas de varredura + vinheta.
 import { lazy, Suspense } from "react";
 import { useTheme } from "../store/theme";
 import { useFundoPausado } from "../store/fundo";
-import { MoltenMetal } from "./MoltenMetal";
 
 // ogl + shaders só descem para quem está no tema que usa cada fundo.
 const Topography = lazy(() => import("./reactbits/Topography"));
 const PixelBlast = lazy(() => import("./reactbits/PixelBlast"));
+const Iridescence = lazy(() => import("./reactbits/Iridescence"));
+
+// Azul das placas das asas do Lugia, em 0..1 (o formato do React Bits). Constante de
+// módulo porque é prop de identidade: recriar o array a cada render reenviaria o
+// uniforme sem necessidade.
+const AZUL_LUGIA: [number, number, number] = [
+  0.09803921568627451, 0.24313725490196078, 0.5372549019607843,
+];
 
 // Cores pedidas (reactbits.dev/backgrounds/topography?lowColor=2800c9&midColor=ffffff&highColor=ffffff);
 // o resto são os valores da demonstração do React Bits, com opacidade reduzida para o
@@ -74,36 +81,23 @@ function FundoCyberpunk() {
 
 export function Atmosfera() {
   const { tema } = useTheme();
-  // Rose: o metal também congela durante uma sessão de questões.
+  // Rose/Lugia: o reflexo também congela durante uma sessão de questões.
   const pausado = useFundoPausado();
   if (tema === "fantasy") return <FundoFantasy />;
   if (tema === "cyberpunk") return <FundoCyberpunk />;
 
+  // Claro ("Lugia"): iridescência no azul das asas, coberta por um véu branco. O padrão
+  // cru ocupa a tela inteira e briga com o texto; o véu deixa só o reflexo perolado.
+  // Sem interação com o mouse, como nos outros fundos.
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden>
-      <MoltenMetal
-        key={tema}
-        backgroundColor="#F4F1FF"
-        color1="#00C2FF"
-        color2="#E6007E"
-        color3="#8B5CF6"
-        colorMode="molten"
-        lightMode
-        speed={0.35}
-        scale={3.6}
-        detail={3}
-        glow={1.5}
-        coreSize={0.12}
-        swirl={1.1}
-        fold={-0.22}
-        blackPoint={0.05}
-        brightness={1.15}
-        grain={false}
-        mouseInteraction={false}
-        paused={pausado}
-        opacity={1.0}
-        className="h-full w-full"
-      />
+    <div className="fundo-lugia" aria-hidden>
+      <div className="fundo-lugia__canvas">
+        <Suspense fallback={null}>
+          <Iridescence color={AZUL_LUGIA} speed={0.6} paused={pausado} />
+        </Suspense>
+      </div>
+      <div className="fundo-lugia__veu" />
+      <div className="fundo-lugia__brilho" />
     </div>
   );
 }

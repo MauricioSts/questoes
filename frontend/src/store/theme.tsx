@@ -1,7 +1,8 @@
 // Tema do app: três temas alternáveis a qualquer momento.
 // - 'fantasy'   (escuro): na tela se chama "Topography", pelo fundo de curvas de nível —
 //               a chave interna continua 'fantasy' para não mexer nos seletores do CSS;
-// - 'rose'      (claro): o antigo "Cyberpunk" rosa/magenta com o Molten Metal;
+// - 'rose'      (claro): na tela se chama "Lugia" — branco-pérola, azul das asas e o
+//               fundo Iridescence; a chave interna continua 'rose' (CSS e localStorage);
 // - 'cyberpunk' (escuro): Night City — amarelo, ciano e magenta sobre preto, fundo de
 //               pixels (Pixel Blast).
 // Aplica data-theme na raiz (<html>) e persiste a escolha em localStorage. Os temas
@@ -12,7 +13,7 @@ export type Tema = "fantasy" | "rose" | "cyberpunk";
 
 export const TEMAS: { id: Tema; nome: string; escuro: boolean }[] = [
   { id: "fantasy", nome: "Topography", escuro: true },
-  { id: "rose", nome: "Rose", escuro: false },
+  { id: "rose", nome: "Lugia", escuro: false },
   { id: "cyberpunk", nome: "Cyberpunk", escuro: true },
 ];
 

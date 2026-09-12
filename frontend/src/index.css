@@ -186,52 +186,61 @@
   color-scheme: dark;
 }
 
-/* ---------- ROSE (claro, divertido) ----------
- * O tema que se chamava Cyberpunk: magenta e lilás sobre lavanda, fundo Molten Metal. */
+/* ---------- ROSE (claro · "Lugia") ----------
+ * O tema claro, redesenhado a partir do Lugia: corpo branco-pérola, sombreado
+ * azul-gelo, e o azul profundo das placas das asas (#1B3E8B) como única cor de ação.
+ * O calor fica só na ofensiva (âmbar) e no erro (coral) — nada mais compete com o azul.
+ * Fundo: Iridescence (components/reactbits/Iridescence.tsx) sob um véu branco, que é o
+ * que dá o reflexo perolado sem tirar a leitura de cima.
+ * Tipografia: Sora nos títulos (geométrica, moderna, sem cara de desenho) e Plus Jakarta
+ * no corpo, que é o que se lê num enunciado. */
 [data-theme='rose'] {
-  --brand-50: 244 241 255;
-  --brand-100: 235 228 255;
-  --brand-200: 201 188 255;
-  --brand-300: 167 139 250;
-  --brand-400: 255 61 168;
-  --brand-500: 230 0 126;
-  --brand-600: 194 0 107;
-  --brand-700: 194 0 107;
-  --ink: 20 16 58;
-  --muted: 95 85 168;
-  --faint: 139 128 201;
-  --hair: 216 206 255;
+  --brand-50: 238 243 251;
+  --brand-100: 226 235 249;
+  --brand-200: 198 214 242;
+  --brand-300: 157 184 232;
+  --brand-400: 76 122 214;
+  --brand-500: 27 62 139;
+  --brand-600: 19 46 108;
+  --brand-700: 21 52 120;
+  --ink: 14 26 51;
+  --muted: 74 91 122;
+  --faint: 107 124 150;
+  --hair: 219 228 241;
   --surface: 255 255 255;
-  --surface-2: 247 244 255;
-  --bg: 244 241 255;
-  --bg-glow: rgba(139, 92, 246, 0.14);
-  --flame-text: 230 0 126;
-  --success-from: 0 128 111;
-  --success-soft: 217 247 241;
-  --danger-from: 230 0 126;
-  --danger-soft: 255 228 242;
-  --cyan-from: 0 194 255;
-  --cyan-to: 139 92 246;
+  --surface-2: 244 247 253;
+  --bg: 238 243 251;
+  --bg-glow: rgba(27, 62, 139, 0.10);
+  --flame-text: 200 116 38;
+  --success-from: 13 148 132;
+  --success-soft: 219 245 241;
+  --danger-from: 208 58 96;
+  --danger-soft: 255 229 236;
+  --cyan-from: 79 176 255;
+  --cyan-to: 27 62 139;
 
-  --text:#14103A; --dim:#B2A8E0;
-  --surfaceHex:#FFFFFF; --surface2:#F7F4FF;
-  --line:#D8CEFF; --lineSoft:#EBE4FF; --lineStrong:#C9BCFF; --lineHi:#A78BFA;
-  --accent:#E6007E; --accentHi:#FF3DA8; --accentText:#C2006B;
-  --accentBd:#FFB3DC; --accentBg:rgba(230,0,126,.10);
-  --good:#00B39A; --goodText:#00806F; --goodBd:#8DE8DA; --goodBg:rgba(0,179,154,.12);
+  --text:#0E1A33; --dim:#A9B7CC;
+  --surfaceHex:#FFFFFF; --surface2:#F4F7FD;
+  --line:#DBE4F1; --lineSoft:#EBF0F8; --lineStrong:#C6D3E8; --lineHi:#8FB0E8;
+  --accent:#1B3E8B; --accentHi:#2E5BC7; --accentText:#16377C;
+  --accentBd:#B9CBEC; --accentBg:rgba(27,62,139,.08);
+  --good:#0D9484; --goodText:#0A7365; --goodBd:#9FE2D8; --goodBg:rgba(13,148,132,.12);
   --onAccent:#FFFFFF;
-  --track:#EBE4FF; --trackSoft:#F1ECFF; --bar:#DCD2FF;
-  --display:'Chakra Petch', sans-serif; --displayWeight:700;
-  --brandFont:'Chakra Petch', sans-serif; --brandWeight:700; --brandTrack:.02em;
-  --r:14px; --rSm:10px; --rChip:999px;
-  --grain:0; --vignette:rgba(120,90,220,.10); --vigStop:70%;
-  --cardGlow: 0 6px 0 -2px rgba(216,206,255,.6), 0 14px 30px -18px rgba(90,60,190,.35);
-  --heat0:#EFE9FF; --heat0bd:#DED4FF;
-  --heat1:rgba(0,194,255,.45); --heat2:rgba(139,92,246,.55);
-  --heat3:rgba(230,0,126,.65); --heat4:#E6007E;
-  --dot:#DED4FF;
-  --cobraCabeca:#E6007E; --cobraCauda:#FFB3DC; --cobraOlho:#FFFFFF; --cobraRaio:5px;
-  --cobraBrilho:0 2px 5px rgba(194,0,107,.35); --cobraMordida:#00C2FF;
+  --track:#E6EDF8; --trackSoft:#F0F5FC; --bar:#D3DFF1;
+  --display:'Sora', 'Plus Jakarta Sans', sans-serif; --displayWeight:700;
+  --brandFont:'Sora', 'Plus Jakarta Sans', sans-serif; --brandWeight:700; --brandTrack:-.01em;
+  --r:16px; --rSm:10px; --rChip:999px;
+  --grain:0; --vignette:rgba(150,180,225,.16); --vigStop:66%;
+  --cardGlow:
+    inset 0 1px 0 rgba(255,255,255,.9),
+    0 1px 2px rgba(20,45,100,.05),
+    0 18px 40px -30px rgba(20,45,100,.45);
+  --heat0:#EDF2FB; --heat0bd:#DDE6F4;
+  --heat1:rgba(79,176,255,.34); --heat2:rgba(46,91,199,.52);
+  --heat3:#2E5BC7; --heat4:#16377C;
+  --dot:#DDE6F4;
+  --cobraCabeca:#1B3E8B; --cobraCauda:#A9C6F0; --cobraOlho:#FFFFFF; --cobraRaio:6px;
+  --cobraBrilho:0 2px 6px rgba(27,62,139,.30); --cobraMordida:#4FB0FF;
   color-scheme: light;
 }
 
@@ -870,3 +879,115 @@ body {
   background-repeat: no-repeat;
 }
 .painel-malha > .relative { z-index: 2; }
+
+/* ======================= ROSE / LUGIA: acabamento =======================
+ * O tema claro. Referência de cor: o Lugia — corpo branco-pérola, sombra azul-gelo e o
+ * azul profundo das placas das asas como única cor de ação. Tudo escopado em
+ * [data-theme='rose'] (a chave interna do tema claro), só o que os tokens não alcançam. */
+
+/* Fundo iridescente sob um véu branco: perto das bordas vê-se o reflexo perolado, no
+ * miolo (onde o texto vive) fica quase branco. Sem véu o padrão é bonito e ilegível. */
+.fundo-lugia { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.fundo-lugia__canvas { position: absolute; inset: 0; opacity: .78; }
+.fundo-lugia__canvas canvas { animation: topoIn 1.4s ease both; }
+.fundo-lugia__veu {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(100% 75% at 50% 40%, rgba(255,255,255,.90) 0%, rgba(255,255,255,.78) 45%, rgba(255,255,255,.34) 100%),
+    linear-gradient(180deg, rgba(238,243,251,.40), rgba(238,243,251,.05) 45%, rgba(238,243,251,.38));
+}
+/* Brilho frio no alto, como a luz que bate no dorso do Lugia. */
+.fundo-lugia__brilho {
+  position: absolute; inset: 0;
+  background: radial-gradient(90% 55% at 50% -10%, rgba(79,176,255,.20), transparent 70%);
+}
+
+[data-theme='rose'] body { background: rgb(var(--bg)); }
+[data-theme='rose'] ::selection { background: rgba(79,176,255,.30); color: #0E1A33; }
+[data-theme='rose'] { scrollbar-color: #C6D3E8 transparent; }
+
+/* Cartões: papel branco sobre gelo. Aro fino azulado em vez de sombra pesada — no claro,
+ * sombra forte suja; o que separa o cartão do fundo é o aro e um halo baixo e largo. */
+[data-theme='rose'] .card {
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(10px);
+  border-color: rgba(198,211,232,.9);
+}
+[data-theme='rose'] .card-hover:hover {
+  border-color: var(--lineHi);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.9),
+    0 22px 44px -28px rgba(20,45,100,.55);
+}
+
+/* Ação: o azul das asas, com um fio de azure por cima para dar volume. */
+[data-theme='rose'] .btn-primary,
+[data-theme='rose'] .botao-primario {
+  background: linear-gradient(180deg, #2E5BC7, #1B3E8B 62%, #17357A);
+  color: #FFFFFF;
+  letter-spacing: -.01em;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.28),
+    0 14px 28px -16px rgba(27,62,139,.65);
+}
+[data-theme='rose'] .btn-primary:hover:not(:disabled),
+[data-theme='rose'] .botao-primario:hover:not(:disabled) {
+  background: linear-gradient(180deg, #3A6AD8, #2450A8 62%, #1B3E8B);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.34),
+    0 18px 34px -16px rgba(27,62,139,.7);
+}
+[data-theme='rose'] .btn-secondary {
+  background: rgba(255,255,255,.9);
+  border-color: var(--lineStrong);
+  color: var(--accent);
+}
+[data-theme='rose'] .btn-secondary:hover { border-color: var(--lineHi); background: #FFFFFF; }
+
+[data-theme='rose'] .filter-select {
+  background-color: rgba(255,255,255,.92);
+  border-color: var(--line);
+}
+[data-theme='rose'] .filter-select:hover { border-color: var(--lineHi); }
+
+/* Barra lateral e topo: vidro branco. O topo fecha com um fio azure que some à direita,
+ * a única linha de cor da moldura. */
+[data-theme='rose'] .nav-app {
+  background-color: rgba(255,255,255,.82);
+  border-color: rgba(198,211,232,.85);
+}
+[data-theme='rose'] .topo-app {
+  background-color: rgba(255,255,255,.78);
+  border-color: transparent;
+  background-image: linear-gradient(90deg, rgba(27,62,139,.55), rgba(79,176,255,.45) 40%, rgba(79,176,255,0));
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+}
+
+/* Legendas (maiúsculas espaçadas): Sora, azul apagado — etiqueta, não título. */
+[data-theme='rose'] .legenda {
+  font-family: 'Sora', 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  letter-spacing: .12em;
+  color: var(--faint);
+}
+
+/* Ofensiva: âmbar. O único calor do tema, e por isso ele chama atenção. */
+[data-theme='rose'] .streak-chip--ativa {
+  border-color: #E8A24A;
+  background: rgba(232,162,74,.12);
+  color: #A2651F;
+  box-shadow: inset 0 0 16px -8px #E8A24A;
+}
+[data-theme='rose'] .streak-chip--ativa .streak-chip__chama { color: #E08A3C; }
+[data-theme='rose'] .streak-chip--zerada { color: var(--faint); }
+
+/* Chaves e trilhos: prata azulada, com o azul cheio só no ligado. */
+[data-theme='rose'] .toggle { background: #DCE5F2; box-shadow: inset 0 0 0 1px rgba(198,211,232,.9); }
+[data-theme='rose'] .toggle-circle { background: #FFFFFF; box-shadow: 0 1px 2px rgba(20,45,100,.25); }
+[data-theme='rose'] .toggle.active { background: linear-gradient(135deg, #2E5BC7, #1B3E8B); }
+
+/* Selos: fundo lavado, texto no tom cheio — legível sem virar bloco de cor. */
+[data-theme='rose'] .meta-pill { letter-spacing: .01em; }
+[data-theme='rose'] .meta-origem-oficial { border-color: var(--accent); color: var(--accentText); background: rgba(27,62,139,.06); }

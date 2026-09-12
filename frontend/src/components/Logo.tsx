@@ -3,7 +3,7 @@
 // O símbolo é o prompt `>_` de um terminal: o nome junta "dev" com "concursado", e o
 // prompt é a metade que os dois lados reconhecem. Desenhado em SVG (não em fonte) para
 // ficar nítido em qualquer tamanho e trocar de cor com o tema — o selo usa o acento
-// (ultramar no fantasy, magenta no rose, amarelo no cyberpunk) e o traço usa a cor de
+// (ultramar no fantasy, azul do Lugia no rose, amarelo no cyberpunk) e o traço usa a cor de
 // contraste do acento.
 import { useId } from "react";
 
