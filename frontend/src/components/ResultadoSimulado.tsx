@@ -42,7 +42,7 @@ export function ResultadoSimulado({
         {respostas.map((r, i) => (
           <div key={r.questao.id} className="border-b border-slate-200 pb-6 dark:border-slate-800">
             <p className="mb-2 text-xs text-slate-400">Questão {i + 1}</p>
-            <QuestaoView questao={r.questao} selecionada={r.marcada} revelado onSelecionar={() => {}} />
+            <QuestaoView questao={r.questao} selecionada={r.marcada} revelado metadados="origem" onSelecionar={() => {}} />
           </div>
         ))}
         <button onClick={onSair} className="btn-primary w-full">Concluir</button>

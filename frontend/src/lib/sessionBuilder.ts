@@ -1,7 +1,7 @@
 // MONTAGEM DE SESSÕES: regra de negócio que roda no FRONTEND (tem o JSON).
 // O backend só fornece IDs (erradas, semana); aqui decidimos a composição final.
 import type { Questao, Dificuldade } from "../types/questao";
-import { PROPORCAO_SIMULADO, PESO_ERRADA } from "../config/prova";
+import { PROPORCAO_SIMULADO, PESO_ERRADA, PESO_ORIGEM } from "../config/prova";
 
 // ---------- utilitários de sorteio ----------
 
@@ -148,9 +148,20 @@ export function montarSimulado(input: SimuladoInput): Questao[] {
   return shuffle(resultado, rng);
 }
 
-// Seleciona `alvo` questões de um grupo: sorteia dentre as da semana com ênfase nas
-// erradas (peso maior) e, se faltar volume, completa com questões do grupo não vistas
-// na semana: mantendo a proporção.
+// Peso de sorteio de uma questão no simulado. Multiplicativo e NUNCA zero: toda questão
+// do tema entra no bolo, o peso só muda a chance.
+// - procedência: oficial e adaptada pesam mais (é ensaio da prova real);
+// - erro na semana: multiplica por PESO_ERRADA.
+export function pesoSimulado(q: Questao, semanaMap: Map<number, SemanaItem>): number {
+  const origem = PESO_ORIGEM[q.origem ?? "autoral"] ?? 1;
+  const erros = semanaMap.get(q.id)?.erros ?? 0;
+  return origem * (erros > 0 ? PESO_ERRADA : 1);
+}
+
+// Seleciona `alvo` questões de um grupo sorteando num pool ÚNICO com TODAS as questões
+// do grupo (vistas ou não na semana). Antes o sorteio era em duas fases — primeiro só as
+// da semana, depois completar com as não vistas — e uma questão nunca respondida só
+// entrava quando faltava volume. Agora concorrem todas, com peso.
 function selecionarGrupo(
   candidatas: Questao[],
   alvo: number,
@@ -159,29 +170,11 @@ function selecionarGrupo(
   resultado: Questao[],
   rng: Rng
 ) {
-  const daSemana = candidatas.filter((q) => semanaMap.has(q.id) && !jaEscolhidos.has(q.id));
-  const ponderadas = daSemana.map((q) => ({
-    item: q,
-    peso: (semanaMap.get(q.id)?.erros ?? 0) > 0 ? PESO_ERRADA : 1,
-  }));
-  const sorteadas = sampleWeighted(ponderadas, alvo, rng);
-  for (const q of sorteadas) {
+  const pool = candidatas.filter((q) => !jaEscolhidos.has(q.id));
+  const ponderadas = pool.map((q) => ({ item: q, peso: pesoSimulado(q, semanaMap) }));
+  for (const q of sampleWeighted(ponderadas, alvo, rng)) {
     resultado.push(q);
     jaEscolhidos.add(q.id);
-  }
-  // completa com não vistas na semana mantendo a proporção
-  let faltam = alvo - sorteadas.length;
-  if (faltam > 0) {
-    const naoVistas = shuffle(
-      candidatas.filter((q) => !semanaMap.has(q.id) && !jaEscolhidos.has(q.id)),
-      rng
-    );
-    for (const q of naoVistas) {
-      if (faltam <= 0) break;
-      resultado.push(q);
-      jaEscolhidos.add(q.id);
-      faltam--;
-    }
   }
 }
 

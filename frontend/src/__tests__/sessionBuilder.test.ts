@@ -109,6 +109,56 @@ describe("montarSimulado (proporção da prova)", () => {
   });
 });
 
+describe("montarSimulado (sorteio: todo o tema entra, oficiais/adaptadas na frente)", () => {
+  // Uma matéria de Módulo I com 30 questões para 12 vagas: metade oficial, metade autoral.
+  function bancoMisto(): Questao[] {
+    const port = Array.from({ length: 30 }, (_, i) => {
+      const q0 = q(1 + i, "I", "Língua Portuguesa");
+      return i < 15 ? { ...q0, origem: "oficial" as const, prova: "P1" } : q0;
+    });
+    return [
+      ...port,
+      ...Array.from({ length: 30 }, (_, i) => q(100 + i, "I", "Língua Inglesa")),
+      ...Array.from({ length: 30 }, (_, i) => q(200 + i, "I", "Raciocínio Lógico-Matemático")),
+      ...Array.from({ length: 30 }, (_, i) => q(300 + i, "I", "Atualidades e IA")),
+      ...Array.from({ length: 30 }, (_, i) => q(400 + i, "I", "Legislação (SI e Proteção de Dados)")),
+      ...Array.from({ length: 60 }, (_, i) => q(500 + i, "II", "Especificos")),
+    ];
+  }
+
+  it("qualquer questão do tema pode ser sorteada, inclusive a nunca respondida", () => {
+    const todas = bancoMisto();
+    // Toda a semana respondida MENOS a questão 30: antes ela só entraria como tapa-buraco.
+    const semana = todas
+      .filter((x) => x.id !== 30)
+      .map((x) => ({ questaoId: x.id, erros: 0, total: 1 }));
+    const vistos = new Set<number>();
+    for (let i = 0; i < 400; i++) {
+      for (const x of montarSimulado({ semana, todas })) vistos.add(x.id);
+    }
+    expect(vistos.has(30)).toBe(true);
+    // e o tema inteiro é elegível
+    for (const x of todas.filter((y) => y.materia === "Língua Portuguesa")) {
+      expect(vistos.has(x.id)).toBe(true);
+    }
+  });
+
+  it("prioriza oficial/adaptada sobre autoral no mesmo tema", () => {
+    const todas = bancoMisto();
+    let oficiais = 0;
+    let autorais = 0;
+    for (let i = 0; i < 200; i++) {
+      for (const x of montarSimulado({ semana: [], todas })) {
+        if (x.materia !== "Língua Portuguesa") continue;
+        if (x.origem === "oficial") oficiais++;
+        else autorais++;
+      }
+    }
+    // Mesma quantidade de candidatas (15 × 15) e peso 6 × 1: a folga é enorme.
+    expect(oficiais).toBeGreaterThan(autorais * 2);
+  });
+});
+
 describe("calcularNotaSimulado (nota ponderada real)", () => {
   it("Módulo I peso 1, Módulo II peso 2,5", () => {
     const r = calcularNotaSimulado([

@@ -9,7 +9,8 @@ import { montarSimulado, type SemanaItem } from "../lib/sessionBuilder";
 import { montarResultado } from "../lib/correcao";
 import { enviarLote } from "../lib/answers";
 import { SIMULADO_DURACAO_MIN, TOTAL_SIMULADO } from "../config/prova";
-import { SessionRunner, type RespostaSessao, type SessionRunnerHandle } from "../components/SessionRunner";
+import type { RespostaSessao } from "../components/SessionRunner";
+import { ProvaCompleta, type ProvaCompletaHandle } from "../components/ProvaCompleta";
 import { Cronometro } from "../components/Cronometro";
 import { ResultadoSimulado } from "../components/ResultadoSimulado";
 import { Card } from "../components/Card";
@@ -37,7 +38,7 @@ export function Simulado() {
   const [usarCronometro, setUsarCronometro] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
-  const runnerRef = useRef<SessionRunnerHandle>(null);
+  const provaRef = useRef<ProvaCompletaHandle>(null);
 
   async function iniciar() {
     setCarregando(true);
@@ -75,17 +76,14 @@ export function Simulado() {
 
   if (fase === "rodando") {
     return (
-      <SessionRunner
-        ref={runnerRef}
+      <ProvaCompleta
+        ref={provaRef}
         questoes={questoes}
-        contexto="SIMULADO"
-        feedbackImediato={false}
-        permiteCaderno={false}
-        permiteMarcar={false}
         onFinalizar={finalizar}
+        onSair={() => setFase("intro")}
         cabecalho={
           usarCronometro ? (
-            <Cronometro minutos={SIMULADO_DURACAO_MIN} onFim={() => runnerRef.current?.finalizar()} />
+            <Cronometro minutos={SIMULADO_DURACAO_MIN} onFim={() => provaRef.current?.finalizar()} />
           ) : null
         }
       />
@@ -169,13 +167,6 @@ export function Simulado() {
 
       {/* Aviso */}
       {aviso && (
-        <div className="rounded-xl bg-yellow-100 border border-yellow-300 p-4 text-sm text-yellow-800">
-          {aviso}
-        </div>
-      )}
-
-      {/* Aviso */}
-      {aviso && (
         <div className="rounded-xl border p-4 text-sm" style={{ borderColor: "var(--accentBd)", background: "var(--accentBg)", color: "var(--accentText)" }}>
           {aviso}
         </div>
@@ -193,7 +184,7 @@ export function Simulado() {
       <PageHeader
         rotulo="Simulado"
         titulo="Prova completa"
-        subtitulo="70 questões na proporção real, sem feedback até o fim."
+        subtitulo="70 questões na proporção real. Folheie a prova inteira, marque e desmarque; a correção só vem no fim."
       />
 
       {/* Abas (underline) */}

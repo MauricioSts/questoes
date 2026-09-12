@@ -21,6 +21,10 @@ interface Props {
   revelado: boolean;
   mostrarTextoBase?: boolean;
   historico?: HistoricoNaQuestao;
+  // "completo": módulo, matéria, dificuldade, procedência e reincidência.
+  // "origem":   só a procedência. É o modo da prova: dificuldade e reincidência
+  //             entregariam a questão antes de lê-la, coisa que a prova real não faz.
+  metadados?: "completo" | "origem";
   onSelecionar: (alt: Alternativa) => void;
 }
 
@@ -30,8 +34,10 @@ export function QuestaoView({
   revelado,
   mostrarTextoBase = true,
   historico,
+  metadados = "completo",
   onSelecionar,
 }: Props) {
+  const soOrigem = metadados === "origem";
   const textoBase = getTextoBase(questao.texto_base);
   const acertou = revelado && selecionada === questao.gabarito;
 
@@ -67,12 +73,16 @@ export function QuestaoView({
 
       {/* Metadados */}
       <div className="flex flex-wrap gap-2">
-        <MetaPill type="modulo" label={`Módulo ${questao.modulo}`} />
-        <MetaPill type="materia" label={questao.materia} />
-        <MetaPill
-          type={questao.dificuldade === "facil" ? "dificuldade-facil" : questao.dificuldade === "media" ? "dificuldade-media" : "dificuldade-dificil"}
-          label={questao.dificuldade === "facil" ? "Fácil" : questao.dificuldade === "media" ? "Média" : "Difícil"}
-        />
+        {!soOrigem && (
+          <>
+            <MetaPill type="modulo" label={`Módulo ${questao.modulo}`} />
+            <MetaPill type="materia" label={questao.materia} />
+            <MetaPill
+              type={questao.dificuldade === "facil" ? "dificuldade-facil" : questao.dificuldade === "media" ? "dificuldade-media" : "dificuldade-dificil"}
+              label={questao.dificuldade === "facil" ? "Fácil" : questao.dificuldade === "media" ? "Média" : "Difícil"}
+            />
+          </>
+        )}
         {/* O selo vira link quando a prova de origem tem PDF oficial. */}
         {prova?.url ? (
           <a href={prova.url} target="_blank" rel="noreferrer" className="tap">
@@ -84,7 +94,7 @@ export function QuestaoView({
 
         {/* Reincidência: nº de vezes que já refiz esta questão e quantas vezes errei.
             Aparece só quando existe histórico (primeira vez não tem nada a dizer). */}
-        {historico && historico.tentativas > 0 && (
+        {!soOrigem && historico && historico.tentativas > 0 && (
           <span
             className="meta-pill border border-hair bg-surface2 text-muted"
             title={

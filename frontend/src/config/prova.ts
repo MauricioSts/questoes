@@ -31,5 +31,15 @@ export const SIMULADO_DURACAO_MIN = 240; // 4h
 // Ênfase nas erradas: peso de sorteio de uma questão errada vs. uma acertada.
 export const PESO_ERRADA = 3;
 
+// Ênfase por procedência no sorteio do simulado. O simulado é ensaio da prova real:
+// questão que caiu numa prova (oficial) e questão adaptada de prova valem mais que
+// autoral/gerada. Peso 1 = continua elegível, só sai menos.
+export const PESO_ORIGEM: Record<string, number> = {
+  oficial: 6,
+  adaptada: 4,
+  autoral: 1,
+  gerada: 1,
+};
+
 // Meta diária default (o backend também guarda por usuário).
 export const META_DIARIA_DEFAULT = 70;
