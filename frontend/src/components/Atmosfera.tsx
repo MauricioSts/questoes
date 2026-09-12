@@ -46,13 +46,15 @@ export function FundoFantasy() {
 }
 
 // Pixels magenta (canto de cima) que viram ciano (canto de baixo), a dupla de Edgerunners.
+// Na sessão de questões param os pixels E a faixa de luz que desce pela tela: ela cruza o
+// enunciado a cada 9 s e puxa o olho para fora da leitura.
 // A camada fica a 50% (index.css, .fundo-cyber__pixels) para os pixels serem textura e não
 // competirem com os cartões. Clicar em qualquer lugar solta uma onda nos pixels. Parado
 // durante sessões de questões, como o relevo do Fantasy.
 function FundoCyberpunk() {
   const pausado = useFundoPausado();
   return (
-    <div className="fundo-cyber" aria-hidden>
+    <div className={`fundo-cyber ${pausado ? "fundo-cyber--parado" : ""}`} aria-hidden>
       <div className="fundo-cyber__pixels">
         <Suspense fallback={null}>
           <PixelBlast

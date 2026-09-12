@@ -826,6 +826,9 @@ body {
   animation: varredura 9s linear infinite;
 }
 @keyframes varredura { to { transform: translateY(433%); } }
+/* Sessão de questões: a faixa some de vez. Parada no meio da tela ela continuaria como
+ * um borrão ciano por cima do enunciado, então não basta pausar a animação. */
+.fundo-cyber--parado .fundo-cyber__varredura::after { animation: none; display: none; }
 .fundo-cyber__vinheta {
   position: absolute; inset: 0;
   background: radial-gradient(125% 95% at 50% 42%, transparent 45%, rgba(0,0,0,.9) 100%);
