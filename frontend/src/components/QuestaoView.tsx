@@ -1,12 +1,12 @@
-import { Check, X, History } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Check, X, History, Ban } from "lucide-react";
 import type { Questao, Alternativa } from "../types/questao";
 import { getTextoBase, getProva, origemDe, rotuloOrigem } from "../lib/questoesRepo";
+import { ordemAlternativas } from "../lib/ordemAlternativas";
 import { Card } from "./Card";
 import { MetaPill } from "./MetaPill";
 import { comRealce } from "./Realce";
 import { ImagensQuestao } from "./ImagemQuestao";
-
-const LETRAS: Alternativa[] = ["A", "B", "C", "D", "E"];
 
 // Histórico da questão ANTES desta tentativa: quantas vezes ela já foi respondida e
 // quantas vezes eu errei. É o que transforma "de novo essa?" em informação útil.
@@ -38,6 +38,40 @@ export function QuestaoView({
   onSelecionar,
 }: Props) {
   const soOrigem = metadados === "origem";
+
+  // Ordem de exibição: embaralhada a cada repetição da questão (ver lib/ordemAlternativas).
+  // A letra de cada alternativa NÃO muda — só a posição —, então gabarito, explicação e
+  // histórico continuam falando da mesma alternativa.
+  const ordem = useMemo(
+    () => ordemAlternativas(questao, historico?.tentativas ?? 0),
+    [questao, historico?.tentativas]
+  );
+
+  // Alternativas eliminadas "no rascunho": riscadas para afunilar a escolha. Vive só nesta
+  // tentativa — some ao trocar de questão e não vai para o backend.
+  const [eliminadas, setEliminadas] = useState<Set<Alternativa>>(new Set());
+  useEffect(() => setEliminadas(new Set()), [questao.id]);
+
+  function alternarEliminada(letra: Alternativa) {
+    setEliminadas((atual) => {
+      const proximo = new Set(atual);
+      if (proximo.has(letra)) proximo.delete(letra);
+      else proximo.add(letra);
+      return proximo;
+    });
+  }
+
+  // Marcar uma alternativa riscada desfaz o risco: marcar e eliminar são opostos.
+  function selecionar(letra: Alternativa) {
+    if (eliminadas.has(letra)) {
+      setEliminadas((atual) => {
+        const proximo = new Set(atual);
+        proximo.delete(letra);
+        return proximo;
+      });
+    }
+    onSelecionar(letra);
+  }
   const textoBase = getTextoBase(questao.texto_base);
   const acertou = revelado && selecionada === questao.gabarito;
 
@@ -137,12 +171,13 @@ export function QuestaoView({
       {/* Imagens que pertencem às alternativas */}
       <ImagensQuestao imagens={questao.imagens} posicao="alternativas" />
 
-      {/* Alternativas */}
+      {/* Alternativas. A ordem é sorteada por tentativa; a letra é a do lote. */}
       <ul className="space-y-3" role="radiogroup" aria-label="Alternativas">
-        {LETRAS.filter((l) => questao.alternativas[l] != null).map((letra) => {
+        {ordem.map((letra) => {
           const isCorreta = revelado && questao.gabarito === letra;
           const isMarcadaErrada = revelado && selecionada === letra && questao.gabarito !== letra;
           const isSelected = selecionada === letra;
+          const isEliminada = !revelado && eliminadas.has(letra);
 
           let borderClass = "border-hair hover:border-brand-400";
           let bgClass = "bg-surface hover:bg-brand-50";
@@ -163,16 +198,17 @@ export function QuestaoView({
           }
 
           return (
-            <li key={letra}>
+            <li key={letra} className="flex items-stretch gap-2">
               <button
                 type="button"
                 role="radio"
                 aria-checked={isSelected}
                 disabled={revelado}
-                onClick={() => onSelecionar(letra)}
-                className={`tap w-full flex items-start gap-4 rounded-2xl border p-4 text-left transition ${borderClass} ${bgClass} ${
+                onClick={() => selecionar(letra)}
+                className={`tap relative w-full flex items-start gap-4 rounded-2xl border p-4 text-left transition ${borderClass} ${bgClass} ${
                   revelado ? "cursor-default" : ""
                 }`}
+                style={isEliminada ? { opacity: 0.45 } : undefined}
               >
                 {/* Badge de letra */}
                 <div
@@ -188,8 +224,42 @@ export function QuestaoView({
                 </div>
 
                 {/* Texto da alternativa */}
-                <span className="whitespace-pre-wrap pt-1 text-sm">{comRealce(questao.alternativas[letra]!)}</span>
+                <span
+                  className="whitespace-pre-wrap pt-1 text-sm"
+                  style={isEliminada ? { textDecoration: "line-through" } : undefined}
+                >
+                  {comRealce(questao.alternativas[letra]!)}
+                </span>
+
+                {/* Traço por cima da alternativa eliminada: é o risco de caneta no caderno,
+                    o que some da leitura sem sumir da tela. */}
+                {isEliminada && (
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute left-3 right-3 top-1/2 h-px"
+                    style={{ background: "rgb(var(--faint))" }}
+                  />
+                )}
               </button>
+
+              {/* Eliminar: risca a alternativa para afunilar a escolha. Só antes de
+                  responder — depois do gabarito não há mais o que eliminar. */}
+              {!revelado && (
+                <button
+                  type="button"
+                  onClick={() => alternarEliminada(letra)}
+                  aria-pressed={isEliminada}
+                  aria-label={isEliminada ? `Desfazer eliminação da alternativa ${letra}` : `Eliminar alternativa ${letra}`}
+                  title={isEliminada ? "Desfazer o risco" : "Eliminar esta alternativa"}
+                  className={`tap flex w-11 flex-shrink-0 items-center justify-center rounded-2xl border transition ${
+                    isEliminada
+                      ? "border-hair bg-surface2 text-brand-ink"
+                      : "border-hair bg-surface text-faint hover:text-brand-500"
+                  }`}
+                >
+                  <Ban size={17} strokeWidth={1.9} />
+                </button>
+              )}
             </li>
           );
         })}
