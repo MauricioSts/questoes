@@ -207,13 +207,16 @@ export function Home() {
       <div className="grid gap-5 lg:grid-cols-2">
         {/* Meta diária (anel) */}
         <BrilhoBorda animated className="h-full" glowRadius={40}>
-          <div className="flex flex-1 flex-wrap items-center justify-center gap-7 p-8 sm:flex-nowrap sm:justify-start">
+          {/* Abaixo de sm o anel sobe para cima do texto (mesmo desenho do cartão da
+              matéria do dia): lado a lado, a coluna de texto ficava com ~145px e o título
+              quebrava palavra a palavra. */}
+          <div className="flex flex-1 flex-col items-center gap-6 p-6 text-center sm:flex-row sm:items-center sm:gap-7 sm:p-8 sm:text-left">
           {/* key: o anel remonta quando /goals/today chega. Assim ele desenha a partir do
               valor real e a referência da comemoração nasce com a meta já batida (ou não) —
               antes, todo F5 com a meta cumprida disparava a comemoração de novo. */}
           <ProgressRing key={goal ? "pronto" : "carregando"} valor={respondidas} meta={meta} size={148} />
-          <div className="min-w-0 flex-1 space-y-2.5">
-            <div className="flex items-center gap-2">
+          <div className="w-full min-w-0 flex-1 space-y-2.5">
+            <div className="flex items-center justify-center gap-2 sm:justify-start">
               <p className="legenda text-[11px] font-bold uppercase tracking-[.16em] text-faint">Meta diária</p>
               {!editandoMeta && (
                 <button onClick={() => setEditandoMeta(true)} className="text-faint transition hover:text-brand-500" aria-label="Alterar meta diária">
@@ -247,7 +250,7 @@ export function Home() {
                     Meta do dia concluída
                   </span>
                 )}
-                <p className="font-display text-[28px] font-bold leading-[1.15] text-brand-ink">
+                <p className="font-display text-[24px] font-bold leading-[1.15] text-brand-ink sm:text-[28px]">
                   {cumpriuHoje ? "Meta batida" : `Faltam ${faltamMeta} ${faltamMeta === 1 ? "questão" : "questões"}`}
                 </p>
                 <p className="text-[15px] leading-relaxed text-muted">
@@ -258,7 +261,7 @@ export function Home() {
 
                 {/* Fecha o dia: como foi, não só quanto. Sem isto o cartão ficava com
                     um título e um botão dentro de uma caixa alta e vazia. */}
-                <div className="mt-1 flex flex-wrap items-stretch gap-x-6 gap-y-3 border-t border-hair pt-3">
+                <div className="mt-1 flex flex-wrap items-stretch justify-center gap-x-6 gap-y-3 border-t border-hair pt-3 sm:justify-start">
                   <MiniDado rotulo="acertos" valor={acertosHoje} cor="var(--goodText)" />
                   <MiniDado rotulo="erros" valor={errosHoje} cor="var(--accentText)" />
                   <MiniDado

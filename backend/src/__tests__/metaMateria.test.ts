@@ -16,16 +16,21 @@ function rngFixo(valores: number[]): () => number {
 
 describe("materiaDoDia", () => {
   it("segue o rodízio de segunda a sexta", () => {
-    expect(materiaDoDia(0)?.rotulo).toBe("Língua Portuguesa");
-    expect(materiaDoDia(1)?.rotulo).toBe("Legislação");
-    expect(materiaDoDia(2)?.rotulo).toBe("Raciocínio Lógico-Matemático");
-    expect(materiaDoDia(3)?.rotulo).toBe("Língua Inglesa");
-    expect(materiaDoDia(4)?.rotulo).toBe("Banco de Dados");
+    expect(materiaDoDia(0).rotulo).toBe("Língua Portuguesa");
+    expect(materiaDoDia(1).rotulo).toBe("Legislação");
+    expect(materiaDoDia(2).rotulo).toBe("Raciocínio Lógico-Matemático");
+    expect(materiaDoDia(3).rotulo).toBe("Língua Inglesa");
+    expect(materiaDoDia(4).rotulo).toBe("Banco de Dados");
   });
 
-  it("não tem matéria fixa no fim de semana", () => {
-    expect(materiaDoDia(5)).toBeNull();
-    expect(materiaDoDia(6)).toBeNull();
+  it("no fim de semana oferece a de segunda como extra", () => {
+    expect(materiaDoDia(5)).toMatchObject({ rotulo: "Língua Portuguesa", extra: true });
+    expect(materiaDoDia(6)).toMatchObject({ rotulo: "Língua Portuguesa", extra: true });
+  });
+
+  it("dia útil não é extra", () => {
+    expect(materiaDoDia(0).extra).toBe(false);
+    expect(materiaDoDia(4).extra).toBe(false);
   });
 });
 
@@ -44,19 +49,19 @@ describe("casarMaterias", () => {
   ];
 
   it("acha a matéria de cada dia útil, com acento ou sem", () => {
-    expect(casarMaterias(doBanco, materiaDoDia(0)!.termos)).toEqual(["Língua Portuguesa"]);
-    expect(casarMaterias(doBanco, materiaDoDia(1)!.termos)).toEqual(["Legislação (SI e Proteção de Dados)"]);
-    expect(casarMaterias(doBanco, materiaDoDia(2)!.termos)).toEqual(["Raciocínio Lógico-Matemático"]);
-    expect(casarMaterias(doBanco, materiaDoDia(3)!.termos)).toEqual(["Língua Inglesa"]);
-    expect(casarMaterias(doBanco, materiaDoDia(4)!.termos)).toEqual(["Banco de Dados / BI / Big Data"]);
+    expect(casarMaterias(doBanco, materiaDoDia(0).termos)).toEqual(["Língua Portuguesa"]);
+    expect(casarMaterias(doBanco, materiaDoDia(1).termos)).toEqual(["Legislação (SI e Proteção de Dados)"]);
+    expect(casarMaterias(doBanco, materiaDoDia(2).termos)).toEqual(["Raciocínio Lógico-Matemático"]);
+    expect(casarMaterias(doBanco, materiaDoDia(3).termos)).toEqual(["Língua Inglesa"]);
+    expect(casarMaterias(doBanco, materiaDoDia(4).termos)).toEqual(["Banco de Dados / BI / Big Data"]);
   });
 
   it("não confunde Língua Portuguesa com Língua Inglesa", () => {
-    expect(casarMaterias(doBanco, materiaDoDia(0)!.termos)).not.toContain("Língua Inglesa");
+    expect(casarMaterias(doBanco, materiaDoDia(0).termos)).not.toContain("Língua Inglesa");
   });
 
   it("devolve lista vazia quando o concurso não tem a matéria", () => {
-    expect(casarMaterias(["Direito Penal"], materiaDoDia(3)!.termos)).toEqual([]);
+    expect(casarMaterias(["Direito Penal"], materiaDoDia(3).termos)).toEqual([]);
   });
 
   it("normaliza acentos e caixa", () => {

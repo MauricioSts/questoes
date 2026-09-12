@@ -89,15 +89,23 @@ export function Atmosfera() {
   // Claro ("Lugia"): iridescência no azul das asas, coberta por um véu branco. O padrão
   // cru ocupa a tela inteira e briga com o texto; o véu deixa só o reflexo perolado.
   // Sem interação com o mouse, como nos outros fundos.
+  // As camadas depois do véu são o "detalhe" do tema: uma grade fina de papel
+  // milimetrado, duas asas de luz que derivam devagar e um grão bem baixo. Tudo em CSS —
+  // o custo é zero perto de um segundo shader, e some junto com o resto quando o fundo
+  // está pausado (sessão de questões).
   return (
-    <div className="fundo-lugia" aria-hidden>
+    <div className={`fundo-lugia ${pausado ? "fundo-lugia--parado" : ""}`} aria-hidden>
       <div className="fundo-lugia__canvas">
         <Suspense fallback={null}>
           <Iridescence color={AZUL_LUGIA} speed={0.6} paused={pausado} />
         </Suspense>
       </div>
       <div className="fundo-lugia__veu" />
+      <div className="fundo-lugia__grade" />
+      <div className="fundo-lugia__asa fundo-lugia__asa--uma" />
+      <div className="fundo-lugia__asa fundo-lugia__asa--outra" />
       <div className="fundo-lugia__brilho" />
+      <div className="fundo-lugia__grao" />
     </div>
   );
 }

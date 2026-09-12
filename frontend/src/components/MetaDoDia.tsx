@@ -25,19 +25,6 @@ export function MetaDoDia() {
 
   const dia = DIAS[meta.diaIndex] ?? "";
 
-  // Fim de semana: nada de rodízio (sábado é dia de simulado, domingo é folga).
-  if (!meta.materia) {
-    return (
-      <div className="card p-6">
-        <p className="legenda text-[11px] font-bold uppercase tracking-[.16em] text-faint">Meta fixa de hoje</p>
-        <p className="mt-2 font-display text-xl font-bold text-brand-ink">{dia} não tem matéria fixa</p>
-        <p className="mt-1 text-sm text-muted">
-          O rodízio por matéria roda de segunda a sexta. Sábado é dia de simulado.
-        </p>
-      </div>
-    );
-  }
-
   // O concurso ativo não tem questões dessa matéria: dizer isso é melhor do que
   // mostrar uma meta de zero questão e deixar procurar o que quebrou.
   if (meta.semQuestoes || meta.meta === 0) {
@@ -56,6 +43,9 @@ export function MetaDoDia() {
 
   const faltam = Math.max(0, meta.meta - meta.feitas);
   const erros = Math.max(0, meta.feitas - meta.acertos);
+  // Fim de semana: o anel continua na tela. O rodízio é de segunda a sexta, mas quem
+  // quiser adiantar não deveria esbarrar num cartão que só diz "hoje não".
+  const rotulo = meta.extra ? "Matéria extra de hoje" : "Meta fixa de hoje";
 
   // Mesmo desenho da meta diária: anel à esquerda, o que falta em letra grande à direita.
   // São as duas metas do dia lado a lado, então ler uma tem que ensinar a ler a outra.
@@ -70,7 +60,7 @@ export function MetaDoDia() {
 
         <div className="w-full min-w-0 flex-1 space-y-2.5">
           <div className="flex items-center justify-center gap-2 sm:justify-start">
-            <p className="legenda text-[11px] font-bold uppercase tracking-[.16em] text-faint">Meta fixa de hoje</p>
+            <p className="legenda text-[11px] font-bold uppercase tracking-[.16em] text-faint">{rotulo}</p>
             <CalendarRange size={13} strokeWidth={2} style={{ color: "var(--accentText)" }} />
           </div>
 
@@ -90,7 +80,9 @@ export function MetaDoDia() {
           <p className="text-[15px] leading-relaxed text-muted">
             {meta.concluida
               ? `Você fez as ${meta.meta} de ${dia.toLowerCase()}. Tudo daqui pra frente é vantagem.`
-              : `${dia} é dia de ${meta.materia}: ${meta.meta} questões sorteadas, com preferência para questão de prova e para o que você mais errou.`}
+              : meta.extra
+                ? `${dia} não cobra matéria — o rodízio é de segunda a sexta. Se quiser adiantar, as ${meta.meta} de ${meta.materia} de segunda já estão sorteadas.`
+                : `${dia} é dia de ${meta.materia}: ${meta.meta} questões sorteadas, com preferência para questão de prova e para o que você mais errou.`}
           </p>
 
           <div className="mt-1 flex flex-wrap items-stretch justify-center gap-x-6 gap-y-3 border-t border-hair pt-3 sm:justify-start">
@@ -103,7 +95,13 @@ export function MetaDoDia() {
             onClick={() => navigate("/estudar?meta=dia")}
             className="btn-primary mt-2 inline-flex items-center gap-2 text-base"
           >
-            {meta.concluida ? "Refazer a matéria do dia" : meta.feitas > 0 ? "Continuar a matéria do dia" : `Fazer as ${meta.meta} de hoje`}
+            {meta.concluida
+              ? "Refazer a matéria do dia"
+              : meta.feitas > 0
+                ? "Continuar a matéria do dia"
+                : meta.extra
+                  ? `Adiantar as ${meta.meta} de segunda`
+                  : `Fazer as ${meta.meta} de hoje`}
             <ArrowRight size={18} strokeWidth={2.4} />
           </button>
         </div>

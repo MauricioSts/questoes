@@ -4,7 +4,8 @@ import { api } from "./api";
 
 export interface MetaMateriaHoje {
   diaIndex: number; // 0=segunda … 6=domingo
-  materia: string | null; // null no fim de semana
+  materia: string; // a matéria do rodízio (no fim de semana, a de segunda)
+  extra?: boolean; // fim de semana: a meta é adiantamento, não cobrança do dia
   meta: number; // quantas questões a meta do dia tem (10, ou menos se faltar questão)
   questaoIds: number[];
   feitasIds?: number[]; // as que já respondi hoje

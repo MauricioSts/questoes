@@ -182,12 +182,6 @@ goalsRouter.get(
     const diaIndex = localWeekdayIndex(new Date());
     const doDia = materiaDoDia(diaIndex);
 
-    // Fim de semana: sem matéria fixa (sábado é dia de simulado, domingo é folga).
-    if (!doDia) {
-      res.json({ diaIndex, materia: null, meta: 0, questaoIds: [], feitas: 0, acertos: 0, concluida: false });
-      return;
-    }
-
     // Nomes de matéria que existem NESTE concurso e casam com o rodízio do dia.
     const materiasDoBanco = (
       await prisma.questao.findMany({ where: { ...cf }, distinct: ["materia"], select: { materia: true } })
@@ -198,6 +192,7 @@ goalsRouter.get(
       res.json({
         diaIndex,
         materia: doDia.rotulo,
+        extra: doDia.extra,
         meta: 0,
         questaoIds: [],
         feitas: 0,
@@ -260,6 +255,7 @@ goalsRouter.get(
     res.json({
       diaIndex,
       materia: registro.materia,
+      extra: doDia.extra, // fim de semana: a meta existe, mas é adiantamento, não cobrança
       meta: registro.questaoIds.length,
       questaoIds: registro.questaoIds,
       feitasIds: [...feitasIds], // quais já saíram hoje: a tela retoma pelas que faltam

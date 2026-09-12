@@ -34,56 +34,60 @@ export function TopBar() {
   return (
     <header className="topo-app sticky top-0 z-20 border-b border-hair">
       <div className="flex items-center justify-between gap-3 px-5 py-3">
-        {/* Esquerda: título + badge */}
-        <div className="flex items-center gap-3">
-          <Link to="/" aria-label="devconcursado — início">
-            <Logo tamanho={28} fonte={16} className="lg:hidden" />
-            <Logo tamanho={28} fonte={16} somenteSimbolo className="hidden lg:inline-flex" />
+        {/* Esquerda: marca (só no mobile) + concurso ativo.
+            A marca vive na barra lateral; no desktop ela sairia repetida aqui em cima,
+            duas vezes na mesma tela. Abaixo de lg não há barra lateral, então é aqui. */}
+        <div className="flex min-w-0 flex-1 items-center gap-3 overflow-hidden">
+          <Link to="/" aria-label="devconcursado — início" className="flex-shrink-0 lg:hidden">
+            {/* Abaixo de sm só o selo: com o nome inteiro, a ofensiva em destaque passava
+                por cima da marca no celular. */}
+            <Logo tamanho={28} fonte={16} somenteSimbolo className="sm:hidden" />
+            <Logo tamanho={28} fonte={16} className="hidden sm:inline-flex" />
           </Link>
           {ativo && (
-            <span className="hidden sm:inline rounded-full bg-brand-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-brand-700">
+            <span className="hidden truncate md:inline rounded-full bg-brand-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-brand-700">
               {ativo.iniciais} · {ativo.banca}
             </span>
           )}
         </div>
 
-        {/* Direita: streak + sair */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Streak chip */}
+        {/* Direita: a ofensiva é o que a barra existe para mostrar no desktop — importar e
+            sair moram no rodapé da barra lateral, e a marca no topo dela. */}
+        <div className="flex flex-shrink-0 items-center gap-1 sm:gap-3">
           <div
-            className={`streak-chip ${streak > 0 ? "streak-chip--ativa" : "streak-chip--zerada"}`}
+            className={`streak-chip streak-chip--grande ${streak > 0 ? "streak-chip--ativa" : "streak-chip--zerada"}`}
             title={
               streak > 0
                 ? `Ofensiva: ${streak} ${streak === 1 ? "dia seguido" : "dias seguidos"}`
                 : "Sem ofensiva. Responda uma questão hoje para começar."
             }
           >
-            <Flame className="streak-chip__chama" size={16} strokeWidth={2.2} fill="currentColor" />
-            <span className="text-sm">{streak}</span>
-            <span className="hidden text-[11px] font-bold uppercase tracking-[.1em] opacity-70 sm:inline">
-              {streak === 1 ? "dia" : "dias"}
+            <Flame className="streak-chip__chama" size={22} strokeWidth={2.2} fill="currentColor" />
+            <span className="streak-chip__numero tabular-nums">{streak}</span>
+            <span className="streak-chip__rotulo">
+              {streak > 0 ? (streak === 1 ? "dia de ofensiva" : "dias de ofensiva") : "comece hoje"}
             </span>
           </div>
 
-          {/* Importar questões */}
+          {/* Importar questões (mobile; no desktop fica no rodapé da barra lateral) */}
           <Link
             to="/importar"
-            className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-muted hover:text-brand-500 transition"
+            className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-muted transition hover:text-brand-500 lg:hidden"
             aria-label="Importar questões"
             title="Importar questões"
           >
             <Upload size={18} strokeWidth={1.8} />
-            <span className="hidden sm:inline">Importar</span>
+            <span className="hidden md:inline">Importar</span>
           </Link>
 
-          {/* Sair */}
+          {/* Sair (mobile; no desktop fica no rodapé da barra lateral) */}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-muted hover:text-brand-500 transition"
+            className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-muted transition hover:text-brand-500 lg:hidden"
             aria-label="Sair"
           >
             <LogOut size={18} strokeWidth={1.8} />
-            <span className="hidden sm:inline">Sair</span>
+            <span className="hidden md:inline">Sair</span>
           </button>
 
           {/* Trocar de tema (no celular; no desktop fica na barra lateral) */}

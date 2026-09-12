@@ -7,7 +7,8 @@
 //   quarta  → Raciocínio Lógico-Matemático
 //   quinta  → Língua Inglesa
 //   sexta   → Banco de Dados
-// Fim de semana não tem matéria fixa.
+// Fim de semana não tem matéria OBRIGATÓRIA, mas continua oferecendo a de segunda como
+// extra: quem quiser adiantar não deveria esbarrar numa tela que só diz "hoje não".
 //
 // As 10 questões são sorteadas UMA vez por dia e gravadas (MetaMateriaDia): a meta do dia
 // não pode trocar de questão no meio do dia, senão "faltam 3" viraria outra prova.
@@ -51,13 +52,16 @@ export interface MateriaDoDia {
   diaIndex: number; // 0=segunda … 6=domingo
   rotulo: string; // nome curto do rodízio ("Legislação")
   termos: string[];
+  extra: boolean; // true = o dia não pedia matéria (fim de semana); é adiantamento
 }
 
-// A matéria do rodízio para o dia informado, ou null no fim de semana.
-export function materiaDoDia(diaIndex: number): MateriaDoDia | null {
-  const item = RODIZIO[diaIndex];
-  if (!item) return null;
-  return { diaIndex, rotulo: item.rotulo, termos: item.termos };
+// A matéria do rodízio para o dia informado. No fim de semana devolve a de segunda com
+// `extra: true` — o sábado é de simulado e o domingo de folga, mas a meta continua à mão
+// para quem quiser adiantar. Nunca devolve null: a tela sempre tem o que mostrar.
+export function materiaDoDia(diaIndex: number): MateriaDoDia {
+  const extra = diaIndex > 4;
+  const item = RODIZIO[extra ? 0 : diaIndex] ?? RODIZIO[0];
+  return { diaIndex, rotulo: item.rotulo, termos: item.termos, extra };
 }
 
 // Casa o rodízio com os nomes de matéria que existem no banco do concurso. Devolve TODOS
