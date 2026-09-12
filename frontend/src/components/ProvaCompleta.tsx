@@ -20,6 +20,7 @@ import type { Questao, Alternativa } from "../types/questao";
 import { corrigir } from "../lib/correcao";
 import { QuestaoView } from "./QuestaoView";
 import type { RespostaSessao } from "./SessionRunner";
+import { usePausarFundo } from "../store/fundo";
 
 // Quantas questões entram a cada rolada. É o "vira a folha" do caderno.
 const BLOCO = 4;
@@ -63,6 +64,10 @@ export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function Pro
 
   const total = questoes.length;
   const respondidas = marcadas.size;
+
+  // Prova em andamento: o relevo animado do fundo congela. Movimento no canto do olho
+  // atrapalha a leitura, e numa prova de 70 questões atrapalha por horas.
+  usePausarFundo();
 
   // Toda marcação vai para o armazenamento na hora: é o que salva a prova de um
   // "saí sem querer". Roda depois do render, então nunca segura o clique.

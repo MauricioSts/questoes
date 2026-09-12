@@ -17,6 +17,7 @@ export interface MoltenMetalProps {
   colorMode?: "molten" | "ember" | "frost";
   grain?: boolean;
   grainIntensity?: number;
+  paused?: boolean; // congela o quadro (sessão de questões aberta; ver store/fundo.ts)
   mouseInteraction?: boolean;
   mouseStrength?: number;
   opacity?: number;
@@ -158,6 +159,7 @@ export function MoltenMetal({
   color2 = "#FF9FFC",
   color3 = "#FFFFFF",
   speed = 0.35,
+  paused = false,
   scale = 4,
   detail = 3,
   glow = 1.6,
@@ -178,6 +180,10 @@ export function MoltenMetal({
 }: MoltenMetalProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const ctxRef = useRef<OglContext | null>(null);
+  // Liga/desliga o laço de animação de fora do efeito de montagem (prop `paused`).
+  const controlesRef = useRef<{ tryStart: () => void; tryStop: () => void } | null>(null);
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -282,7 +288,10 @@ export function MoltenMetal({
     let isVisible = true;
     let isPageVisible = !document.hidden;
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const t0 = performance.now();
+    // Relógio acumulado em vez de (agora - início): parado o tempo não corre, então ao
+    // voltar a animação continua do quadro em que estava, sem salto.
+    let tempo = 0;
+    let ultimo = 0;
 
     const loop = (t: number) => {
       if (prefersReducedMotion) {
@@ -290,7 +299,10 @@ export function MoltenMetal({
         return;
       }
 
-      program.uniforms.iTime.value = (t - t0) * 0.001;
+      if (ultimo === 0) ultimo = t;
+      tempo += (t - ultimo) * 0.001;
+      ultimo = t;
+      program.uniforms.iTime.value = tempo;
       if (mouseInteraction) {
         currentMouse[0] += 0.05 * (targetMouse[0] - currentMouse[0]);
         currentMouse[1] += 0.05 * (targetMouse[1] - currentMouse[1]);
@@ -302,7 +314,7 @@ export function MoltenMetal({
     };
 
     const tryStart = () => {
-      if (isVisible && isPageVisible && raf === 0) {
+      if (isVisible && isPageVisible && !pausedRef.current && raf === 0) {
         raf = requestAnimationFrame(loop);
       }
     };
@@ -311,7 +323,9 @@ export function MoltenMetal({
         cancelAnimationFrame(raf);
         raf = 0;
       }
+      ultimo = 0; // o tempo parado não conta
     };
+    controlesRef.current = { tryStart, tryStop };
 
     const io = new IntersectionObserver(
       ([entry]) => {
@@ -337,6 +351,7 @@ export function MoltenMetal({
       document.removeEventListener("visibilitychange", onVisibility);
       if (handlePointerMove) window.removeEventListener("pointermove", handlePointerMove);
       if (handlePointerLeave) window.removeEventListener("mouseleave", handlePointerLeave);
+      controlesRef.current = null;
       ctxRef.current = null;
       if (canvas.parentNode === container) {
         container.removeChild(canvas);
@@ -344,6 +359,11 @@ export function MoltenMetal({
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
   }, []);
+
+  useEffect(() => {
+    if (paused) controlesRef.current?.tryStop();
+    else controlesRef.current?.tryStart();
+  }, [paused]);
 
   useEffect(() => {
     const ctx = ctxRef.current;

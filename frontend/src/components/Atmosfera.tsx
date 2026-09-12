@@ -74,6 +74,8 @@ function FundoCyberpunk() {
 
 export function Atmosfera() {
   const { tema } = useTheme();
+  // Rose: o metal também congela durante uma sessão de questões.
+  const pausado = useFundoPausado();
   if (tema === "fantasy") return <FundoFantasy />;
   if (tema === "cyberpunk") return <FundoCyberpunk />;
 
@@ -98,6 +100,7 @@ export function Atmosfera() {
         brightness={1.15}
         grain={false}
         mouseInteraction={false}
+        paused={pausado}
         opacity={1.0}
         className="h-full w-full"
       />
