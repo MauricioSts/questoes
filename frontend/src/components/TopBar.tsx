@@ -32,7 +32,7 @@ export function TopBar() {
   const streak = goal?.streak ?? 0;
 
   return (
-    <header className="topo-app sticky top-0 z-20 border-b border-hair bg-brand-50/82 backdrop-blur">
+    <header className="topo-app sticky top-0 z-20 border-b border-hair">
       <div className="flex items-center justify-between gap-3 px-5 py-3">
         {/* Esquerda: título + badge */}
         <div className="flex items-center gap-3">

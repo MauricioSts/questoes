@@ -356,12 +356,14 @@ export function Home() {
         streakAtual={goal ? streak : undefined}
       />
 
-      {/* 5. Banner de revisão pendente */}
+      {/* 5. Banner de revisão pendente. Cartão OPACO como os demais blocos: com o fundo
+             translúcido de antes (var(--accentBg)) o relevo/pixels do tema atravessavam a
+             faixa inteira e ela lia como um borrão colorido logo acima do mural. */}
       {revisaoPendente > 0 && (
         <Link
           to="/revisar?modo=srs"
-          className="flex items-center gap-4 rounded-2xl border-l-4 p-5 transition hover:-translate-y-0.5"
-          style={{ borderColor: "var(--accent)", background: "var(--accentBg)" }}
+          className="card card-hover flex items-center gap-4 p-5"
+          style={{ borderLeftWidth: 4, borderLeftColor: "var(--accent)" }}
         >
           <div className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-2xl" style={{ background: "var(--accentBg)", color: "var(--accentText)" }}>
             <CalendarClock size={24} strokeWidth={2} />

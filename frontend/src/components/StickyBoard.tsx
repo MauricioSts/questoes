@@ -142,8 +142,10 @@ export function StickyBoard() {
         style={{
           height: expandido ? 640 : 330,
           transition: "height .2s",
-          background: "radial-gradient(var(--dot) 1px, transparent 1.2px)",
-          backgroundSize: "20px 20px",
+          // Papel pontilhado OPACO: com o fundo transparente, o relevo/pixels animados do
+          // tema passavam por dentro do mural e brigavam com o texto das notas.
+          background: "radial-gradient(var(--dot) 1px, transparent 1.2px), var(--surfaceHex)",
+          backgroundSize: "20px 20px, auto",
         }}
       >
         {notes.length === 0 && (

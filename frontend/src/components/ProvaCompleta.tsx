@@ -183,8 +183,8 @@ export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function Pro
     <div className="mx-auto max-w-[820px] pb-24">
       {/* Barra da prova: fica colada no topo enquanto se rola o caderno. */}
       <div
-        className="sticky top-14 z-20 -mx-5 mb-4 border-b border-hair px-5 py-3 backdrop-blur"
-        style={{ background: "color-mix(in srgb, var(--surface) 88%, transparent)" }}
+        className="topo-app sticky top-14 z-20 -mx-5 mb-4 border-b border-hair px-5 py-3"
+        style={{ background: "var(--surfaceHex)" }}
       >
         <div className="flex items-center gap-3">
           {onSair && (
