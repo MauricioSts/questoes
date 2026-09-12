@@ -1,5 +1,5 @@
 // META FIXA DO DIA (Home). Ao lado da meta livre do anel, cada dia útil tem um rodízio
-// fechado de 10 questões de UMA matéria — segunda português, terça legislação, quarta
+// fechado de 10 questões de UMA matéria: segunda português, terça legislação, quarta
 // lógica, quinta inglês, sexta banco de dados. Quem sorteia e congela as questões do dia
 // é o backend (/goals/materia-do-dia); aqui é só a leitura e o atalho para resolvê-las.
 import { useEffect, useState } from "react";
@@ -81,7 +81,7 @@ export function MetaDoDia() {
             {meta.concluida
               ? `Você fez as ${meta.meta} de ${dia.toLowerCase()}. Tudo daqui pra frente é vantagem.`
               : meta.extra
-                ? `${dia} não cobra matéria — o rodízio é de segunda a sexta. Se quiser adiantar, as ${meta.meta} de ${meta.materia} de segunda já estão sorteadas.`
+                ? `${dia} não cobra matéria: o rodízio é de segunda a sexta. Se quiser adiantar, as ${meta.meta} de ${meta.materia} de segunda já estão sorteadas.`
                 : `${dia} é dia de ${meta.materia}: ${meta.meta} questões sorteadas, com preferência para questão de prova e para o que você mais errou.`}
           </p>
 

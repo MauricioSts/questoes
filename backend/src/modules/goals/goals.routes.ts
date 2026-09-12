@@ -166,7 +166,7 @@ goalsRouter.get(
   })
 );
 
-// GET /goals/materia-do-dia: a meta FIXA do dia útil — 10 questões de uma matéria, no
+// GET /goals/materia-do-dia: a meta FIXA do dia útil, 10 questões de uma matéria, no
 // rodízio segunda→sexta (ver lib/metaMateria.ts). É separada da meta do anel: aquela é
 // quantidade livre, esta é conteúdo dirigido.
 //

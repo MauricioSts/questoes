@@ -51,7 +51,7 @@ export function TopBar() {
           )}
         </div>
 
-        {/* Direita: a ofensiva é o que a barra existe para mostrar no desktop — importar e
+        {/* Direita: a ofensiva é o que a barra existe para mostrar no desktop; importar e
             sair moram no rodapé da barra lateral, e a marca no topo dela. */}
         <div className="flex flex-shrink-0 items-center gap-1 sm:gap-3">
           <div

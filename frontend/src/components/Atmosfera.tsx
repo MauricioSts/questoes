@@ -90,7 +90,7 @@ export function Atmosfera() {
   // cru ocupa a tela inteira e briga com o texto; o véu deixa só o reflexo perolado.
   // Sem interação com o mouse, como nos outros fundos.
   // As camadas depois do véu são o "detalhe" do tema: uma grade fina de papel
-  // milimetrado, duas asas de luz que derivam devagar e um grão bem baixo. Tudo em CSS —
+  // milimetrado, duas asas de luz que derivam devagar e um grão bem baixo. Tudo em CSS:
   // o custo é zero perto de um segundo shader, e some junto com o resto quando o fundo
   // está pausado (sessão de questões).
   return (

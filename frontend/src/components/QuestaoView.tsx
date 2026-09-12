@@ -40,7 +40,7 @@ export function QuestaoView({
   const soOrigem = metadados === "origem";
 
   // Ordem de exibição: embaralhada a cada repetição da questão (ver lib/ordemAlternativas).
-  // A letra de cada alternativa NÃO muda — só a posição —, então gabarito, explicação e
+  // A letra de cada alternativa NÃO muda, só a posição, então gabarito, explicação e
   // histórico continuam falando da mesma alternativa.
   const ordem = useMemo(
     () => ordemAlternativas(questao, historico?.tentativas ?? 0),
@@ -48,7 +48,7 @@ export function QuestaoView({
   );
 
   // Alternativas eliminadas "no rascunho": riscadas para afunilar a escolha. Vive só nesta
-  // tentativa — some ao trocar de questão e não vai para o backend.
+  // tentativa: some ao trocar de questão e não vai para o backend.
   const [eliminadas, setEliminadas] = useState<Set<Alternativa>>(new Set());
   useEffect(() => setEliminadas(new Set()), [questao.id]);
 
@@ -243,7 +243,7 @@ export function QuestaoView({
               </button>
 
               {/* Eliminar: risca a alternativa para afunilar a escolha. Só antes de
-                  responder — depois do gabarito não há mais o que eliminar. */}
+                  responder; depois do gabarito não há mais o que eliminar. */}
               {!revelado && (
                 <button
                   type="button"

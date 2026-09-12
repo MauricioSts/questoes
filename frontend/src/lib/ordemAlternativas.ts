@@ -1,13 +1,13 @@
 // ORDEM DE EXIBIÇÃO DAS ALTERNATIVAS.
 //
-// A cada vez que a mesma questão volta, as alternativas aparecem em outra ordem — é o que
-// impede o cérebro de decorar que "a certa é a segunda de cima para baixo" em vez de
+// A cada vez que a mesma questão volta, as alternativas aparecem em outra ordem, e é isso
+// que impede o cérebro de decorar que "a certa é a segunda de cima para baixo" em vez de
 // resolver a questão de novo.
 //
 // REGRA QUE NÃO PODE SER QUEBRADA: a LETRA continua colada na alternativa. O que muda é a
 // POSIÇÃO na tela, nunca o rótulo. Trocar o rótulo (a 3ª virar "A") desalinharia:
 //   - o gabarito do lote, que é uma letra;
-//   - as explicações, que citam a letra ("a alternativa C afirma…") — 88 das 640 questões
+//   - as explicações, que citam a letra ("a alternativa C afirma…"): 88 das 640 questões
 //     do banco fazem isso hoje;
 //   - o histórico em Answer.alternativaMarcada, gravado como letra.
 // Ou seja: embaralhar rótulo induziria ao erro. Embaralhar posição, não.
@@ -36,7 +36,7 @@ export function letrasDe(questao: Questao): Alternativa[] {
 /**
  * Ordem em que as alternativas desta questão devem ser desenhadas.
  * @param tentativa quantas vezes a questão JÁ foi respondida antes desta vez. É a semente:
- *        muda a cada repetição, então a ordem muda a cada repetição — e a 1ª vez (0) sai
+ *        muda a cada repetição, então a ordem muda a cada repetição, e a 1ª vez (0) sai
  *        sempre igual, o que mantém a prova estável entre resolver e conferir o resultado.
  */
 export function ordemAlternativas(questao: Questao, tentativa = 0): Alternativa[] {
@@ -49,7 +49,7 @@ export function ordemAlternativas(questao: Questao, tentativa = 0): Alternativa[
 
   // Duas repetições seguidas na MESMA ordem seriam o pior caso do sorteio: é justamente
   // a repetição que o embaralhamento existe para quebrar. Quando o sorteio cai na ordem
-  // da vez anterior, tenta outro tempero — continua determinístico.
+  // da vez anterior, tenta outro tempero, continuando determinístico.
   const anterior = sortear(letras, questao.id, tentativa - 1, 0).join("");
   let saida = atual;
   for (let tempero = 1; tempero <= 6 && saida.join("") === anterior; tempero++) {

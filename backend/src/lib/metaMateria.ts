@@ -56,7 +56,7 @@ export interface MateriaDoDia {
 }
 
 // A matéria do rodízio para o dia informado. No fim de semana devolve a de segunda com
-// `extra: true` — o sábado é de simulado e o domingo de folga, mas a meta continua à mão
+// `extra: true`: o sábado é de simulado e o domingo de folga, mas a meta continua à mão
 // para quem quiser adiantar. Nunca devolve null: a tela sempre tem o que mostrar.
 export function materiaDoDia(diaIndex: number): MateriaDoDia {
   const extra = diaIndex > 4;

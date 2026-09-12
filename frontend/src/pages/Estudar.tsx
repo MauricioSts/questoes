@@ -78,7 +78,7 @@ export function Estudar() {
   }, []);
 
   // Meta fixa do dia (?meta=dia, vindo do cartão da Home): a sessão já vem montada com as
-  // 10 questões que o backend sorteou para a matéria de hoje — sem passar pelos filtros,
+  // 10 questões que o backend sorteou para a matéria de hoje, sem passar pelos filtros,
   // porque a graça da meta fixa é não escolher.
   useEffect(() => {
     if (params.get("meta") !== "dia") return;

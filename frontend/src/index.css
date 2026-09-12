@@ -104,7 +104,7 @@
   animation: metaburst 900ms ease-out forwards;
 }
 /* Selo de meta concluída no cartão da meta diária. Estava DENTRO do bloco de
- * prefers-reduced-motion, então só ganhava forma em quem pede menos animação — no resto
+ * prefers-reduced-motion, então só ganhava forma em quem pede menos animação; no resto
  * dos navegadores o selo saía como texto solto. */
 .selo-meta {
   display: inline-flex;
@@ -346,7 +346,7 @@ body {
 .app-root { color: var(--text); background: transparent; }
 
 /* Barra de topo: OPACA de propósito. Era translúcida com backdrop-blur, e tudo que
- * rolava por baixo dela virava um borrão colorido preso no alto da tela — o fundo
+ * rolava por baixo dela virava um borrão colorido preso no alto da tela: o fundo
  * animado de cada tema entrava no desfoque e o efeito lia como sujeira, não como vidro. */
 .topo-app { background-color: rgb(var(--brand-50)); }
 
@@ -944,7 +944,7 @@ body {
 }
 
 /* Papel milimetrado: a grade dá escala ao vazio do tema claro, que sem ela vira uma
- * parede branca. Fina e quase invisível — é textura, não gráfico. */
+ * parede branca. Fina e quase invisível: é textura, não gráfico. */
 .fundo-lugia__grade {
   position: absolute; inset: -2px;
   background-image:
