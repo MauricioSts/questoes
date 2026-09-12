@@ -169,6 +169,7 @@ model User {
   feriasPeriodos FeriasPeriodo[]
   refreshTokens  RefreshToken[]
   sessaoAtiva    SessaoAtiva?
+  metasMateria   MetaMateriaDia[]
 }
 
 // Períodos de modo férias (histórico). Cada viagem é uma linha; `fim` null = férias
@@ -222,6 +223,23 @@ model Answer {
   @@index([userId, createdAt])
   @@index([userId, acertou, moduloSnapshot])
   @@index([userId, questaoId])
+}
+
+// Meta fixa por matéria do dia (rodízio de segunda a sexta; ver src/lib/metaMateria.ts).
+// Guarda as 10 questões sorteadas PARA AQUELE DIA: a meta do dia não pode trocar de
+// questão no meio do dia. Uma linha por usuário/concurso/dia.
+model MetaMateriaDia {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concursoId String? // concurso da meta (multi-concurso). null = legado
+  dia        DateTime // meia-noite local do dia (fuso do usuário), em UTC
+  materia    String // rótulo do rodízio ("Legislação")
+  questaoIds Int[] // as questões sorteadas, na ordem de estudo
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, concursoId, dia])
+  @@index([userId, dia])
 }
 
 // Anotação do usuário na questão: uma por questão por usuário.

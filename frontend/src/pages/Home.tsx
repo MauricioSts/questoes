@@ -24,6 +24,7 @@ import { BrilhoBorda } from "../components/BrilhoBorda";
 import { Contador } from "../components/Contador";
 import { StreakHeatmap } from "../components/StreakHeatmap";
 import { StickyBoard } from "../components/StickyBoard";
+import { MetaDoDia } from "../components/MetaDoDia";
 import { carregarHeatmap, type DiaHeatmap, type PeriodoFerias } from "../lib/multiApi";
 import { getConcursoId } from "../lib/concurso";
 import { useConcurso } from "../store/concurso";
@@ -346,7 +347,11 @@ export function Home() {
         </div>
       </div>
 
-      {/* 4. Heatmap anual */}
+      {/* 4. Meta fixa do dia (rodízio por matéria, seg→sex). Fica logo abaixo do anel:
+             são as duas metas do dia, a livre e a dirigida. */}
+      <MetaDoDia />
+
+      {/* 5. Heatmap anual */}
       <StreakHeatmap
         dias={heatmap}
         periodos={periodosFerias}

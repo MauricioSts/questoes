@@ -19,6 +19,7 @@ import { Toggle } from "../components/Toggle";
 import { FilterSelect } from "../components/FilterSelect";
 import { PageHeader } from "../components/PageHeader";
 import { getSessaoAtiva, salvarSessao, atualizarCursor, encerrarSessao } from "../lib/sessao";
+import { carregarMetaMateria, ordemDeEstudo } from "../lib/metaMateria";
 
 export function Estudar() {
   const progresso = useProgresso();
@@ -68,6 +69,36 @@ export function Estudar() {
           (atual) => {
             const proximo = new URLSearchParams(atual);
             proximo.delete("continuar");
+            return proximo;
+          },
+          { replace: true }
+        );
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Meta fixa do dia (?meta=dia, vindo do cartão da Home): a sessão já vem montada com as
+  // 10 questões que o backend sorteou para a matéria de hoje — sem passar pelos filtros,
+  // porque a graça da meta fixa é não escolher.
+  useEffect(() => {
+    if (params.get("meta") !== "dia") return;
+    setCarregandoRetomar(true);
+    carregarMetaMateria()
+      .then((m) => {
+        const qs = getQuestoes(ordemDeEstudo(m));
+        if (qs.length > 0) {
+          setCursorInicial(0);
+          setSessao(qs);
+          void salvarSessao("ESTUDO", qs.map((q) => q.id), 0);
+        }
+      })
+      .catch(() => null)
+      .finally(() => {
+        setCarregandoRetomar(false);
+        setParams(
+          (atual) => {
+            const proximo = new URLSearchParams(atual);
+            proximo.delete("meta");
             return proximo;
           },
           { replace: true }

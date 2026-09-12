@@ -4,10 +4,17 @@ import { z } from "zod";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
-import { startOfToday, weekDayKeys } from "../../lib/date.js";
+import { startOfToday, weekDayKeys, localWeekdayIndex } from "../../lib/date.js";
 import { contarPorDia, calcularStreak, carregarFeriasPeriodos } from "../../lib/streak.js";
 import { revisoesPendentes } from "../../lib/srs.js";
 import { srsDesde, filtroSrs } from "../../lib/srsReset.js";
+import {
+  META_MATERIA_QTD,
+  casarMaterias,
+  materiaDoDia,
+  sortearMeta,
+  type CandidataMeta,
+} from "../../lib/metaMateria.js";
 
 export const goalsRouter = Router();
 goalsRouter.use(requireAuth);
@@ -155,6 +162,110 @@ goalsRouter.get(
       portuguesTotal,
       portuguesFeitasHoje,
       revisaoPendente, // nº de questões prontas para revisão espaçada (SRS)
+    });
+  })
+);
+
+// GET /goals/materia-do-dia: a meta FIXA do dia útil — 10 questões de uma matéria, no
+// rodízio segunda→sexta (ver lib/metaMateria.ts). É separada da meta do anel: aquela é
+// quantidade livre, esta é conteúdo dirigido.
+//
+// As questões são sorteadas UMA vez por dia e gravadas em MetaMateriaDia; a partir daí a
+// resposta é sempre a mesma lista, só com o progresso atualizado. Sem isso "faltam 3"
+// viraria outras 3 questões a cada F5.
+goalsRouter.get(
+  "/materia-do-dia",
+  asyncHandler(async (req, res) => {
+    const concursoId = req.query.concursoId ? String(req.query.concursoId) : undefined;
+    const cf: { concursoId?: string } = concursoId ? { concursoId } : {};
+    const inicioHoje = startOfToday();
+    const diaIndex = localWeekdayIndex(new Date());
+    const doDia = materiaDoDia(diaIndex);
+
+    // Fim de semana: sem matéria fixa (sábado é dia de simulado, domingo é folga).
+    if (!doDia) {
+      res.json({ diaIndex, materia: null, meta: 0, questaoIds: [], feitas: 0, acertos: 0, concluida: false });
+      return;
+    }
+
+    // Nomes de matéria que existem NESTE concurso e casam com o rodízio do dia.
+    const materiasDoBanco = (
+      await prisma.questao.findMany({ where: { ...cf }, distinct: ["materia"], select: { materia: true } })
+    ).map((q) => q.materia);
+    const materias = casarMaterias(materiasDoBanco, doDia.termos);
+
+    if (materias.length === 0) {
+      res.json({
+        diaIndex,
+        materia: doDia.rotulo,
+        meta: 0,
+        questaoIds: [],
+        feitas: 0,
+        acertos: 0,
+        concluida: false,
+        semQuestoes: true, // o concurso não tem questões dessa matéria
+      });
+      return;
+    }
+
+    // Já sorteada hoje? Então é ela, sem re-sortear.
+    let registro = await prisma.metaMateriaDia.findFirst({
+      where: { userId: req.userId!, concursoId: concursoId ?? null, dia: inicioHoje },
+    });
+
+    if (!registro) {
+      // Candidatas: todas as questões das matérias do dia, com o nº de erros ANTERIORES a
+      // hoje (o peso do sorteio não pode depender do que eu responder hoje).
+      const candidatasBrutas = await prisma.questao.findMany({
+        where: { ...cf, materia: { in: materias } },
+        select: { id: true, origem: true },
+      });
+      const erradasAntes = await prisma.answer.groupBy({
+        by: ["questaoId"],
+        where: { userId: req.userId!, ...cf, acertou: false, createdAt: { lt: inicioHoje } },
+        _count: { _all: true },
+      });
+      const errosPorQuestao = new Map(erradasAntes.map((e) => [e.questaoId, e._count._all]));
+
+      const candidatas: CandidataMeta[] = candidatasBrutas.map((q) => ({
+        id: q.id,
+        origem: q.origem,
+        erros: errosPorQuestao.get(q.id) ?? 0,
+      }));
+
+      registro = await prisma.metaMateriaDia.create({
+        data: {
+          userId: req.userId!,
+          concursoId: concursoId ?? null,
+          dia: inicioHoje,
+          materia: doDia.rotulo,
+          questaoIds: sortearMeta(candidatas, META_MATERIA_QTD),
+        },
+      });
+    }
+
+    // Progresso: quantas das questões da meta eu já respondi HOJE (distintas).
+    const respostasHoje = await prisma.answer.findMany({
+      where: {
+        userId: req.userId!,
+        ...cf,
+        createdAt: { gte: inicioHoje },
+        questaoId: { in: registro.questaoIds },
+      },
+      select: { questaoId: true, acertou: true },
+    });
+    const feitasIds = new Set(respostasHoje.map((r) => r.questaoId));
+    const acertosIds = new Set(respostasHoje.filter((r) => r.acertou).map((r) => r.questaoId));
+
+    res.json({
+      diaIndex,
+      materia: registro.materia,
+      meta: registro.questaoIds.length,
+      questaoIds: registro.questaoIds,
+      feitasIds: [...feitasIds], // quais já saíram hoje: a tela retoma pelas que faltam
+      feitas: feitasIds.size,
+      acertos: acertosIds.size,
+      concluida: registro.questaoIds.length > 0 && feitasIds.size >= registro.questaoIds.length,
     });
   })
 );
