@@ -1,11 +1,27 @@
 // Cronômetro regressivo do simulado (4h), pausável e opcional. Chama onFim ao zerar.
 import { useEffect, useRef, useState } from "react";
 
-export function Cronometro({ minutos, onFim }: { minutos: number; onFim: () => void }) {
-  const [restante, setRestante] = useState(minutos * 60);
+export function Cronometro({
+  minutos,
+  onFim,
+  segundosIniciais,
+  onTick,
+}: {
+  minutos: number;
+  onFim: () => void;
+  segundosIniciais?: number; // prova retomada: continua de onde o relógio parou
+  onTick?: (restante: number) => void; // para guardar o relógio junto com a prova
+}) {
+  const [restante, setRestante] = useState(segundosIniciais ?? minutos * 60);
   const [pausado, setPausado] = useState(false);
   const onFimRef = useRef(onFim);
   onFimRef.current = onFim;
+  const onTickRef = useRef(onTick);
+  onTickRef.current = onTick;
+
+  useEffect(() => {
+    onTickRef.current?.(restante);
+  }, [restante]);
 
   useEffect(() => {
     if (pausado) return;

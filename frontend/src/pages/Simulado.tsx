@@ -1,13 +1,19 @@
-import { useRef, useState } from "react";
-import { Lock } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Lock, Play } from "lucide-react";
 import { SimuladosAnteriores } from "../components/SimuladosAnteriores";
 import { PageHeader } from "../components/PageHeader";
 import { api } from "../lib/api";
 import { ehDiaDeSimulado } from "../lib/agenda";
-import { todas } from "../lib/questoesRepo";
+import { todas, getQuestoes } from "../lib/questoesRepo";
 import { montarSimulado, type SemanaItem } from "../lib/sessionBuilder";
 import { montarResultado } from "../lib/correcao";
 import { enviarLote } from "../lib/answers";
+import {
+  carregarProva,
+  salvarProva,
+  descartarProva,
+  type ProvaEmAndamento,
+} from "../lib/provaEmAndamento";
 import { SIMULADO_DURACAO_MIN, TOTAL_SIMULADO } from "../config/prova";
 import type { RespostaSessao } from "../components/SessionRunner";
 import { ProvaCompleta, type ProvaCompletaHandle } from "../components/ProvaCompleta";
@@ -16,7 +22,7 @@ import { ResultadoSimulado } from "../components/ResultadoSimulado";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { Toggle } from "../components/Toggle";
-import type { Questao } from "../types/questao";
+import type { Questao, Alternativa } from "../types/questao";
 
 type Fase = "intro" | "rodando" | "resultado";
 type Aba = "novo" | "anteriores";
@@ -39,6 +45,32 @@ export function Simulado() {
   const [carregando, setCarregando] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
   const provaRef = useRef<ProvaCompletaHandle>(null);
+  // Prova guardada de uma sessão anterior (saiu no meio, deu F5, fechou a aba).
+  const [emAndamento, setEmAndamento] = useState<ProvaEmAndamento | null>(null);
+  const [retomada, setRetomada] = useState<ProvaEmAndamento | null>(null);
+  // Relógio da prova em curso, guardado junto com as marcações.
+  const estadoRef = useRef<{
+    marcadas: [number, Alternativa][];
+    tempos: [number, number][];
+    restante: number | null;
+    iniciadaEm: number;
+  }>({ marcadas: [], tempos: [], restante: null, iniciadaEm: Date.now() });
+
+  useEffect(() => {
+    setEmAndamento(carregarProva());
+  }, []);
+
+  // Grava a prova inteira (questões + marcações + relógio) no armazenamento local.
+  function guardar(ids: number[]) {
+    const e = estadoRef.current;
+    salvarProva({
+      questaoIds: ids,
+      marcadas: e.marcadas,
+      tempos: e.tempos,
+      restanteSegundos: e.restante,
+      iniciadaEm: e.iniciadaEm,
+    });
+  }
 
   async function iniciar() {
     setCarregando(true);
@@ -57,11 +89,50 @@ export function Simulado() {
       );
     }
     setQuestoes(sim);
+    estadoRef.current = {
+      marcadas: [],
+      tempos: [],
+      restante: usarCronometro ? SIMULADO_DURACAO_MIN * 60 : null,
+      iniciadaEm: Date.now(),
+    };
+    setRetomada(null);
+    setEmAndamento(null);
+    guardar(sim.map((q) => q.id));
     setFase("rodando");
     setCarregando(false);
   }
 
+  // Retoma a prova guardada: as mesmas questões, na mesma ordem, com o que já foi
+  // marcado. Se alguma questão sumiu do banco (reimportação), a prova não serve mais.
+  function retomar(p: ProvaEmAndamento) {
+    const qs = getQuestoes(p.questaoIds);
+    if (qs.length !== p.questaoIds.length) {
+      setAviso("A prova guardada não bate mais com o banco de questões atual. Comece uma nova.");
+      descartarProva();
+      setEmAndamento(null);
+      return;
+    }
+    estadoRef.current = {
+      marcadas: p.marcadas,
+      tempos: p.tempos,
+      restante: p.restanteSegundos,
+      iniciadaEm: p.iniciadaEm,
+    };
+    setQuestoes(qs);
+    setRetomada(p);
+    setUsarCronometro(p.restanteSegundos != null);
+    setFase("rodando");
+  }
+
+  function descartar() {
+    descartarProva();
+    setEmAndamento(null);
+  }
+
   async function finalizar(rs: RespostaSessao[]) {
+    descartarProva(); // prova encerrada: não há mais o que retomar
+    setEmAndamento(null);
+    setRetomada(null);
     setResultado(rs);
     setFase("resultado");
     const lote = rs
@@ -79,16 +150,62 @@ export function Simulado() {
       <ProvaCompleta
         ref={provaRef}
         questoes={questoes}
+        marcadasIniciais={retomada?.marcadas}
+        temposIniciais={retomada?.tempos}
+        onMudar={(marcadas, tempos) => {
+          estadoRef.current.marcadas = marcadas;
+          estadoRef.current.tempos = tempos;
+          guardar(questoes.map((q) => q.id));
+        }}
         onFinalizar={finalizar}
-        onSair={() => setFase("intro")}
+        onSair={() => {
+          setEmAndamento(carregarProva());
+          setFase("intro");
+        }}
         cabecalho={
           usarCronometro ? (
-            <Cronometro minutos={SIMULADO_DURACAO_MIN} onFim={() => provaRef.current?.finalizar()} />
+            <Cronometro
+              minutos={SIMULADO_DURACAO_MIN}
+              segundosIniciais={retomada?.restanteSegundos ?? undefined}
+              onTick={(restante) => {
+                estadoRef.current.restante = restante;
+              }}
+              onFim={() => provaRef.current?.finalizar()}
+            />
           ) : null
         }
       />
     );
   }
+
+  // Prova guardada: aparece antes de tudo, inclusive fora de sábado — quem começou no
+  // sábado e saiu no meio tem direito de terminar.
+  const respondidasGuardadas = emAndamento?.marcadas.length ?? 0;
+  const cartaoRetomar = emAndamento && (
+    <Card className="p-6 space-y-4">
+      <div className="flex items-start gap-3">
+        <Play size={20} className="mt-0.5 flex-shrink-0" style={{ color: "var(--accent)" }} strokeWidth={2.2} />
+        <div className="min-w-0">
+          <h2 className="font-display font-extrabold text-brand-ink">Prova em andamento</h2>
+          <p className="mt-1 text-sm text-muted">
+            {respondidasGuardadas} de {emAndamento.questaoIds.length} respondidas
+            {emAndamento.restanteSegundos != null &&
+              ` · ${Math.floor(emAndamento.restanteSegundos / 60)} min de cronômetro`}
+            . Guardada em {new Date(emAndamento.salvaEm).toLocaleString("pt-BR")}.
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        <Button onClick={() => retomar(emAndamento)}>Retomar prova</Button>
+        <button
+          onClick={descartar}
+          className="tap rounded-xl px-4 py-2 text-sm font-semibold text-muted hover:text-brand-500"
+        >
+          Descartar
+        </button>
+      </div>
+    </Card>
+  );
 
   // Conteúdo da aba "Novo simulado": bloqueado fora de sábado, senão a tela de início.
   const conteudoNovo = !ehDiaDeSimulado() ? (
@@ -205,7 +322,16 @@ export function Simulado() {
         ))}
       </div>
 
-      <div className="space-y-6">{aba === "novo" ? conteudoNovo : <SimuladosAnteriores />}</div>
+      <div className="space-y-6">
+        {aba === "novo" ? (
+          <>
+            {cartaoRetomar}
+            {conteudoNovo}
+          </>
+        ) : (
+          <SimuladosAnteriores />
+        )}
+      </div>
     </div>
   );
 }

@@ -29,6 +29,11 @@ interface Props {
   onFinalizar: (respostas: RespostaSessao[]) => void;
   cabecalho?: ReactNode; // ex.: cronômetro do simulado
   onSair?: () => void;
+  // Estado de uma prova retomada (ver lib/provaEmAndamento).
+  marcadasIniciais?: [number, Alternativa][];
+  temposIniciais?: [number, number][];
+  // Chamado a cada marcação: quem guarda a prova é a página (Simulado).
+  onMudar?: (marcadas: [number, Alternativa][], tempos: [number, number][]) => void;
 }
 
 // Handle para quem precisa encerrar a prova de fora (o cronômetro, ao zerar).
@@ -37,12 +42,15 @@ export interface ProvaCompletaHandle {
 }
 
 export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function ProvaCompleta(
-  { questoes, onFinalizar, cabecalho, onSair },
+  { questoes, onFinalizar, cabecalho, onSair, marcadasIniciais, temposIniciais, onMudar },
   ref
 ) {
-  const [marcadas, setMarcadas] = useState<Map<number, Alternativa>>(new Map());
+  const [marcadas, setMarcadas] = useState<Map<number, Alternativa>>(
+    () => new Map(marcadasIniciais ?? [])
+  );
   const [visiveis, setVisiveis] = useState(Math.min(BLOCO, questoes.length));
   const [confirmando, setConfirmando] = useState(false);
+  const [confirmandoSaida, setConfirmandoSaida] = useState(false);
   const sentinelaRef = useRef<HTMLDivElement>(null);
   const itensRef = useRef<(HTMLElement | null)[]>([]);
   // Tempo por questão: o relógio de cada marcação é o intervalo desde a marcação
@@ -51,10 +59,28 @@ export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function Pro
   const inicioRef = useRef(Date.now());
   const ultimaMarcacaoRef = useRef(Date.now());
   // Tempo já creditado a cada questão, para não perdê-lo ao desmarcar e remarcar.
-  const temposRef = useRef<Map<number, number>>(new Map());
+  const temposRef = useRef<Map<number, number>>(new Map(temposIniciais ?? []));
 
   const total = questoes.length;
   const respondidas = marcadas.size;
+
+  // Toda marcação vai para o armazenamento na hora: é o que salva a prova de um
+  // "saí sem querer". Roda depois do render, então nunca segura o clique.
+  const onMudarRef = useRef(onMudar);
+  onMudarRef.current = onMudar;
+  useEffect(() => {
+    onMudarRef.current?.([...marcadas], [...temposRef.current]);
+  }, [marcadas]);
+
+  // Fechar a aba/recarregar no meio da prova pede confirmação do navegador.
+  useEffect(() => {
+    const aviso = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", aviso);
+    return () => window.removeEventListener("beforeunload", aviso);
+  }, []);
 
   // Rolou até o fim do bloco: revela os próximos 4.
   useEffect(() => {
@@ -158,10 +184,10 @@ export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function Pro
         <div className="flex items-center gap-3">
           {onSair && (
             <button
-              onClick={onSair}
+              onClick={() => setConfirmandoSaida(true)}
               className="flex h-[38px] w-[38px] flex-shrink-0 items-center justify-center rounded-xl border border-hair bg-surface text-muted transition hover:text-brand-500"
               aria-label="Sair da prova"
-              title="Sair da prova"
+              title="Sair da prova (a prova fica guardada)"
             >
               <ChevronLeft size={20} strokeWidth={2} />
             </button>
@@ -293,6 +319,42 @@ export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function Pro
           <button onClick={() => setConfirmando(true)} className="btn-primary w-full">
             Finalizar prova
           </button>
+        </div>
+      )}
+
+      {/* Sair no meio: a prova fica guardada, então isto é aviso, não despedida. */}
+      {confirmandoSaida && (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center p-5"
+          style={{ background: "rgba(0,0,0,.55)" }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Sair da prova"
+        >
+          <div className="card w-full max-w-sm space-y-4 p-6">
+            <h2 className="font-display text-lg font-extrabold text-brand-ink">Sair da prova?</h2>
+            <p className="text-sm text-muted">
+              Suas {respondidas} {respondidas === 1 ? "resposta fica guardada" : "respostas ficam guardadas"} neste
+              aparelho. Ao voltar em Simulado, você retoma de onde parou.
+            </p>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  setConfirmandoSaida(false);
+                  onSair?.();
+                }}
+                className="btn-primary w-full"
+              >
+                Sair e guardar
+              </button>
+              <button
+                onClick={() => setConfirmandoSaida(false)}
+                className="tap rounded-xl px-4 py-2 text-sm text-muted"
+              >
+                Continuar a prova
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
