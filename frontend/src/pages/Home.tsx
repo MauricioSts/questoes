@@ -35,6 +35,7 @@ import { Paralaxe, Revelar, Toque } from "../components/Movimento";
 import { TituloVivo } from "../components/TituloVivo";
 import { PainelMalha } from "../components/PainelMalha";
 import { useTheme } from "../store/theme";
+import { Spinner } from "../components/Spinner";
 
 interface GoalToday {
   meta: number;
@@ -427,11 +428,14 @@ export function Home() {
               <div className="min-w-0 flex-1">
                 <p className="font-display font-bold text-brand-ink">Marcadas para revisar</p>
                 <p className="text-sm text-muted">
-                  {marcadas.carregando
-                    ? "Carregando…"
-                    : marcadas.ids.size === 0
-                      ? "Nada marcado — use o marcador durante o estudo"
-                      : `${marcadas.ids.size} ${marcadas.ids.size === 1 ? "questão separada" : "questões separadas"} por você`}
+                  {marcadas.carregando ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Spinner tamanho={14} />
+                      Carregando…
+                    </span>
+                  ) : marcadas.ids.size === 0
+                    ? "Nada marcado — use o marcador durante o estudo"
+                    : `${marcadas.ids.size} ${marcadas.ids.size === 1 ? "questão separada" : "questões separadas"} por você`}
                 </p>
               </div>
               <ArrowUpRight size={18} strokeWidth={2.2} className="flex-shrink-0 text-faint" />

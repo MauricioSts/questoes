@@ -79,7 +79,7 @@ export function Topico() {
   return (
     <div className="mx-auto max-w-md space-y-4 p-4">
       <header>
-        <h1 className="text-xl font-bold">Por tópico 🎯</h1>
+        <h1 className="text-xl font-bold">Por tópico</h1>
         <p className="text-sm text-slate-400">Reforce onde você quer trabalhar mais.</p>
       </header>
 

@@ -6,6 +6,7 @@ import { montarFlash } from "../lib/sessionBuilder";
 import { useProgresso } from "../hooks/useProgresso";
 import { SessionRunner, type RespostaSessao } from "../components/SessionRunner";
 import { ResumoSessao } from "../components/ResumoSessao";
+import { Spinner } from "../components/Spinner";
 import type { Questao } from "../types/questao";
 
 export function Flash() {
@@ -124,6 +125,7 @@ export function Flash() {
         disabled={carregando}
         className="tap w-full rounded-2xl bg-brand-ink py-4 font-display text-lg font-extrabold text-white transition hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-brand-ink/30"
       >
+        {carregando && <Spinner className="" />}
         {carregando ? "Montando…" : "Começar Flash"}
         {!carregando && <Zap size={20} strokeWidth={2} fill="currentColor" />}
       </button>

@@ -1,4 +1,5 @@
 // Resumo curto ao terminar uma sessão com feedback (Estudo/Flash/Tópico).
+import { Sparkles, TrendingUp } from "lucide-react";
 import type { RespostaSessao } from "./SessionRunner";
 
 export function ResumoSessao({
@@ -14,7 +15,12 @@ export function ResumoSessao({
 
   return (
     <div className="mx-auto max-w-md space-y-4 p-6 text-center">
-      <div className="text-5xl">{taxa >= 70 ? "🎉" : "💪"}</div>
+      <div
+        className="mx-auto grid h-16 w-16 place-items-center rounded-2xl"
+        style={{ background: "var(--accentBg)", color: "var(--accentText)" }}
+      >
+        {taxa >= 70 ? <Sparkles size={30} strokeWidth={2} /> : <TrendingUp size={30} strokeWidth={2} />}
+      </div>
       <h1 className="text-2xl font-bold">Sessão concluída</h1>
       <div className="card space-y-1 p-6">
         <p className="text-4xl font-bold tabular-nums">

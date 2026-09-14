@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { useConcurso, type Concurso, type EstadoConcurso } from "../store/concurso";
 import { criarConcurso } from "../lib/multiApi";
 import { TituloVivo } from "../components/TituloVivo";
+import { Carregando } from "../components/Spinner";
 
 const BADGE: Record<EstadoConcurso, { texto: string; cls: string }> = {
   EM_CURSO: { texto: "EM CURSO", cls: "border border-[color:var(--accentBd)] text-[color:var(--accentText)]" },
@@ -31,7 +32,7 @@ export function ConcursoPicker() {
       </div>
 
       {loading ? (
-        <p className="text-faint">Carregando…</p>
+        <Carregando />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {concursos.map((c) => (

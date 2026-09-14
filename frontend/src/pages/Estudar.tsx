@@ -20,6 +20,7 @@ import { FilterSelect } from "../components/FilterSelect";
 import { PageHeader } from "../components/PageHeader";
 import { getSessaoAtiva, salvarSessao, atualizarCursor, encerrarSessao } from "../lib/sessao";
 import { carregarMetaMateria, ordemDeEstudo } from "../lib/metaMateria";
+import { Carregando } from "../components/Spinner";
 
 export function Estudar() {
   const progresso = useProgresso();
@@ -155,7 +156,7 @@ export function Estudar() {
   if (carregandoRetomar) {
     return (
       <div className="mx-auto max-w-[560px] p-6 text-center">
-        <p className="text-faint">Retomando sua sessão…</p>
+        <Carregando texto="Retomando sua sessão…" />
       </div>
     );
   }

@@ -22,6 +22,7 @@ import { FileText, Plus, X } from "lucide-react";
 import { useConcurso } from "../store/concurso";
 import { materias as materiasDoRepo } from "../lib/questoesRepo";
 import { EditorPagina } from "./EditorPagina";
+import { Carregando } from "./Spinner";
 import { listarPaginas, criarPagina, type PaginaCaderno } from "../lib/multiApi";
 
 interface Props {
@@ -168,7 +169,7 @@ export function CadernoDrawer({ materia, aberto, onFechar }: Props) {
 
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-3">
         {carregando ? (
-          <p className="text-faint">Carregando…</p>
+          <Carregando />
         ) : ativa ? (
           <EditorPagina
             key={ativa.id}

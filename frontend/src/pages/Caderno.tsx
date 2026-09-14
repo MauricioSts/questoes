@@ -14,6 +14,7 @@ import {
   type PaginaCaderno,
 } from "../lib/multiApi";
 import { TituloVivo } from "../components/TituloVivo";
+import { Carregando } from "../components/Spinner";
 
 export function Caderno() {
   const { activeId, ativo } = useConcurso();
@@ -154,7 +155,7 @@ export function Caderno() {
       </div>
 
       {carregando ? (
-        <p className="text-faint">Carregando…</p>
+        <Carregando />
       ) : paginas.length === 0 ? (
         <div className="card grid place-items-center p-12 text-center">
           <div>

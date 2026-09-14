@@ -18,6 +18,7 @@ import { SIMULADO_DURACAO_MIN, TOTAL_SIMULADO } from "../config/prova";
 import type { RespostaSessao } from "../components/SessionRunner";
 import { ProvaCompleta, type ProvaCompletaHandle } from "../components/ProvaCompleta";
 import { Cronometro } from "../components/Cronometro";
+import { Spinner } from "../components/Spinner";
 import { ResultadoSimulado } from "../components/ResultadoSimulado";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
@@ -291,7 +292,14 @@ export function Simulado() {
 
       {/* Botão */}
       <Button onClick={iniciar} disabled={carregando} fullWidth size="lg">
-        {carregando ? "Montando simulado…" : "Iniciar simulado"}
+        {carregando ? (
+          <span className="inline-flex items-center justify-center gap-2">
+            <Spinner className="" />
+            Montando simulado…
+          </span>
+        ) : (
+          "Iniciar simulado"
+        )}
       </Button>
     </>
   );

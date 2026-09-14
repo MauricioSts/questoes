@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, useCallback, type React
 import { carregarTudo } from "../lib/questoesStore";
 import { setDados, totalQuestoes } from "../lib/questoesRepo";
 import { useConcurso } from "./concurso";
+import { Carregando } from "../components/Spinner";
 
 interface QuestoesContextValue {
   pronto: boolean;
@@ -31,7 +32,7 @@ export function QuestoesProvider({ children }: { children: ReactNode }) {
   }, [recarregar, activeId]);
 
   if (!pronto) {
-    return <div className="grid h-full place-items-center text-slate-400">Carregando questões…</div>;
+    return <Carregando texto="Carregando questões…" className="h-full min-h-[50vh]" />;
   }
 
   return (

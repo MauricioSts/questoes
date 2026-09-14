@@ -8,6 +8,7 @@ import { SessionRunner, type RespostaSessao } from "../components/SessionRunner"
 import { ResumoSessao } from "../components/ResumoSessao";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
+import { Carregando } from "../components/Spinner";
 import type { Questao } from "../types/questao";
 import { comRealce } from "../components/Realce";
 
@@ -69,7 +70,7 @@ export function Anotacoes() {
       </div>
 
       {carregando ? (
-        <Card className="p-6 text-center"><p className="text-faint">Carregando…</p></Card>
+        <Card className="p-6"><Carregando className="py-2" /></Card>
       ) : erro ? (
         <Card className="p-6 text-center">
           <p className="text-danger-from font-medium">Não foi possível carregar</p>
@@ -77,7 +78,9 @@ export function Anotacoes() {
         </Card>
       ) : comQuestao.length === 0 ? (
         <Card className="p-8 text-center">
-          <p className="text-3xl mb-3">📝</p>
+          <div className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-2xl" style={{ background: "var(--accentBg)", color: "var(--accentText)" }}>
+            <NotebookPen size={26} strokeWidth={2} />
+          </div>
           <p className="font-semibold text-brand-ink">Nenhuma anotação ainda</p>
           <p className="text-sm text-faint mt-2">
             Durante o estudo, clique em “Anotar” após responder para guardar uma nota.

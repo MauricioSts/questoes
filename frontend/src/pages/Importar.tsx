@@ -18,6 +18,8 @@ import { getQuestao } from "../lib/questoesRepo";
 import { useQuestoes } from "../store/questoes";
 import { useConcurso } from "../store/concurso";
 import exemplo from "../data/questoes.json";
+import { CircleCheck, CircleX, TriangleAlert } from "lucide-react";
+import { Spinner } from "../components/Spinner";
 
 export function Importar() {
   const { total, recarregar } = useQuestoes();
@@ -164,7 +166,7 @@ export function Importar() {
   return (
     <div className="mx-auto max-w-md space-y-4 p-4">
       <header>
-        <h1 className="text-xl font-bold">Importar questões 📥</h1>
+        <h1 className="text-xl font-bold">Importar questões</h1>
         <p className="text-sm text-slate-400">{total} questões no app atualmente.</p>
       </header>
 
@@ -186,8 +188,8 @@ export function Importar() {
 
       {semConcurso > 0 && ativo && (
         <div className="card space-y-2 border border-amber-500 p-4 text-sm">
-          <p className="font-semibold text-amber-500">
-            ⚠️ {semConcurso} questões importadas estão sem concurso
+          <p className="flex items-center gap-2 font-semibold text-amber-500">
+            <TriangleAlert size={16} className="flex-shrink-0" /> {semConcurso} questões importadas estão sem concurso
           </p>
           <p className="text-xs text-slate-400">
             Elas estão no banco, mas não aparecem em nenhuma tela porque o app mostra só as
@@ -195,7 +197,7 @@ export function Importar() {
             aparecer.
           </p>
           <button onClick={vincularOrfas} disabled={adotando} className="btn-primary w-full">
-            {adotando ? "Vinculando…" : `Vincular ao concurso ${ativo.iniciais}`}
+            {adotando ? <span className="inline-flex items-center gap-2"><Spinner tamanho={16} className="" />Vinculando…</span> : `Vincular ao concurso ${ativo.iniciais}`}
           </button>
         </div>
       )}
@@ -215,18 +217,18 @@ export function Importar() {
 
           {validacao.erros.length > 0 ? (
             <div className="space-y-1 text-erro">
-              <p className="font-semibold">❌ {validacao.erros.length} erro(s). Corrija antes de importar:</p>
+              <p className="flex items-center gap-2 font-semibold"><CircleX size={16} className="flex-shrink-0" /> {validacao.erros.length} erro(s). Corrija antes de importar:</p>
               <ul className="max-h-40 list-disc space-y-0.5 overflow-auto pl-5">
                 {validacao.erros.slice(0, 30).map((e, i) => <li key={i}>{e}</li>)}
               </ul>
             </div>
           ) : (
-            <p className="text-acerto">✓ Estrutura válida.</p>
+            <p className="flex items-center gap-2 text-acerto"><CircleCheck size={16} className="flex-shrink-0" /> Estrutura válida.</p>
           )}
 
           {validacao.avisos.length > 0 && (
             <details className="text-amber-500">
-              <summary className="cursor-pointer">⚠️ {validacao.avisos.length} aviso(s)</summary>
+              <summary className="cursor-pointer"><TriangleAlert size={16} className="mr-1.5 inline-block align-[-3px]" />{validacao.avisos.length} aviso(s)</summary>
               <ul className="mt-1 max-h-32 list-disc space-y-0.5 overflow-auto pl-5">
                 {validacao.avisos.slice(0, 30).map((a, i) => <li key={i}>{a}</li>)}
               </ul>
@@ -246,7 +248,7 @@ export function Importar() {
                 </span>
               </label>
               <button onClick={confirmar} disabled={gravando} className="btn-primary w-full">
-                {gravando ? "Importando…" : `Importar ${validacao.questoes.length} questões`}
+                {gravando ? <span className="inline-flex items-center gap-2"><Spinner tamanho={16} className="" />Importando…</span> : `Importar ${validacao.questoes.length} questões`}
               </button>
             </>
           )}
@@ -258,7 +260,7 @@ export function Importar() {
         <div className={`card p-4 text-sm ${resultado.ok ? "border border-acerto" : "border border-erro"}`}>
           {resultado.ok ? (
             <div className="space-y-1 text-acerto">
-              <p className="font-semibold">✓ {resultado.adicionadas} questões importadas!</p>
+              <p className="flex items-center gap-2 font-semibold"><CircleCheck size={16} className="flex-shrink-0" /> {resultado.adicionadas} questões importadas!</p>
               {resultado.deslocamento != null && (
                 <p className="text-slate-500">
                   IDs deslocados em +{resultado.deslocamento} (agora {resultado.faixaFinal?.[0]} a{" "}
@@ -269,14 +271,14 @@ export function Importar() {
             </div>
           ) : (resultado.colisoes && resultado.colisoes.length > 0) ? (
             <div className="space-y-1 text-erro">
-              <p className="font-semibold">❌ Importação recusada: {resultado.colisoes.length} ID(s) já existem.</p>
+              <p className="flex items-center gap-2 font-semibold"><CircleX size={16} className="flex-shrink-0" /> Importação recusada: {resultado.colisoes.length} ID(s) já existem.</p>
               <p className="text-slate-500">
                 IDs em conflito: {resultado.colisoes.slice(0, 20).join(", ")}
                 {resultado.colisoes.length > 20 ? "…" : ""}. Marque "deslocar IDs" ou renumere o lote.
               </p>
             </div>
           ) : (
-            <p className="text-erro">❌ Não foi possível importar. Verifique a conexão e tente novamente.</p>
+            <p className="flex items-center gap-2 text-erro"><CircleX size={16} className="flex-shrink-0" /> Não foi possível importar. Verifique a conexão e tente novamente.</p>
           )}
         </div>
       )}
@@ -284,7 +286,7 @@ export function Importar() {
       {/* lotes importados: excluir um lote inteiro de uma vez */}
       {lotes.length > 0 && (
         <div className="space-y-2">
-          <h2 className="text-sm font-semibold">Lotes importados 📦</h2>
+          <h2 className="text-sm font-semibold">Lotes importados</h2>
           <p className="text-xs text-slate-400">Exclua um lote inteiro com um toque.</p>
           {lotes.map((l) => (
             <div key={l.chave} className="card flex items-center gap-3 p-3">
@@ -303,7 +305,7 @@ export function Importar() {
                 disabled={excluindoLote !== null}
                 className="tap shrink-0 rounded-lg border border-erro px-3 py-1.5 text-xs text-erro disabled:opacity-40"
               >
-                {excluindoLote === l.chave ? "Excluindo…" : "Excluir lote"}
+                {excluindoLote === l.chave ? <span className="inline-flex items-center gap-1.5"><Spinner tamanho={12} className="" />Excluindo…</span> : "Excluir lote"}
               </button>
             </div>
           ))}
@@ -314,7 +316,7 @@ export function Importar() {
       {total > 0 && (
         <details className="card space-y-3 p-4">
           <summary className="cursor-pointer text-sm font-semibold">
-            Excluir questões avulsas por ID 🗑️
+            Excluir questões avulsas por ID
           </summary>
           <div className="mt-2">
             <p className="text-xs text-slate-400">
@@ -348,12 +350,12 @@ export function Importar() {
             disabled={excluindo || idsExistentes.length === 0}
             className="tap w-full rounded-xl border border-erro py-2 text-sm text-erro disabled:opacity-40"
           >
-            {excluindo ? "Excluindo…" : `Excluir ${idsExistentes.length} questão(ões)`}
+            {excluindo ? <span className="inline-flex items-center gap-2"><Spinner tamanho={16} className="" />Excluindo…</span> : `Excluir ${idsExistentes.length} questão(ões)`}
           </button>
 
           {resultadoExcluir && (
             <div className="space-y-1 text-sm text-acerto">
-              <p className="font-semibold">✓ {resultadoExcluir.excluidas} questão(ões) excluída(s).</p>
+              <p className="flex items-center gap-2 font-semibold"><CircleCheck size={16} className="flex-shrink-0" /> {resultadoExcluir.excluidas} questão(ões) excluída(s).</p>
               {resultadoExcluir.naoEncontradas.length > 0 && (
                 <p className="text-slate-500">
                   {resultadoExcluir.naoEncontradas.length} ID(s) não existiam:{" "}

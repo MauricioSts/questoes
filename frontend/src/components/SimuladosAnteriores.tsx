@@ -10,6 +10,7 @@ import { ResultadoSimulado } from "./ResultadoSimulado";
 import type { RespostaSessao } from "./SessionRunner";
 import type { Alternativa, Questao } from "../types/questao";
 import { Card } from "./Card";
+import { Carregando } from "./Spinner";
 
 interface RespostaHist {
   questaoId: number;
@@ -96,7 +97,7 @@ export function SimuladosAnteriores() {
   }
 
   if (!simulados) {
-    return <p className="py-8 text-center text-sm text-faint">Carregando simulados…</p>;
+    return <Carregando texto="Carregando simulados…" className="py-8" />;
   }
 
   if (simulados.length === 0) {

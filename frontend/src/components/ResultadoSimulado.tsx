@@ -1,6 +1,7 @@
 // Tela de resultado do simulado: nota ponderada real, acertos por matéria, estimativa de
 // aprovação e revisão questão a questão com explicações.
 import { useMemo, useState } from "react";
+import { Check, TrendingUp, Trophy, X } from "lucide-react";
 import type { RespostaSessao } from "./SessionRunner";
 import { calcularNotaSimulado } from "../lib/sessionBuilder";
 import { NOTA_CORTE_PONTOS, TOTAL_PONTOS } from "../config/prova";
@@ -54,7 +55,12 @@ export function ResultadoSimulado({
 
   return (
     <div className="mx-auto max-w-md space-y-5 p-4 text-center">
-      <div className="text-5xl">{nota.aprovadoEstimado ? "🏆" : "📈"}</div>
+      <div
+        className="mx-auto grid h-16 w-16 place-items-center rounded-2xl"
+        style={{ background: "var(--accentBg)", color: "var(--accentText)" }}
+      >
+        {nota.aprovadoEstimado ? <Trophy size={30} strokeWidth={2} /> : <TrendingUp size={30} strokeWidth={2} />}
+      </div>
       <h1 className="text-2xl font-bold">Resultado do Simulado</h1>
 
       <div className="card space-y-1 p-6">
@@ -66,10 +72,11 @@ export function ResultadoSimulado({
         <p className="text-slate-400">
           {nota.acertos}/{nota.total} acertos · {pctNota}%
         </p>
-        <p className={`mt-2 font-semibold ${nota.aprovadoEstimado ? "text-acerto" : "text-erro"}`}>
+        <p className={`mt-2 flex items-center justify-center gap-1.5 font-semibold ${nota.aprovadoEstimado ? "text-acerto" : "text-erro"}`}>
+          {nota.aprovadoEstimado ? <Check size={18} strokeWidth={2.6} /> : <X size={18} strokeWidth={2.6} />}
           {nota.aprovadoEstimado
-            ? "✓ Acima do corte estimado"
-            : `✗ Abaixo do corte (${NOTA_CORTE_PONTOS} pts)`}
+            ? "Acima do corte estimado"
+            : `Abaixo do corte (${NOTA_CORTE_PONTOS} pts)`}
         </p>
       </div>
 

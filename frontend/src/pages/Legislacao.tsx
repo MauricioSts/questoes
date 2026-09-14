@@ -1,7 +1,7 @@
 // "Legislação": reúne todas as questões de legislação para uma rodada de estudo.
 // Num ciclo de 2 dias, sinaliza quando é "dia de legislação".
 import { useMemo, useState } from "react";
-import { Scale } from "lucide-react";
+import { Inbox, Scale } from "lucide-react";
 import { SessionRunner, type RespostaSessao } from "../components/SessionRunner";
 import { ResumoSessao } from "../components/ResumoSessao";
 import { Card } from "../components/Card";
@@ -48,7 +48,7 @@ export function Legislacao() {
         className={`p-4 ${diaHoje ? "border-l-4 border-l-[#12995B] bg-[#E8F7EF]/50" : ""}`}
       >
         <p className="font-semibold text-brand-ink">
-          {diaHoje ? "📜 Hoje é dia de legislação!" : "Hoje não é dia de legislação"}
+          {diaHoje ? "Hoje é dia de legislação!" : "Hoje não é dia de legislação"}
         </p>
         <p className="text-sm text-faint mt-1">
           {diaHoje
@@ -59,7 +59,9 @@ export function Legislacao() {
 
       {questoes.length === 0 ? (
         <Card className="p-8 text-center">
-          <p className="text-3xl mb-3">📭</p>
+          <div className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-2xl" style={{ background: "var(--accentBg)", color: "var(--accentText)" }}>
+            <Inbox size={26} strokeWidth={2} />
+          </div>
           <p className="font-semibold text-brand-ink">Nenhuma questão de legislação no banco</p>
           <p className="text-sm text-faint mt-2">Importe questões de legislação para começar.</p>
         </Card>
