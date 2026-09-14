@@ -74,6 +74,10 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   const [respostas, setRespostas] = useState<Map<number, RespostaSessao>>(new Map());
   const [selecionada, setSelecionada] = useState<Alternativa | undefined>();
   const [revelado, setRevelado] = useState(false);
+  // Questão mais adiante a que a sessão já chegou. Voltar para rever uma questão não pode
+  // exigir respondê-la de novo para seguir, nem recuar o cursor salvo da sessão.
+  const [alcancado, setAlcancado] = useState(idx);
+  const alcancadoRef = useRef(idx);
   // O caderno fica aberto entre uma questão e outra: quem anota estudando não quer
   // reabrir o painel a cada "Próxima questão".
   const [cadernoAberto, setCadernoAberto] = useState(false);
@@ -90,15 +94,17 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   // olho atrapalha a leitura do enunciado.
   usePausarFundo();
 
-  // Ao trocar de questão: restaura resposta anterior (voltar no simulado), reinicia o timer
-  // e persiste o cursor no backend (para retomar depois).
+  // Ao trocar de questão: restaura a resposta já dada (ao voltar, ela reaparece corrigida),
+  // reinicia o timer e persiste o cursor no backend (para retomar depois).
   useEffect(() => {
     if (!questao) return;
     const r = respostas.get(questao.id);
     setSelecionada(r?.marcada);
     setRevelado(feedbackImediato && !!r);
     inicioRef.current = Date.now();
-    onCursorChange?.(idx);
+    alcancadoRef.current = Math.max(alcancadoRef.current, idx);
+    setAlcancado(alcancadoRef.current);
+    onCursorChange?.(alcancadoRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx]);
 
@@ -158,7 +164,7 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   useImperativeHandle(ref, () => ({ finalizar }));
 
   const ultima = idx + 1 === questoes.length;
-  const podeAvancar = feedbackImediato ? revelado : true;
+  const podeAvancar = feedbackImediato ? revelado || idx < alcancado : true;
   const progresso = ((idx + 1) / questoes.length) * 100;
 
   return (
@@ -236,17 +242,13 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
 
         {/* Navegação inferior */}
         <div className="flex items-center justify-between gap-3 pt-1">
-          {!feedbackImediato ? (
-            <button
-              onClick={voltar}
-              disabled={idx === 0}
-              className="rounded-2xl px-5 py-3 font-display font-bold text-muted disabled:opacity-30 hover:text-brand-500 transition"
-            >
-              ← Anterior
-            </button>
-          ) : (
-            <span />
-          )}
+          <button
+            onClick={voltar}
+            disabled={idx === 0}
+            className="rounded-2xl px-5 py-3 font-display font-bold text-muted disabled:opacity-30 hover:text-brand-500 transition"
+          >
+            ← Anterior
+          </button>
           <button
             onClick={avancar}
             disabled={!podeAvancar}

@@ -20,7 +20,9 @@ import type { Questao } from "../types/questao";
 export function Marcadas() {
   const marcadas = useMarcadas();
   const { mapa: historico } = useHistoricoQuestoes();
-  const [sessao, setSessao] = useState<Questao[] | null>(null);
+  // `inicio`: a questão clicada na lista. A sessão leva todas as marcadas, então dá para
+  // ir e voltar entre elas a partir dali.
+  const [sessao, setSessao] = useState<{ questoes: Questao[]; inicio: number } | null>(null);
   const [resultado, setResultado] = useState<RespostaSessao[] | null>(null);
   const [exportando, setExportando] = useState(false);
   const [erroExport, setErroExport] = useState(false);
@@ -54,7 +56,8 @@ export function Marcadas() {
   if (sessao) {
     return (
       <SessionRunner
-        questoes={sessao}
+        questoes={sessao.questoes}
+        initialIndex={sessao.inicio}
         contexto="ESTUDO"
         feedbackImediato
         permiteCaderno
@@ -62,6 +65,10 @@ export function Marcadas() {
         onFinalizar={(rs) => {
           setResultado(rs);
           setSessao(null);
+        }}
+        onSair={() => {
+          setSessao(null);
+          marcadas.recarregar();
         }}
       />
     );
@@ -72,7 +79,7 @@ export function Marcadas() {
       <PageHeader
         rotulo="Fila manual"
         titulo="Marcadas para revisar"
-        subtitulo="As questões que você separou com o marcador durante o estudo."
+        subtitulo="As questões que você separou com o marcador durante o estudo. Clique em uma para abrir direto nela."
         right={
           <button
             onClick={exportar}
@@ -121,7 +128,7 @@ export function Marcadas() {
       ) : (
         <div className="space-y-4">
           <button
-            onClick={() => setSessao(questoes)}
+            onClick={() => setSessao({ questoes, inicio: 0 })}
             className="btn-primary flex w-full items-center justify-center gap-2 text-lg"
           >
             Revisar {questoes.length} {questoes.length === 1 ? "marcada" : "marcadas"}
@@ -134,8 +141,13 @@ export function Marcadas() {
               return (
                 <Revelar key={q.id} atraso={Math.min(i, 6) * 0.03}>
                   <li>
-                    <Card className="flex items-start gap-4 p-4">
-                      <div className="min-w-0 flex-1 space-y-2">
+                    <Card className="flex items-start gap-4 p-4 transition hover:border-brand-400">
+                      <button
+                        type="button"
+                        onClick={() => setSessao({ questoes, inicio: i })}
+                        className="tap min-w-0 flex-1 space-y-2 text-left"
+                        aria-label={`Abrir questão ${i + 1}: ${q.materia}, ${q.assunto}`}
+                      >
                         <p className="text-xs font-bold uppercase tracking-[.12em] text-faint">
                           {q.materia} · {q.assunto}
                         </p>
@@ -151,7 +163,7 @@ export function Marcadas() {
                             </span>
                           )}
                         </div>
-                      </div>
+                      </button>
                       <button
                         onClick={() => marcadas.alternar(q.id)}
                         className="tap flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-hair
