@@ -1,5 +1,5 @@
 // Contexto de autenticação: login/logout, sessão persistida via refresh token.
-// Não há registro: o app é de uso pessoal e o backend recusa /auth/register.
+// Registro só cria um pedido: a conta não loga até o administrador aprovar por e-mail.
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { api, tokenStore } from "../lib/api";
 
@@ -14,6 +14,7 @@ interface AuthContextValue {
   usuario: Usuario | null;
   carregando: boolean;
   login: (email: string, password: string) => Promise<void>;
+  registrar: (nome: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -57,6 +58,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUsuario(data.user);
   }
 
+  // Não recebe tokens: a conta nasce pendente de aprovação.
+  async function registrar(nome: string, email: string, password: string) {
+    await api("/auth/register", {
+      method: "POST",
+      body: { nome, email, password },
+      auth: false,
+    });
+  }
+
   async function logout() {
     try {
       if (tokenStore.refresh) {
@@ -73,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ usuario, carregando, login, logout }}>
+    <AuthContext.Provider value={{ usuario, carregando, login, registrar, logout }}>
       {children}
     </AuthContext.Provider>
   );

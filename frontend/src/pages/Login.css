@@ -200,6 +200,27 @@
   opacity: 0.85;
 }
 
+/* Aviso de pedido de conta enviado: mesma forma do erro, na cor de acerto e sem tremer. */
+.login-ok {
+  display: flex;
+  gap: 8px;
+  padding: 11px 13px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--good) 55%, transparent);
+  background: color-mix(in srgb, var(--good) 10%, transparent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.login-troca {
+  font-weight: 600;
+  color: var(--accentText);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .login-cursor,
   .login-editor__ok,

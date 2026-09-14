@@ -15,6 +15,8 @@ import { postitsRouter } from "./modules/postits/postits.routes.js";
 import { statsRouter } from "./modules/stats/stats.routes.js";
 
 const app = express();
+// Atrás do Caddy local: req.ip vira o IP real do cliente (usado no limite do registro).
+app.set("trust proxy", "loopback");
 
 app.use(
   cors({

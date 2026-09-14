@@ -158,6 +158,10 @@ model User {
   feriasDesde  DateTime? // instante em que o modo férias foi ligado (janela atual/última)
   feriasAte    DateTime? // instante em que foi desligado (null enquanto ativo)
   srsResetAt   DateTime? // reinício do SRS fora de concurso (ver Concurso.srsResetAt)
+  // Conta criada pelo /auth/register nasce false e só loga depois que o admin aprova
+  // pelo link do e-mail. O default true mantém as contas antigas liberadas.
+  aprovado           Boolean @default(true)
+  aprovacaoTokenHash String? @unique // sha256 do token do link de aprovação
   createdAt    DateTime  @default(now())
 
   answers        Answer[]

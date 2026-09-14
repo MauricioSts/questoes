@@ -11,12 +11,21 @@ const schema = z.object({
   ACCESS_TOKEN_TTL: z.string().default("15m"),
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().default(30),
   USER_TIMEZONE: z.string().default("America/Fortaleza"),
-  // Criação de conta. O app é de uso pessoal: fica fechado a menos que se ligue
-  // explicitamente no .env (REGISTRO_ABERTO=true).
+  // Criação de conta. Fica fechada a menos que se ligue no .env (REGISTRO_ABERTO=true);
+  // ligada, a conta nasce pendente e só entra depois que ADMIN_EMAIL aprova pelo link.
   REGISTRO_ABERTO: z
     .enum(["true", "false"])
     .default("false")
     .transform((v) => v === "true"),
+  ADMIN_EMAIL: z.string().email().default("contatomauriciosts@gmail.com"),
+  // URL pública da API: base dos links de aprovação que vão no e-mail.
+  API_PUBLIC_URL: z.string().url().default("http://localhost:3333"),
+  // SMTP de saída. Sem SMTP_HOST o e-mail não sai e o link de aprovação vai para o log.
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().default(465),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  SMTP_FROM: z.string().optional(),
 });
 
 const parsed = schema.safeParse(process.env);

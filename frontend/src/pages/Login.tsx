@@ -3,7 +3,7 @@
 // "concursado" têm em comum, então a tela de entrada assume isso em vez de ser um
 // cartão genérico. O fundo WebGL continua rodando atrás dos dois painéis.
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../store/auth";
 import { Button } from "../components/Button";
 import { Logo } from "../components/Logo";
@@ -134,23 +134,41 @@ function PainelEditor() {
   );
 }
 
-export function Login() {
-  const { login } = useAuth();
+// /login e /registro são a mesma cena: o registro só acrescenta o campo de nome e,
+// em vez de entrar, termina num aviso de pedido enviado para aprovação.
+export function Login({ modo = "entrar" }: { modo?: "entrar" | "registro" }) {
+  const { login, registrar } = useAuth();
   const navigate = useNavigate();
+  const registro = modo === "registro";
+  const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [pedidoEnviado, setPedidoEnviado] = useState(false);
+
+  // As duas rotas reaproveitam o mesmo componente: trocar de uma para a outra mantém
+  // o que foi digitado, mas não o erro nem o aviso da outra tela.
+  useEffect(() => {
+    setErro(null);
+    setPedidoEnviado(false);
+  }, [modo]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setErro(null);
     setEnviando(true);
     try {
-      await login(email, senha);
-      navigate("/", { replace: true });
+      if (registro) {
+        await registrar(nome.trim(), email, senha);
+        setSenha("");
+        setPedidoEnviado(true);
+      } else {
+        await login(email, senha);
+        navigate("/", { replace: true });
+      }
     } catch (err) {
-      setErro(err instanceof Error ? err.message : "Falha ao entrar");
+      setErro(err instanceof Error ? err.message : registro ? "Falha ao criar conta" : "Falha ao entrar");
     } finally {
       setEnviando(false);
     }
@@ -167,14 +185,46 @@ export function Login() {
           <div>
             <Logo tamanho={34} fonte={19} />
             <h1 className="mt-5 font-display text-[26px] font-extrabold leading-tight text-brand-ink">
-              Bem-vindo de volta
+              {registro ? "Criar conta" : "Bem-vindo de volta"}
             </h1>
             <p className="mt-1 text-sm text-faint">
-              Entre para continuar de onde a sua ofensiva parou.
+              {registro
+                ? "A conta é liberada depois que o administrador autorizar o pedido."
+                : "Entre para continuar de onde a sua ofensiva parou."}
             </p>
           </div>
 
+          {pedidoEnviado ? (
+            <div className="space-y-4">
+              <p className="login-ok" role="status">
+                <span className="login-erro__marca">✓</span>
+                <span>
+                  Pedido enviado para {email}. Assim que o administrador autorizar, é só entrar com
+                  esse e-mail e a senha que você escolheu.
+                </span>
+              </p>
+              <Link to="/login" className="login-troca">
+                Voltar para o login
+              </Link>
+            </div>
+          ) : (
           <form onSubmit={onSubmit} className="space-y-4">
+            {registro && (
+              <label className="login-campo">
+                <span className="login-campo__rotulo">nome</span>
+                <input
+                  type="text"
+                  required
+                  maxLength={80}
+                  autoComplete="name"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  placeholder="Seu nome"
+                  className="login-campo__entrada"
+                />
+              </label>
+            )}
+
             <label className="login-campo">
               <span className="login-campo__rotulo">email</span>
               <input
@@ -193,10 +243,11 @@ export function Login() {
               <input
                 type="password"
                 required
-                autoComplete="current-password"
+                minLength={registro ? 6 : undefined}
+                autoComplete={registro ? "new-password" : "current-password"}
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
-                placeholder="••••••••"
+                placeholder={registro ? "mínimo 6 caracteres" : "••••••••"}
                 className="login-campo__entrada"
               />
             </label>
@@ -209,9 +260,19 @@ export function Login() {
             )}
 
             <Button type="submit" disabled={enviando} fullWidth size="lg">
-              {enviando ? "Autenticando…" : "Entrar"}
+              {registro
+                ? enviando ? "Enviando pedido…" : "Pedir conta"
+                : enviando ? "Autenticando…" : "Entrar"}
             </Button>
+
+            <p className="text-center text-sm text-faint">
+              {registro ? "Já tem conta? " : "Não tem conta? "}
+              <Link to={registro ? "/login" : "/registro"} className="login-troca">
+                {registro ? "Entrar" : "Criar conta"}
+              </Link>
+            </p>
           </form>
+          )}
 
           <p className="text-center text-[11px] uppercase tracking-[.14em] text-faint">
             Banco de questões · estudo por repetição espaçada
