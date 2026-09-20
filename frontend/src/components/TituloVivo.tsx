@@ -9,8 +9,9 @@
 // entrelinha, então o título não pula quando o canvas assume.
 import { lazy, Suspense } from "react";
 import { useTheme } from "../store/theme";
+import { importarChunk } from "../lib/importarChunk";
 
-const WarpText = lazy(() => import("./reactbits/WarpText"));
+const WarpText = lazy(() => importarChunk(() => import("./reactbits/WarpText")));
 
 const FONTE_FANTASY = "'Fraunces', Georgia, serif";
 const COR_FANTASY = "#ECEAFF";

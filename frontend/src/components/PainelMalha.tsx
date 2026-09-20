@@ -4,8 +4,9 @@
 // Usado nos cartões que são "painel de leitura" da Home: modos de estudo e contagem da
 // prova. A malha dorme quando assenta, então cartão parado não custa quadro.
 import { lazy, Suspense, type ReactNode } from "react";
+import { importarChunk } from "../lib/importarChunk";
 
-const ElasticMesh = lazy(() => import("./reactbits/ElasticMesh"));
+const ElasticMesh = lazy(() => importarChunk(() => import("./reactbits/ElasticMesh")));
 
 export function PainelMalha({ children, className = "", conteudoClassName = "" }: { children: ReactNode; className?: string; conteudoClassName?: string }) {
   return (

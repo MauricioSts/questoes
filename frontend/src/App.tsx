@@ -27,53 +27,56 @@ import { Trilhas } from "./pages/Trilhas";
 import { ComoFunciona } from "./pages/ComoFunciona";
 import { ExigeTrilha } from "./components/ExigeTrilha";
 import { RotaAdmin } from "./components/RotaAdmin";
+import { FronteiraErro } from "./components/FronteiraErro";
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/registro" element={<Login modo="registro" />} />
-            <Route
-              element={
-                <ProtectedRoute>
-                  <ConcursoProvider>
-                    <QuestoesProvider>
-                      <AppLayout />
-                    </QuestoesProvider>
-                  </ConcursoProvider>
-                </ProtectedRoute>
-              }
-            >
-              <Route element={<ExigeTrilha />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/trilhas" element={<Trilhas />} />
-                <Route path="/como-funciona" element={<ComoFunciona />} />
-                <Route path="/concursos" element={<ConcursoPicker />} />
-                <Route path="/estudar" element={<Estudar />} />
-                <Route path="/flash" element={<Flash />} />
-                <Route path="/topico" element={<Topico />} />
-                <Route path="/simulado" element={<Simulado />} />
-                <Route path="/revisar" element={<Revisar />} />
-                <Route path="/caderno" element={<Caderno />} />
-                <Route path="/stats" element={<Stats />} />
-                <Route path="/ranking" element={<Ranking />} />
-                <Route path="/marcadas" element={<Marcadas />} />
-                <Route path="/provas" element={<Provas />} />
-                <Route path="/anotacoes" element={<Anotacoes />} />
-                <Route path="/legislacao" element={<Legislacao />} />
-                <Route path="/materias" element={<Materias />} />
-                <Route path="/erros" element={<Erros />} />
-                <Route element={<RotaAdmin />}>
-                  <Route path="/importar" element={<Importar />} />
+    <FronteiraErro>
+      <ThemeProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/registro" element={<Login modo="registro" />} />
+              <Route
+                element={
+                  <ProtectedRoute>
+                    <ConcursoProvider>
+                      <QuestoesProvider>
+                        <AppLayout />
+                      </QuestoesProvider>
+                    </ConcursoProvider>
+                  </ProtectedRoute>
+                }
+              >
+                <Route element={<ExigeTrilha />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/trilhas" element={<Trilhas />} />
+                  <Route path="/como-funciona" element={<ComoFunciona />} />
+                  <Route path="/concursos" element={<ConcursoPicker />} />
+                  <Route path="/estudar" element={<Estudar />} />
+                  <Route path="/flash" element={<Flash />} />
+                  <Route path="/topico" element={<Topico />} />
+                  <Route path="/simulado" element={<Simulado />} />
+                  <Route path="/revisar" element={<Revisar />} />
+                  <Route path="/caderno" element={<Caderno />} />
+                  <Route path="/stats" element={<Stats />} />
+                  <Route path="/ranking" element={<Ranking />} />
+                  <Route path="/marcadas" element={<Marcadas />} />
+                  <Route path="/provas" element={<Provas />} />
+                  <Route path="/anotacoes" element={<Anotacoes />} />
+                  <Route path="/legislacao" element={<Legislacao />} />
+                  <Route path="/materias" element={<Materias />} />
+                  <Route path="/erros" element={<Erros />} />
+                  <Route element={<RotaAdmin />}>
+                    <Route path="/importar" element={<Importar />} />
+                  </Route>
                 </Route>
               </Route>
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </ThemeProvider>
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </ThemeProvider>
+    </FronteiraErro>
   );
 }

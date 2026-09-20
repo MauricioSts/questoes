@@ -5,11 +5,12 @@
 import { lazy, Suspense } from "react";
 import { useTheme } from "../store/theme";
 import { useFundoPausado } from "../store/fundo";
+import { importarChunk } from "../lib/importarChunk";
 
 // ogl + shaders só descem para quem está no tema que usa cada fundo.
-const Topography = lazy(() => import("./reactbits/Topography"));
-const PixelBlast = lazy(() => import("./reactbits/PixelBlast"));
-const Iridescence = lazy(() => import("./reactbits/Iridescence"));
+const Topography = lazy(() => importarChunk(() => import("./reactbits/Topography")));
+const PixelBlast = lazy(() => importarChunk(() => import("./reactbits/PixelBlast")));
+const Iridescence = lazy(() => importarChunk(() => import("./reactbits/Iridescence")));
 
 // Azul das placas das asas do Lugia, em 0..1 (o formato do React Bits). Constante de
 // módulo porque é prop de identidade: recriar o array a cada render reenviaria o

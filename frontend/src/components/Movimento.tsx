@@ -11,8 +11,9 @@
 import { useRef, type ReactNode } from "react";
 import { LazyMotion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import * as m from "motion/react-m";
+import { importarChunk } from "../lib/importarChunk";
 
-const recursos = () => import("../lib/motionFeatures").then((mod) => mod.default);
+const recursos = () => importarChunk(() => import("../lib/motionFeatures")).then((mod) => mod.default);
 
 export function ProvedorMovimento({ children }: { children: ReactNode }) {
   return (

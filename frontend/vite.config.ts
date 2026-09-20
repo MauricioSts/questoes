@@ -27,6 +27,13 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,json}"],
+        // Deploy novo com a aba aberta: sem isso o cache antigo sobrevive e o app fica
+        // pedindo pedaços de código que já não existem no servidor (tela branca).
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        // O index.html nunca deve responder no lugar de um asset que sumiu.
+        navigateFallbackDenylist: [/^\/assets\//],
         runtimeCaching: [
           {
             // API: network-first para dados frescos, cai no cache offline.
