@@ -604,8 +604,12 @@ body {
  * Só o que os tokens não alcançam. Tudo escopado em [data-theme='fantasy'] — os
  * outros temas não passam por aqui. */
 
+/* Fundo chapado. O halo ultramar que ficava aqui era um radial-gradient no body: com
+ * html/body em height:100%, a área de posicionamento do fundo é só a altura da janela, e
+ * o gradiente se repetia a cada tela rolada — o borrão roxo reaparecia no meio da lista.
+ * A cor do tema já vem do relevo do Topography. */
 [data-theme='fantasy'] body {
-  background: radial-gradient(900px 520px at 78% -12%, rgba(40,0,201,.28), transparent 62%), rgb(var(--bg));
+  background: rgb(var(--bg));
 }
 /* Halo escuro no texto que fica DIRETO sobre o relevo (cabeçalho das telas, classe
  * .sobre-fundo): separa as letras das curvas de nível. Só ali — aplicado no <main> inteiro
@@ -695,11 +699,11 @@ body {
 /* ======================= CYBERPUNK: acabamento =======================
  * Night City. Só o que os tokens não alcançam, tudo escopado em [data-theme='cyberpunk']. */
 
+/* Fundo chapado, pelo mesmo motivo do Fantasy: radial-gradient no body com height:100%
+ * se repete a cada tela rolada e os halos magenta/ciano reapareciam no meio da página.
+ * A cor do tema vem do PixelBlast. */
 [data-theme='cyberpunk'] body {
-  background:
-    radial-gradient(900px 620px at 6% -12%, rgba(255,42,109,.16), transparent 62%),
-    radial-gradient(820px 620px at 104% 108%, rgba(0,240,255,.10), transparent 60%),
-    rgb(var(--bg));
+  background: rgb(var(--bg));
 }
 [data-theme='cyberpunk'] ::selection { background: #FCEE0A; color: #07060B; }
 [data-theme='cyberpunk'] { scrollbar-color: #2A2940 transparent; }
