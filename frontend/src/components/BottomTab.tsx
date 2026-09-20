@@ -10,6 +10,7 @@ import {
   Target,
   Bookmark,
   ClipboardList,
+  Trophy,
   Upload,
   LogOut,
   HelpCircle,
@@ -40,6 +41,7 @@ const navItems = [
 
 // Itens extras no desktop
 const desktopExtra = [
+  { to: "/ranking", label: "Ranking da trilha", icon: Trophy },
   { to: "/marcadas", label: "Marcadas", icon: Bookmark },
   { to: "/provas", label: "Provas e origens", icon: ClipboardList },
   { to: "/simulado", label: "Simulado", icon: FileText },

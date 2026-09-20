@@ -411,7 +411,7 @@ export function Home() {
       {/* 8. Atalhos em destaque: a fila manual de marcadas e o painel por prova.
              As "questões com anotações" saíram — o Caderno assumiu esse papel e o botão
              só competia por atenção com as duas coisas que eu realmente abro daqui. */}
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Revelar>
           <Toque className="h-full">
             <Link
@@ -455,6 +455,26 @@ export function Home() {
               <div className="min-w-0 flex-1">
                 <p className="font-display font-bold text-brand-ink">Provas e origens</p>
                 <p className="text-sm text-muted">Acertos, erros e o que falta em cada prova</p>
+              </div>
+              <ArrowUpRight size={18} strokeWidth={2.2} className="flex-shrink-0 text-faint" />
+            </Link>
+          </Toque>
+        </Revelar>
+
+        {/* O acervo é compartilhado: dá para ver como você está indo perto de quem
+            estuda a mesma trilha. */}
+        <Revelar atraso={0.12}>
+          <Toque className="h-full">
+            <Link to="/ranking" className="card flex h-full items-center gap-4 p-5">
+              <div
+                className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-2xl"
+                style={{ background: "var(--accentBg)", color: "var(--accentText)" }}
+              >
+                <Trophy size={22} strokeWidth={2} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-display font-bold text-brand-ink">Ranking da trilha</p>
+                <p className="text-sm text-muted">Quem mais acerta entre quem segue a trilha</p>
               </div>
               <ArrowUpRight size={18} strokeWidth={2.2} className="flex-shrink-0 text-faint" />
             </Link>

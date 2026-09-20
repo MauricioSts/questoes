@@ -12,6 +12,7 @@ import { Flash } from "./pages/Flash";
 import { Topico } from "./pages/Topico";
 import { Simulado } from "./pages/Simulado";
 import { Stats } from "./pages/Stats";
+import { Ranking } from "./pages/Ranking";
 import { Marcadas } from "./pages/Marcadas";
 import { Provas } from "./pages/Provas";
 import { Anotacoes } from "./pages/Anotacoes";
@@ -58,6 +59,7 @@ export default function App() {
                 <Route path="/revisar" element={<Revisar />} />
                 <Route path="/caderno" element={<Caderno />} />
                 <Route path="/stats" element={<Stats />} />
+                <Route path="/ranking" element={<Ranking />} />
                 <Route path="/marcadas" element={<Marcadas />} />
                 <Route path="/provas" element={<Provas />} />
                 <Route path="/anotacoes" element={<Anotacoes />} />

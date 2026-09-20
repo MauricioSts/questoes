@@ -27,3 +27,28 @@ export async function entrarNaTrilha(id: string): Promise<{ concursoId: string }
   const r = await api<{ concurso: { id: string } }>(`/trilhas/${id}/entrar`, { method: "POST" });
   return { concursoId: r.concurso.id };
 }
+
+// Ranking da trilha: placar compartilhado por quem segue o mesmo acervo.
+export interface LinhaRanking {
+  userId: string;
+  nome: string; // nome público ("Maurício S."), já encurtado no servidor
+  iniciais: string;
+  acertos: number;
+  respondidas: number;
+  taxa: number; // 0..1
+  ultimaResposta: string | null;
+  posicao: number; // posição por acertos, com empate compartilhado
+  elegivelTaxa: boolean; // tem volume mínimo para disputar o ranking por taxa
+}
+
+export interface RankingTrilha {
+  trilha: { id: string; nome: string; cargo: string; iniciais: string; banca: string; orgao: string };
+  seguidores: number;
+  volumeMinimoTaxa: number;
+  voceId: string;
+  linhas: LinhaRanking[];
+}
+
+export async function carregarRanking(trilhaId: string): Promise<RankingTrilha> {
+  return api<RankingTrilha>(`/trilhas/${trilhaId}/ranking`);
+}

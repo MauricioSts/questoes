@@ -6,6 +6,7 @@ import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { HttpError } from "../../middleware/error.js";
+import { montarRanking, VOLUME_MINIMO_TAXA } from "../../lib/ranking.js";
 
 export const trilhasRouter = Router();
 trilhasRouter.use(requireAuth);
@@ -90,5 +91,74 @@ trilhasRouter.post(
       },
     });
     res.status(201).json({ concurso, jaSeguia: false });
+  })
+);
+
+// GET /trilhas/:id/ranking: placar da trilha. As respostas chegam pelo Concurso que cada
+// usuário criou ao entrar nela — é o único vínculo entre Answer e Trilha, já que a
+// resposta guarda concursoId, não trilhaId.
+trilhasRouter.get(
+  "/:id/ranking",
+  asyncHandler(async (req, res) => {
+    const trilha = await prisma.trilha.findFirst({
+      where: { id: req.params.id, publicada: true },
+    });
+    if (!trilha) throw new HttpError(404, "Trilha não encontrada.");
+
+    const concursos = await prisma.concurso.findMany({
+      where: { trilhaId: trilha.id },
+      select: { id: true, userId: true, user: { select: { nome: true } } },
+    });
+
+    const concursoIds = concursos.map((c) => c.id);
+    // Um usuário pode ter mais de um concurso na mesma trilha (não deveria, mas o banco
+    // permite): soma tudo sob o mesmo userId.
+    const nomePorUser = new Map(concursos.map((c) => [c.userId, c.user.nome]));
+
+    const grupos = concursoIds.length
+      ? await prisma.answer.groupBy({
+          by: ["userId", "acertou"],
+          where: { concursoId: { in: concursoIds } },
+          _count: { _all: true },
+          _max: { createdAt: true },
+        })
+      : [];
+
+    const porUser = new Map<string, { acertos: number; respondidas: number; ultima: Date | null }>();
+    for (const g of grupos) {
+      const atual = porUser.get(g.userId) ?? { acertos: 0, respondidas: 0, ultima: null };
+      atual.respondidas += g._count._all;
+      if (g.acertou) atual.acertos += g._count._all;
+      const max = g._max.createdAt;
+      if (max && (!atual.ultima || max > atual.ultima)) atual.ultima = max;
+      porUser.set(g.userId, atual);
+    }
+
+    const linhas = montarRanking(
+      [...porUser.entries()].map(([userId, v]) => ({
+        userId,
+        nome: nomePorUser.get(userId) ?? "Anônimo",
+        acertos: v.acertos,
+        respondidas: v.respondidas,
+        ultimaResposta: v.ultima,
+      }))
+    );
+
+    res.json({
+      trilha: {
+        id: trilha.id,
+        nome: trilha.nome,
+        cargo: trilha.cargo,
+        iniciais: trilha.iniciais,
+        banca: trilha.banca,
+        orgao: trilha.orgao,
+      },
+      // Quantos entraram na trilha (inclui quem ainda não respondeu nada e por isso
+      // não aparece nas linhas).
+      seguidores: new Set(concursos.map((c) => c.userId)).size,
+      volumeMinimoTaxa: VOLUME_MINIMO_TAXA,
+      voceId: req.userId!,
+      linhas,
+    });
   })
 );
