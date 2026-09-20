@@ -22,38 +22,42 @@ enum Contexto {
 // Banco de questões (conteúdo). Compartilhado entre usuários (não é escopo por userId).
 // A correção de acerto continua no frontend; o backend só guarda e serve o conteúdo.
 model Questao {
-  id           Int      @id // ID definido no lote (usado como questaoId em Answer)
-  concursoId   String? // concurso ao qual a questão pertence (multi-concurso). null = legado
-  modulo       String // "I" | "II"
-  materia      String
-  assunto      String
-  dificuldade  String // facil | media | dificil
-  textoBaseKey String? // chave em TextoBase (questões de inglês)
-  enunciado    String
-  codigo       String? // bloco de código opcional
-  linguagem    String? // rótulo da linguagem do código
-  alternativas Json // { "A": "...", "B": "...", ... }
-  gabarito     String
-  explicacao   String
+  id             Int      @id // ID definido no lote (usado como questaoId em Answer)
+  concursoId     String? // concurso ao qual a questão pertence (multi-concurso). null = legado
+  modulo         String // "I" | "II"
+  materia        String
+  assunto        String
+  dificuldade    String // facil | media | dificil
+  textoBaseKey   String? // chave em TextoBase (questões de inglês)
+  enunciado      String
+  codigo         String? // bloco de código opcional
+  linguagem      String? // rótulo da linguagem do código
+  alternativas   Json // { "A": "...", "B": "...", ... }
+  gabarito       String
+  explicacao     String
   // Figuras da questão: [{ arquivo, legenda, posicao, dados }], com a imagem embutida
   // como data URI em `dados`. null/ausente na maioria das questões.
-  imagens      Json?
-  loteNome     String? // rótulo do lote (nome do arquivo importado); null p/ imports antigos
+  imagens        Json?
+  // Trilha dona do conteúdo: é por ela que as questões chegam a QUALQUER usuário que
+  // siga a trilha. null = questão importada direto num concurso, visível só nele.
+  trilhaId       String?
+  trilha         Trilha?  @relation(fields: [trilhaId], references: [id], onDelete: SetNull)
+  loteNome       String? // rótulo do lote (nome do arquivo importado); null p/ imports antigos
   // Procedência da questão: "oficial" (texto igual ao da prova), "adaptada" (baseada numa
   // prova, com texto alterado), "gerada" (criada como reforço a partir dos meus erros) ou
   // "autoral" (escrita sem prova de referência). Legado importado antes disso = "autoral".
-  origem         String  @default("autoral")
+  origem         String   @default("autoral")
   provaChave     String? // prova de onde veio (oficial/adaptada); null nas demais origens
-  prova          Prova?  @relation("QuestaoOrigem", fields: [provaChave], references: [chave], onDelete: SetNull)
+  prova          Prova?   @relation("QuestaoOrigem", fields: [provaChave], references: [chave], onDelete: SetNull)
   // Prova de que o LOTE foi montado. Vale para todas as questões dele, inclusive as
   // autorais escritas junto — por isso é separada de provaChave, que afirma que o texto
   // saiu da prova. Estatística por prova usa provaChave; "de que lote veio" usa esta.
   provaBaseChave String?
-  provaBase      Prova?  @relation("QuestaoLoteBase", fields: [provaBaseChave], references: [chave], onDelete: SetNull)
+  provaBase      Prova?   @relation("QuestaoLoteBase", fields: [provaBaseChave], references: [chave], onDelete: SetNull)
   numeroOriginal Int? // número que a questão tinha na prova de origem
   // Reforço: IDs das questões erradas que motivaram a geração desta. [] / null nas demais.
   geradaDe       Json?
-  createdAt    DateTime @default(now()) // idêntico p/ toda questão de um mesmo import → chave do lote
+  createdAt      DateTime @default(now()) // idêntico p/ toda questão de um mesmo import → chave do lote
 
   @@index([modulo, materia])
   @@index([createdAt])
@@ -61,6 +65,32 @@ model Questao {
   @@index([origem])
   @@index([provaChave])
   @@index([provaBaseChave])
+  @@index([trilhaId])
+}
+
+// Trilha de estudo: um conjunto de questões que vários usuários podem seguir. É o que
+// o usuário escolhe ao entrar no app. Existe porque Questao.concursoId aponta para o
+// Concurso de UM usuário: sem a trilha, quem cria o próprio concurso começa com o banco
+// vazio. A trilha é o dono compartilhado do conteúdo; o Concurso continua sendo a cópia
+// pessoal (progresso, meta, caderno) de cada um que a segue.
+model Trilha {
+  id        String    @id // slug, ex.: "dataprev-analista-ti"
+  nome      String // "Dataprev"
+  cargo     String // "Analista de TI"
+  iniciais  String // "DTPV" (selo do cartão)
+  banca     String
+  orgao     String
+  ano       Int
+  descricao String // parágrafo do cartão de escolha
+  dataProva DateTime? // usada como data inicial do concurso de quem entra
+  publicada Boolean   @default(true) // false = não aparece na escolha
+  ordem     Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  questoes  Questao[]
+  concursos Concurso[]
+
+  @@index([publicada, ordem])
 }
 
 // Prova de concurso de onde uma ou mais questões vieram. Vive fora da Questao porque
@@ -83,27 +113,31 @@ model Prova {
 // Concurso do usuário. O app é multi-concurso: cada concurso tem seu próprio conjunto de
 // questões, respostas, anotações e caderno. Nenhum dado atravessa concursos.
 model Concurso {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   nome       String // "Banco do Brasil"
   iniciais   String // "BB"
   banca      String // "CESGRANRIO"
   ano        Int
   cargo      String
   dataProva  DateTime
-  metaDiaria Int      @default(30)
-  arquivado  Boolean  @default(false)
+  metaDiaria Int       @default(30)
+  // Trilha que este concurso segue. Define o banco de questões que o usuário enxerga.
+  trilhaId   String?
+  trilha     Trilha?   @relation(fields: [trilhaId], references: [id], onDelete: SetNull)
+  arquivado  Boolean   @default(false)
   // Marco de reinício da revisão espaçada: respostas anteriores a esta data não contam
   // no agendamento do SRS (a fila volta a zero sem apagar nenhuma resposta, então
   // estatística, ofensiva e histórico de erros continuam intactos).
   srsResetAt DateTime?
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
 
   paginas PaginaCaderno[]
   postits PostIt[]
 
   @@index([userId])
+  @@index([trilhaId])
 }
 
 // Página do Caderno (anotações tipo Notion), escopada por usuário + concurso + matéria.
@@ -148,21 +182,21 @@ model TextoBase {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  passwordHash String
-  nome         String
-  metaDiaria   Int       @default(70) // meta diária de questões (configurável no futuro)
-  dataProva    DateTime? // data alvo da prova (configurável pelo usuário)
-  feriasAtivo  Boolean   @default(false) // modo férias ligado: dias não quebram a ofensiva
-  feriasDesde  DateTime? // instante em que o modo férias foi ligado (janela atual/última)
-  feriasAte    DateTime? // instante em que foi desligado (null enquanto ativo)
-  srsResetAt   DateTime? // reinício do SRS fora de concurso (ver Concurso.srsResetAt)
+  id                 String    @id @default(cuid())
+  email              String    @unique
+  passwordHash       String
+  nome               String
+  metaDiaria         Int       @default(70) // meta diária de questões (configurável no futuro)
+  dataProva          DateTime? // data alvo da prova (configurável pelo usuário)
+  feriasAtivo        Boolean   @default(false) // modo férias ligado: dias não quebram a ofensiva
+  feriasDesde        DateTime? // instante em que o modo férias foi ligado (janela atual/última)
+  feriasAte          DateTime? // instante em que foi desligado (null enquanto ativo)
+  srsResetAt         DateTime? // reinício do SRS fora de concurso (ver Concurso.srsResetAt)
   // Conta criada pelo /auth/register nasce false e só loga depois que o admin aprova
   // pelo link do e-mail. O default true mantém as contas antigas liberadas.
-  aprovado           Boolean @default(true)
-  aprovacaoTokenHash String? @unique // sha256 do token do link de aprovação
-  createdAt    DateTime  @default(now())
+  aprovado           Boolean   @default(true)
+  aprovacaoTokenHash String?   @unique // sha256 do token do link de aprovação
+  createdAt          DateTime  @default(now())
 
   answers        Answer[]
   notas          Nota[]

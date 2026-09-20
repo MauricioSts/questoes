@@ -12,6 +12,7 @@ import {
   ClipboardList,
   Upload,
   LogOut,
+  HelpCircle,
 } from "lucide-react";
 import { useTheme, type Tema } from "../store/theme";
 import { useAuth } from "../store/auth";
@@ -67,7 +68,7 @@ function CabecalhoMarca() {
 
 export function BottomTab() {
   const { tema } = useTheme();
-  const { logout } = useAuth();
+  const { logout, usuario } = useAuth();
   const navigate = useNavigate();
   const linha = CORES_LINHA[tema];
 
@@ -112,9 +113,15 @@ export function BottomTab() {
       {/* Rodapé (desktop): trocar tema + importar + sair */}
       <div className="hidden lg:block px-3 pb-3 pt-2 border-t border-hair/50">
         <SeletorTema />
-        <Link to="/importar" className="flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold text-muted transition hover:text-brand-ink">
-          <Upload size={15} strokeWidth={1.8} /> Importar lote
+        <Link to="/como-funciona" className="flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold text-muted transition hover:text-brand-ink">
+          <HelpCircle size={15} strokeWidth={1.8} /> Como funciona
         </Link>
+        {/* Importar altera o acervo de todo mundo que segue a trilha: só o admin vê. */}
+        {usuario?.admin && (
+          <Link to="/importar" className="flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold text-muted transition hover:text-brand-ink">
+            <Upload size={15} strokeWidth={1.8} /> Importar lote
+          </Link>
+        )}
         <button onClick={sair} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold text-muted transition hover:text-brand-ink">
           <LogOut size={15} strokeWidth={1.8} /> Sair
         </button>

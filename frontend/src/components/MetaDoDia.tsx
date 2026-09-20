@@ -35,7 +35,7 @@ export function MetaDoDia() {
           {dia} · {meta.materia}
         </p>
         <p className="mt-1 text-sm text-muted">
-          Este concurso ainda não tem questões de {meta.materia}. Importe um lote para o rodízio começar.
+          Este concurso ainda não tem questões de {meta.materia}, então o rodízio não começou.
         </p>
       </div>
     );

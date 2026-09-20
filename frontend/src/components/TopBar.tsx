@@ -14,7 +14,7 @@ interface GoalToday {
 export function TopBar() {
   const navigate = useNavigate();
   const { ativo, activeId } = useConcurso();
-  const { logout } = useAuth();
+  const { logout, usuario } = useAuth();
   const [goal, setGoal] = useState<GoalToday | null>(null);
 
   // Mesmo motivo do painel: /goals/today é escopado pelo concurso ativo, que pode não
@@ -69,16 +69,19 @@ export function TopBar() {
             </span>
           </div>
 
-          {/* Importar questões (mobile; no desktop fica no rodapé da barra lateral) */}
-          <Link
-            to="/importar"
-            className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-muted transition hover:text-brand-500 lg:hidden"
-            aria-label="Importar questões"
-            title="Importar questões"
-          >
-            <Upload size={18} strokeWidth={1.8} />
-            <span className="hidden md:inline">Importar</span>
-          </Link>
+          {/* Importar questões (mobile; no desktop fica no rodapé da barra lateral).
+              Só o admin: um lote vale para todos os que seguem a trilha. */}
+          {usuario?.admin && (
+            <Link
+              to="/importar"
+              className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-muted transition hover:text-brand-500 lg:hidden"
+              aria-label="Importar questões"
+              title="Importar questões"
+            >
+              <Upload size={18} strokeWidth={1.8} />
+              <span className="hidden md:inline">Importar</span>
+            </Link>
+          )}
 
           {/* Sair (mobile; no desktop fica no rodapé da barra lateral) */}
           <button

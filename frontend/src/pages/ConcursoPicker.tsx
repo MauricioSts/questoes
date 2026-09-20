@@ -2,8 +2,9 @@
 // Trocar de concurso muda o escopo de todo o app.
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { Plus, Compass } from "lucide-react";
 import { useConcurso, type Concurso, type EstadoConcurso } from "../store/concurso";
+import { useAuth } from "../store/auth";
 import { criarConcurso } from "../lib/multiApi";
 import { TituloVivo } from "../components/TituloVivo";
 import { Carregando } from "../components/Spinner";
@@ -16,6 +17,7 @@ const BADGE: Record<EstadoConcurso, { texto: string; cls: string }> = {
 
 export function ConcursoPicker() {
   const { concursos, activeId, setAtivo, refresh, loading } = useConcurso();
+  const { usuario } = useAuth();
   const navigate = useNavigate();
   const [criando, setCriando] = useState(false);
 
@@ -62,18 +64,24 @@ export function ConcursoPicker() {
             </button>
           ))}
 
-          {/* Cartão "Adicionar concurso" */}
+          {/* Último cartão. Concurso criado à mão nasce SEM questões: só faz sentido para
+              quem pode importar um lote. Para os demais, o caminho é entrar noutra trilha,
+              que já vem com acervo. */}
           <button
-            onClick={() => setCriando(true)}
+            onClick={() => (usuario?.admin ? setCriando(true) : navigate("/trilhas"))}
             className="grid min-h-[210px] place-items-center rounded-2xl border-2 border-dashed border-hair p-5 text-center transition hover:border-brand-300"
           >
             <div>
               <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-brand-100 text-brand-600">
-                <Plus size={24} strokeWidth={2} />
+                {usuario?.admin ? <Plus size={24} strokeWidth={2} /> : <Compass size={24} strokeWidth={2} />}
               </span>
-              <p className="mt-3 font-display font-bold text-brand-ink">Adicionar concurso</p>
+              <p className="mt-3 font-display font-bold text-brand-ink">
+                {usuario?.admin ? "Adicionar concurso" : "Ver outras trilhas"}
+              </p>
               <p className="mx-auto mt-1 max-w-[220px] text-xs text-faint">
-                Começa vazio. Importe um lote ou reaproveite questões de matérias iguais.
+                {usuario?.admin
+                  ? "Começa vazio. Importe um lote ou reaproveite questões de matérias iguais."
+                  : "Cada trilha já vem com o acervo do concurso pronto."}
               </p>
             </div>
           </button>

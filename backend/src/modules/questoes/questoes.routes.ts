@@ -1,9 +1,12 @@
 // Banco de questões no servidor: importar lote, listar e limpar.
 // O conteúdo é compartilhado (não por usuário). A correção de acerto segue no frontend.
+// Ler é para qualquer conta logada; ESCREVER no acervo é só do admin (requireAdmin),
+// porque um lote importado passa a valer para todo mundo que segue a trilha.
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
+import { requireAdmin } from "../../middleware/admin.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { HttpError } from "../../middleware/error.js";
 import type { Prisma } from "@prisma/client";
@@ -75,9 +78,26 @@ questoesRouter.get(
     // Multi-concurso: quando ?concursoId= é enviado, serve só as questões daquele
     // concurso. Sem o param, serve todas (comportamento legado).
     const concursoId = req.query.concursoId ? String(req.query.concursoId) : undefined;
+
+    // Quando o concurso segue uma trilha, o acervo vem DELA: é assim que um usuário
+    // enxerga questões que outro importou. O concursoId continua valendo em paralelo
+    // para o que foi importado direto nesse concurso (e para os lotes antigos).
+    const concurso = concursoId
+      ? await prisma.concurso.findFirst({
+          where: { id: concursoId, userId: req.userId! },
+          select: { trilhaId: true },
+        })
+      : null;
+
+    const where: Prisma.QuestaoWhereInput = !concursoId
+      ? {}
+      : concurso?.trilhaId
+        ? { OR: [{ trilhaId: concurso.trilhaId }, { concursoId }] }
+        : { concursoId };
+
     const [linhas, textos, provasLinhas] = await Promise.all([
       prisma.questao.findMany({
-        where: concursoId ? { concursoId } : {},
+        where,
         orderBy: { id: "asc" },
       }),
       prisma.textoBase.findMany(),
@@ -126,6 +146,7 @@ questoesRouter.get(
 // - deslocarSeColidir=true : renumera o lote para começar após o maior ID existente.
 questoesRouter.post(
   "/import",
+  requireAdmin,
   asyncHandler(async (req, res) => {
     const { questoes, textosBase, provas, provaBase, origemPadrao, deslocarSeColidir, nomeLote, concursoId: concursoEnviado } =
       importSchema.parse(req.body);
@@ -293,6 +314,7 @@ const adotarSchema = z.object({
 
 questoesRouter.post(
   "/adotar-orfas",
+  requireAdmin,
   asyncHandler(async (req, res) => {
     const { concursoId, chave } = adotarSchema.parse(req.body);
     const concurso = await prisma.concurso.findFirst({
@@ -316,6 +338,7 @@ const excluirGrupoSchema = z.object({ chave: z.string().datetime() });
 
 questoesRouter.post(
   "/excluir-lote-grupo",
+  requireAdmin,
   asyncHandler(async (req, res) => {
     const { chave } = excluirGrupoSchema.parse(req.body);
     const createdAt = new Date(chave);
@@ -351,6 +374,7 @@ const excluirLoteSchema = z.object({
 
 questoesRouter.post(
   "/excluir-lote",
+  requireAdmin,
   asyncHandler(async (req, res) => {
     const { ids } = excluirLoteSchema.parse(req.body);
     const idsUnicos = [...new Set(ids)];
@@ -384,6 +408,7 @@ questoesRouter.post(
 // DELETE /questoes: limpa o banco de questões (admin).
 questoesRouter.delete(
   "/",
+  requireAdmin,
   asyncHandler(async (_req, res) => {
     await prisma.$transaction([prisma.questao.deleteMany(), prisma.textoBase.deleteMany()]);
     res.status(204).end();

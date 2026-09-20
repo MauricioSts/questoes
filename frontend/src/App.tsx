@@ -22,6 +22,10 @@ import { Revisar } from "./pages/Revisar";
 import { Importar } from "./pages/Importar";
 import { Caderno } from "./pages/Caderno";
 import { ConcursoPicker } from "./pages/ConcursoPicker";
+import { Trilhas } from "./pages/Trilhas";
+import { ComoFunciona } from "./pages/ComoFunciona";
+import { ExigeTrilha } from "./components/ExigeTrilha";
+import { RotaAdmin } from "./components/RotaAdmin";
 
 export default function App() {
   return (
@@ -42,22 +46,28 @@ export default function App() {
                 </ProtectedRoute>
               }
             >
-              <Route path="/" element={<Home />} />
-              <Route path="/concursos" element={<ConcursoPicker />} />
-              <Route path="/estudar" element={<Estudar />} />
-              <Route path="/flash" element={<Flash />} />
-              <Route path="/topico" element={<Topico />} />
-              <Route path="/simulado" element={<Simulado />} />
-              <Route path="/revisar" element={<Revisar />} />
-              <Route path="/caderno" element={<Caderno />} />
-              <Route path="/stats" element={<Stats />} />
-              <Route path="/marcadas" element={<Marcadas />} />
-              <Route path="/provas" element={<Provas />} />
-              <Route path="/anotacoes" element={<Anotacoes />} />
-              <Route path="/legislacao" element={<Legislacao />} />
-              <Route path="/materias" element={<Materias />} />
-              <Route path="/erros" element={<Erros />} />
-              <Route path="/importar" element={<Importar />} />
+              <Route element={<ExigeTrilha />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/trilhas" element={<Trilhas />} />
+                <Route path="/como-funciona" element={<ComoFunciona />} />
+                <Route path="/concursos" element={<ConcursoPicker />} />
+                <Route path="/estudar" element={<Estudar />} />
+                <Route path="/flash" element={<Flash />} />
+                <Route path="/topico" element={<Topico />} />
+                <Route path="/simulado" element={<Simulado />} />
+                <Route path="/revisar" element={<Revisar />} />
+                <Route path="/caderno" element={<Caderno />} />
+                <Route path="/stats" element={<Stats />} />
+                <Route path="/marcadas" element={<Marcadas />} />
+                <Route path="/provas" element={<Provas />} />
+                <Route path="/anotacoes" element={<Anotacoes />} />
+                <Route path="/legislacao" element={<Legislacao />} />
+                <Route path="/materias" element={<Materias />} />
+                <Route path="/erros" element={<Erros />} />
+                <Route element={<RotaAdmin />}>
+                  <Route path="/importar" element={<Importar />} />
+                </Route>
+              </Route>
             </Route>
           </Routes>
         </BrowserRouter>

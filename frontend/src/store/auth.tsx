@@ -8,6 +8,9 @@ export interface Usuario {
   email: string;
   nome: string;
   metaDiaria: number;
+  // Vem do servidor (não é comparação de e-mail no cliente): governa o que aparece
+  // de administração. O bloqueio de verdade é o requireAdmin da API.
+  admin: boolean;
 }
 
 interface AuthContextValue {
