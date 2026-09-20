@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
+import { escopoQuestoes } from "../../lib/escopoQuestoes.js";
 import { startOfToday, weekDayKeys, localWeekdayIndex } from "../../lib/date.js";
 import { contarPorDia, calcularStreak, carregarFeriasPeriodos } from "../../lib/streak.js";
 import { revisoesPendentes } from "../../lib/srs.js";
@@ -29,6 +30,9 @@ goalsRouter.get(
     // (meta e data da prova vêm do concurso). Sem o param, comporta-se como legado.
     const concursoId = req.query.concursoId ? String(req.query.concursoId) : undefined;
     const cf: { concursoId?: string } = concursoId ? { concursoId } : {};
+    // cf vale para Answer (a resposta é carimbada com o concurso de quem respondeu).
+    // Para Questao não serve: quem segue trilha não é dono de nenhuma questão.
+    const qf = await escopoQuestoes(concursoId, req.userId!);
     const concurso = concursoId
       ? await prisma.concurso.findFirst({ where: { id: concursoId, userId: req.userId! } })
       : null;
@@ -55,7 +59,7 @@ goalsRouter.get(
 
     // Total de questões no sistema (banco compartilhado) e quantas o usuário já
     // respondeu ao menos uma vez (distinct por questaoId).
-    const totalQuestoes = await prisma.questao.count({ where: { ...cf } });
+    const totalQuestoes = await prisma.questao.count({ where: qf });
     const respondidasDistintas = await prisma.answer.findMany({
       where: { userId: req.userId!, ...cf },
       distinct: ["questaoId"],
@@ -72,7 +76,7 @@ goalsRouter.get(
 
     // Legislação: total de questões da matéria + quantas (distintas) foram feitas
     // hoje: para o feedback de "dia de legislação concluído" no dashboard.
-    const legislacaoWhere = { materia: { contains: "legisl", mode: "insensitive" as const }, ...cf };
+    const legislacaoWhere = { materia: { contains: "legisl", mode: "insensitive" as const }, ...qf };
     const legislacaoTotal = await prisma.questao.count({ where: legislacaoWhere });
     const legislacaoDistintasHoje = await prisma.answer.findMany({
       where: {
@@ -87,7 +91,7 @@ goalsRouter.get(
     const legislacaoFeitasHoje = legislacaoDistintasHoje.length;
 
     // Português: mesmo cálculo da legislação, para o "dia de português" no dashboard.
-    const portuguesWhere = { materia: { contains: "portugu", mode: "insensitive" as const }, ...cf };
+    const portuguesWhere = { materia: { contains: "portugu", mode: "insensitive" as const }, ...qf };
     const portuguesTotal = await prisma.questao.count({ where: portuguesWhere });
     const portuguesDistintasHoje = await prisma.answer.findMany({
       where: {
@@ -178,13 +182,14 @@ goalsRouter.get(
   asyncHandler(async (req, res) => {
     const concursoId = req.query.concursoId ? String(req.query.concursoId) : undefined;
     const cf: { concursoId?: string } = concursoId ? { concursoId } : {};
+    const qf = await escopoQuestoes(concursoId, req.userId!); // ver nota no GET /goals
     const inicioHoje = startOfToday();
     const diaIndex = localWeekdayIndex(new Date());
     const doDia = materiaDoDia(diaIndex);
 
     // Nomes de matéria que existem NESTE concurso e casam com o rodízio do dia.
     const materiasDoBanco = (
-      await prisma.questao.findMany({ where: { ...cf }, distinct: ["materia"], select: { materia: true } })
+      await prisma.questao.findMany({ where: qf, distinct: ["materia"], select: { materia: true } })
     ).map((q) => q.materia);
     const materias = casarMaterias(materiasDoBanco, doDia.termos);
 
@@ -212,7 +217,7 @@ goalsRouter.get(
       // Candidatas: todas as questões das matérias do dia, com o nº de erros ANTERIORES a
       // hoje (o peso do sorteio não pode depender do que eu responder hoje).
       const candidatasBrutas = await prisma.questao.findMany({
-        where: { ...cf, materia: { in: materias } },
+        where: { ...qf, materia: { in: materias } },
         select: { id: true, origem: true },
       });
       const erradasAntes = await prisma.answer.groupBy({

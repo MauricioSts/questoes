@@ -8,6 +8,7 @@ import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { requireAdmin } from "../../middleware/admin.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
+import { escopoQuestoes } from "../../lib/escopoQuestoes.js";
 import { HttpError } from "../../middleware/error.js";
 import type { Prisma } from "@prisma/client";
 
@@ -80,20 +81,8 @@ questoesRouter.get(
     const concursoId = req.query.concursoId ? String(req.query.concursoId) : undefined;
 
     // Quando o concurso segue uma trilha, o acervo vem DELA: é assim que um usuário
-    // enxerga questões que outro importou. O concursoId continua valendo em paralelo
-    // para o que foi importado direto nesse concurso (e para os lotes antigos).
-    const concurso = concursoId
-      ? await prisma.concurso.findFirst({
-          where: { id: concursoId, userId: req.userId! },
-          select: { trilhaId: true },
-        })
-      : null;
-
-    const where: Prisma.QuestaoWhereInput = !concursoId
-      ? {}
-      : concurso?.trilhaId
-        ? { OR: [{ trilhaId: concurso.trilhaId }, { concursoId }] }
-        : { concursoId };
+    // enxerga questões que outro importou.
+    const where = await escopoQuestoes(concursoId, req.userId!);
 
     const [linhas, textos, provasLinhas] = await Promise.all([
       prisma.questao.findMany({

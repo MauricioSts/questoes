@@ -5,6 +5,7 @@
 // origem: quantas questões existem, quantas faltam responder, quantas estão certas/erradas
 // hoje e quantas estão marcadas. É o que alimenta a tela "Provas" e os filtros de sessão.
 import { prisma } from "../prisma.js";
+import { escopoQuestoes } from "./escopoQuestoes.js";
 
 export interface GrupoProcedencia {
   chave: string; // chave da Prova, ou o nome da origem quando tipo = "origem"
@@ -72,9 +73,12 @@ function fechar(g: GrupoProcedencia): GrupoProcedencia {
 
 export async function calcularProcedencia(userId: string, concursoId?: string): Promise<ResumoProcedencia> {
   const cf = concursoId ? { concursoId } : {};
+  // Answer é carimbada com o concurso de quem respondeu (cf); Questao pertence à
+  // trilha, então o acervo vem do escopo compartilhado. Ver lib/escopoQuestoes.
+  const qf = await escopoQuestoes(concursoId, userId);
   const [questoes, provas, answers, marcadas] = await Promise.all([
     prisma.questao.findMany({
-      where: cf,
+      where: qf,
       select: { id: true, origem: true, provaChave: true, provaBaseChave: true },
     }),
     prisma.prova.findMany(),

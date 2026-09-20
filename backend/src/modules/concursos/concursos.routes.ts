@@ -5,6 +5,7 @@ import { z } from "zod";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
+import { escopoQuestoes } from "../../lib/escopoQuestoes.js";
 import { HttpError } from "../../middleware/error.js";
 import type { Prisma } from "@prisma/client";
 
@@ -34,20 +35,23 @@ concursosRouter.get(
       orderBy: { createdAt: "asc" },
     });
 
-    // Contadores por concurso.
-    const [porBanco, respondidas] = await Promise.all([
-      prisma.questao.groupBy({
-        by: ["concursoId"],
-        where: { concursoId: { in: concursos.map((c) => c.id) } },
-        _count: { _all: true },
-      }),
+    // Contadores por concurso. O tamanho do banco NÃO sai de um groupBy por concursoId:
+    // um concurso que segue trilha não é dono de nenhuma questão e apareceria com zero.
+    // Uma contagem por concurso, com o mesmo escopo que /questoes serve.
+    const [contagens, respondidas] = await Promise.all([
+      Promise.all(
+        concursos.map(async (c) => ({
+          id: c.id,
+          total: await prisma.questao.count({ where: await escopoQuestoes(c.id, req.userId!) }),
+        }))
+      ),
       prisma.answer.findMany({
         where: { userId: req.userId!, concursoId: { in: concursos.map((c) => c.id) } },
         select: { concursoId: true, questaoId: true },
       }),
     ]);
 
-    const bancoMap = new Map(porBanco.map((g) => [g.concursoId, g._count._all]));
+    const bancoMap = new Map(contagens.map((c) => [c.id, c.total]));
     const respMap = new Map<string, Set<number>>();
     for (const a of respondidas) {
       if (!a.concursoId) continue;
