@@ -11,7 +11,9 @@ import { env } from "../../config/env.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { HttpError } from "../../middleware/error.js";
 import { requireAuth } from "../../middleware/auth.js";
+import { ehAdmin } from "../../middleware/admin.js";
 import { enviarEmail, escaparHtml } from "../../lib/email.js";
+import { enviarTelegram } from "../../lib/telegram.js";
 import {
   signAccessToken,
   generateRefreshToken,
@@ -41,7 +43,9 @@ const refreshSchema = z.object({
 });
 
 function publicUser(u: { id: string; email: string; nome: string; metaDiaria: number }) {
-  return { id: u.id, email: u.email, nome: u.nome, metaDiaria: u.metaDiaria };
+  // `admin` decide o que o cliente mostra (botão de importar). Quem manda de verdade
+  // é o requireAdmin no servidor: esconder o botão é conveniência, não segurança.
+  return { id: u.id, email: u.email, nome: u.nome, metaDiaria: u.metaDiaria, admin: ehAdmin(u.email) };
 }
 
 // Emite um par access+refresh e persiste o hash do refresh.
@@ -69,24 +73,39 @@ function excedeuLimite(ip: string): boolean {
   return excedeu;
 }
 
-// Manda para o admin o link da página de aprovação. Se o e-mail não sair (SMTP
-// ausente ou com erro), o link vai para o log do pm2 para o pedido não se perder.
+// Manda para o admin o link da página de aprovação. Tenta e-mail e Telegram: basta
+// um dos dois chegar. Se nenhum canal estiver configurado ou ambos falharem, o link
+// vai para o log do pm2 para o pedido não se perder.
 async function avisarAdmin(user: { nome: string; email: string }, token: string) {
   const link = `${env.API_PUBLIC_URL}/auth/aprovacao?token=${token}`;
-  try {
-    const enviado = await enviarEmail({
-      para: env.ADMIN_EMAIL,
-      assunto: `Novo pedido de conta: ${user.nome}`,
-      texto: `${user.nome} <${user.email}> pediu uma conta no devconcursado.\n\nAprovar ou recusar: ${link}\n`,
-      html:
-        `<p><strong>${escaparHtml(user.nome)}</strong> (${escaparHtml(user.email)}) pediu uma conta no devconcursado.</p>` +
-        `<p><a href="${link}">Abrir o pedido para aprovar ou recusar</a></p>` +
-        `<p style="color:#888;font-size:12px">O link abre uma página de confirmação; nada muda até você clicar em Aprovar ou Recusar.</p>`,
-    });
-    if (!enviado) console.warn(`[aprovacao] SMTP não configurado. Pedido de ${user.email}: ${link}`);
-  } catch (err) {
-    console.error(`[aprovacao] falha ao enviar e-mail. Pedido de ${user.email}: ${link}`, err);
+  const texto = `${user.nome} <${user.email}> pediu uma conta no devconcursado.\n\nAprovar ou recusar: ${link}\n`;
+
+  const canais: Array<[string, () => Promise<boolean>]> = [
+    [
+      "e-mail",
+      () =>
+        enviarEmail({
+          para: env.ADMIN_EMAIL,
+          assunto: `Novo pedido de conta: ${user.nome}`,
+          texto,
+          html:
+            `<p><strong>${escaparHtml(user.nome)}</strong> (${escaparHtml(user.email)}) pediu uma conta no devconcursado.</p>` +
+            `<p><a href="${link}">Abrir o pedido para aprovar ou recusar</a></p>` +
+            `<p style="color:#888;font-size:12px">O link abre uma página de confirmação; nada muda até você clicar em Aprovar ou Recusar.</p>`,
+        }),
+    ],
+    ["telegram", () => enviarTelegram(texto)],
+  ];
+
+  let entregue = false;
+  for (const [nome, enviar] of canais) {
+    try {
+      if (await enviar()) entregue = true;
+    } catch (err) {
+      console.error(`[aprovacao] falha no canal ${nome} para o pedido de ${user.email}`, err);
+    }
   }
+  if (!entregue) console.warn(`[aprovacao] nenhum canal configurado. Pedido de ${user.email}: ${link}`);
 }
 
 // Registro: só abre com REGISTRO_ABERTO=true no .env. A conta nasce com aprovado=false

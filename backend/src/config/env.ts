@@ -26,6 +26,10 @@ const schema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   SMTP_FROM: z.string().optional(),
+  // Aviso por Telegram: usado quando não há SMTP, para o pedido de conta chegar
+  // mesmo sem servidor de e-mail. Sem os dois, o link só vai para o log.
+  TELEGRAM_BOT_TOKEN: z.string().optional(),
+  TELEGRAM_CHAT_ID: z.string().optional(),
 });
 
 const parsed = schema.safeParse(process.env);
