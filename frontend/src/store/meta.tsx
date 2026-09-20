@@ -44,6 +44,8 @@ interface MetaContextValue {
   setGoal: (atualizar: (g: GoalHoje | null) => GoalHoje | null) => void;
   atualizar: () => Promise<void>;
   festa: Festa | null;
+  /** Repete a comemoração sob demanda (clique na ofensiva da barra de topo). */
+  celebrar: () => void;
   fecharFesta: () => void;
 }
 
@@ -68,11 +70,14 @@ export function MetaProvider({ children }: { children: ReactNode }) {
   // quem abre o app com a meta já batida não merece uma comemoração de novo.
   const cumpriuAntes = useRef<boolean | null>(null);
   const festaForcada = useRef(pediuFesta());
+  // Espelho do goal para quem precisa do valor atual fora do render (celebrar()).
+  const goalRef = useRef<GoalHoje | null>(null);
 
   const atualizar = useCallback(async () => {
     try {
       const g = await api<GoalHoje>("/goals/today");
       setGoalState(g);
+      goalRef.current = g;
       const antes = cumpriuAntes.current;
       cumpriuAntes.current = g.cumpriuHoje;
       if (festaForcada.current) {
@@ -105,10 +110,17 @@ export function MetaProvider({ children }: { children: ReactNode }) {
     setGoalState((g) => fn(g));
   }, []);
 
+  // Sem meta carregada não há o que comemorar; com ofensiva zerada também não.
+  const celebrar = useCallback(() => {
+    const g = goalRef.current;
+    if (!g || g.streak <= 0) return;
+    setFesta({ streak: g.streak, respondidas: g.respondidasHoje, meta: g.meta });
+  }, []);
+
   const fecharFesta = useCallback(() => setFesta(null), []);
 
   return (
-    <MetaContext.Provider value={{ goal, setGoal, atualizar, festa, fecharFesta }}>
+    <MetaContext.Provider value={{ goal, setGoal, atualizar, festa, celebrar, fecharFesta }}>
       {children}
     </MetaContext.Provider>
   );

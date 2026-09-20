@@ -1276,3 +1276,9 @@ body {
   .festa-meta__detalhe,
   .festa-meta__dispensar { animation: festaVeu 200ms ease-out both; }
 }
+
+/* Ofensiva clicável: o chip vira botão e repete a comemoração do dia. O realce é o
+ * mesmo vocabulário dos botões do app — sobe um fio e afunda no clique. */
+.streak-chip--botao { cursor: pointer; transition: transform .18s ease, box-shadow .2s ease, border-color .2s ease; }
+.streak-chip--botao:hover { transform: translateY(-1px); }
+.streak-chip--botao:active { transform: scale(.97); }

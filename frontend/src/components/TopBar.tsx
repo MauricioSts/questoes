@@ -12,7 +12,7 @@ export function TopBar() {
   const { logout, usuario } = useAuth();
   // A meta vem do provedor: é ele que recarrega quando uma resposta sincroniza, então a
   // ofensiva sobe durante o estudo em vez de esperar um F5.
-  const { goal } = useMeta();
+  const { goal, celebrar } = useMeta();
 
   const handleLogout = () => {
     logout();
@@ -44,11 +44,19 @@ export function TopBar() {
         {/* Direita: a ofensiva é o que a barra existe para mostrar no desktop; importar e
             sair moram no rodapé da barra lateral, e a marca no topo dela. */}
         <div className="flex flex-shrink-0 items-center gap-1 sm:gap-3">
-          <div
-            className={`streak-chip streak-chip--grande ${streak > 0 ? "streak-chip--ativa" : "streak-chip--zerada"}`}
+          {/* Clicar na ofensiva repete a comemoração do dia: o número é a recompensa,
+              então ele também é o botão de rever a comemoração dela. Sem ofensiva não
+              há o que mostrar, e aí o chip volta a ser só um rótulo. */}
+          <button
+            type="button"
+            onClick={celebrar}
+            disabled={streak === 0}
+            className={`streak-chip streak-chip--grande ${
+              streak > 0 ? "streak-chip--ativa streak-chip--botao" : "streak-chip--zerada"
+            }`}
             title={
               streak > 0
-                ? `Ofensiva: ${streak} ${streak === 1 ? "dia seguido" : "dias seguidos"}`
+                ? `Ofensiva: ${streak} ${streak === 1 ? "dia seguido" : "dias seguidos"} — clique para rever a comemoração`
                 : "Sem ofensiva. Responda uma questão hoje para começar."
             }
           >
@@ -57,7 +65,7 @@ export function TopBar() {
             <span className="streak-chip__rotulo">
               {streak > 0 ? (streak === 1 ? "dia de ofensiva" : "dias de ofensiva") : "comece hoje"}
             </span>
-          </div>
+          </button>
 
           {/* Importar questões (mobile; no desktop fica no rodapé da barra lateral).
               Só o admin: um lote vale para todos os que seguem a trilha. */}
