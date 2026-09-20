@@ -1,28 +1,18 @@
-import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LogOut, Flame, Upload } from "lucide-react";
 import { useAuth } from "../store/auth";
 import { useConcurso } from "../store/concurso";
+import { useMeta } from "../store/meta";
 import { Logo } from "./Logo";
 import { BotaoProximoTema } from "./SeletorTema";
-import { api } from "../lib/api";
-
-interface GoalToday {
-  streak: number;
-}
 
 export function TopBar() {
   const navigate = useNavigate();
-  const { ativo, activeId } = useConcurso();
+  const { ativo } = useConcurso();
   const { logout, usuario } = useAuth();
-  const [goal, setGoal] = useState<GoalToday | null>(null);
-
-  // Mesmo motivo do painel: /goals/today é escopado pelo concurso ativo, que pode não
-  // estar resolvido no primeiro render. Sem esta dependência a ofensiva ficava no valor
-  // do concurso anterior (ou em zero) até um F5.
-  useEffect(() => {
-    api<GoalToday>("/goals/today").then(setGoal).catch(() => null);
-  }, [activeId]);
+  // A meta vem do provedor: é ele que recarrega quando uma resposta sincroniza, então a
+  // ofensiva sobe durante o estudo em vez de esperar um F5.
+  const { goal } = useMeta();
 
   const handleLogout = () => {
     logout();

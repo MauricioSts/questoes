@@ -5,6 +5,17 @@ import type { ResultadoResposta } from "./correcao";
 
 const QUEUE_KEY = "q_answer_queue";
 
+// Avisa o app de que as respostas chegaram ao servidor. Quem acompanha a meta do dia
+// (store/meta) recarrega a contagem nesse momento — é o que faz a ofensiva do topo e a
+// comemoração da meta acontecerem durante o estudo, sem esperar um F5.
+export const EVENTO_RESPOSTAS_SINCRONIZADAS = "q:respostas-sincronizadas";
+
+function avisarSincronizacao() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(EVENTO_RESPOSTAS_SINCRONIZADAS));
+  }
+}
+
 function readQueue(): ResultadoResposta[] {
   try {
     return JSON.parse(localStorage.getItem(QUEUE_KEY) ?? "[]");
@@ -31,6 +42,7 @@ export async function enviarResposta(r: ResultadoResposta): Promise<void> {
 export async function enviarLote(rs: ResultadoResposta[]): Promise<void> {
   try {
     await api("/answers/batch", { method: "POST", body: rs });
+    avisarSincronizacao();
   } catch {
     writeQueue([...readQueue(), ...rs]);
   }
@@ -43,6 +55,7 @@ export async function flushQueue(): Promise<void> {
   try {
     await api("/answers/batch", { method: "POST", body: queue });
     writeQueue([]);
+    avisarSincronizacao();
   } catch {
     // segue offline; tentaremos de novo no próximo online/flush
   }

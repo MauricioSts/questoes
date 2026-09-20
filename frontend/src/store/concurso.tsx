@@ -16,6 +16,7 @@ export interface Concurso {
   cargo: string;
   dataProva: string;
   metaDiaria: number;
+  trilhaId: string | null; // trilha que este concurso segue (null = concurso avulso)
   arquivado: boolean;
   noBanco: number;
   respondidas: number;

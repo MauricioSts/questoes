@@ -52,3 +52,17 @@ export interface RankingTrilha {
 export async function carregarRanking(trilhaId: string): Promise<RankingTrilha> {
   return api<RankingTrilha>(`/trilhas/${trilhaId}/ranking`);
 }
+
+// Só a minha linha do placar, para o painel — o dashboard não baixa a lista inteira.
+export interface MinhaPosicao {
+  trilha: { id: string; nome: string; iniciais: string };
+  seguidores: number;
+  participantes: number;
+  eu: { posicao: number; acertos: number; respondidas: number; taxa: number } | null;
+  acima: { nome: string; acertos: number } | null;
+  lider: { nome: string; acertos: number } | null;
+}
+
+export async function carregarMinhaPosicao(trilhaId: string): Promise<MinhaPosicao> {
+  return api<MinhaPosicao>(`/trilhas/${trilhaId}/ranking/eu`);
+}

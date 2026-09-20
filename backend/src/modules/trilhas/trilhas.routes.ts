@@ -94,55 +94,65 @@ trilhasRouter.post(
   })
 );
 
-// GET /trilhas/:id/ranking: placar da trilha. As respostas chegam pelo Concurso que cada
-// usuário criou ao entrar nela — é o único vínculo entre Answer e Trilha, já que a
-// resposta guarda concursoId, não trilhaId.
+// Linhas do ranking de uma trilha. As respostas chegam pelo Concurso que cada usuário
+// cria ao entrar nela — é o único vínculo entre Answer e Trilha, já que a resposta
+// guarda concursoId, não trilhaId.
+async function linhasDaTrilha(trilhaId: string) {
+  const concursos = await prisma.concurso.findMany({
+    where: { trilhaId },
+    select: { id: true, userId: true, user: { select: { nome: true } } },
+  });
+
+  const concursoIds = concursos.map((c) => c.id);
+  // Um usuário pode ter mais de um concurso na mesma trilha (não deveria, mas o banco
+  // permite): soma tudo sob o mesmo userId.
+  const nomePorUser = new Map(concursos.map((c) => [c.userId, c.user.nome]));
+
+  const grupos = concursoIds.length
+    ? await prisma.answer.groupBy({
+        by: ["userId", "acertou"],
+        where: { concursoId: { in: concursoIds } },
+        _count: { _all: true },
+        _max: { createdAt: true },
+      })
+    : [];
+
+  const porUser = new Map<string, { acertos: number; respondidas: number; ultima: Date | null }>();
+  for (const g of grupos) {
+    const atual = porUser.get(g.userId) ?? { acertos: 0, respondidas: 0, ultima: null };
+    atual.respondidas += g._count._all;
+    if (g.acertou) atual.acertos += g._count._all;
+    const max = g._max.createdAt;
+    if (max && (!atual.ultima || max > atual.ultima)) atual.ultima = max;
+    porUser.set(g.userId, atual);
+  }
+
+  const linhas = montarRanking(
+    [...porUser.entries()].map(([userId, v]) => ({
+      userId,
+      nome: nomePorUser.get(userId) ?? "Anônimo",
+      acertos: v.acertos,
+      respondidas: v.respondidas,
+      ultimaResposta: v.ultima,
+    }))
+  );
+
+  // Seguidores inclui quem entrou e ainda não respondeu nada (não aparece nas linhas).
+  return { linhas, seguidores: new Set(concursos.map((c) => c.userId)).size };
+}
+
+async function trilhaPublicada(id: string) {
+  const trilha = await prisma.trilha.findFirst({ where: { id, publicada: true } });
+  if (!trilha) throw new HttpError(404, "Trilha não encontrada.");
+  return trilha;
+}
+
+// GET /trilhas/:id/ranking: placar completo da trilha.
 trilhasRouter.get(
   "/:id/ranking",
   asyncHandler(async (req, res) => {
-    const trilha = await prisma.trilha.findFirst({
-      where: { id: req.params.id, publicada: true },
-    });
-    if (!trilha) throw new HttpError(404, "Trilha não encontrada.");
-
-    const concursos = await prisma.concurso.findMany({
-      where: { trilhaId: trilha.id },
-      select: { id: true, userId: true, user: { select: { nome: true } } },
-    });
-
-    const concursoIds = concursos.map((c) => c.id);
-    // Um usuário pode ter mais de um concurso na mesma trilha (não deveria, mas o banco
-    // permite): soma tudo sob o mesmo userId.
-    const nomePorUser = new Map(concursos.map((c) => [c.userId, c.user.nome]));
-
-    const grupos = concursoIds.length
-      ? await prisma.answer.groupBy({
-          by: ["userId", "acertou"],
-          where: { concursoId: { in: concursoIds } },
-          _count: { _all: true },
-          _max: { createdAt: true },
-        })
-      : [];
-
-    const porUser = new Map<string, { acertos: number; respondidas: number; ultima: Date | null }>();
-    for (const g of grupos) {
-      const atual = porUser.get(g.userId) ?? { acertos: 0, respondidas: 0, ultima: null };
-      atual.respondidas += g._count._all;
-      if (g.acertou) atual.acertos += g._count._all;
-      const max = g._max.createdAt;
-      if (max && (!atual.ultima || max > atual.ultima)) atual.ultima = max;
-      porUser.set(g.userId, atual);
-    }
-
-    const linhas = montarRanking(
-      [...porUser.entries()].map(([userId, v]) => ({
-        userId,
-        nome: nomePorUser.get(userId) ?? "Anônimo",
-        acertos: v.acertos,
-        respondidas: v.respondidas,
-        ultimaResposta: v.ultima,
-      }))
-    );
+    const trilha = await trilhaPublicada(req.params.id);
+    const { linhas, seguidores } = await linhasDaTrilha(trilha.id);
 
     res.json({
       trilha: {
@@ -153,12 +163,41 @@ trilhasRouter.get(
         banca: trilha.banca,
         orgao: trilha.orgao,
       },
-      // Quantos entraram na trilha (inclui quem ainda não respondeu nada e por isso
-      // não aparece nas linhas).
-      seguidores: new Set(concursos.map((c) => c.userId)).size,
+      seguidores,
       volumeMinimoTaxa: VOLUME_MINIMO_TAXA,
       voceId: req.userId!,
       linhas,
+    });
+  })
+);
+
+// GET /trilhas/:id/ranking/eu: só a minha linha, para o painel. Existe separado do placar
+// inteiro porque o dashboard não precisa (nem deve, quando a trilha crescer) baixar a
+// lista de todo mundo para mostrar uma posição.
+trilhasRouter.get(
+  "/:id/ranking/eu",
+  asyncHandler(async (req, res) => {
+    const trilha = await trilhaPublicada(req.params.id);
+    const { linhas, seguidores } = await linhasDaTrilha(trilha.id);
+
+    const indice = linhas.findIndex((l) => l.userId === req.userId!);
+    const eu = indice >= 0 ? linhas[indice] : null;
+    // Quem está logo à frente: é o que transforma a posição em próximo passo
+    // ("faltam 12 acertos para passar Bruno L.").
+    const acima = indice > 0 ? linhas[indice - 1] : null;
+
+    res.json({
+      trilha: { id: trilha.id, nome: trilha.nome, iniciais: trilha.iniciais },
+      seguidores,
+      participantes: linhas.length, // quem já respondeu ao menos uma questão
+      eu: eu && {
+        posicao: eu.posicao,
+        acertos: eu.acertos,
+        respondidas: eu.respondidas,
+        taxa: eu.taxa,
+      },
+      acima: acima && { nome: acima.nome, acertos: acima.acertos },
+      lider: linhas[0] ? { nome: linhas[0].nome, acertos: linhas[0].acertos } : null,
     });
   })
 );

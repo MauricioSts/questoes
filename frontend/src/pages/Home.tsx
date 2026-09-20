@@ -28,6 +28,7 @@ import { MetaDoDia } from "../components/MetaDoDia";
 import { carregarHeatmap, type DiaHeatmap, type PeriodoFerias } from "../lib/multiApi";
 import { getConcursoId } from "../lib/concurso";
 import { useConcurso } from "../store/concurso";
+import { useMeta } from "../store/meta";
 import { META_DIARIA_DEFAULT } from "../config/prova";
 import { ehDiaDeSimulado } from "../lib/agenda";
 import { useMarcadas } from "../hooks/useMarcadas";
@@ -36,29 +37,15 @@ import { TituloVivo } from "../components/TituloVivo";
 import { PainelMalha } from "../components/PainelMalha";
 import { useTheme } from "../store/theme";
 import { Spinner } from "../components/Spinner";
+import { CartaoRanking } from "../components/CartaoRanking";
 
-interface GoalToday {
-  meta: number;
-  respondidasHoje: number;
-  acertosHoje?: number;
-  cumpriuHoje: boolean;
-  streak: number;
-  feriasAtivo?: boolean;
-  dataProva?: string | null;
-  progressoPlano?: number;
-  progressoTempo?: number | null;
-  totalQuestoes?: number;
-  respondidasTotal?: number;
-  respondidasSempre?: number;
-  revisaoPendente?: number;
-}
 
 export function Home() {
   const { usuario } = useAuth();
   const { tema } = useTheme();
   const { ativo, activeId, refresh: recarregarConcursos } = useConcurso();
   const navigate = useNavigate();
-  const [goal, setGoal] = useState<GoalToday | null>(null);
+  const { goal, setGoal, atualizar: atualizarMeta } = useMeta();
   const [editandoData, setEditandoData] = useState(false);
   const [editandoMeta, setEditandoMeta] = useState(false);
   const [salvandoData, setSalvandoData] = useState(false);
@@ -66,14 +53,6 @@ export function Home() {
   const marcadas = useMarcadas();
   const [heatmap, setHeatmap] = useState<DiaHeatmap[]>([]);
   const [periodosFerias, setPeriodosFerias] = useState<PeriodoFerias[]>([]);
-
-  // Depende de activeId: na primeira carga o concurso ativo pode ainda não estar
-  // resolvido (o provider busca /concursos de forma assíncrona), e sem isso o heatmap
-  // ficava vazio para sempre — o efeito rodava uma vez só, com a lista ainda em branco.
-  // Também faz o painel reagir à troca de concurso.
-  useEffect(() => {
-    api<GoalToday>("/goals/today").then(setGoal).catch(() => null);
-  }, [activeId]);
 
   useEffect(() => {
     const cid = activeId ?? getConcursoId();
@@ -143,8 +122,7 @@ export function Home() {
         method: "PATCH",
         body: { dataProva: valor, concursoId: getConcursoId() ?? undefined },
       });
-      const atualizado = await api<GoalToday>("/goals/today");
-      setGoal(atualizado);
+      await atualizarMeta();
       await recarregarConcursos();
       setEditandoData(false);
     } finally {
@@ -461,23 +439,11 @@ export function Home() {
           </Toque>
         </Revelar>
 
-        {/* O acervo é compartilhado: dá para ver como você está indo perto de quem
-            estuda a mesma trilha. */}
+        {/* O acervo é compartilhado: o painel mostra onde você está entre quem segue
+            a mesma trilha, e a que distância fica quem está logo à frente. */}
         <Revelar atraso={0.12}>
           <Toque className="h-full">
-            <Link to="/ranking" className="card flex h-full items-center gap-4 p-5">
-              <div
-                className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-2xl"
-                style={{ background: "var(--accentBg)", color: "var(--accentText)" }}
-              >
-                <Trophy size={22} strokeWidth={2} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-display font-bold text-brand-ink">Ranking da trilha</p>
-                <p className="text-sm text-muted">Quem mais acerta entre quem segue a trilha</p>
-              </div>
-              <ArrowUpRight size={18} strokeWidth={2.2} className="flex-shrink-0 text-faint" />
-            </Link>
+            <CartaoRanking />
           </Toque>
         </Revelar>
       </div>

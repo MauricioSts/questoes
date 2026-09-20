@@ -1092,3 +1092,187 @@ body {
 /* Selos: fundo lavado, texto no tom cheio — legível sem virar bloco de cor. */
 [data-theme='rose'] .meta-pill { letter-spacing: .01em; }
 [data-theme='rose'] .meta-origem-oficial { border-color: var(--accent); color: var(--accentText); background: rgba(27,62,139,.06); }
+
+/* ==================== COMEMORAÇÃO DA META DO DIA ====================
+ * Tela cheia por ~3,5s quando a meta do dia é batida (components/ComemoracaoMeta).
+ * Tudo sai dos tokens: o véu usa --brand-50 (a cor mais funda de cada tema), o selo e
+ * as faíscas usam o acento. Nenhuma cor nova entra aqui — a festa é do tema, não dela. */
+@keyframes festaVeu {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes festaSelo {
+  0%   { transform: scale(.35) rotate(-14deg); opacity: 0; }
+  55%  { transform: scale(1.14) rotate(5deg);  opacity: 1; }
+  78%  { transform: scale(.96) rotate(-2deg); }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+@keyframes festaAnel {
+  from { transform: scale(.5);  opacity: .9; }
+  to   { transform: scale(2.4); opacity: 0; }
+}
+/* A faísca gira até o próprio ângulo e é arremessada para fora dele. Ela NASCE na borda
+ * do selo (-62px, o raio), não no centro: saindo do meio, a maior parte do voo acontecia
+ * escondida atrás do selo e o efeito parecia fraco. */
+@keyframes festaFaisca {
+  from { transform: rotate(var(--ang)) translateY(-62px) scale(.5); opacity: 0; }
+  14%  { opacity: 1; transform: rotate(var(--ang)) translateY(-84px) scale(1); }
+  to   { transform: rotate(var(--ang)) translateY(calc(var(--dist) * -1)) scale(.2); opacity: 0; }
+}
+@keyframes festaTexto {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes festaSaida {
+  to { opacity: 0; transform: scale(.96); }
+}
+
+.festa-meta {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  cursor: pointer;
+  animation: festaVeu 320ms ease-out both;
+}
+.festa-meta--saindo { animation: festaSaida 340ms ease-in forwards; }
+
+.festa-meta__fundo {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(58% 52% at 50% 44%, var(--accentBg), transparent 72%),
+    rgb(var(--brand-50) / .86);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+}
+
+.festa-meta__palco {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 420px;
+}
+
+/* Anéis: nascem do selo e abrem como uma onda. Ficam atrás de tudo no palco. */
+.festa-meta__anel {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 132px;
+  height: 132px;
+  margin-left: -66px;
+  border-radius: 999px;
+  border: 2px solid var(--accentHi);
+  animation: festaAnel 1.9s cubic-bezier(.2, .7, .3, 1) both;
+  pointer-events: none;
+}
+
+.festa-meta__faiscas {
+  position: absolute;
+  top: 66px; /* centro do selo */
+  left: 50%;
+  width: 0;
+  height: 0;
+  z-index: 2; /* passa por cima do selo: a faísca sai dele, não de trás dele */
+  pointer-events: none;
+}
+.festa-meta__faisca {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 999px;
+  background: var(--accentHi);
+  box-shadow: 0 0 10px -1px var(--accent);
+  animation: festaFaisca 1.15s cubic-bezier(.16, .84, .3, 1) both;
+}
+
+.festa-meta__selo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 132px;
+  border-radius: 999px;
+  border: 2px solid var(--accentBd);
+  background: var(--accentBg);
+  color: var(--accentHi);
+  box-shadow: inset 0 0 40px -18px var(--accent), 0 24px 60px -30px var(--accent);
+  animation: festaSelo 900ms cubic-bezier(.2, .9, .25, 1) both;
+}
+
+.festa-meta__rotulo {
+  margin-top: 26px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgb(var(--faint));
+  animation: festaTexto 520ms ease-out 220ms both;
+}
+
+.festa-meta__numero {
+  margin-top: 6px;
+  font-family: var(--display), Georgia, serif;
+  line-height: .9;
+  animation: festaTexto 520ms ease-out 320ms both;
+}
+
+.festa-meta__ofensiva {
+  margin-top: 4px;
+  font-family: var(--display), Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: rgb(var(--ink));
+  animation: festaTexto 520ms ease-out 400ms both;
+}
+
+.festa-meta__detalhe {
+  margin-top: 14px;
+  max-width: 320px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgb(var(--muted));
+  animation: festaTexto 520ms ease-out 480ms both;
+}
+
+.festa-meta__dispensar {
+  margin-top: 26px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgb(var(--faint));
+  animation: festaTexto 520ms ease-out 900ms both;
+}
+
+/* Sabor por tema. A estrutura é a mesma; o que muda é o calor do brilho. */
+[data-theme='fantasy'] .festa-meta__selo {
+  color: #FFC48B;
+  box-shadow: inset 0 0 40px -16px #FF9A4D, 0 26px 70px -28px var(--accent);
+}
+[data-theme='fantasy'] .festa-meta__faisca {
+  background: #FFB870;
+  box-shadow: 0 0 12px -1px #FF8A3D;
+}
+/* Cyberpunk não tem brilho macio: faísca é pixel, e o selo ganha o ciano do tema. */
+[data-theme='cyberpunk'] .festa-meta__faisca { border-radius: 1px; background: var(--accent); }
+[data-theme='cyberpunk'] .festa-meta__selo { box-shadow: inset 0 0 0 1px var(--good), 0 0 60px -20px var(--accent); }
+[data-theme='cyberpunk'] .festa-meta__rotulo { color: var(--good); }
+/* Rose é claro: o véu precisa de menos fumaça e o selo, de sombra em vez de brilho. */
+[data-theme='rose'] .festa-meta__fundo { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+[data-theme='rose'] .festa-meta__selo { box-shadow: 0 22px 50px -26px rgba(20,45,100,.5); }
+
+@media (prefers-reduced-motion: reduce) {
+  .festa-meta,
+  .festa-meta__selo,
+  .festa-meta__rotulo,
+  .festa-meta__numero,
+  .festa-meta__ofensiva,
+  .festa-meta__detalhe,
+  .festa-meta__dispensar { animation: festaVeu 200ms ease-out both; }
+}
