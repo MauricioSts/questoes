@@ -49,6 +49,17 @@ interface MetaContextValue {
 
 const MetaContext = createContext<MetaContextValue | null>(null);
 
+// Pré-visualização: `?festa=1` em qualquer rota dispara a comemoração uma vez, com os
+// números reais do dia. Serve para conferir a animação sem ter de bater a meta de novo
+// (ou depois de já tê-la batido e perdido o momento por causa de um F5).
+function pediuFesta(): boolean {
+  try {
+    return new URLSearchParams(window.location.search).has("festa");
+  } catch {
+    return false;
+  }
+}
+
 export function MetaProvider({ children }: { children: ReactNode }) {
   const { activeId } = useConcurso();
   const [goal, setGoalState] = useState<GoalHoje | null>(null);
@@ -56,6 +67,7 @@ export function MetaProvider({ children }: { children: ReactNode }) {
   // null = ainda não sabemos como o dia estava. A primeira leitura só REGISTRA o estado:
   // quem abre o app com a meta já batida não merece uma comemoração de novo.
   const cumpriuAntes = useRef<boolean | null>(null);
+  const festaForcada = useRef(pediuFesta());
 
   const atualizar = useCallback(async () => {
     try {
@@ -63,6 +75,11 @@ export function MetaProvider({ children }: { children: ReactNode }) {
       setGoalState(g);
       const antes = cumpriuAntes.current;
       cumpriuAntes.current = g.cumpriuHoje;
+      if (festaForcada.current) {
+        festaForcada.current = false;
+        setFesta({ streak: g.streak, respondidas: g.respondidasHoje, meta: g.meta });
+        return;
+      }
       if (antes === false && g.cumpriuHoje) {
         setFesta({ streak: g.streak, respondidas: g.respondidasHoje, meta: g.meta });
       }
