@@ -15,7 +15,7 @@ export default defineConfig({
         name: "devconcursado — banco de questões",
         short_name: "devconcursado",
         description: "Estudo por questões para concurso",
-        theme_color: "#4f46e5",
+        theme_color: "#6C4DFF",
         background_color: "#0f172a",
         display: "standalone",
         start_url: "/",
