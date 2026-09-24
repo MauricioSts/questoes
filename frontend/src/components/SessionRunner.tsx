@@ -1,7 +1,7 @@
 // Executor de sessão reutilizável pelos modos Estudo, Flash, Tópico e Simulado.
 // - feedbackImediato=true  → revela acerto/erro + explicação a cada resposta e já persiste.
 // - feedbackImediato=false → modo prova (simulado): sem feedback; envia tudo no final.
-// O botão flutuante do caderno (permiteCaderno) abre as anotações da matéria da questão
+// A aba do caderno (permiteCaderno) abre as anotações da matéria da questão
 // num painel lateral, para anotar DURANTE a questão e não só depois de respondê-la.
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ReactNode } from "react";
 import { ChevronLeft, Bookmark, NotebookPen } from "lucide-react";
@@ -25,7 +25,7 @@ interface Props {
   questoes: Questao[];
   contexto: Contexto;
   feedbackImediato: boolean;
-  // Botão flutuante que abre o Caderno da matéria da questão ao lado dela.
+  // Aba que abre o Caderno da matéria da questão ao lado dela.
   // Desligado no simulado, onde consultar anotação seria consultar a prova.
   permiteCaderno: boolean;
   permiteMarcar: boolean;
@@ -80,7 +80,23 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   const alcancadoRef = useRef(idx);
   // O caderno fica aberto entre uma questão e outra: quem anota estudando não quer
   // reabrir o painel a cada "Próxima questão".
-  const [cadernoAberto, setCadernoAberto] = useState(false);
+  // Também entre sessões, a partir de md: quem estuda com o caderno aberto quer
+  // encontrá-lo assim. No celular ele é uma folha sobre a questão, então começa fechado.
+  const [cadernoAberto, setCadernoAbertoEstado] = useState(() => {
+    try {
+      return window.matchMedia("(min-width: 768px)").matches && localStorage.getItem("q_caderno_aberto") === "1";
+    } catch {
+      return false;
+    }
+  });
+  function setCadernoAberto(aberto: boolean) {
+    setCadernoAbertoEstado(aberto);
+    try {
+      localStorage.setItem("q_caderno_aberto", aberto ? "1" : "0");
+    } catch {
+      /* sem armazenamento: vale só nesta sessão */
+    }
+  }
   const inicioRef = useRef<number>(Date.now());
 
   const marcadas = useMarcadas();
@@ -171,7 +187,7 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
     // O caderno é uma coluna irmã da questão (a partir de lg), não uma camada por
     // cima: assim ele nunca tapa o enunciado, seja qual for a largura da tela.
     <div className="flex items-start justify-center gap-4 py-4">
-      <div className="min-w-0 max-w-[620px] flex-1 space-y-4" style={{ animation: "pop .35s ease both" }}>
+      <div className="relative min-w-0 max-w-[620px] flex-1 space-y-4" style={{ animation: "pop .35s ease both" }}>
         {cabecalho}
 
         {/* Topo: voltar + "Questão X de N" + timer + barra de progresso */}
@@ -257,32 +273,32 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
             {ultima ? "Finalizar" : "Próxima questão"}
           </button>
         </div>
+
+        {/* Aba do caderno (a partir de lg): presa na borda direita da coluna da questão,
+            acompanhando a rolagem. Antes era um botão redondo no canto de baixo, colado
+            na barra lateral; aqui ele fica junto do que vai ser anotado e não cobre nada
+            (em lg a coluna tem 620px e sobra calha dos dois lados). */}
+        {permiteCaderno && !cadernoAberto && (
+          <div className="pointer-events-none absolute inset-y-0 left-full ml-3 hidden lg:block" style={{ marginTop: 0 }}>
+            <button
+              onClick={() => setCadernoAberto(true)}
+              className="pointer-events-auto sticky top-28 flex w-11 flex-col items-center gap-2 rounded-2xl py-3 transition hover:translate-x-0.5"
+              style={{ background: "var(--accent)", color: "var(--onAccent)", boxShadow: "0 10px 28px rgba(0,0,0,.28)" }}
+              aria-label={`Abrir caderno de ${questao.materia}`}
+              title={`Anotar em ${questao.materia}`}
+            >
+              <NotebookPen size={19} strokeWidth={1.9} />
+              <span className="text-[11px] font-bold uppercase tracking-[.18em]" style={{ writingMode: "vertical-rl" }}>
+                Caderno
+              </span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Caderno da matéria, ao lado da questão */}
       {permiteCaderno && (
-        <>
-          {/* Botão flutuante, só a partir de lg: ali a coluna da questão está limitada
-              a 620px e sobra calha livre entre a barra lateral e o cartão, então ele
-              não cobre nada. À direita cobria o "Próxima questão"; em telas menores
-              não existe ponto livre sobre a coluna, e o botão do cabeçalho assume. */}
-          {!cadernoAberto && (
-            <button
-              onClick={() => setCadernoAberto(true)}
-              className="fixed bottom-6 left-[234px] z-30 hidden h-14 w-14 items-center justify-center rounded-full transition hover:-translate-y-0.5 lg:flex"
-              style={{ background: "var(--accent)", color: "var(--onAccent)", boxShadow: "0 10px 28px rgba(0,0,0,.32)" }}
-              aria-label={`Abrir caderno de ${questao.materia}`}
-              title={`Anotar em ${questao.materia}`}
-            >
-              <NotebookPen size={22} strokeWidth={1.9} />
-            </button>
-          )}
-          <CadernoDrawer
-            materia={questao.materia}
-            aberto={cadernoAberto}
-            onFechar={() => setCadernoAberto(false)}
-          />
-        </>
+        <CadernoDrawer questao={questao} aberto={cadernoAberto} onFechar={() => setCadernoAberto(false)} />
       )}
     </div>
   );

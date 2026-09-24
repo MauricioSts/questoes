@@ -7,6 +7,8 @@ import { Card } from "./Card";
 import { MetaPill } from "./MetaPill";
 import { comRealce } from "./Realce";
 import { ImagensQuestao } from "./ImagemQuestao";
+import { EfeitoEliminar } from "./EfeitoEliminar";
+import { useTheme } from "../store/theme";
 
 // Histórico da questão ANTES desta tentativa: quantas vezes ela já foi respondida e
 // quantas vezes eu errei. É o que transforma "de novo essa?" em informação útil.
@@ -38,6 +40,7 @@ export function QuestaoView({
   onSelecionar,
 }: Props) {
   const soOrigem = metadados === "origem";
+  const { tema } = useTheme();
 
   // Ordem de exibição: embaralhada a cada repetição da questão (ver lib/ordemAlternativas).
   // A letra de cada alternativa NÃO muda, só a posição, então gabarito, explicação e
@@ -198,7 +201,7 @@ export function QuestaoView({
           }
 
           return (
-            <li key={letra} className="flex items-stretch gap-2">
+            <li key={letra} className={`relative flex items-stretch gap-2 ${isEliminada ? "alt-eliminada" : ""}`}>
               <button
                 type="button"
                 role="radio"
@@ -225,22 +228,16 @@ export function QuestaoView({
 
                 {/* Texto da alternativa */}
                 <span
-                  className="whitespace-pre-wrap pt-1 text-sm"
+                  className="alt-texto whitespace-pre-wrap pt-1 text-sm"
                   style={isEliminada ? { textDecoration: "line-through" } : undefined}
                 >
                   {comRealce(questao.alternativas[letra]!)}
                 </span>
 
-                {/* Traço por cima da alternativa eliminada: é o risco de caneta no caderno,
-                    o que some da leitura sem sumir da tela. */}
-                {isEliminada && (
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute left-3 right-3 top-1/2 h-px"
-                    style={{ background: "rgb(var(--faint))" }}
-                  />
-                )}
               </button>
+
+              {/* Marca da eliminação, com a animação do tema (teia, gosma, laser…) */}
+              {isEliminada && <EfeitoEliminar key={tema} tema={tema} />}
 
               {/* Eliminar: risca a alternativa para afunilar a escolha. Só antes de
                   responder; depois do gabarito não há mais o que eliminar. */}

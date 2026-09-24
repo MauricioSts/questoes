@@ -20,6 +20,7 @@ import { useAuth } from "../store/auth";
 import { ConcursoSwitcher } from "./ConcursoSwitcher";
 import { LineSidebar } from "./LineSidebar";
 import { Logo } from "./Logo";
+import { SeletorTema } from "./SeletorTema";
 
 // Cores da barra lateral (o LineSidebar recebe hex, não lê os tokens).
 const CORES_LINHA: Record<Tema, { destaque: string; texto: string; marcador: string }> = {
@@ -114,8 +115,9 @@ export function BottomTab() {
         ))}
       </ul>
 
-      {/* Rodapé (desktop): ajuda + importar + sair (o tema fica no dock, SeletorTema) */}
+      {/* Rodapé (desktop): trocar tema + importar + sair */}
       <div className="hidden lg:block px-3 pb-3 pt-2 border-t border-hair/50">
+        <SeletorTema />
         <Link to="/como-funciona" className="flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold text-muted transition hover:text-brand-ink">
           <HelpCircle size={15} strokeWidth={1.8} /> Como funciona
         </Link>

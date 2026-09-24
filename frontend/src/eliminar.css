@@ -1,0 +1,300 @@
+/* Marca de alternativa eliminada por tema (components/EfeitoEliminar.tsx).
+ * Regra da casa: o estilo base de cada peça é o estado FINAL; os keyframes só dizem de
+ * onde ela vem. Assim, com a animação desligada (menos movimento), a marca já nasce pronta. */
+
+.elim {
+  position: absolute;
+  inset: 0 52px 0 0; /* cartão da alternativa; o botão de eliminar fica fora */
+  pointer-events: none;
+  z-index: 1;
+}
+.elim__recorte {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 1rem;
+}
+.elim svg { overflow: visible; }
+
+/* Reação do texto da alternativa no instante em que é eliminada */
+[data-theme='aranha'] .alt-eliminada .alt-texto { animation: elim-tranco .32s .14s ease-out; }
+[data-theme='cyberpunk'] .alt-eliminada .alt-texto { animation: elim-glitch-texto .4s steps(2) both; }
+[data-theme='rose'] .alt-eliminada .alt-texto { animation: elim-soprado .7s ease-out; }
+[data-theme='venom'] .alt-eliminada .alt-texto { animation: elim-engolido .6s .1s ease-out; }
+
+@keyframes elim-tranco {
+  30% { transform: translateX(-4px) rotate(-.6deg); }
+  60% { transform: translateX(2px); }
+}
+@keyframes elim-glitch-texto {
+  0% { transform: translateX(3px); text-shadow: -2px 0 #00F0FF, 2px 0 #FF2A6D; }
+  40% { transform: translateX(-4px); text-shadow: 2px 0 #00F0FF, -2px 0 #FF2A6D; }
+  80% { transform: translateX(1px); text-shadow: none; }
+}
+@keyframes elim-soprado {
+  25% { transform: translateX(10px) skewX(-8deg); filter: blur(.6px); }
+  60% { transform: translateX(-2px) skewX(2deg); }
+}
+@keyframes elim-engolido {
+  40% { transform: scale(.985); filter: blur(.4px); }
+}
+
+/* ---------- Aranha: teia disparada do botão ---------- */
+
+.elim-aranha__fio {
+  position: absolute;
+  top: 50%;
+  left: 64%;
+  right: -30px; /* centro do botão de eliminar */
+  height: 2px;
+  margin-top: -1px;
+  background: #141018;
+  border-radius: 2px;
+  transform-origin: right center;
+  opacity: 0;
+  animation: elim-disparo .5s ease-out both;
+}
+@keyframes elim-disparo {
+  0% { transform: scaleX(0); opacity: 1; }
+  28% { transform: scaleX(1); opacity: 1; }
+  55% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1) translateY(3px); opacity: 0; }
+}
+.elim-aranha__teia {
+  position: absolute;
+  left: 64%;
+  top: 50%;
+  width: 150px;
+  height: 150px;
+  margin: -75px 0 0 -75px;
+  fill: none;
+  stroke: #141018;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: .82;
+  animation: elim-teia .42s .13s cubic-bezier(.2, 1.6, .4, 1) both;
+}
+.elim-aranha__halo { stroke: #FFFBF3; stroke-width: 3; opacity: .9; }
+@keyframes elim-teia {
+  from { transform: scale(.08) rotate(-40deg); opacity: 1; }
+}
+.elim-aranha__ancora {
+  stroke-width: .9;
+  opacity: .6;
+  stroke-dasharray: 1;
+  animation: elim-traco .3s .3s ease-out both;
+}
+@keyframes elim-traco {
+  from { stroke-dashoffset: 1; }
+}
+
+/* ---------- Venom: o simbionte escorre ---------- */
+
+.elim-venom__massa { position: absolute; inset: -6px 0 0 0; }
+/* Preto com reflexo azulado, como o do fundo: preto chapado sumia no cartão escuro. */
+.elim-venom__faixa,
+.elim-venom__gota,
+.elim-venom__pingo { background: radial-gradient(120% 90% at 35% 20%, #2A3050 0%, #0E1019 45%, #05060A 100%); }
+.elim-venom__faixa {
+  position: absolute;
+  left: -10px;
+  right: -10px;
+  top: 0;
+  height: 30%;
+  animation: elim-desce .35s ease-in both;
+}
+@keyframes elim-desce {
+  from { transform: translateY(-110%); }
+}
+.elim-venom__gota {
+  position: absolute;
+  top: 10%;
+  margin-left: -8px;
+  border-radius: 0 0 999px 999px;
+  transform-origin: top center;
+  animation: elim-escorre .9s cubic-bezier(.3, .1, .3, 1.25) both;
+}
+@keyframes elim-escorre {
+  0% { transform: scaleY(0); }
+  70% { transform: scaleY(1.12); }
+}
+.elim-venom__pingo {
+  position: absolute;
+  top: 82%;
+  width: 11px;
+  height: 11px;
+  margin-left: -3px;
+  border-radius: 50%;
+  opacity: 0;
+  animation: elim-pinga 1.3s .6s ease-in both;
+}
+@keyframes elim-pinga {
+  0% { transform: translateY(-20px); opacity: 0; }
+  8% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateY(60px); opacity: 0; }
+}
+
+/* ---------- Cyberpunk: glitch + laser ---------- */
+
+.elim-cyber__flash {
+  position: absolute;
+  inset: 0;
+  background: #FF2A6D;
+  mix-blend-mode: screen;
+  opacity: 0;
+  animation: elim-flash .28s ease-out both;
+}
+@keyframes elim-flash {
+  from { opacity: .45; }
+}
+.elim-cyber__fatia {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: linear-gradient(90deg, rgba(0,240,255,.5), rgba(255,42,109,.5) 60%, rgba(252,238,10,.45));
+  mix-blend-mode: screen;
+  opacity: 0;
+  animation: elim-fatia .36s steps(4) both;
+}
+.elim-cyber__fatia--b { animation-name: elim-fatia-b; }
+@keyframes elim-fatia {
+  0% { transform: translateX(-18px); opacity: 1; }
+  33% { transform: translateX(26px); opacity: 1; }
+  66% { transform: translateX(-8px); opacity: .8; }
+  100% { transform: translateX(0); opacity: 0; }
+}
+@keyframes elim-fatia-b {
+  0% { transform: translateX(22px); opacity: 1; }
+  33% { transform: translateX(-14px); opacity: 1; }
+  66% { transform: translateX(6px); opacity: .8; }
+  100% { transform: translateX(0); opacity: 0; }
+}
+.elim-cyber__laser {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: #FF2A6D;
+  box-shadow: 0 0 6px #FF2A6D, 0 0 14px rgba(255,42,109,.6);
+  transform-origin: left center;
+  animation: elim-corte .26s .16s cubic-bezier(.7, 0, .3, 1) both;
+}
+@keyframes elim-corte {
+  from { transform: scaleX(0); box-shadow: 0 0 10px #fff, 0 0 24px #FF2A6D; }
+}
+.elim-cyber__tag {
+  position: absolute;
+  right: 10px;
+  bottom: 4px;
+  font: 10px/1 'Share Tech Mono', ui-monospace, monospace;
+  letter-spacing: .08em;
+  color: #FF2A6D;
+  text-shadow: 0 0 6px rgba(255,42,109,.7);
+  white-space: nowrap;
+  animation: elim-digita .45s .36s steps(16) both;
+}
+@keyframes elim-digita {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+/* ---------- Topography: rota riscada no mapa ---------- */
+
+.elim-fantasy__rota {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: #C9C2FF;
+  stroke-width: 1.6;
+  stroke-dasharray: 5 4;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px rgba(201,194,255,.55));
+  animation: elim-traca .6s ease-in-out both;
+}
+@keyframes elim-traca {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+.elim-fantasy__x {
+  position: absolute;
+  right: 3%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin-top: -9px;
+  fill: none;
+  stroke: #FFFFFF;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px rgba(255,255,255,.6));
+}
+.elim-fantasy__x path { stroke-dasharray: 1; animation: elim-traco .16s .58s ease-out both; }
+.elim-fantasy__x path + path { animation-delay: .72s; }
+/* Curvas de nível que se abrem a partir do X, como no fundo */
+.elim-fantasy__curva {
+  position: absolute;
+  right: calc(3% + 9px);
+  top: 50%;
+  width: 60px;
+  height: 60px;
+  margin: -30px -30px 0 0;
+  border: 1px solid rgba(201,194,255,.9);
+  border-radius: 46% 54% 50% 50%;
+  opacity: 0;
+  animation: elim-curva 1s .8s ease-out both;
+}
+.elim-fantasy__curva--2 { animation-delay: .95s; }
+@keyframes elim-curva {
+  from { transform: scale(.2); opacity: 1; }
+  to { transform: scale(1.8); opacity: 0; }
+}
+
+/* ---------- Lugia: rajada de vento e pena pousada ---------- */
+
+.elim-rose__vento {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: #7F9BD0;
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: .8;
+}
+/* Traço de 140px correndo pelo caminho (em px de tela: o SVG é esticado, então
+ * pathLength aqui quebraria o tracejado). Termina fora do caminho, invisível. */
+.elim-rose__vento path { stroke-dasharray: 140 3000; stroke-dashoffset: -1200; animation: elim-sopra .75s ease-out both; }
+.elim-rose__vento path:nth-child(2) { animation-delay: .08s; }
+.elim-rose__vento path:nth-child(3) { animation-delay: .16s; }
+@keyframes elim-sopra {
+  from { stroke-dashoffset: 140; }
+}
+.elim-rose__pena {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 26px;
+  height: 26px;
+  margin-top: -13px;
+  transform: rotate(-12deg);
+  animation: elim-pena 1s .15s cubic-bezier(.3, .7, .3, 1) both;
+}
+.elim-rose__vexilo { fill: #EAF0FF; stroke: #7F9BD0; stroke-width: 1; }
+.elim-rose__raque { fill: none; stroke: #7F9BD0; stroke-width: 1.2; stroke-linecap: round; }
+@keyframes elim-pena {
+  0% { transform: translate(-340px, 18px) rotate(-70deg); opacity: 0; }
+  15% { opacity: 1; }
+  55% { transform: translate(-60px, -16px) rotate(24deg); }
+  80% { transform: translate(4px, 3px) rotate(-18deg); }
+  100% { transform: rotate(-12deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .elim, .elim *, .alt-eliminada .alt-texto { animation: none !important; }
+}
