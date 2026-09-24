@@ -1,0 +1,91 @@
+/* Entradas animadas dos temas Topography, Lugia e Cyberpunk (components/transicoes).
+ * As do Aranha e do Venom ficam em temas-heroi.css. Cada uma cobre a tela, o tema troca
+ * por baixo e a cobertura sai revelando o app. */
+
+/* ============================ TOPOGRAPHY ============================ */
+.tt { position: fixed; inset: 0; z-index: 9999; cursor: pointer; overflow: hidden; }
+.tt__mar {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at var(--tt-x) var(--tt-y), #140E4A 0%, #04040C 70%);
+  clip-path: circle(0 at var(--tt-x) var(--tt-y));
+  animation:
+    ttAbre 700ms cubic-bezier(.6, 0, .35, 1) both,
+    ttSome 700ms ease-in 780ms forwards;
+}
+@keyframes ttAbre { to { clip-path: circle(var(--tt-r) at var(--tt-x) var(--tt-y)); } }
+@keyframes ttSome { to { opacity: 0; } }
+.tt__mapa {
+  position: absolute; inset: 0; display: block;
+  animation: ttAfasta 760ms cubic-bezier(.5, 0, .75, 0) 720ms forwards;
+}
+.tt__mapa path {
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  animation: ttDesenha 560ms cubic-bezier(.3, .6, .4, 1) both;
+}
+@keyframes ttDesenha { to { stroke-dashoffset: 0; } }
+@keyframes ttAfasta { to { transform: scale(1.5); opacity: 0; } }
+
+/* ============================ LUGIA ============================ */
+.tl { position: fixed; inset: 0; z-index: 9999; cursor: pointer; overflow: hidden; }
+.tl__clarao {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at var(--tl-x) var(--tl-y), rgba(255,255,255,.96) 0%, rgba(255,255,255,.78) 45%, rgba(255,255,255,.62) 100%),
+    conic-gradient(from 200deg at var(--tl-x) var(--tl-y), #CFE3FF, #F2D9FF, #D6FFF3, #FFF1D6, #CFE3FF);
+  clip-path: circle(0 at var(--tl-x) var(--tl-y));
+  animation:
+    tlAbre 620ms cubic-bezier(.55, 0, .3, 1) both,
+    tlDissolve 760ms ease-out 640ms forwards;
+}
+@keyframes tlAbre { to { clip-path: circle(var(--tl-r) at var(--tl-x) var(--tl-y)); } }
+@keyframes tlDissolve { to { opacity: 0; filter: blur(14px); transform: scale(1.06); } }
+.tl__vento { position: absolute; inset: 0; display: block; animation: ttSome 420ms ease-in 820ms forwards; }
+.tl__vento path {
+  stroke-dasharray: .35 1; stroke-dashoffset: 1.35;
+  animation: tlSopra 1000ms cubic-bezier(.35, .1, .3, 1) both;
+}
+@keyframes tlSopra { to { stroke-dashoffset: 0; } }
+
+/* ============================ CYBERPUNK ============================ */
+.tc { position: fixed; inset: 0; z-index: 9999; cursor: pointer; overflow: hidden; }
+.tc__faixa {
+  position: absolute; left: 0; width: 100%;
+  background: #FCEE0A;
+  box-shadow: inset 0 -2px 0 #050509;
+  transform: translateX(-102%);
+  animation:
+    tcEntra 300ms cubic-bezier(.7, 0, .3, 1) var(--tc-atraso) both,
+    tcSai 300ms cubic-bezier(.7, 0, .3, 1) calc(900ms + var(--tc-atraso)) forwards;
+}
+.tc__faixa--dir { transform: translateX(102%); animation-name: tcEntraDir, tcSaiDir; }
+@keyframes tcEntra { from { transform: translateX(-102%); } to { transform: none; } }
+@keyframes tcSai { to { transform: translateX(102%); } }
+@keyframes tcEntraDir { from { transform: translateX(102%); } to { transform: none; } }
+@keyframes tcSaiDir { to { transform: translateX(-102%); } }
+.tc__letreiro {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(20px, 4.4vw, 54px);
+  letter-spacing: .12em;
+  color: #050509;
+  opacity: 0;
+  animation: tcLetreiro 440ms steps(1) 480ms forwards;
+}
+.tc__letreiro span { position: relative; animation: tcTreme 380ms steps(6) 480ms; }
+.tc__letreiro span::before, .tc__letreiro span::after {
+  content: attr(data-texto);
+  position: absolute; inset: 0;
+  mix-blend-mode: multiply;
+}
+.tc__letreiro span::before { color: #00F0FF; transform: translate(-3px, 0); clip-path: inset(0 0 55% 0); }
+.tc__letreiro span::after { color: #FF2A6D; transform: translate(3px, 0); clip-path: inset(50% 0 0 0); }
+@keyframes tcLetreiro { 0% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes tcTreme {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-4px, 1px) skewX(-8deg); }
+  40% { transform: translate(3px, -1px); }
+  60% { transform: translate(-2px, 0) skewX(6deg); }
+  80% { transform: translate(2px, 1px); }
+  100% { transform: none; }
+}

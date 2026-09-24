@@ -3,12 +3,11 @@
 // Rose ("Lugia", claro): Iridescence (React Bits) sob véu branco.
 // Cyberpunk: Pixel Blast (React Bits) + linhas de varredura + vinheta.
 // Aranha: página de gibi (fundos/TeiaReticula) + aranha pendurada no fio + véu de papel.
-// Venom: simbionte vivo nas bordas (fundos/Simbionte) + olhos que aparecem no escuro.
+// Venom: simbionte vivo nas bordas (fundos/Simbionte).
 import { lazy, Suspense } from "react";
 import { useTheme } from "../store/theme";
 import { useFundoPausado } from "../store/fundo";
 import { importarChunk } from "../lib/importarChunk";
-import { OLHO_VENOM_DIR, OLHO_VENOM_ESQ } from "./SimbolosHeroi";
 
 // ogl + shaders só descem para quem está no tema que usa cada fundo.
 const Topography = lazy(() => importarChunk(() => import("./reactbits/Topography")));
@@ -114,8 +113,7 @@ function FundoAranha() {
   );
 }
 
-// Venom: a massa viva nas bordas; os olhos brancos abrem de vez em quando no canto de
-// baixo, piscam e somem dentro da massa. Parado na sessão de questões.
+// Venom: a massa viva nas bordas. Parado na sessão de questões.
 function FundoVenom() {
   const pausado = useFundoPausado();
   return (
@@ -125,10 +123,6 @@ function FundoVenom() {
           <Simbionte paused={pausado} />
         </Suspense>
       </div>
-      <svg className="fundo-venom__olhos" viewBox="0 0 24 24">
-        <path d={OLHO_VENOM_ESQ} />
-        <path d={OLHO_VENOM_DIR} />
-      </svg>
       <div className="fundo-venom__vinheta" />
       {/* Filtro de gosma do título (TituloVivo): borra e corta o alfa, então filete e
           gotas que se tocam viram uma massa só. Vive aqui porque o fundo existe uma vez

@@ -2,33 +2,22 @@
 //
 //   0 – 1050 ms   a gosma brota do botão clicado e das bordas da tela, com tentáculos
 //                 correndo à frente, até fechar tudo (o tema troca por baixo nesse instante);
-//   1050 – 2450   no escuro, os olhos brancos abrem, o sorriso de dentes se rasga e
-//                 "NÓS SOMOS VENOM" bate na tela com tremor;
-//   2450 – 3300   a massa se rasga do centro para as bordas e revela o app já no tema novo.
+//   1050 – 1350   a tela fica na massa preta um instante;
+//   1350 – 2200   a massa se rasga do centro para as bordas e revela o app já no tema novo.
 //
 // A gosma é um shader (campo de ruído com normal por derivada e brilho especular azulado,
-// o mesmo acabamento do fundo); o palco (olhos, dentes, texto) é SVG + CSS por cima.
+// o mesmo acabamento do fundo).
 // Clique ou Esc pulam a animação. Sem WebGL 2, uma cortina preta circular faz o papel
 // da gosma.
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Renderer, Program, Mesh, Triangle } from "ogl";
 import { RUIDO } from "../fundos/glsl";
-import { OLHO_VENOM_DIR, OLHO_VENOM_ESQ } from "../SimbolosHeroi";
 import type { Origem } from "../../store/theme";
 
 const COBRE = 1050;
-const REVELA = 2450;
-const FIM = 3300;
-
-// A fonte do letreiro só é usada aqui: pede o download assim que o pedaço carrega (no
-// hover do botão), para o "VENOM" não sair na fonte de reserva.
-try {
-  void document.fonts?.load("400 120px 'Rubik Wet Paint'", "VENOM");
-  void document.fonts?.load("400 40px 'Anton'", "NÓS SOMOS");
-} catch {
-  /* sem Font Loading API */
-}
+const REVELA = 1350;
+const FIM = 2200;
 
 const vertex = `#version 300 es
 in vec2 position;
@@ -96,22 +85,6 @@ void main() {
   fragColor = vec4(col * massa, massa);
 }
 `;
-
-// Dentes: zigue-zague de pontas desencontradas (as do meio maiores), em 0..200 × 0..40.
-function dentes(cima: boolean) {
-  const n = 13;
-  let d = cima ? "M0 0 " : "M0 40 ";
-  for (let i = 0; i < n; i++) {
-    const x0 = (200 / n) * i;
-    const x1 = x0 + 200 / n / 2;
-    const meio = 1 - Math.abs(i - (n - 1) / 2) / ((n - 1) / 2);
-    const alt = 14 + meio * 22 + (i % 2 ? -3 : 3);
-    d += cima ? `L${x1.toFixed(1)} ${alt.toFixed(1)} L${(x0 + 200 / n).toFixed(1)} 0 ` : `L${x1.toFixed(1)} ${(40 - alt).toFixed(1)} L${(x0 + 200 / n).toFixed(1)} 40 `;
-  }
-  return d + "Z";
-}
-const DENTES_CIMA = dentes(true);
-const DENTES_BAIXO = dentes(false);
 
 interface Props {
   origem: Origem;
@@ -252,34 +225,6 @@ export default function TransicaoVenom({ origem, aoCobrir, aoTerminar }: Props) 
     >
       <div ref={canvasBox} className="tv__gosma" />
       {semGl && <div ref={cortina} className="tv__cortina" />}
-      <div className="tv__palco" aria-hidden>
-        <div className="tv__rosto">
-          <svg className="tv__olhos" viewBox="1 4.8 22 11.4">
-            <path d={OLHO_VENOM_ESQ} />
-            <path d={OLHO_VENOM_DIR} />
-          </svg>
-          <div className="tv__boca">
-            <div className="tv__garganta" />
-            <svg className="tv__dentes tv__dentes--cima" viewBox="0 0 200 40" preserveAspectRatio="none">
-              <path d={DENTES_CIMA} />
-            </svg>
-            <svg className="tv__dentes tv__dentes--baixo" viewBox="0 0 200 40" preserveAspectRatio="none">
-              <path d={DENTES_BAIXO} />
-            </svg>
-          </div>
-        </div>
-        <p className="tv__letreiro">
-          <span className="tv__nos">Nós somos</span>
-          <span className="tv__nome">
-            {"VENOM".split("").map((l, i) => (
-              <span key={i} style={{ animationDelay: `calc(var(--tv-cobre) + ${620 + i * 70}ms)` }}>
-                {l}
-              </span>
-            ))}
-          </span>
-        </p>
-      </div>
-      <div className="tv__lampejo" />
     </div>,
     document.body
   );

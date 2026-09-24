@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import { BottomTab } from "./BottomTab";
+import { DockTemas } from "./SeletorTema";
 import { TopBar } from "./TopBar";
 import { Atmosfera } from "./Atmosfera";
 import { ProvedorMovimento } from "./Movimento";
@@ -30,10 +31,13 @@ export function AppLayout() {
           {/* Área de conteúdo: deslocada para não ficar sob a sidebar no desktop */}
           <div className="relative z-10 lg:pl-[236px]">
             <TopBar />
-            <main className="mx-auto max-w-[1100px] px-5 pb-28 pt-2 lg:pb-8">
+            <main className="mx-auto max-w-[1100px] px-5 pb-28 pt-2">
               <Outlet />
             </main>
           </div>
+
+          {/* Dock de temas (desktop) */}
+          <DockTemas />
 
           <FestaDaMeta />
         </div>

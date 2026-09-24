@@ -9,11 +9,10 @@
 //               e azul, tinta preta, e uma teia desenhada por shader (fundos/TeiaReticula).
 // - 'venom'     (escuro): o simbionte — preto líquido com brilho azulado, branco dos olhos
 //               como acento e o carmim da língua como ponto quente (fundos/Simbionte).
-//               Entrar nele passa por uma animação de tela cheia (transicoes/TransicaoVenom);
-//               o Aranha também tem a sua (transicoes/TransicaoAranha).
+// Todo tema entra por uma animação de tela cheia (components/transicoes/Transicao<Tema>).
 // Aplica data-theme na raiz (<html>) e persiste a escolha em localStorage. Os temas
 // escuros também ligam a classe .dark para manter utilitários dark: coerentes.
-import { createContext, lazy, Suspense, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, lazy, Suspense, useContext, useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
 import { importarChunk } from "../lib/importarChunk";
 
 export type Tema = "fantasy" | "rose" | "cyberpunk" | "aranha" | "venom";
@@ -41,16 +40,22 @@ export interface Origem {
   y: number;
 }
 
-// Temas com entrada animada. O pedaço de cada animação só desce quando alguém chega perto
-// do botão (preCarregarTransicao) ou, no pior caso, no próprio clique.
-const carregarVenom = () => importarChunk(() => import("../components/transicoes/TransicaoVenom"));
-const carregarAranha = () => importarChunk(() => import("../components/transicoes/TransicaoAranha"));
-const TransicaoVenom = lazy(carregarVenom);
-const TransicaoAranha = lazy(carregarAranha);
+// Todo tema tem entrada animada. O pedaço de cada animação só desce quando alguém chega
+// perto do botão (preCarregarTransicao) ou, no pior caso, no próprio clique.
+type Transicao = ComponentType<{ origem: Origem; aoCobrir: () => void; aoTerminar: () => void }>;
+const CARREGAR: Record<Tema, () => Promise<{ default: Transicao }>> = {
+  fantasy: () => importarChunk(() => import("../components/transicoes/TransicaoTopography")),
+  rose: () => importarChunk(() => import("../components/transicoes/TransicaoLugia")),
+  cyberpunk: () => importarChunk(() => import("../components/transicoes/TransicaoCyberpunk")),
+  aranha: () => importarChunk(() => import("../components/transicoes/TransicaoAranha")),
+  venom: () => importarChunk(() => import("../components/transicoes/TransicaoVenom")),
+};
+const TRANSICOES = Object.fromEntries(
+  (Object.keys(CARREGAR) as Tema[]).map((t) => [t, lazy(CARREGAR[t])])
+) as Record<Tema, ReturnType<typeof lazy<Transicao>>>;
 
 export function preCarregarTransicao(t: Tema) {
-  if (t === "venom") void carregarVenom();
-  else if (t === "aranha") void carregarAranha();
+  void CARREGAR[t]();
 }
 
 // Se a animação travar (chunk que não chega, aba em segundo plano), o tema entra assim
@@ -161,7 +166,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   function definir(t: Tema, origem?: Origem) {
     if (t === temaRef.current || emTransicao.current) return;
-    if ((t !== "venom" && t !== "aranha") || querMenosMovimento()) {
+    if (querMenosMovimento()) {
       setTema(t);
       return;
     }
@@ -187,7 +192,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       {children}
       {props && (
         <Suspense fallback={null}>
-          {transicao.para === "venom" ? <TransicaoVenom {...props} /> : <TransicaoAranha {...props} />}
+          {(() => {
+            const Entrada = TRANSICOES[transicao.para];
+            return <Entrada {...props} />;
+          })()}
         </Suspense>
       )}
     </ThemeContext.Provider>

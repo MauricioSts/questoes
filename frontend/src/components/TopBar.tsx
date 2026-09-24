@@ -4,7 +4,7 @@ import { useAuth } from "../store/auth";
 import { useConcurso } from "../store/concurso";
 import { useMeta } from "../store/meta";
 import { Logo } from "./Logo";
-import { BotaoProximoTema } from "./SeletorTema";
+import { BotaoTemas } from "./SeletorTema";
 
 export function TopBar() {
   const navigate = useNavigate();
@@ -91,8 +91,8 @@ export function TopBar() {
             <span className="hidden md:inline">Sair</span>
           </button>
 
-          {/* Trocar de tema (no celular; no desktop fica na barra lateral) */}
-          <BotaoProximoTema className="flex items-center rounded-lg px-2 py-1.5 text-muted hover:text-brand-500 transition lg:hidden" />
+          {/* Trocar de tema (no celular; no desktop é o dock no pé da tela) */}
+          <BotaoTemas className="flex items-center rounded-lg px-2 py-1.5 text-muted hover:text-brand-500 transition" />
         </div>
       </div>
     </header>
