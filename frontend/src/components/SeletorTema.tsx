@@ -1,17 +1,31 @@
 // Troca de tema. Com três temas o botão de alternar deixou de dizer para onde vai, então
 // a barra lateral mostra os três lado a lado (o ativo com nome) e o topo do celular,
 // sem espaço, gira para o próximo e diz qual é no rótulo.
-import { Bird, Cpu, Mountain, type LucideIcon } from "lucide-react";
-import { TEMAS, nomeDoTema, proximoTema, useTheme, type Tema } from "../store/theme";
+import type { ComponentType, MouseEvent } from "react";
+import { Bird, Cpu, Mountain } from "lucide-react";
+import { TEMAS, nomeDoTema, preCarregarTransicao, proximoTema, useTheme, type Tema } from "../store/theme";
+import { SimboloAranha, SimboloVenom } from "./SimbolosHeroi";
 
-const ICONES: Record<Tema, LucideIcon> = { fantasy: Mountain, rose: Bird, cyberpunk: Cpu };
+const ICONES: Record<Tema, ComponentType<{ size?: number | string; strokeWidth?: number | string }>> = {
+  fantasy: Mountain,
+  rose: Bird,
+  cyberpunk: Cpu,
+  aranha: SimboloAranha,
+  venom: SimboloVenom,
+};
+
+// Centro do botão clicado: é de lá que a animação de entrada do tema nasce.
+function origemDo(e: MouseEvent<HTMLElement>) {
+  const r = e.currentTarget.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}
 
 export function IconeTema({ tema, size = 16 }: { tema: Tema; size?: number }) {
   const Icone = ICONES[tema];
   return <Icone size={size} strokeWidth={1.8} />;
 }
 
-/** Barra lateral (desktop): três segmentos, o ativo aberto com o nome. */
+/** Barra lateral (desktop): um segmento por tema, o ativo aberto com o nome. */
 export function SeletorTema() {
   const { tema, definir } = useTheme();
   return (
@@ -26,7 +40,9 @@ export function SeletorTema() {
         return (
           <button
             key={t.id}
-            onClick={() => definir(t.id)}
+            onClick={(e) => definir(t.id, origemDo(e))}
+            onPointerEnter={() => preCarregarTransicao(t.id)}
+            onFocus={() => preCarregarTransicao(t.id)}
             aria-pressed={ativo}
             aria-label={`Modo ${t.nome}`}
             title={`Modo ${t.nome}`}
@@ -50,7 +66,8 @@ export function BotaoProximoTema({ className = "" }: { className?: string }) {
   const proximo = proximoTema(tema);
   return (
     <button
-      onClick={alternar}
+      onClick={(e) => alternar(origemDo(e))}
+      onPointerDown={() => preCarregarTransicao(proximo)}
       className={className}
       aria-label={`Tema ${nomeDoTema(tema)}. Mudar para Modo ${nomeDoTema(proximo)}`}
       title={`Modo ${nomeDoTema(tema)} (tocar: ${nomeDoTema(proximo)})`}

@@ -5,16 +5,25 @@
 //               fundo Iridescence; a chave interna continua 'rose' (CSS e localStorage);
 // - 'cyberpunk' (escuro): Night City — amarelo, ciano e magenta sobre preto, fundo de
 //               pixels (Pixel Blast).
+// - 'aranha'    (claro): Homem-Aranha em página de gibi — papel jornal, retícula vermelha
+//               e azul, tinta preta, e uma teia desenhada por shader (fundos/TeiaReticula).
+// - 'venom'     (escuro): o simbionte — preto líquido com brilho azulado, branco dos olhos
+//               como acento e o carmim da língua como ponto quente (fundos/Simbionte).
+//               Entrar nele passa por uma animação de tela cheia (transicoes/TransicaoVenom);
+//               o Aranha também tem a sua (transicoes/TransicaoAranha).
 // Aplica data-theme na raiz (<html>) e persiste a escolha em localStorage. Os temas
 // escuros também ligam a classe .dark para manter utilitários dark: coerentes.
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, lazy, Suspense, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { importarChunk } from "../lib/importarChunk";
 
-export type Tema = "fantasy" | "rose" | "cyberpunk";
+export type Tema = "fantasy" | "rose" | "cyberpunk" | "aranha" | "venom";
 
 export const TEMAS: { id: Tema; nome: string; escuro: boolean }[] = [
   { id: "fantasy", nome: "Topography", escuro: true },
   { id: "rose", nome: "Lugia", escuro: false },
   { id: "cyberpunk", nome: "Cyberpunk", escuro: true },
+  { id: "aranha", nome: "Aranha", escuro: false },
+  { id: "venom", nome: "Venom", escuro: true },
 ];
 
 export const nomeDoTema = (t: Tema) => TEMAS.find((x) => x.id === t)!.nome;
@@ -22,8 +31,38 @@ export const proximoTema = (t: Tema): Tema => TEMAS[(TEMAS.findIndex((x) => x.id
 
 interface ThemeContextValue {
   tema: Tema;
-  alternar: () => void;
-  definir: (t: Tema) => void;
+  alternar: (origem?: Origem) => void;
+  /** `origem` = ponto da tela (px) de onde a animação de entrada do tema nasce. */
+  definir: (t: Tema, origem?: Origem) => void;
+}
+
+export interface Origem {
+  x: number;
+  y: number;
+}
+
+// Temas com entrada animada. O pedaço de cada animação só desce quando alguém chega perto
+// do botão (preCarregarTransicao) ou, no pior caso, no próprio clique.
+const carregarVenom = () => importarChunk(() => import("../components/transicoes/TransicaoVenom"));
+const carregarAranha = () => importarChunk(() => import("../components/transicoes/TransicaoAranha"));
+const TransicaoVenom = lazy(carregarVenom);
+const TransicaoAranha = lazy(carregarAranha);
+
+export function preCarregarTransicao(t: Tema) {
+  if (t === "venom") void carregarVenom();
+  else if (t === "aranha") void carregarAranha();
+}
+
+// Se a animação travar (chunk que não chega, aba em segundo plano), o tema entra assim
+// mesmo depois disso: animação nenhuma vale prender o usuário no tema antigo.
+const TEMPO_MAXIMO_TRANSICAO = 7000;
+
+function querMenosMovimento() {
+  try {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch {
+    return false;
+  }
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -34,7 +73,7 @@ const STORAGE_KEY = "q_tema";
 const STORAGE_KEY_ANTIGA = "q_theme";
 
 function ehTema(v: string | null): v is Tema {
-  return v === "fantasy" || v === "rose" || v === "cyberpunk";
+  return v === "fantasy" || v === "rose" || v === "cyberpunk" || v === "aranha" || v === "venom";
 }
 
 function lerSalvo(): Tema {
@@ -95,20 +134,62 @@ function trocarFavicon() {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [tema, setTema] = useState<Tema>(lerSalvo);
+  const [transicao, setTransicao] = useState<{ para: Tema; origem: Origem } | null>(null);
+  // Refs para o definir enxergar o estado atual mesmo chamado de um closure antigo.
+  const temaRef = useRef(tema);
+  temaRef.current = tema;
+  const emTransicao = useRef(false);
 
   useEffect(() => {
     aplicar(tema);
   }, [tema]);
 
+  // Rede de segurança da animação (ver TEMPO_MAXIMO_TRANSICAO).
+  useEffect(() => {
+    if (!transicao) return;
+    const t = setTimeout(() => {
+      setTema(transicao.para);
+      terminar();
+    }, TEMPO_MAXIMO_TRANSICAO);
+    return () => clearTimeout(t);
+  }, [transicao]);
+
+  function terminar() {
+    emTransicao.current = false;
+    setTransicao(null);
+  }
+
+  function definir(t: Tema, origem?: Origem) {
+    if (t === temaRef.current || emTransicao.current) return;
+    if ((t !== "venom" && t !== "aranha") || querMenosMovimento()) {
+      setTema(t);
+      return;
+    }
+    emTransicao.current = true;
+    setTransicao({ para: t, origem: origem ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 } });
+  }
+
+  const props = transicao && {
+    origem: transicao.origem,
+    // O tema troca por baixo no instante em que a animação cobre a tela inteira.
+    aoCobrir: () => setTema(transicao.para),
+    aoTerminar: terminar,
+  };
+
   return (
     <ThemeContext.Provider
       value={{
         tema,
-        alternar: () => setTema(proximoTema),
-        definir: setTema,
+        alternar: (origem) => definir(proximoTema(temaRef.current), origem),
+        definir,
       }}
     >
       {children}
+      {props && (
+        <Suspense fallback={null}>
+          {transicao.para === "venom" ? <TransicaoVenom {...props} /> : <TransicaoAranha {...props} />}
+        </Suspense>
+      )}
     </ThemeContext.Provider>
   );
 }

@@ -27,6 +27,9 @@ const CORES_LINHA: Record<Tema, { destaque: string; texto: string; marcador: str
   fantasy: { destaque: "#B9ADFF", texto: "#A4A0CE", marcador: "#2C2866" },
   rose: { destaque: "#1B3E8B", texto: "#4A5B7A", marcador: "#DBE4F1" },
   cyberpunk: { destaque: "#FCEE0A", texto: "#8EA0B8", marcador: "#2A2940" },
+  // Aranha: a barra é o azul das laterais do uniforme; destaque no amarelo de balão.
+  aranha: { destaque: "#FFD23F", texto: "#D2DDF5", marcador: "#3C66BD" },
+  venom: { destaque: "#FFFFFF", texto: "#8C93AC", marcador: "#1E2130" },
 };
 
 // Itens principais (mobile exibe 6 itens na barra inferior)

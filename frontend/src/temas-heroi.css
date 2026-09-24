@@ -1,0 +1,681 @@
+/* ============================ TEMAS ARANHA E VENOM ============================
+ * Os dois temas de herói, fora do index.css para não afogar os três originais. Mesma
+ * regra de lá: canais RGB "r g b" para o Tailwind + tokens hex prontos; depois, só o que
+ * os tokens não alcançam, sempre escopado no [data-theme]. */
+
+/* ---------- ARANHA (claro · "página de gibi") ----------
+ * O Homem-Aranha impresso em papel jornal. Três cores de gráfica com papel fixo:
+ *   vermelho #D4192C  ação (botão, rota, meta) — o peito do uniforme;
+ *   azul     #1446A0  dado e acerto — as laterais do uniforme (e a barra lateral);
+ *   amarelo  #FFD23F  balão de legenda: ofensiva, seleção, onomatopeia.
+ * Tinta #141018 em contorno grosso e sombra dura deslocada (o quadro do gibi).
+ * Bangers (letreiro de quadrinho) nos títulos, números e botões; o corpo continua em
+ * Plus Jakarta porque enunciado é para ler rápido. Fundo: fundos/TeiaReticula.tsx. */
+[data-theme='aranha'] {
+  --brand-50: 244 236 221;
+  --brand-100: 250 224 218;
+  --brand-200: 244 190 184;
+  --brand-300: 232 130 124;
+  --brand-400: 20 70 160;
+  --brand-500: 212 25 44;
+  --brand-600: 168 14 32;
+  --brand-700: 150 16 30;
+  --ink: 20 16 24;
+  --muted: 84 74 88;
+  --faint: 124 112 118;
+  --hair: 222 208 186;
+  --surface: 255 251 243;
+  --surface-2: 248 240 226;
+  --bg: 244 236 221;
+  --bg-glow: rgba(212, 25, 44, 0.10);
+  --flame-text: 212 25 44;
+  --success-from: 20 80 190;
+  --success-soft: 222 232 250;
+  --danger-from: 190 18 70;
+  --danger-soft: 252 226 232;
+  --cyan-from: 20 70 160;
+  --cyan-to: 212 25 44;
+
+  --text:#141018; --dim:#B3A69A;
+  --surfaceHex:#FFFBF3; --surface2:#F8F0E2;
+  --line:#E2D4BE; --lineSoft:#EEE4D2; --lineStrong:#CDBBA0; --lineHi:#1446A0;
+  --accent:#D4192C; --accentHi:#FF3B4E; --accentText:#B3101F;
+  --accentBd:#E9A2A2; --accentBg:rgba(212,25,44,.08);
+  --good:#1C5FD6; --goodText:#1446A0; --goodBd:#A8C2F0; --goodBg:rgba(28,95,214,.10);
+  --onAccent:#FFFFFF;
+  --track:#EADFCB; --trackSoft:#F2E9D8; --bar:#DCCDB2;
+  --display:'Bangers', 'Bricolage Grotesque', sans-serif; --displayWeight:400;
+  --brandFont:'Bangers', 'Bricolage Grotesque', sans-serif; --brandWeight:400; --brandTrack:.05em;
+  --r:6px; --rSm:4px; --rChip:999px;
+  --grain:0; --vignette:rgba(20,16,24,.14); --vigStop:62%;
+  --cardGlow: 5px 5px 0 #141018;
+  --heat0:#F1E7D5; --heat0bd:#E2D4BE;
+  --heat1:rgba(212,25,44,.30); --heat2:rgba(212,25,44,.60);
+  --heat3:#D4192C; --heat4:#1446A0;
+  --dot:#E2D4BE;
+  --cobraCabeca:#D4192C; --cobraCauda:#1446A0; --cobraOlho:#FFFFFF; --cobraRaio:4px;
+  --cobraBrilho:2px 2px 0 #141018; --cobraMordida:#FFD23F;
+  /* Bangers só tem um peso: sem isto o navegador engorda a letra no font-extrabold. */
+  font-synthesis-weight: none;
+  color-scheme: light;
+}
+
+/* ---------- VENOM (escuro · "o simbionte") ----------
+ * Preto líquido. O acento é o BRANCO dos olhos e da aranha no peito — botão, anel da
+ * meta, rota ativa; o azul-frio do brilho da gosma (#6F8FFF) é dado e acerto; o carmim
+ * da língua (#E1173F) é o único quente: erro e ofensiva. Cantos orgânicos, desiguais.
+ * Anton (condensada, pesada) nos títulos e botões, em maiúsculas; os títulos pingam
+ * (TituloVivo). Fundo: fundos/Simbionte.tsx. */
+[data-theme='venom'] {
+  --brand-50: 6 7 10;
+  --brand-100: 22 24 34;
+  --brand-200: 40 44 60;
+  --brand-300: 70 76 100;
+  --brand-400: 111 143 255;
+  --brand-500: 242 244 255;
+  --brand-600: 200 206 225;
+  --brand-700: 230 234 250;
+  --ink: 238 241 250;
+  --muted: 150 157 180;
+  --faint: 104 110 132;
+  --hair: 28 30 42;
+  --surface: 9 10 14;
+  --surface-2: 14 16 22;
+  --bg: 3 3 5;
+  --bg-glow: rgba(111, 143, 255, 0.12);
+  --flame-text: 225 23 63;
+  --success-from: 111 143 255;
+  --success-soft: 14 20 42;
+  --danger-from: 235 40 80;
+  --danger-soft: 40 6 14;
+  --cyan-from: 111 143 255;
+  --cyan-to: 225 23 63;
+
+  --text:#EEF1FA; --dim:#3A3F52;
+  --surfaceHex:#090A0E; --surface2:#0E1016;
+  --line:#1C1E2A; --lineSoft:#14161F; --lineStrong:#2A2D3D; --lineHi:#6F8FFF;
+  --accent:#F2F4FF; --accentHi:#FFFFFF; --accentText:#FFFFFF;
+  --accentBd:#4A4F66; --accentBg:rgba(242,244,255,.07);
+  --good:#6F8FFF; --goodText:#A9BEFF; --goodBd:#28397A; --goodBg:rgba(111,143,255,.12);
+  --onAccent:#050507;
+  --track:#15171F; --trackSoft:#101218; --bar:#22252F;
+  --display:'Anton', 'Bricolage Grotesque', sans-serif; --displayWeight:400;
+  --brandFont:'Anton', 'Bricolage Grotesque', sans-serif; --brandWeight:400; --brandTrack:.05em;
+  --r:18px; --rSm:10px; --rChip:999px;
+  --grain:0; --vignette:rgba(0,0,0,.9); --vigStop:48%;
+  --cardGlow: inset 0 1px 0 rgba(170,190,255,.08), 0 30px 60px -30px #000;
+  --heat0:#0D0F15; --heat0bd:#1A1C27;
+  --heat1:rgba(111,143,255,.25); --heat2:rgba(111,143,255,.5);
+  --heat3:#9FB4FF; --heat4:#FFFFFF;
+  --dot:#1A1C27;
+  --cobraCabeca:#FFFFFF; --cobraCauda:#6F8FFF; --cobraOlho:#050507; --cobraRaio:99px;
+  --cobraBrilho:0 0 10px rgba(255,255,255,.6); --cobraMordida:#E1173F;
+  font-synthesis-weight: none;
+  color-scheme: dark;
+}
+
+/* ============================ ARANHA: acabamento ============================ */
+[data-theme='aranha'] body { background: rgb(var(--bg)); }
+[data-theme='aranha'] ::selection { background: #FFD23F; color: #141018; }
+[data-theme='aranha'] { scrollbar-color: #1446A0 transparent; }
+
+/* Texto direto sobre a retícula: halo de papel, que apaga os pontinhos atrás das letras. */
+[data-theme='aranha'] .sobre-fundo {
+  text-shadow: 0 0 2px #F4ECDD, 0 0 6px #F4ECDD, 0 0 14px rgba(244,236,221,.95);
+}
+[data-theme='aranha'] .sobre-fundo :is(button, a, input, select, svg) { text-shadow: none; }
+[data-theme='aranha'] .sobre-fundo.flex { flex-wrap: wrap; row-gap: 12px; }
+[data-theme='aranha'] .cabecalho-texto { min-width: 0; }
+
+/* Quadro de gibi: contorno de nanquim, sombra dura e uma mancha de retícula vermelha no
+ * canto de cima (a camada de papel por cima a apaga no resto do cartão). */
+[data-theme='aranha'] .card {
+  background-color: #FFFBF3;
+  background-image:
+    linear-gradient(225deg, rgba(255,251,243,0) 0 10%, #FFFBF3 30%),
+    radial-gradient(circle, rgba(212,25,44,.30) 1.3px, transparent 1.7px);
+  background-size: 100% 100%, 7px 7px;
+  border: 2px solid #141018;
+  border-radius: 6px;
+}
+[data-theme='aranha'] .card-hover:hover { box-shadow: 8px 8px 0 #141018; transform: translate(-2px, -2px); }
+
+/* Botão: placa vermelha com letreiro branco de sombra preta; afunda ao clicar. */
+[data-theme='aranha'] :is(.btn-primary, .botao-primario) {
+  border-radius: 6px;
+  border: 2.5px solid #141018;
+  font-family: 'Bangers', sans-serif;
+  font-weight: 400;
+  font-size: 1.3rem;
+  letter-spacing: .07em;
+  color: #FFFFFF;
+  background: #D4192C;
+  text-shadow: 2px 2px 0 #141018;
+  box-shadow: 4px 4px 0 #141018;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+[data-theme='aranha'] :is(.btn-primary, .botao-primario):hover:not(:disabled) {
+  background: #E8283B;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #141018;
+}
+[data-theme='aranha'] :is(.btn-primary, .botao-primario):active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 #141018;
+}
+[data-theme='aranha'] .btn-secondary {
+  border-radius: 6px;
+  border: 2.5px solid #141018;
+  font-family: 'Bangers', sans-serif;
+  font-weight: 400;
+  font-size: 1.2rem;
+  letter-spacing: .07em;
+  color: #1446A0;
+  background: #FFFBF3;
+  box-shadow: 4px 4px 0 #1446A0;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+[data-theme='aranha'] .btn-secondary:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #1446A0; }
+[data-theme='aranha'] .btn-secondary:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 #1446A0; }
+
+[data-theme='aranha'] .filter-select {
+  background-color: #FFFBF3;
+  border: 2px solid #141018;
+  border-radius: 6px;
+}
+
+/* Ofensiva e selos: caixa de legenda amarela do gibi. */
+[data-theme='aranha'] :is(.streak-chip, .selo-meta) {
+  border: 2px solid #141018;
+  border-radius: 4px;
+  background: #FFD23F;
+  color: #141018;
+  box-shadow: 3px 3px 0 #141018;
+}
+[data-theme='aranha'] .streak-chip--ativa { animation: none; }
+[data-theme='aranha'] .streak-chip--ativa .streak-chip__chama { color: #D4192C; }
+[data-theme='aranha'] .streak-chip--zerada { background: #FFFBF3; color: rgb(var(--muted)); }
+[data-theme='aranha'] .streak-chip--botao:hover:not(:disabled) { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #141018; }
+
+/* Barra de topo: o vermelho da máscara com a trama da teia do uniforme. Os tokens são
+ * refeitos aqui dentro, então o que está na barra se ajusta sem classe nova. */
+[data-theme='aranha'] .topo-app {
+  background-color: #C8162A;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='22'%3E%3Cpath d='M0 0V22M22 0V22M0 11Q11 15 22 11Q33 15 44 11' fill='none' stroke='%23000' stroke-opacity='.28' stroke-width='1.1'/%3E%3C/svg%3E");
+  border-bottom: 3px solid #141018;
+  --muted: 255 226 226;
+  --faint: 255 200 200;
+  --ink: 255 255 255;
+  --brand-500: 255 210 63;
+  --brand-100: 20 16 24;
+  --brand-700: 255 210 63;
+  --accent: #141018; --accentHi: #3A3040; --onAccent: #FFFFFF;
+  --text: #FFFFFF;
+}
+
+/* Barra lateral (e barra de baixo no celular): o azul das laterais do uniforme, com uma
+ * teia branca bem fraca no pé. Mesma técnica: tokens refeitos para o azul. */
+[data-theme='aranha'] .nav-app {
+  background-color: #123E91;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cpath d='M0 240L340 240M0 240L328 152M0 240L294 70M0 240L240 -0M0 240L170 -54M0 240L88 -88M0 240L0 -100M34 240Q30 236 33 231Q28 228 29 223Q24 221 24 216Q19 216 17 211Q12 212 9 207Q4 210 0 206M62 240Q55 233 60 224Q52 219 54 209Q44 206 44 196Q34 196 31 186Q21 188 16 180Q7 185 0 178M96 240Q86 229 93 215Q80 207 83 192Q69 187 68 172Q53 171 48 157Q33 160 25 147Q11 154 0 144M136 240Q121 224 131 205Q113 193 118 172Q97 165 96 144Q75 143 68 122Q47 127 35 109Q16 119 0 104M182 240Q162 219 176 193Q151 177 158 149Q130 140 129 111Q100 110 91 82Q63 89 47 64Q21 78 0 58M234 240Q209 213 226 179Q195 159 203 123Q167 112 165 75Q128 73 117 37Q81 45 61 14Q27 31 0 6' fill='none' stroke='white' stroke-opacity='.16' stroke-width='1.2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  border-color: #141018;
+  --muted: 210 221 245;
+  --faint: 175 195 238;
+  --ink: 255 255 255;
+  --hair: 60 102 189;
+  --surface: 16 52 125;
+  --surface-2: 24 66 150;
+  --brand-500: 255 210 63;
+  --brand-100: 28 72 160;
+  --brand-700: 255 210 63;
+  --text: #FFFFFF;
+  --surface2: #184296;
+  --accent: #FFD23F; --accentHi: #FFE380; --onAccent: #141018;
+  --accentBg: rgba(255,210,63,.10); --accentBd: rgba(255,210,63,.35); --accentText: #FFD23F;
+}
+@media (min-width: 1024px) {
+  [data-theme='aranha'] .nav-app { border-right-width: 3px; }
+}
+
+[data-theme='aranha'] .legenda {
+  font-family: 'Bangers', sans-serif;
+  font-weight: 400;
+  letter-spacing: .1em;
+  color: #1446A0;
+}
+
+[data-theme='aranha'] .toggle { background: #EADFCB; box-shadow: inset 0 0 0 2px #141018; }
+[data-theme='aranha'] .toggle-circle { background: #FFFBF3; box-shadow: 0 0 0 2px #141018; }
+[data-theme='aranha'] .toggle.active { background: #D4192C; }
+[data-theme='aranha'] .meta-origem-oficial { border-color: #1446A0; color: #1446A0; }
+
+/* ---------- Fundo do Aranha ---------- */
+.fundo-aranha { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; background: #F4ECDD; }
+.fundo-aranha__canvas { position: absolute; inset: 0; }
+.fundo-aranha__canvas canvas { animation: topoIn 1.1s ease both; }
+/* Véu de papel no miolo (onde ficam os cartões): a retícula vira moldura, não ruído. */
+.fundo-aranha__veu {
+  position: absolute; inset: 0;
+  background: radial-gradient(64% 60% at 56% 46%, rgba(244,236,221,.82) 0%, rgba(244,236,221,.55) 48%, rgba(244,236,221,0) 78%);
+}
+.fundo-aranha__vinheta {
+  position: absolute; inset: 0;
+  background: radial-gradient(135% 105% at 50% 45%, transparent 62%, rgba(20,16,24,.16) 100%);
+}
+/* A aranhinha desce da teia pelo fio e fica balançando. */
+.fundo-aranha__fio {
+  position: absolute; top: 0; right: max(18px, 2.2vw);
+  width: 1.5px; height: 30vh;
+  background: linear-gradient(180deg, rgba(20,16,24,.25), #141018);
+  transform-origin: 50% 0;
+  animation: aranhaDesce 3.2s cubic-bezier(.3,1.25,.5,1) .6s both, aranhaBalanco 5.5s ease-in-out 3.8s infinite alternate;
+}
+.fundo-aranha__bicho {
+  position: absolute; left: 50%; bottom: -24px;
+  transform: translateX(-50%);
+  filter: drop-shadow(2px 2px 0 rgba(20,16,24,.25));
+  animation: aranhaPernas 1.8s ease-in-out infinite alternate;
+}
+@keyframes aranhaDesce { from { height: 0; } to { height: 30vh; } }
+@keyframes aranhaBalanco { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
+@keyframes aranhaPernas { from { transform: translateX(-50%) rotate(-6deg); } to { transform: translateX(-50%) rotate(6deg); } }
+.fundo-aranha--parado :is(.fundo-aranha__fio, .fundo-aranha__bicho) { animation-play-state: paused; }
+@media (max-width: 1023px) {
+  .fundo-aranha__fio { right: 10px; height: 16vh; }
+  @keyframes aranhaDesce { from { height: 0; } to { height: 16vh; } }
+}
+
+/* ---------- Título do Aranha: impresso fora de registro ----------
+ * Tinta preta com o vermelho e o azul escapando para os lados; a cada ~7 s, o "salto de
+ * dimensão" do Aranhaverso: fatias da palavra pulam em vermelho e azul por um instante. */
+.titulo-gibi {
+  position: relative;
+  font-family: 'Bangers', sans-serif;
+  font-weight: 400;
+  letter-spacing: .035em;
+  line-height: 1;
+  color: #141018;
+  text-shadow: -2px -1px 0 rgba(20,70,160,.85), 3px 2px 0 #D4192C, 0 0 12px rgba(244,236,221,.95);
+}
+.titulo-gibi::before,
+.titulo-gibi::after {
+  content: attr(data-texto);
+  position: absolute; inset: 0;
+  pointer-events: none;
+  text-shadow: none;
+  clip-path: inset(0 0 100% 0);
+}
+.titulo-gibi::before { color: #D4192C; animation: gibiSaltoA 7.2s steps(1, end) infinite; }
+.titulo-gibi::after  { color: #1446A0; animation: gibiSaltoB 7.2s steps(1, end) infinite; }
+@keyframes gibiSaltoA {
+  0%, 88%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
+  89% { clip-path: inset(0 0 58% 0);   transform: translate(-6px, 0) skewX(-8deg); }
+  91% { clip-path: inset(46% 0 20% 0); transform: translate(5px, 0) skewX(6deg); }
+  93% { clip-path: inset(70% 0 0 0);   transform: translate(-3px, 0); }
+  95% { clip-path: inset(0 0 100% 0); }
+}
+@keyframes gibiSaltoB {
+  0%, 89%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
+  90% { clip-path: inset(40% 0 30% 0); transform: translate(7px, 1px) skewX(10deg); }
+  92% { clip-path: inset(10% 0 64% 0); transform: translate(-5px, -1px); }
+  94% { clip-path: inset(100% 0 0 0); }
+}
+
+/* ============================ VENOM: acabamento ============================ */
+[data-theme='venom'] body { background: rgb(var(--bg)); }
+[data-theme='venom'] ::selection { background: #F2F4FF; color: #050507; }
+[data-theme='venom'] { scrollbar-color: #2A2D3D transparent; }
+
+[data-theme='venom'] .sobre-fundo {
+  text-shadow: 0 0 2px #030305, 0 0 8px rgba(3,3,5,.95), 0 0 20px rgba(3,3,5,.85);
+}
+[data-theme='venom'] .sobre-fundo :is(button, a, input, select, svg) { text-shadow: none; }
+[data-theme='venom'] .sobre-fundo.flex { flex-wrap: wrap; row-gap: 12px; }
+[data-theme='venom'] .cabecalho-texto { min-width: 0; }
+
+/* Cartão: preto brilhante com o reflexo frio no alto e cantos desiguais — nada no
+ * simbionte é régua. */
+[data-theme='venom'] .card {
+  background-color: rgba(9, 10, 14, .9);
+  background-image: linear-gradient(172deg, rgba(160,180,255,.075), transparent 34%);
+  border-color: rgba(170, 185, 255, .10);
+  border-radius: 20px 28px 18px 30px / 28px 18px 30px 20px;
+}
+[data-theme='venom'] .card-hover:hover { border-color: rgba(255,255,255,.28); }
+
+/* Botão: o branco dos olhos. No hover a forma escorre (os cantos mudam devagar). */
+[data-theme='venom'] :is(.btn-primary, .botao-primario) {
+  border-radius: 18px 26px 16px 28px / 26px 16px 28px 18px;
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: #050507;
+  background: linear-gradient(180deg, #FFFFFF 0%, #E4E8F6 100%);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.9), 0 14px 40px -16px rgba(200,215,255,.6);
+}
+[data-theme='venom'] :is(.btn-primary, .botao-primario):hover:not(:disabled) {
+  animation: venomEscorre 1.6s ease-in-out infinite alternate;
+  box-shadow: 0 0 0 1px #fff, 0 18px 50px -14px rgba(200,215,255,.85);
+}
+@keyframes venomEscorre {
+  0%   { border-radius: 18px 26px 16px 28px / 26px 16px 28px 18px; }
+  50%  { border-radius: 28px 14px 26px 18px / 16px 28px 18px 26px; }
+  100% { border-radius: 14px 30px 20px 22px / 30px 20px 14px 28px; }
+}
+[data-theme='venom'] .btn-secondary {
+  border-radius: 18px 26px 16px 28px / 26px 16px 28px 18px;
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: #F2F4FF;
+  background: rgba(10, 11, 16, .8);
+  border: 1.5px solid rgba(242,244,255,.4);
+}
+[data-theme='venom'] .btn-secondary:hover { border-color: #fff; box-shadow: 0 0 26px -8px rgba(200,215,255,.6); }
+
+[data-theme='venom'] .filter-select {
+  background-color: rgba(14, 16, 22, .92);
+  border-color: rgba(170, 185, 255, .14);
+}
+
+/* Ofensiva: o carmim da língua, batendo como coração (tum-tum). */
+[data-theme='venom'] .streak-chip--ativa {
+  border-color: #E1173F;
+  background: rgba(225, 23, 63, .12);
+  color: #FF8DA4;
+  box-shadow: inset 0 0 14px -6px #E1173F, 0 0 18px -8px #E1173F;
+}
+[data-theme='venom'] .streak-chip--ativa .streak-chip__chama { color: #FF3358; }
+[data-theme='venom'] .streak-chip--grande.streak-chip--ativa { animation: venomCoracao 1.7s ease-out infinite; }
+@keyframes venomCoracao {
+  0%, 30%, 100% { box-shadow: inset 0 0 14px -6px #E1173F, 0 0 18px -8px #E1173F; }
+  6%  { box-shadow: inset 0 0 16px -4px #E1173F, 0 0 30px -4px #E1173F; }
+  12% { box-shadow: inset 0 0 14px -6px #E1173F, 0 0 18px -8px #E1173F; }
+  18% { box-shadow: inset 0 0 16px -5px #E1173F, 0 0 26px -5px #E1173F; }
+}
+
+/* Barra lateral: preto puro com a aranha branca do peito do Venom, enorme e quase
+ * apagada, no pé. */
+[data-theme='venom'] .nav-app {
+  background-color: #030305;
+  border-color: rgba(255,255,255,.06);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='260' height='260'%3E%3Cg fill='none' stroke='white' stroke-opacity='.035' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.6 10.8 7.4 7.6 6.6 2.8M13.4 10.8l3.2-3.2.8-4.8M10.3 12.3 6.2 10.6 2.8 8.2M13.7 12.3l4.1-1.7 3.4-2.4M10.3 14.2 6.1 15.8 3.4 19.4M13.7 14.2l4.2 1.6 2.7 3.6M10.9 15.9 8.3 18.9 7.3 22.4M13.1 15.9l2.6 3 1 3.5'/%3E%3C/g%3E%3Cellipse cx='12' cy='13.6' rx='2.15' ry='3.7' fill='white' fill-opacity='.035'/%3E%3Ccircle cx='12' cy='8.7' r='1.55' fill='white' fill-opacity='.035'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 50% 78%;
+}
+/* Barra de topo: preta, com a gosma pingando da borda de baixo sobre o conteúdo. */
+[data-theme='venom'] .topo-app { background-color: #030305; border-color: transparent; }
+[data-theme='venom'] .topo-app::after {
+  content: '';
+  position: absolute; left: 0; right: 0; top: 100%;
+  height: 16px;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='16'%3E%3Cpath d='M0 0H120V3C112 3 111 5 110 9C109 13 104 13 104 9C103 5 100 3 90 3C80 3 78 5 77 7C76 9 73 9 72 7C71 4 66 3 56 3C44 3 42 6 41 11C40 15.5 34 15.5 34 11C33.5 6 30 3 20 3C12 3 10 5 9 6C8 7.5 6 7.5 5 6C4 4 2 3 0 3Z' fill='%23030305' stroke='%236F8FFF' stroke-opacity='.4' stroke-width='.8'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  filter: drop-shadow(0 3px 3px rgba(0,0,0,.6));
+}
+
+[data-theme='venom'] .legenda {
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+  letter-spacing: .18em;
+  color: #9AA3C0;
+}
+
+[data-theme='venom'] .toggle { background: #15171F; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+[data-theme='venom'] .toggle-circle { background: #5A6078; }
+[data-theme='venom'] .toggle.active { background: #F2F4FF; box-shadow: 0 0 16px -4px rgba(255,255,255,.7); }
+[data-theme='venom'] .toggle.active .toggle-circle { background: #050507; }
+
+/* ---------- Fundo do Venom ---------- */
+.fundo-venom { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; background: #030305; }
+.fundo-venom__canvas { position: absolute; inset: 0; }
+.fundo-venom__canvas canvas { animation: topoIn 1.6s ease both; }
+.fundo-venom__vinheta {
+  position: absolute; inset: 0;
+  background: radial-gradient(120% 95% at 50% 45%, transparent 60%, rgba(0,0,0,.5) 100%);
+}
+/* Os olhos que abrem no escuro, piscam e somem de novo — a cada 19 s, bem apagados. */
+.fundo-venom__olhos {
+  position: absolute; right: 6vw; bottom: 9vh;
+  width: clamp(120px, 16vw, 220px);
+  fill: #F2F4FF;
+  opacity: 0;
+  transform-origin: 50% 60%;
+  filter: drop-shadow(0 0 18px rgba(170,190,255,.45));
+  animation: venomOlhos 19s ease-in-out 4s infinite;
+}
+@keyframes venomOlhos {
+  0%, 62%   { opacity: 0; transform: scale(1, .05); }
+  66%       { opacity: .2; transform: scale(1, 1); }
+  74%       { opacity: .2; transform: scale(1, 1); }
+  75.5%     { opacity: .2; transform: scale(1, .06); }
+  77%       { opacity: .2; transform: scale(1, 1); }
+  86%       { opacity: .16; transform: scale(1.04, .8); }
+  92%, 100% { opacity: 0; transform: scale(1.04, .05); }
+}
+.fundo-venom--parado .fundo-venom__olhos { animation: none; opacity: 0; }
+
+/* ---------- Título do Venom: letreiro que pinga ----------
+ * O texto é nítido; embaixo dele um filete e gotas passam pelo filtro #gosma-venom
+ * (components/Atmosfera.tsx), que funde as gotas no filete até elas se soltarem. */
+.titulo-venom {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  padding-bottom: .2em;
+  line-height: 1;
+}
+.titulo-venom__texto {
+  position: relative; z-index: 1;
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: #F4F6FF;
+  text-shadow: 0 1px 0 #9AA6C8, 0 2px 10px rgba(0,0,0,.95), 0 0 26px rgba(170,190,255,.22);
+}
+.titulo-venom__gosma {
+  position: absolute; left: 0; right: 0; top: calc(100% - .2em);
+  height: 1.2em;
+  filter: url(#gosma-venom);
+  pointer-events: none;
+}
+.titulo-venom__filete {
+  position: absolute; top: 0; left: 1%; right: 5%;
+  height: 5px; border-radius: 3px;
+  background: #EEF1FA;
+}
+.titulo-venom__gota {
+  position: absolute; top: -1px;
+  border-radius: 50%;
+  background: #EEF1FA;
+  animation-name: gotaVenom;
+  animation-timing-function: cubic-bezier(.55, 0, .8, .4);
+  animation-iteration-count: infinite;
+}
+@keyframes gotaVenom {
+  0%   { transform: translate(-50%, 0) scale(.5, .6); opacity: 1; }
+  40%  { transform: translate(-50%, 3px) scale(.8, 1.5); opacity: 1; }
+  62%  { transform: translate(-50%, 9px) scale(.85, 1.9); opacity: 1; }
+  85%  { transform: translate(-50%, 30px) scale(.7, 1.2); opacity: .9; }
+  100% { transform: translate(-50%, 44px) scale(.5, 1); opacity: 0; }
+}
+
+/* ============================ ENTRADA DO VENOM ============================
+ * components/transicoes/TransicaoVenom.tsx. Os tempos vêm de --tv-cobre (a gosma fechou
+ * a tela) e --tv-revela (a gosma começa a se rasgar). */
+.tv { position: fixed; inset: 0; z-index: 9999; cursor: pointer; overflow: hidden; }
+.tv__gosma, .tv__cortina { position: absolute; inset: 0; }
+.tv__cortina { background: #030305; clip-path: circle(0 at 50% 50%); }
+.tv__palco {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  pointer-events: none;
+  animation:
+    tvPalcoEntra 1ms var(--tv-cobre) both,
+    tvPalcoSai 520ms cubic-bezier(.6, 0, .9, .4) calc(var(--tv-revela) - 180ms) forwards;
+}
+@keyframes tvPalcoEntra { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tvPalcoSai { to { opacity: 0; transform: scale(1.35); filter: blur(6px); } }
+
+.tv__rosto { position: relative; width: min(80vw, 620px); }
+.tv__olhos {
+  display: block; width: 100%;
+  fill: #F4F6FF;
+  stroke: #000; stroke-width: .25;
+  transform-origin: 50% 70%;
+  filter: drop-shadow(0 0 34px rgba(170,190,255,.55));
+  animation:
+    tvOlhos 760ms cubic-bezier(.2, 1.3, .4, 1) var(--tv-cobre) both,
+    tvSemicerra 380ms ease-in-out calc(var(--tv-cobre) + 980ms) forwards;
+}
+@keyframes tvOlhos {
+  0%   { transform: scale(.35, .02); opacity: 0; }
+  30%  { transform: scale(1.02, .08); opacity: 1; }
+  100% { transform: scale(1, 1); opacity: 1; }
+}
+@keyframes tvSemicerra {
+  0%   { transform: scale(1, 1); }
+  45%  { transform: scale(1.04, .66) rotate(0deg); }
+  100% { transform: scale(1.03, .8); }
+}
+.tv__boca {
+  position: relative;
+  width: 64%; height: clamp(46px, 13vw, 118px);
+  margin: -3% auto 0;
+}
+.tv__garganta {
+  position: absolute; inset: 14% 3%;
+  border-radius: 50%;
+  background: radial-gradient(60% 70% at 50% 50%, #6B0819 0%, #2A0309 55%, #050507 100%);
+  transform: scaleY(0);
+  animation: tvAbre 520ms cubic-bezier(.2, 1.2, .4, 1) calc(var(--tv-cobre) + 320ms) forwards;
+}
+.tv__dentes {
+  position: absolute; left: 0; width: 100%; height: 52%;
+  fill: #F4F6FF;
+  opacity: 0;
+  filter: drop-shadow(0 0 10px rgba(170,190,255,.35));
+}
+.tv__dentes--cima { top: 0; animation: tvDentesCima 520ms cubic-bezier(.2, 1.2, .4, 1) calc(var(--tv-cobre) + 260ms) both; }
+.tv__dentes--baixo { bottom: 0; animation: tvDentesBaixo 520ms cubic-bezier(.2, 1.2, .4, 1) calc(var(--tv-cobre) + 260ms) both; }
+@keyframes tvAbre { to { transform: scaleY(1); } }
+@keyframes tvDentesCima { from { opacity: 1; transform: translateY(46%); } to { opacity: 1; transform: translateY(-4%); } }
+@keyframes tvDentesBaixo { from { opacity: 1; transform: translateY(-46%); } to { opacity: 1; transform: translateY(4%); } }
+
+.tv__letreiro {
+  margin-top: 2.5vh;
+  display: flex; flex-direction: column; align-items: center;
+  color: #F4F6FF;
+  line-height: .9;
+  animation: tvTremor 460ms linear calc(var(--tv-cobre) + 900ms);
+}
+.tv__nos {
+  font-family: 'Anton', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .55em;
+  padding-left: .55em;
+  font-size: clamp(14px, 2.4vw, 26px);
+  opacity: 0;
+  animation: tvSobe 420ms ease-out calc(var(--tv-cobre) + 460ms) both;
+}
+.tv__nome { display: flex; font-family: 'Rubik Wet Paint', 'Anton', sans-serif; font-size: clamp(66px, 16vw, 196px); }
+.tv__nome > span {
+  display: inline-block;
+  opacity: 0;
+  text-shadow: 0 0 40px rgba(170,190,255,.35), 0 6px 0 #000;
+  animation: tvLetra 520ms cubic-bezier(.2, 1.5, .35, 1) both;
+}
+@keyframes tvSobe { from { opacity: 0; transform: translateY(12px); } to { opacity: .9; transform: none; } }
+@keyframes tvLetra {
+  0%   { opacity: 0; transform: translateY(-70%) scale(1.9) rotate(-9deg); filter: blur(8px); }
+  60%  { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes tvTremor {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-7px, 3px); }
+  20% { transform: translate(6px, -4px); }
+  30% { transform: translate(-5px, -2px); }
+  40% { transform: translate(5px, 4px); }
+  55% { transform: translate(-3px, 1px); }
+  70% { transform: translate(2px, -2px); }
+  85% { transform: translate(-1px, 1px); }
+}
+/* O impacto das letras: um pulso carmim que sai do centro. */
+.tv__lampejo {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at 50% 55%, rgba(225,23,63,.42), rgba(225,23,63,0) 58%);
+  opacity: 0;
+  animation: tvLampejo 700ms ease-out calc(var(--tv-cobre) + 900ms);
+}
+@keyframes tvLampejo { 0% { opacity: 0; } 18% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ============================ ENTRADA DO ARANHA ============================
+ * components/transicoes/TransicaoAranha.tsx. */
+.ta { position: fixed; inset: 0; z-index: 9999; cursor: pointer; overflow: hidden; }
+.ta__svg { display: block; animation: taVira 560ms cubic-bezier(.7, 0, .3, 1) 900ms forwards; }
+/* A página vira: um corte diagonal varre o quadro da esquerda para a direita. */
+@keyframes taVira {
+  from { clip-path: polygon(0% 0, 140% 0, 140% 100%, -40% 100%); }
+  to   { clip-path: polygon(140% 0, 140% 0, 140% 100%, 100% 100%); }
+}
+.ta__fios { animation: taSome 220ms ease-in 700ms forwards; }
+.ta__fios path, .ta__teia path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: taFio 300ms cubic-bezier(.2, .8, .2, 1) forwards;
+}
+.ta__teia path { animation-duration: 360ms; }
+@keyframes taFio { to { stroke-dashoffset: 0; } }
+@keyframes taSome { to { opacity: 0; } }
+.ta__explosao {
+  transform-box: view-box;
+  transform: scale(0);
+  animation: taExplode 640ms cubic-bezier(.3, 1.25, .5, 1) 120ms forwards;
+}
+@keyframes taExplode { from { transform: scale(0) rotate(-12deg); } to { transform: scale(1) rotate(0); } }
+.ta__brilho { opacity: .28; }
+.ta__onomatopeia {
+  transform-box: view-box;
+  transform: scale(0);
+  animation: taThwip 480ms cubic-bezier(.2, 1.6, .4, 1) 330ms forwards;
+}
+@keyframes taThwip {
+  from { transform: scale(0) rotate(-26deg); }
+  to   { transform: scale(1) rotate(-7deg); }
+}
+.ta__thwip {
+  font-family: 'Bangers', sans-serif;
+  font-size: clamp(92px, 19vw, 270px);
+  letter-spacing: .03em;
+  fill: #FFD23F;
+  stroke: #141018;
+  stroke-width: 10px;
+  stroke-linejoin: round;
+  paint-order: stroke;
+}
+.ta__thwip--sombra { fill: #141018; }
+
+/* ============================ Comemoração da meta ============================ */
+[data-theme='aranha'] .festa-meta__selo { box-shadow: 0 0 0 3px #141018, 9px 9px 0 #141018; }
+[data-theme='aranha'] .festa-meta__faisca { border-radius: 50%; background: #D4192C; box-shadow: 2px 2px 0 #141018; }
+[data-theme='aranha'] .festa-meta__faisca:nth-child(3n) { background: #1446A0; }
+[data-theme='aranha'] .festa-meta__faisca:nth-child(3n+1) { background: #FFD23F; }
+[data-theme='venom'] .festa-meta__selo { box-shadow: inset 0 0 0 1px rgba(255,255,255,.35), 0 0 80px -20px rgba(170,190,255,.6); }
+[data-theme='venom'] .festa-meta__faisca { background: #F2F4FF; border-radius: 50% 50% 50% 0; }
+[data-theme='venom'] .festa-meta__faisca:nth-child(4n) { background: #E1173F; }
+
+@media (prefers-reduced-motion: reduce) {
+  .titulo-gibi::before, .titulo-gibi::after { animation: none; }
+  .titulo-venom__gota { animation: none; opacity: 0; }
+  .fundo-aranha__fio, .fundo-aranha__bicho { animation: none; }
+  .fundo-venom__olhos { animation: none; opacity: 0; }
+  [data-theme='venom'] .streak-chip--grande.streak-chip--ativa { animation: none; }
+  [data-theme='venom'] :is(.btn-primary, .botao-primario):hover:not(:disabled) { animation: none; }
+}
