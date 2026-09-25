@@ -340,3 +340,11 @@ export function nivelDoXp(xp: number): { nivel: number; atual: number; proximo: 
   const prox = 40 * nivel ** 2;
   return { nivel, atual: xp - base, proximo: prox - base };
 }
+
+// Evolução do parceiro: forma 2 no nível 4 e forma 3 no nível 8. Uma partida boa rende
+// 200–300 XP, então a 2ª forma chega em ~2 partidas e a 3ª em ~8: meta de semanas, não
+// de minutos.
+export const NIVEIS_EVOLUCAO = [1, 4, 8] as const;
+export function estagioDoNivel(nivel: number): 1 | 2 | 3 {
+  return nivel >= NIVEIS_EVOLUCAO[2] ? 3 : nivel >= NIVEIS_EVOLUCAO[1] ? 2 : 1;
+}

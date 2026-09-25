@@ -149,3 +149,13 @@ describe("andares e itens", () => {
     expect(r.certeza.total).toBe(2);
   });
 });
+
+import { estagioDoNivel, nivelDoXp } from "../lib/batalha";
+describe("evolução", () => {
+  it("evolui no nível 4 e no 8", () => {
+    expect(estagioDoNivel(1)).toBe(1);
+    expect(estagioDoNivel(4)).toBe(2);
+    expect(estagioDoNivel(8)).toBe(3);
+    expect(nivelDoXp(360).nivel).toBe(4);
+  });
+});

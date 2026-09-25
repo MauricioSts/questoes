@@ -5,8 +5,9 @@
 //
 // A partida em andamento fica no localStorage: fechar a aba e voltar retoma do mesmo ponto.
 // O perfil (XP do parceiro, vitórias, capturas) também, por aparelho.
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { createPortal } from "react-dom";
 import {
   BookOpen,
   Flag,
@@ -35,6 +36,8 @@ import {
   fugir,
   montarPartida,
   nivelDoXp,
+  estagioDoNivel,
+  NIVEIS_EVOLUCAO,
   registrarLicao,
   responder,
   resumir,
@@ -53,6 +56,8 @@ import { QuestaoView } from "../components/QuestaoView";
 import { PageHeader } from "../components/PageHeader";
 import { Carregando } from "../components/Spinner";
 import { Arena, type AnimInimigo, type AnimParceiro } from "../components/batalha/Arena";
+import { duracao, type Efeito, type NovoEfeito } from "../components/batalha/Efeitos";
+import { Evolucao } from "../components/batalha/Evolucao";
 import { PARCEIROS, SpriteParceiro, tipoDaMateria } from "../components/batalha/sprites";
 
 // ---------- persistência ----------
@@ -67,6 +72,7 @@ interface Perfil {
   melhorAndar: number;
   capturadas: number[];
   ultimaContada?: string; // iniciadaEm da última partida já somada (evita somar duas vezes)
+  estagioVisto?: number; // última evolução já mostrada (a sequência toca uma vez por forma)
 }
 const PERFIL_ZERO: Perfil = { xp: 0, partidas: 0, vitorias: 0, melhorAndar: 0, capturadas: [] };
 
@@ -192,6 +198,11 @@ export function Batalha() {
   const [animI, setAnimI] = useState<AnimInimigo>("entra");
   const [hpVis, setHpVis] = useState(partida?.hp ?? 100);
   const [hpInimigo, setHpInimigo] = useState(100);
+  const [efeitos, setEfeitos] = useState<Efeito[]>([]);
+  const [tremor, setTremor] = useState(0);
+  const [flash, setFlash] = useState<{ n: number; cor: string } | null>(null);
+  const [evolucao, setEvolucao] = useState<{ de: number; para: number } | null>(null);
+  const idEfeito = useRef(0);
   const [mensagem, setMensagem] = useState(() => (partida?.oferta ? "Andar vencido! Escolha uma recompensa." : ""));
   const [desfecho, setDesfecho] = useState<Desfecho | null>(null);
   const [licao, setLicao] = useState("");
@@ -205,6 +216,42 @@ export function Batalha() {
     vivo.current = true;
     return () => void (vivo.current = false);
   }, []);
+
+  // XP do parceiro = perfil + o que a partida em curso já rendeu (até ser somada no fim).
+  const xpTotal = perfil.xp + (partida && perfil.ultimaContada !== partida.iniciadaEm ? partida.xp : 0);
+  const nivel = nivelDoXp(xpTotal);
+  const estagio = estagioDoNivel(nivel.nivel);
+  // Na arena a forma nova só aparece depois da sequência de evolução.
+  const estagioExibido = evolucao ? evolucao.de : Math.min(estagio, perfil.estagioVisto ?? 1);
+  const forma = parceiro.formas[estagioExibido - 1];
+
+  function efeito(e: NovoEfeito) {
+    const id = ++idEfeito.current;
+    setEfeitos((xs) => [...xs, { ...e, id } as Efeito]);
+    setTimeout(() => vivo.current && setEfeitos((xs) => xs.filter((x) => x.id !== id)), duracao(e) + 80);
+  }
+  const tremer = () => setTremor((n) => n + 1);
+  const piscar = (cor: string) => setFlash((f) => ({ n: (f?.n ?? 0) + 1, cor }));
+
+  // Subiu de nível no meio da luta: faixa na arena. Mudou de forma: sequência de evolução,
+  // mas só num momento calmo (resultado, recompensa, fim), nunca no meio de um golpe.
+  const nivelAnterior = useRef(nivel.nivel);
+  useEffect(() => {
+    if (nivel.nivel > nivelAnterior.current && fase !== "lobby") {
+      efeito({ k: "banner", texto: "Subiu de nível!", sub: `${forma.nome} chegou ao Nv.${nivel.nivel}`, cor: "#3D7BD9" });
+    }
+    nivelAnterior.current = nivel.nivel;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nivel.nivel]);
+  useEffect(() => {
+    const visto = perfil.estagioVisto ?? 1;
+    if (estagio <= visto || evolucao) return;
+    if (fase === "golpe" || fase === "entrada" || fase === "pergunta") return;
+    setEvolucao({ de: visto, para: estagio });
+    const novo = { ...perfil, estagioVisto: estagio };
+    setPerfil(novo);
+    gravar(CHAVE_PERFIL, novo);
+  }, [estagio, fase, perfil, evolucao]);
 
   const setPartida = useCallback((p: Partida | null) => {
     setPartidaEstado(p);
@@ -260,6 +307,7 @@ export function Batalha() {
     setPartida(p);
     setHpVis(p.hp);
     setFase("entrada");
+    efeito({ k: "banner", texto: "Andar 1", sub: `${p.totalEncontros - 1} lutas + chefe`, cor: "#141018" });
   }
 
   // ----- entrada de cada questão -----
@@ -275,7 +323,12 @@ export function Batalha() {
     setConfirmarFuga(false);
     setHpInimigo(100);
     setAnimP("parado");
-    setAnimI("entra");
+    const chefe = encontro.tipo === "chefe";
+    setAnimI(chefe ? "entra-chefe" : "entra");
+    if (chefe && !encontro.retorno) {
+      efeito({ k: "banner", texto: "Chefe!", sub: "a questão que mais te derrubou", cor: "#B3101F" });
+      setTimeout(() => vivo.current && tremer(), 700);
+    }
     setMensagem(
       encontro.tipo === "chefe"
         ? encontro.retorno
@@ -287,10 +340,10 @@ export function Batalha() {
     );
     const t = setTimeout(() => {
       setAnimI("parado");
-      setMensagem(`O que ${parceiro.nome} vai fazer?`);
+      setMensagem(`O que ${forma.nome} vai fazer?`);
       setFase("pergunta");
       inicioQuestao.current = Date.now();
-    }, 1100);
+    }, chefe ? 1600 : 1100);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fase, encontro?.questaoId, encontro?.retorno]);
@@ -328,54 +381,80 @@ export function Batalha() {
     const nomeGolpe = confianca === "certeza" ? parceiro.golpeCerteza : parceiro.golpeDuvida;
     const cura = eventos.filter((e): e is Extract<Evento, { tipo: "cura" }> => e.tipo === "cura");
 
+    const forte = confianca === "certeza";
+    const pausa = async (ms: number) => {
+      await esperar(ms);
+      return vivo.current;
+    };
+
     setAnimP("ataca");
+    setMensagem(`${forma.nome} usou ${nomeGolpe}!`);
+    efeito({ k: "golpe", tema, forte, acerta: acertou });
     if (acertou) {
       const ev = eventos.find((e) => e.tipo === "acerto") as Extract<Evento, { tipo: "acerto" }>;
-      setMensagem(`${parceiro.nome} usou ${nomeGolpe}!`);
-      await esperar(450);
-      if (!vivo.current) return;
+      if (!(await pausa(420))) return;
       setAnimP("parado");
       setAnimI("dano");
       setHpInimigo(0);
-      setMensagem(ev.critico ? "Foi super efetivo! Golpe crítico!" : "Acertou!");
-      await esperar(900);
-      if (!vivo.current) return;
-      setAnimI("desmaia");
-      setMensagem(
-        ev.captura
-          ? `Questão CAPTURADA! Você venceu uma que já tinha te derrubado. +${ev.xp} XP`
-          : `A questão desmaiou! +${ev.xp} XP`
-      );
+      piscar(forte ? "#FFE9A8" : "#FFFFFF");
+      if (forte) tremer();
+      efeito({ k: "numero", alvo: "e", texto: forte ? "CRÍTICO!" : "Acertou!", cor: forte ? "#FFC857" : "#FFFFFF", grande: forte });
+      setMensagem(forte ? "Foi super efetivo! Golpe crítico!" : "Acertou!");
+      if (!(await pausa(900))) return;
+      setAnimP("comemora");
+      if (ev.captura && tipo) {
+        setAnimI("capturado");
+        efeito({ k: "captura", cor: tipo.cor });
+        setMensagem("Vai... vai...");
+        if (!(await pausa(1900))) return;
+        setMensagem(`Questão CAPTURADA! Você venceu uma que já tinha te derrubado. +${ev.xp} XP`);
+      } else {
+        setAnimI("desmaia");
+        setMensagem(`A questão desmaiou! +${ev.xp} XP`);
+      }
+      efeito({ k: "numero", alvo: "p", texto: `+${ev.xp} XP`, cor: "#7FB2FF" });
       if (cura.length) {
-        await esperar(900);
-        if (!vivo.current) return;
+        if (!(await pausa(900))) return;
+        setAnimP("parado");
         setHpVis(nova.hp);
+        efeito({ k: "cura" });
+        efeito({ k: "numero", alvo: "p", texto: `+${cura.reduce((t, c) => t + c.valor, 0)} HP`, cor: "#3BC46B" });
         setMensagem(cura.map((c) => (c.motivo === "combo" ? `Combo de ${nova.combo}! +${c.valor} HP` : `Lente de Foco: +${c.valor} HP`)).join(" · "));
       }
     } else {
       const ev = eventos.find((e) => e.tipo === "erro") as Extract<Evento, { tipo: "erro" }>;
-      setMensagem(`${parceiro.nome} usou ${nomeGolpe}... e errou!`);
-      await esperar(450);
-      if (!vivo.current) return;
+      if (!(await pausa(450))) return;
       setAnimP("parado");
+      setMensagem("Errou o alvo!");
+      if (!(await pausa(250))) return;
       setAnimI("ataca");
-      await esperar(350);
-      if (!vivo.current) return;
+      if (tipo) efeito({ k: "contra", cor: tipo.cor, glifo: tipo.glifo, forte });
+      if (!(await pausa(430))) return;
       setAnimP("dano");
       setHpVis(nova.hp);
+      tremer();
+      if (!ev.bloqueado) piscar("#E8474C");
+      efeito(
+        ev.bloqueado
+          ? { k: "numero", alvo: "p", texto: "BLOQUEOU!", cor: "#7FB2FF" }
+          : { k: "numero", alvo: "p", texto: `−${ev.dano}`, cor: "#FF5A5F", grande: forte }
+      );
       setMensagem(
         ev.bloqueado
           ? "A Baga Escudo segurou o contra-ataque!"
-          : `A questão contra-atacou${confianca === "certeza" ? " com tudo" : ""}! −${ev.dano} HP`
+          : `A questão contra-atacou${forte ? " com tudo" : ""}! −${ev.dano} HP`
       );
-      await esperar(1000);
-      if (!vivo.current) return;
-      setAnimP("parado");
-      if (nova.fim === "derrota") setMensagem(`${parceiro.nome} desmaiou...`);
-      else if (ev.volta) {
-        setAnimI("foge");
-        setMensagem("A questão fugiu... mas vai voltar para a revanche.");
-      } else setMensagem("Ela escapou. Amanhã ela volta na revisão espaçada.");
+      if (!(await pausa(1000))) return;
+      if (nova.fim === "derrota") {
+        setAnimP("desmaia");
+        setMensagem(`${forma.nome} desmaiou...`);
+      } else {
+        setAnimP("parado");
+        if (ev.volta) {
+          setAnimI("foge");
+          setMensagem("A questão fugiu... mas vai voltar para a revanche.");
+        } else setMensagem("Ela escapou. Amanhã ela volta na revisão espaçada.");
+      }
     }
     await esperar(700);
     if (!vivo.current) return;
@@ -391,8 +470,10 @@ export function Batalha() {
     }
     const p = avancar(partida);
     setPartida(p);
+    setAnimP("parado");
     if (p.oferta) {
       setMensagem(`Andar ${p.andar - 1} vencido! Escolha uma recompensa.`);
+      efeito({ k: "banner", texto: `Andar ${p.andar - 1} vencido!`, sub: "escolha uma recompensa", cor: "#1C7C4A" });
       setFase("recompensa");
     } else if (p.fim) setFase("fim");
     else setFase("entrada");
@@ -403,8 +484,16 @@ export function Batalha() {
     if (!partida) return;
     const p = escolherItem(partida, item);
     setPartida(p);
+    if (p.hp > partida.hp) {
+      efeito({ k: "cura" });
+      efeito({ k: "numero", alvo: "p", texto: `+${p.hp - partida.hp} HP`, cor: "#3BC46B" });
+    }
     setHpVis(p.hp);
     setFase(p.fim ? "fim" : "entrada");
+    if (!p.fim) {
+      const soChefe = p.atual?.tipo === "chefe";
+      if (!soChefe) efeito({ k: "banner", texto: `Andar ${p.andar}`, cor: "#141018" });
+    }
   }
 
   function beberPocao() {
@@ -413,6 +502,8 @@ export function Batalha() {
     if (!curou) return;
     setPartida(p);
     setHpVis(p.hp);
+    efeito({ k: "cura" });
+    efeito({ k: "numero", alvo: "p", texto: `+${curou} HP`, cor: "#3BC46B" });
     setMensagem(`Você usou uma Poção! +${curou} HP`);
   }
 
@@ -422,7 +513,11 @@ export function Batalha() {
     if (p === partida) return;
     setPartida(p);
     setHpVis(p.hp);
-    setMensagem(curou ? `Lição anotada! ${parceiro.nome} recuperou ${curou} HP.` : "Lição anotada!");
+    if (curou) {
+      efeito({ k: "cura" });
+      efeito({ k: "numero", alvo: "p", texto: `+${curou} HP`, cor: "#3BC46B" });
+    }
+    setMensagem(curou ? `Lição anotada! ${forma.nome} recuperou ${curou} HP.` : "Lição anotada!");
   }
 
   function desistir() {
@@ -439,10 +534,14 @@ export function Batalha() {
 
   // ---------- telas ----------
 
-  const nivel = nivelDoXp(perfil.xp + (partida && fase !== "fim" ? partida.xp : 0));
+  const telaEvolucao = evolucao && (
+    <Evolucao tema={tema} de={evolucao.de} para={evolucao.para} onFim={() => setEvolucao(null)} />
+  );
 
   if (fase === "lobby") {
     return (
+      <>
+      {telaEvolucao}
       <Lobby
         tema={tema}
         perfil={perfil}
@@ -452,13 +551,19 @@ export function Batalha() {
         onTentar={carregarLobby}
         onComecar={comecar}
       />
+      </>
     );
   }
 
   if (!partida) return <Carregando />;
 
   if (fase === "fim") {
-    return <Fim partida={partida} perfil={perfil} activeId={activeId ?? null} onNova={novaPartida} />;
+    return (
+      <>
+        {telaEvolucao}
+        <Fim partida={partida} perfil={perfil} activeId={activeId ?? null} onNova={novaPartida} />
+      </>
+    );
   }
 
   const hist1 = questao && hist?.get(questao.id);
@@ -475,12 +580,16 @@ export function Batalha() {
 
   return (
     <div className="mx-auto max-w-[1100px] pb-28 pt-2 lg:pb-10">
+      {telaEvolucao}
       <div className="grid items-start gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
         {/* Palco + estado da partida */}
         <div ref={arenaRef} className="scroll-mt-20 space-y-3 lg:sticky lg:top-20">
           <Arena
             tema={tema}
-            parceiro={{ nome: parceiro.nome, nivel: nivel.nivel, hp: hpVis, hpMax: partida.hpMax, xp: nivel.atual, xpProx: nivel.proximo }}
+            efeitos={efeitos}
+            tremor={tremor}
+            flash={flash}
+            parceiro={{ nome: forma.nome, nivel: nivel.nivel, estagio: estagioExibido, hp: hpVis, hpMax: partida.hpMax, xp: nivel.atual, xpProx: nivel.proximo }}
             inimigo={
               fase === "recompensa" || !questao || !tipo
                 ? null
@@ -528,7 +637,11 @@ export function Batalha() {
 
           {(fase === "entrada" || fase === "pergunta" || fase === "golpe" || fase === "resultado") && questao && (
             <>
-              <div className="card p-5 sm:p-6" style={fase === "entrada" ? { opacity: 0.35 } : undefined}>
+              <div
+                key={`${questao.id}-${encontro?.retorno ? "r" : "a"}`}
+                className="card bt-carta-questao p-5 sm:p-6"
+                style={fase === "entrada" ? { opacity: 0.35 } : undefined}
+              >
                 <QuestaoView
                   key={`${questao.id}-${encontro?.retorno ? "r" : "a"}`}
                   questao={questao}
@@ -541,7 +654,7 @@ export function Batalha() {
 
               {/* Golpes: a aposta de confiança */}
               {fase === "pergunta" && (
-                <div className="sticky bottom-[72px] z-10 space-y-2 rounded-2xl border border-hair bg-surface p-2 shadow-lg lg:bottom-4">
+                <div className={`bt-barra-golpes sticky bottom-[72px] z-10 space-y-2 rounded-2xl border border-hair bg-surface p-2 shadow-lg lg:bottom-4 ${selecionada ? "bt-barra-golpes--pronta" : ""}`}>
                   <div className="grid grid-cols-2 gap-2">
                     <button className="bt-golpe bt-golpe--forte" disabled={!selecionada} onClick={() => void golpe("certeza")}>
                       <span className="text-sm font-extrabold">{parceiro.golpeCerteza}</span>
@@ -580,7 +693,7 @@ export function Batalha() {
               )}
 
               {fase === "resultado" && desfecho && (
-                <div ref={resultadoRef} className="card scroll-mb-28 space-y-3 p-5">
+                <div ref={resultadoRef} className={`card bt-painel-resultado scroll-mb-28 space-y-3 p-5 ${desfecho.acertou ? "bt-painel-resultado--acerto" : "bt-painel-resultado--erro"}`}>
                   {desfecho.acertou ? (
                     <>
                       <p className="font-display text-lg font-bold text-brand-ink">
@@ -653,9 +766,9 @@ export function Batalha() {
 
 // ---------- HUD ----------
 
-function Chip({ children, title }: { children: ReactNode; title?: string }) {
+function Chip({ children, title, pulso }: { children: ReactNode; title?: string; pulso?: string | number }) {
   return (
-    <span title={title} className="inline-flex items-center gap-1 rounded-full border border-hair bg-surface px-2.5 py-1 text-xs font-semibold text-brand-ink">
+    <span key={pulso} title={title} className="bt-chip inline-flex items-center gap-1 rounded-full border border-hair bg-surface px-2.5 py-1 text-xs font-semibold text-brand-ink">
       {children}
     </span>
   );
@@ -665,12 +778,12 @@ function Hud({ partida, metaFeita, meta }: { partida: Partida; metaFeita?: numbe
   const feitas = partida.registros.length;
   return (
     <div className="flex flex-wrap gap-1.5">
-      <Chip title="Andar atual">Andar {partida.andar}</Chip>
-      <Chip title="Lutas vencidas / total de lutas">
+      <Chip title="Andar atual" pulso={partida.andar}>Andar {partida.andar}</Chip>
+      <Chip title="Lutas vencidas / total de lutas" pulso={partida.registros.filter((r) => r.acertou).length}>
         <Swords size={12} /> {partida.registros.filter((r) => r.acertou).length}/{partida.totalEncontros}
       </Chip>
       {partida.combo >= 2 && (
-        <Chip title="Acertos seguidos: a cada 3, cura HP">
+        <Chip title="Acertos seguidos: a cada 3, cura HP" pulso={partida.combo}>
           <Flame size={12} className="text-orange-500" /> Combo {partida.combo}
         </Chip>
       )}
@@ -688,11 +801,15 @@ function Hud({ partida, metaFeita, meta }: { partida: Partida; metaFeita?: numbe
         );
       })}
       {meta !== undefined && metaFeita !== undefined && (
-        <Chip title="Cada resposta da batalha conta na meta do dia e na ofensiva">
+        <Chip title="Cada resposta da batalha conta na meta do dia e na ofensiva" pulso={metaFeita}>
           <Trophy size={12} /> Meta {Math.min(metaFeita, meta)}/{meta}
         </Chip>
       )}
-      {feitas > 0 && <Chip title="XP desta partida">+{partida.xp} XP</Chip>}
+      {feitas > 0 && (
+        <Chip title="XP desta partida" pulso={partida.xp}>
+          +{partida.xp} XP
+        </Chip>
+      )}
     </div>
   );
 }
@@ -718,6 +835,7 @@ function Lobby({
 }) {
   const p = PARCEIROS[tema];
   const nv = nivelDoXp(perfil.xp);
+  const est = estagioDoNivel(nv.nivel);
   const revisoes = pendentes ? Math.min(pendentes.length, 12) : 0;
   const completa = pendentes ? Math.min(novas, Math.max(0, 11 - revisoes)) : 0;
   return (
@@ -730,11 +848,13 @@ function Lobby({
 
       <div className="grid gap-5 md:grid-cols-[260px_1fr]">
         <div className="card flex flex-col items-center p-5 text-center">
-          <div className="bt-parceiro--parado h-40 w-40">
-            <SpriteParceiro tema={tema} />
+          <div className="bt-vitrine">
+            <div className="bt-parceiro--parado h-40 w-40">
+              <SpriteParceiro tema={tema} estagio={est} />
+            </div>
           </div>
-          <p className="mt-2 font-display text-xl font-bold text-brand-ink">{p.nome}</p>
-          <p className="text-xs text-faint">{p.especie} · muda com o tema</p>
+          <p className="mt-2 font-display text-xl font-bold text-brand-ink">{p.formas[est - 1].nome}</p>
+          <p className="text-xs text-faint">{p.formas[est - 1].especie} · muda com o tema</p>
           <p className="mt-3 text-sm font-bold text-brand-ink">Nível {nv.nivel}</p>
           <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--track)" }}>
             <div className="h-full rounded-full" style={{ width: `${(nv.atual / nv.proximo) * 100}%`, background: "var(--accent)" }} />
@@ -742,6 +862,22 @@ function Lobby({
           <p className="mt-1 text-[11px] text-faint">
             {nv.atual}/{nv.proximo} XP
           </p>
+          {/* Linha evolutiva: formas ainda não alcançadas aparecem só em silhueta */}
+          <div className="mt-4 flex w-full items-end justify-center gap-1">
+            {p.formas.map((f, i) => {
+              const alcancada = est >= i + 1;
+              return (
+                <div key={f.nome} className="flex flex-1 flex-col items-center" title={alcancada ? f.nome : `Evolui no nível ${NIVEIS_EVOLUCAO[i]}`}>
+                  <div className="h-12 w-12" style={alcancada ? undefined : { filter: "brightness(0)", opacity: 0.28 }}>
+                    <SpriteParceiro tema={tema} estagio={i + 1} />
+                  </div>
+                  <span className="mt-0.5 text-[9px] font-bold uppercase tracking-wider text-faint">
+                    {alcancada ? f.nome : `Nv.${NIVEIS_EVOLUCAO[i]}`}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
           <div className="mt-4 grid w-full grid-cols-3 gap-2 text-center">
             <div>
               <p className="font-display text-lg font-bold text-brand-ink">{perfil.vitorias}</p>
@@ -862,10 +998,16 @@ function Fim({ partida, perfil, activeId, onNova }: { partida: Partida; perfil: 
     }
   }
 
+  const { tema } = useTheme();
+  const est = estagioDoNivel(nivelDoXp(perfil.xp).nivel);
   return (
     <div className="fadeup mx-auto max-w-[760px] space-y-4 pt-4 pb-24">
+      {partida.fim === "vitoria" && <Confete />}
       <div className="card p-6 text-center">
-        <Icone size={40} className="mx-auto text-brand-500" strokeWidth={1.6} />
+        <div className={`mx-auto h-28 w-28 ${partida.fim === "vitoria" ? "bt-parceiro--festa" : partida.fim === "derrota" ? "bt-parceiro--triste" : ""}`}>
+          <SpriteParceiro tema={tema} estagio={est} />
+        </div>
+        <Icone size={30} className="mx-auto mt-1 text-brand-500" strokeWidth={1.6} />
         <p className="mt-2 font-display text-3xl font-bold text-brand-ink">{titulo}</p>
         <p className="mt-1 text-muted">
           Andar {partida.andar} · {r.acertos}/{r.respondidas} acertos · +{partida.xp} XP
@@ -936,5 +1078,31 @@ function Fim({ partida, perfil, activeId, onNova }: { partida: Partida; perfil: 
         </Link>
       </div>
     </div>
+  );
+}
+
+// Confete da vitória: peças com trajetória e giro sorteados uma vez.
+function Confete() {
+  const pecas = useMemo(
+    () =>
+      Array.from({ length: 70 }, (_, i) => ({
+        left: Math.random() * 100,
+        dx: `${(Math.random() - 0.5) * 240}px`,
+        r: `${Math.random() * 1080 - 540}deg`,
+        atraso: Math.random() * 0.8,
+        cor: ["#FFC857", "#E8474C", "#3D7BD9", "#3BC46B", "#9B5DE5", "#FF2A6D"][i % 6],
+      })),
+    []
+  );
+  return createPortal(
+    <div className="bt-confete" aria-hidden>
+      {pecas.map((p, i) => (
+        <span
+          key={i}
+          style={{ left: `${p.left}%`, background: p.cor, animationDelay: `${p.atraso}s`, "--dx": p.dx, "--r": p.r } as CSSProperties}
+        />
+      ))}
+    </div>,
+    document.body
   );
 }
