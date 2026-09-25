@@ -14,6 +14,7 @@ import {
   Upload,
   LogOut,
   HelpCircle,
+  Swords,
 } from "lucide-react";
 import { useTheme, type Tema } from "../store/theme";
 import { useAuth } from "../store/auth";
@@ -51,7 +52,10 @@ const desktopExtra = [
   { to: "/erros", label: "Meus erros", icon: Target },
 ];
 
-const allSidebarItems = [...navItems, ...desktopExtra];
+// Batalha: no desktop logo abaixo da Revisão (é a mesma fila, jogada); no celular a barra
+// inferior já está cheia e a entrada fica no cartão da tela de Revisão.
+const itemBatalha = { to: "/batalha", label: "Batalha", icon: Swords };
+const allSidebarItems = [...navItems.slice(0, 3), itemBatalha, ...navItems.slice(3), ...desktopExtra];
 
 // Cabeçalho da sidebar: marca e concurso ativo num bloco só. Eram dois cartões soltos
 // empilhados — a marca solta em cima e o trocador com borda própria embaixo. Agora o

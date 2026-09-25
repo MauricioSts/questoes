@@ -8,6 +8,7 @@ import { AppLayout } from "./components/AppLayout";
 import { Login } from "./pages/Login";
 import { Home } from "./pages/Home";
 import { Estudar } from "./pages/Estudar";
+import { Batalha } from "./pages/Batalha";
 import { Flash } from "./pages/Flash";
 import { Topico } from "./pages/Topico";
 import { Simulado } from "./pages/Simulado";
@@ -59,6 +60,7 @@ export default function App() {
                   <Route path="/topico" element={<Topico />} />
                   <Route path="/simulado" element={<Simulado />} />
                   <Route path="/revisar" element={<Revisar />} />
+                  <Route path="/batalha" element={<Batalha />} />
                   <Route path="/caderno" element={<Caderno />} />
                   <Route path="/stats" element={<Stats />} />
                   <Route path="/ranking" element={<Ranking />} />

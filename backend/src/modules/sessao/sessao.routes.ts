@@ -11,7 +11,7 @@ export const sessaoRouter = Router();
 sessaoRouter.use(requireAuth);
 
 const putSchema = z.object({
-  contexto: z.enum(["ESTUDO", "FLASH", "SIMULADO", "TOPICO"]).default("ESTUDO"),
+  contexto: z.enum(["ESTUDO", "FLASH", "SIMULADO", "TOPICO", "BATALHA"]).default("ESTUDO"),
   questaoIds: z.array(z.number().int()).min(1),
   cursor: z.number().int().min(0).default(0),
 });

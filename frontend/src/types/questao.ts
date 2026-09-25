@@ -2,7 +2,7 @@
 export type Modulo = "I" | "II";
 export type Dificuldade = "facil" | "media" | "dificil";
 export type Alternativa = "A" | "B" | "C" | "D" | "E";
-export type Contexto = "ESTUDO" | "FLASH" | "SIMULADO" | "TOPICO";
+export type Contexto = "ESTUDO" | "FLASH" | "SIMULADO" | "TOPICO" | "BATALHA";
 
 // Procedência da questão:
 // - "oficial":  caiu numa prova real, texto preservado (exige `prova`)

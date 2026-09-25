@@ -3,7 +3,7 @@
 // ("Meus erros"), e misturar as duas coisas fazia a revisão do dia parecer opcional.
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Target, RotateCcw, CalendarClock } from "lucide-react";
+import { ArrowRight, Target, RotateCcw, CalendarClock, Swords } from "lucide-react";
 import { getQuestoes } from "../lib/questoesRepo";
 import { carregarRevisao, resetarRevisao, INTERVALOS_DIAS, type ItemRevisao } from "../lib/revisao";
 import { SessionRunner, type RespostaSessao } from "../components/SessionRunner";
@@ -163,6 +163,21 @@ export function Revisar() {
           </button>
         )}
       </div>
+
+      {/* A mesma fila, jogada: a Batalha (pages/Batalha) usa estas questões primeiro. */}
+      {total > 0 && (
+        <Link
+          to="/batalha"
+          className="card card-hover mb-5 flex items-center gap-3 p-4 transition"
+        >
+          <Swords size={22} strokeWidth={1.8} style={{ color: "var(--accentText)" }} />
+          <span className="flex-1">
+            <b className="font-display text-brand-ink">Revisar em modo Batalha</b>
+            <span className="block text-sm text-muted">As mesmas questões, como roguelite: golpes, chefe e capturas.</span>
+          </span>
+          <ArrowRight size={18} className="text-faint" />
+        </Link>
+      )}
 
       {confirmandoReset && (
         <Card className="mb-5 p-4 text-sm leading-relaxed text-muted">

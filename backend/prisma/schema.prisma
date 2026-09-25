@@ -17,6 +17,7 @@ enum Contexto {
   FLASH
   SIMULADO
   TOPICO
+  BATALHA
 }
 
 // Banco de questões (conteúdo). Compartilhado entre usuários (não é escopo por userId).

@@ -34,7 +34,7 @@ const answerSchema = z.object({
   alternativaMarcada: z.string().min(1),
   acertou: z.boolean(),
   tempoSegundos: z.number().int().nonnegative().optional(),
-  contexto: z.enum(["ESTUDO", "FLASH", "SIMULADO", "TOPICO"]),
+  contexto: z.enum(["ESTUDO", "FLASH", "SIMULADO", "TOPICO", "BATALHA"]),
 });
 
 // POST /answers: registra uma resposta. Idempotente por clientId: um reenvio

@@ -24,7 +24,7 @@ export interface ResultadoResposta {
   alternativaMarcada: Alternativa;
   acertou: boolean;
   tempoSegundos?: number;
-  contexto: "ESTUDO" | "FLASH" | "SIMULADO" | "TOPICO";
+  contexto: "ESTUDO" | "FLASH" | "SIMULADO" | "TOPICO" | "BATALHA";
 }
 
 export function montarResultado(
