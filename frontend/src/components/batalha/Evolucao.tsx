@@ -3,12 +3,13 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import type { Tema } from "../../store/theme";
-import { PARCEIROS, SpriteParceiro } from "./sprites";
+import { HEROIS } from "./jogo/skins";
+import { BonecoSolo } from "./jogo/BonecoSolo";
 
 export function Evolucao({ tema, de, para, onFim }: { tema: Tema; de: number; para: number; onFim: () => void }) {
   const [pronto, setPronto] = useState(false);
-  const antes = PARCEIROS[tema].formas[de - 1];
-  const depois = PARCEIROS[tema].formas[para - 1];
+  const antes = { nome: HEROIS[tema].formas[de - 1] };
+  const depois = { nome: HEROIS[tema].formas[para - 1], especie: HEROIS[tema].especies[para - 1] };
 
   useEffect(() => {
     const rapido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -25,15 +26,15 @@ export function Evolucao({ tema, de, para, onFim }: { tema: Tema; de: number; pa
         {!pronto ? (
           <>
             <div className="bt-evo__forma bt-evo__forma--antes">
-              <SpriteParceiro tema={tema} estagio={de} silhueta />
+              <BonecoSolo tema={tema} estagio={de} className="bt-svg--silhueta" />
             </div>
             <div className="bt-evo__forma bt-evo__forma--depois">
-              <SpriteParceiro tema={tema} estagio={para} silhueta />
+              <BonecoSolo tema={tema} estagio={para} className="bt-svg--silhueta" />
             </div>
           </>
         ) : (
-          <div className="bt-evo__forma bt-evo__revelada bt-parceiro--parado">
-            <SpriteParceiro tema={tema} estagio={para} />
+          <div className="bt-evo__forma bt-evo__revelada">
+            <BonecoSolo tema={tema} estagio={para} clipe="vitoria" />
           </div>
         )}
         {pronto && <div className="bt-evo__clarao" />}

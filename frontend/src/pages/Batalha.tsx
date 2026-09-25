@@ -1,4 +1,6 @@
-// BATALHA: a revisão espaçada como roguelite de monstrinho. As regras (e o porquê de cada
+// BATALHA: a revisão espaçada como roguelite de luta. A luta roda em "modo jogo" (tela
+// cheia): o palco com os bonecos articulados (components/batalha/jogo) de um lado e a
+// questão do outro. As regras (e o porquê de cada
 // uma, sempre a favor do aprendizado) estão no motor, lib/batalha.ts. Esta tela monta a
 // partida, grava cada resposta como estudo de verdade (contexto BATALHA, que conta na meta
 // do dia e na ofensiva) e anima o que o motor devolve.
@@ -12,6 +14,7 @@ import {
   BookOpen,
   Flag,
   Flame,
+  Pause,
   FlaskConical,
   Focus,
   NotebookPen,
@@ -55,10 +58,12 @@ import { usePausarFundo } from "../store/fundo";
 import { QuestaoView } from "../components/QuestaoView";
 import { PageHeader } from "../components/PageHeader";
 import { Carregando } from "../components/Spinner";
-import { Arena, type AnimInimigo, type AnimParceiro } from "../components/batalha/Arena";
-import { duracao, type Efeito, type NovoEfeito } from "../components/batalha/Efeitos";
 import { Evolucao } from "../components/batalha/Evolucao";
-import { PARCEIROS, SpriteParceiro, tipoDaMateria } from "../components/batalha/sprites";
+import { tipoDaMateria } from "../components/batalha/tipos";
+import { Palco, CASA_HEROI, type PalcoApi, type VilaoInfo } from "../components/batalha/jogo/Palco";
+import { BonecoSolo } from "../components/batalha/jogo/BonecoSolo";
+import { HEROIS } from "../components/batalha/jogo/skins";
+import { ataqueHeroi, contraAtaque, derrotaHeroi, derrotaVilao, entradaHeroi, entradaVilao, fugaVilao } from "../components/batalha/jogo/coreografias";
 
 // ---------- persistência ----------
 
@@ -165,7 +170,6 @@ interface Desfecho {
   marcada: Alternativa;
 }
 
-const esperar = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const escapar = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 export function Batalha() {
@@ -173,7 +177,7 @@ export function Batalha() {
   const { tema } = useTheme();
   const { activeId } = useConcurso();
   const { goal } = useMeta();
-  const parceiro = PARCEIROS[tema];
+  const parceiro = HEROIS[tema];
 
   const [perfil, setPerfil] = useState<Perfil>(() => ler<Perfil>(CHAVE_PERFIL) ?? PERFIL_ZERO);
   const [partida, setPartidaEstado] = useState<Partida | null>(() => {
@@ -194,21 +198,18 @@ export function Batalha() {
 
   // Luta
   const [selecionada, setSelecionada] = useState<Alternativa | undefined>();
-  const [animP, setAnimP] = useState<AnimParceiro>("parado");
-  const [animI, setAnimI] = useState<AnimInimigo>("entra");
   const [hpVis, setHpVis] = useState(partida?.hp ?? 100);
   const [hpInimigo, setHpInimigo] = useState(100);
-  const [efeitos, setEfeitos] = useState<Efeito[]>([]);
-  const [tremor, setTremor] = useState(0);
-  const [flash, setFlash] = useState<{ n: number; cor: string } | null>(null);
   const [evolucao, setEvolucao] = useState<{ de: number; para: number } | null>(null);
-  const idEfeito = useRef(0);
+  const palco = useRef<PalcoApi>(null);
+  // O herói entra correndo só na primeira luta da tela; depois ele já está no palco.
+  const [heroiEntrou, setHeroiEntrou] = useState(false);
   const [mensagem, setMensagem] = useState(() => (partida?.oferta ? "Andar vencido! Escolha uma recompensa." : ""));
   const [desfecho, setDesfecho] = useState<Desfecho | null>(null);
   const [licao, setLicao] = useState("");
   const [confirmarFuga, setConfirmarFuga] = useState(false);
   const inicioQuestao = useRef(Date.now());
-  const arenaRef = useRef<HTMLDivElement>(null);
+  const painelRef = useRef<HTMLDivElement>(null);
   const resultadoRef = useRef<HTMLDivElement>(null);
   const vivo = useRef(true);
   // Religa na montagem: o StrictMode desmonta e remonta uma vez em desenvolvimento.
@@ -223,22 +224,28 @@ export function Batalha() {
   const estagio = estagioDoNivel(nivel.nivel);
   // Na arena a forma nova só aparece depois da sequência de evolução.
   const estagioExibido = evolucao ? evolucao.de : Math.min(estagio, perfil.estagioVisto ?? 1);
-  const forma = parceiro.formas[estagioExibido - 1];
+  const forma = { nome: parceiro.formas[estagioExibido - 1] };
 
-  function efeito(e: NovoEfeito) {
-    const id = ++idEfeito.current;
-    setEfeitos((xs) => [...xs, { ...e, id } as Efeito]);
-    setTimeout(() => vivo.current && setEfeitos((xs) => xs.filter((x) => x.id !== id)), duracao(e) + 80);
-  }
-  const tremer = () => setTremor((n) => n + 1);
-  const piscar = (cor: string) => setFlash((f) => ({ n: (f?.n ?? 0) + 1, cor }));
+  // Atalhos para os efeitos do palco
+  const fxTexto = (quem: "h" | "v", txt: string, cor: string, grande = false) => {
+    const p = palco.current;
+    const b = quem === "h" ? p?.heroi() : p?.vilao();
+    const onde = b ? b.ponto("cabeca", 0, -40) : { x: quem === "h" ? 300 : 700, y: 200 };
+    p?.fx()?.texto(onde, txt, cor, grande);
+  };
+  const fxCura = (valor: number) => {
+    const p = palco.current;
+    const h = p?.heroi();
+    p?.fx()?.cura(h ? h.ponto("tronco", 0, -20) : { x: 300, y: 330 });
+    fxTexto("h", `+${valor} HP`, "#3BC46B");
+  };
 
   // Subiu de nível no meio da luta: faixa na arena. Mudou de forma: sequência de evolução,
   // mas só num momento calmo (resultado, recompensa, fim), nunca no meio de um golpe.
   const nivelAnterior = useRef(nivel.nivel);
   useEffect(() => {
     if (nivel.nivel > nivelAnterior.current && fase !== "lobby") {
-      efeito({ k: "banner", texto: "Subiu de nível!", sub: `${forma.nome} chegou ao Nv.${nivel.nivel}`, cor: "#3D7BD9" });
+      palco.current?.banner("Subiu de nível!", `${forma.nome} chegou ao Nv.${nivel.nivel}`, "#3D7BD9");
     }
     nivelAnterior.current = nivel.nivel;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -306,8 +313,9 @@ export function Batalha() {
     if (!p) return;
     setPartida(p);
     setHpVis(p.hp);
+    setHeroiEntrou(false);
     setFase("entrada");
-    efeito({ k: "banner", texto: "Andar 1", sub: `${p.totalEncontros - 1} lutas + chefe`, cor: "#141018" });
+    setTimeout(() => palco.current?.banner("Andar 1", `${p.totalEncontros - 1} lutas + chefe`), 300);
   }
 
   // ----- entrada de cada questão -----
@@ -322,15 +330,9 @@ export function Batalha() {
     setLicao("");
     setConfirmarFuga(false);
     setHpInimigo(100);
-    setAnimP("parado");
     const chefe = encontro.tipo === "chefe";
-    setAnimI(chefe ? "entra-chefe" : "entra");
-    if (chefe && !encontro.retorno) {
-      efeito({ k: "banner", texto: "Chefe!", sub: "a questão que mais te derrubou", cor: "#B3101F" });
-      setTimeout(() => vivo.current && tremer(), 700);
-    }
     setMensagem(
-      encontro.tipo === "chefe"
+      chefe
         ? encontro.retorno
           ? "O CHEFE se levantou! Última chance."
           : "O CHEFE apareceu: a questão que mais te derrubou!"
@@ -338,13 +340,27 @@ export function Batalha() {
           ? `A questão #${questao.id} voltou para a revanche!`
           : `Uma questão selvagem de ${tipo.nome} apareceu!`
     );
-    const t = setTimeout(() => {
-      setAnimI("parado");
+    let cancelado = false;
+    void (async () => {
+      // espera o palco montar o vilão novo
+      await new Promise((r) => setTimeout(r, 60));
+      const p = palco.current;
+      if (p && !heroiEntrou) {
+        setHeroiEntrou(true);
+        void entradaHeroi(p);
+      }
+      if (p) {
+        if (chefe && !encontro.retorno) p.banner("Chefe!", "a questão que mais te derrubou", "#B3101F");
+        await entradaVilao(p, chefe);
+      }
+      if (cancelado || !vivo.current) return;
       setMensagem(`O que ${forma.nome} vai fazer?`);
       setFase("pergunta");
       inicioQuestao.current = Date.now();
-    }, chefe ? 1600 : 1100);
-    return () => clearTimeout(t);
+    })();
+    return () => {
+      cancelado = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fase, encontro?.questaoId, encontro?.retorno]);
 
@@ -353,6 +369,7 @@ export function Batalha() {
     if (fase !== "fim" || !partida?.fim || perfil.ultimaContada === partida.iniciadaEm) return;
     const r = resumir(partida);
     const novo: Perfil = {
+      ...perfil,
       xp: perfil.xp + partida.xp,
       partidas: perfil.partidas + 1,
       vitorias: perfil.vitorias + (partida.fim === "vitoria" ? 1 : 0),
@@ -364,11 +381,21 @@ export function Batalha() {
     gravar(CHAVE_PERFIL, novo);
   }, [fase, partida, perfil]);
 
+  const emJogo = fase !== "lobby" && fase !== "fim";
+  useEffect(() => {
+    if (!emJogo) return;
+    const antes = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = antes;
+    };
+  }, [emJogo]);
+
   const noCelular = () => !window.matchMedia("(min-width: 1024px)").matches;
 
   // ----- golpe -----
   async function golpe(confianca: Confianca) {
-    if (!partida || !questao || !selecionada || fase !== "pergunta") return;
+    if (!partida || !questao || !tipo || !selecionada || fase !== "pergunta") return;
     setFase("golpe");
     const acertou = selecionada === questao.gabarito;
     const tempo = Math.round((Date.now() - inicioQuestao.current) / 1000);
@@ -377,86 +404,69 @@ export function Batalha() {
     setPartida(nova);
     setDesfecho({ acertou, confianca, eventos, questaoId: questao.id, marcada: selecionada });
 
-    if (noCelular()) arenaRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    const nomeGolpe = confianca === "certeza" ? parceiro.golpeCerteza : parceiro.golpeDuvida;
-    const cura = eventos.filter((e): e is Extract<Evento, { tipo: "cura" }> => e.tipo === "cura");
-
+    // no celular, o palco fica no alto: volta a ele para ver a luta
+    if (noCelular()) painelRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    const p = palco.current;
     const forte = confianca === "certeza";
-    const pausa = async (ms: number) => {
-      await esperar(ms);
-      return vivo.current;
-    };
-
-    setAnimP("ataca");
+    const nomeGolpe = forte ? parceiro.golpeCerteza : parceiro.golpeDuvida;
+    const cura = eventos.filter((e): e is Extract<Evento, { tipo: "cura" }> => e.tipo === "cura");
     setMensagem(`${forma.nome} usou ${nomeGolpe}!`);
-    efeito({ k: "golpe", tema, forte, acerta: acertou });
+
     if (acertou) {
       const ev = eventos.find((e) => e.tipo === "acerto") as Extract<Evento, { tipo: "acerto" }>;
-      if (!(await pausa(420))) return;
-      setAnimP("parado");
-      setAnimI("dano");
-      setHpInimigo(0);
-      piscar(forte ? "#FFE9A8" : "#FFFFFF");
-      if (forte) tremer();
-      efeito({ k: "numero", alvo: "e", texto: forte ? "CRÍTICO!" : "Acertou!", cor: forte ? "#FFC857" : "#FFFFFF", grande: forte });
-      setMensagem(forte ? "Foi super efetivo! Golpe crítico!" : "Acertou!");
-      if (!(await pausa(900))) return;
-      setAnimP("comemora");
-      if (ev.captura && tipo) {
-        setAnimI("capturado");
-        efeito({ k: "captura", cor: tipo.cor });
-        setMensagem("Vai... vai...");
-        if (!(await pausa(1900))) return;
-        setMensagem(`Questão CAPTURADA! Você venceu uma que já tinha te derrubado. +${ev.xp} XP`);
-      } else {
-        setAnimI("desmaia");
-        setMensagem(`A questão desmaiou! +${ev.xp} XP`);
-      }
-      efeito({ k: "numero", alvo: "p", texto: `+${ev.xp} XP`, cor: "#7FB2FF" });
+      if (p)
+        await ataqueHeroi(p, tema, {
+          forte,
+          acerta: true,
+          aoImpacto: () => {
+            setHpInimigo(0);
+            fxTexto("v", forte ? "CRÍTICO!" : "Acertou!", forte ? "#FFC857" : "#FFFFFF", forte);
+            setMensagem(forte ? "Foi super efetivo! Golpe crítico!" : "Acertou!");
+          },
+        });
+      if (!vivo.current) return;
+      if (ev.captura) setMensagem("Vai... vai...");
+      if (p) await derrotaVilao(p, ev.captura ? { cor: tipo.cor } : null);
+      if (!vivo.current) return;
+      setMensagem(ev.captura ? `Questão CAPTURADA! Você venceu uma que já tinha te derrubado. +${ev.xp} XP` : `A questão desmaiou! +${ev.xp} XP`);
+      fxTexto("h", `+${ev.xp} XP`, "#7FB2FF");
       if (cura.length) {
-        if (!(await pausa(900))) return;
-        setAnimP("parado");
+        await new Promise((r) => setTimeout(r, 700));
+        if (!vivo.current) return;
         setHpVis(nova.hp);
-        efeito({ k: "cura" });
-        efeito({ k: "numero", alvo: "p", texto: `+${cura.reduce((t, c) => t + c.valor, 0)} HP`, cor: "#3BC46B" });
+        fxCura(cura.reduce((t, c) => t + c.valor, 0));
         setMensagem(cura.map((c) => (c.motivo === "combo" ? `Combo de ${nova.combo}! +${c.valor} HP` : `Lente de Foco: +${c.valor} HP`)).join(" · "));
       }
     } else {
       const ev = eventos.find((e) => e.tipo === "erro") as Extract<Evento, { tipo: "erro" }>;
-      if (!(await pausa(450))) return;
-      setAnimP("parado");
-      setMensagem("Errou o alvo!");
-      if (!(await pausa(250))) return;
-      setAnimI("ataca");
-      if (tipo) efeito({ k: "contra", cor: tipo.cor, glifo: tipo.glifo, forte });
-      if (!(await pausa(430))) return;
-      setAnimP("dano");
-      setHpVis(nova.hp);
-      tremer();
-      if (!ev.bloqueado) piscar("#E8474C");
-      efeito(
-        ev.bloqueado
-          ? { k: "numero", alvo: "p", texto: "BLOQUEOU!", cor: "#7FB2FF" }
-          : { k: "numero", alvo: "p", texto: `−${ev.dano}`, cor: "#FF5A5F", grande: forte }
-      );
-      setMensagem(
-        ev.bloqueado
-          ? "A Baga Escudo segurou o contra-ataque!"
-          : `A questão contra-atacou${forte ? " com tudo" : ""}! −${ev.dano} HP`
-      );
-      if (!(await pausa(1000))) return;
+      if (p) await ataqueHeroi(p, tema, { forte, acerta: false, aoImpacto: () => setMensagem("Errou o alvo! A questão desviou.") });
+      if (!vivo.current) return;
+      setMensagem("A questão contra-ataca!");
+      if (p)
+        await contraAtaque(p, tipo, {
+          forte,
+          bloqueado: ev.bloqueado,
+          chefe: encontro?.tipo === "chefe",
+          aoImpacto: () => {
+            setHpVis(nova.hp);
+            if (ev.bloqueado) {
+              fxTexto("h", "BLOQUEOU!", "#7FB2FF");
+              setMensagem("A Baga Escudo segurou o contra-ataque!");
+            } else {
+              fxTexto("h", `−${ev.dano}`, "#FF5A5F", forte);
+              setMensagem(`A questão contra-atacou${forte ? " com tudo" : ""}! −${ev.dano} HP`);
+            }
+          },
+        });
+      if (!vivo.current) return;
       if (nova.fim === "derrota") {
-        setAnimP("desmaia");
         setMensagem(`${forma.nome} desmaiou...`);
+        if (p) await derrotaHeroi(p);
       } else {
-        setAnimP("parado");
-        if (ev.volta) {
-          setAnimI("foge");
-          setMensagem("A questão fugiu... mas vai voltar para a revanche.");
-        } else setMensagem("Ela escapou. Amanhã ela volta na revisão espaçada.");
+        setMensagem(ev.volta ? "A questão fugiu... mas vai voltar para a revanche." : "Ela escapou. Amanhã ela volta na revisão espaçada.");
+        if (p) await fugaVilao(p);
       }
     }
-    await esperar(700);
     if (!vivo.current) return;
     setFase("resultado");
     setTimeout(() => resultadoRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 60);
@@ -470,29 +480,25 @@ export function Batalha() {
     }
     const p = avancar(partida);
     setPartida(p);
-    setAnimP("parado");
     if (p.oferta) {
       setMensagem(`Andar ${p.andar - 1} vencido! Escolha uma recompensa.`);
-      efeito({ k: "banner", texto: `Andar ${p.andar - 1} vencido!`, sub: "escolha uma recompensa", cor: "#1C7C4A" });
+      palco.current?.banner(`Andar ${p.andar - 1} vencido!`, "escolha uma recompensa", "#1C7C4A");
       setFase("recompensa");
     } else if (p.fim) setFase("fim");
     else setFase("entrada");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    painelRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function escolher(item: ItemId) {
     if (!partida) return;
     const p = escolherItem(partida, item);
     setPartida(p);
-    if (p.hp > partida.hp) {
-      efeito({ k: "cura" });
-      efeito({ k: "numero", alvo: "p", texto: `+${p.hp - partida.hp} HP`, cor: "#3BC46B" });
-    }
+    if (p.hp > partida.hp) fxCura(p.hp - partida.hp);
     setHpVis(p.hp);
     setFase(p.fim ? "fim" : "entrada");
     if (!p.fim) {
       const soChefe = p.atual?.tipo === "chefe";
-      if (!soChefe) efeito({ k: "banner", texto: `Andar ${p.andar}`, cor: "#141018" });
+      if (!soChefe) palco.current?.banner(`Andar ${p.andar}`);
     }
   }
 
@@ -502,8 +508,7 @@ export function Batalha() {
     if (!curou) return;
     setPartida(p);
     setHpVis(p.hp);
-    efeito({ k: "cura" });
-    efeito({ k: "numero", alvo: "p", texto: `+${curou} HP`, cor: "#3BC46B" });
+    fxCura(curou);
     setMensagem(`Você usou uma Poção! +${curou} HP`);
   }
 
@@ -513,10 +518,7 @@ export function Batalha() {
     if (p === partida) return;
     setPartida(p);
     setHpVis(p.hp);
-    if (curou) {
-      efeito({ k: "cura" });
-      efeito({ k: "numero", alvo: "p", texto: `+${curou} HP`, cor: "#3BC46B" });
-    }
+    if (curou) fxCura(curou);
     setMensagem(curou ? `Lição anotada! ${forma.nome} recuperou ${curou} HP.` : "Lição anotada!");
   }
 
@@ -524,6 +526,16 @@ export function Batalha() {
     if (!partida) return;
     setPartida(fugir(partida));
     setFase("fim");
+  }
+
+  // Pausa: volta ao lobby com a partida guardada (o lobby oferece continuar).
+  function pausar() {
+    setFase("lobby");
+  }
+  function retomar() {
+    if (!partida) return;
+    setHeroiEntrou(false);
+    setFase(partida.fim ? "fim" : partida.oferta ? "recompensa" : "entrada");
   }
 
   function novaPartida() {
@@ -550,6 +562,8 @@ export function Batalha() {
         erro={erroCarga}
         onTentar={carregarLobby}
         onComecar={comecar}
+        emAndamento={partida && !partida.fim ? partida : null}
+        onRetomar={retomar}
       />
       </>
     );
@@ -578,70 +592,83 @@ export function Batalha() {
         : undefined;
   const licaoAnterior = desfecho ? partida.licoes[desfecho.questaoId] : undefined;
 
-  return (
-    <div className="mx-auto max-w-[1100px] pb-28 pt-2 lg:pb-10">
+  const vilaoInfo: VilaoInfo | null =
+    fase === "recompensa" || !questao || !tipo || !encontro
+      ? null
+      : {
+          chave: `${questao.id}-${encontro.retorno ? "r" : "a"}`,
+          nome: `Questão #${questao.id}`,
+          nivel: encontro.tipo === "nova" ? null : encontro.nivel + 1,
+          tipo,
+          chefe: encontro.tipo === "chefe",
+          retorno: encontro.retorno,
+          hp: hpInimigo,
+          // chega caindo do céu; na revanche, volta correndo pela direita
+          entrada: encontro.retorno && encontro.tipo !== "chefe" ? { x: 460, y: 0 } : { x: 0, y: -560 },
+        };
+
+  // Modo jogo: tela cheia por cima do app (portal), rolagem da página travada.
+  return createPortal(
+    <div className="jg" data-theme-jogo={tema}>
       {telaEvolucao}
-      <div className="grid items-start gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
-        {/* Palco + estado da partida */}
-        <div ref={arenaRef} className="scroll-mt-20 space-y-3 lg:sticky lg:top-20">
-          <Arena
-            tema={tema}
-            efeitos={efeitos}
-            tremor={tremor}
-            flash={flash}
-            parceiro={{ nome: forma.nome, nivel: nivel.nivel, estagio: estagioExibido, hp: hpVis, hpMax: partida.hpMax, xp: nivel.atual, xpProx: nivel.proximo }}
-            inimigo={
-              fase === "recompensa" || !questao || !tipo
-                ? null
-                : {
-                    nome: `Questão #${questao.id}`,
-                    nivel: encontro?.tipo === "nova" ? null : (encontro?.nivel ?? 0) + 1,
-                    tipo,
-                    chefe: encontro?.tipo === "chefe",
-                    hp: hpInimigo,
-                    retorno: !!encontro?.retorno,
-                  }
-            }
-            animParceiro={animP}
-            animInimigo={fase === "recompensa" ? "sumido" : animI}
-            mensagem={mensagem}
-            aguardando={fase === "pergunta" || fase === "resultado" || fase === "recompensa"}
-          />
-          <Hud partida={partida} metaFeita={goal?.respondidasHoje} meta={goal?.meta} />
-        </div>
-
-        {/* Questão, resultado ou recompensa */}
-        <div className="min-w-0 space-y-4">
-          {fase === "recompensa" && partida.oferta && (
-            <div className="space-y-3">
-              <p className="font-display text-xl font-bold text-brand-ink">Escolha uma recompensa</p>
-              <p className="text-sm text-muted">
-                Andar {partida.andar} a seguir
-                {partida.fila.every((e) => e.tipo === "chefe") ? ": é o andar do CHEFE." : "."}
-              </p>
-              <div className="grid gap-3 sm:grid-cols-3">
-                {partida.oferta.map((id, i) => {
-                  const it = ITENS[id];
-                  const Icone = it.icone;
-                  return (
-                    <button key={id} className="bt-item" style={{ animationDelay: `${i * 90}ms` }} onClick={() => escolher(id)}>
-                      <Icone size={26} strokeWidth={1.8} />
-                      <span className="font-bold">{it.nome}</span>
-                      <span className="text-sm leading-snug opacity-80">{it.texto}</span>
-                    </button>
-                  );
-                })}
-              </div>
+      <div className="jg__palco">
+        <Palco
+          ref={palco}
+          tema={tema}
+          estagio={estagioExibido}
+          heroi={{
+            nome: forma.nome,
+            nivel: nivel.nivel,
+            hp: hpVis,
+            hpMax: partida.hpMax,
+            xp: nivel.atual,
+            xpProx: nivel.proximo,
+            entrada: heroiEntrou ? undefined : { x: -(CASA_HEROI.x + 160), y: 0 },
+          }}
+          vilao={vilaoInfo}
+          mensagem={mensagem}
+          aguardando={fase === "pergunta" || fase === "resultado" || fase === "recompensa"}
+          topo={
+            <div className="flex items-start justify-between gap-2">
+              <Hud partida={partida} metaFeita={goal?.respondidasHoje} meta={goal?.meta} />
+              <button onClick={pausar} className="jg-botao" title="Pausar (a partida fica salva)">
+                <Pause size={16} /> <span className="hidden sm:inline">Pausar</span>
+              </button>
             </div>
-          )}
+          }
+        />
+      </div>
 
-          {(fase === "entrada" || fase === "pergunta" || fase === "golpe" || fase === "resultado") && questao && (
-            <>
-              <div
-                key={`${questao.id}-${encontro?.retorno ? "r" : "a"}`}
-                className="card bt-carta-questao p-5 sm:p-6"
-                style={fase === "entrada" ? { opacity: 0.35 } : undefined}
-              >
+      <div ref={painelRef} className="jg__painel">
+        {fase === "recompensa" && partida.oferta && (
+          <div className="space-y-3 p-4 sm:p-6">
+            <p className="font-display text-xl font-bold text-brand-ink">Escolha uma recompensa</p>
+            <p className="text-sm text-muted">
+              Andar {partida.andar} a seguir
+              {partida.fila.every((e) => e.tipo === "chefe") ? ": é o andar do CHEFE." : "."}
+            </p>
+            <div className="grid gap-3">
+              {partida.oferta.map((id, i) => {
+                const it = ITENS[id];
+                const Icone = it.icone;
+                return (
+                  <button key={id} className="bt-item flex-row items-center" style={{ animationDelay: `${i * 90}ms` }} onClick={() => escolher(id)}>
+                    <Icone size={28} strokeWidth={1.8} className="shrink-0" />
+                    <span>
+                      <span className="block font-bold">{it.nome}</span>
+                      <span className="block text-sm leading-snug opacity-80">{it.texto}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {(fase === "entrada" || fase === "pergunta" || fase === "golpe" || fase === "resultado") && questao && (
+          <div className="flex min-h-full flex-col">
+            <div className="flex-1 space-y-4 p-4 sm:p-6">
+              <div key={`${questao.id}-${encontro?.retorno ? "r" : "a"}`} className="bt-carta-questao" style={fase === "entrada" ? { opacity: 0.35 } : undefined}>
                 <QuestaoView
                   key={`${questao.id}-${encontro?.retorno ? "r" : "a"}`}
                   questao={questao}
@@ -652,57 +679,15 @@ export function Batalha() {
                 />
               </div>
 
-              {/* Golpes: a aposta de confiança */}
-              {fase === "pergunta" && (
-                <div className={`bt-barra-golpes sticky bottom-[72px] z-10 space-y-2 rounded-2xl border border-hair bg-surface p-2 shadow-lg lg:bottom-4 ${selecionada ? "bt-barra-golpes--pronta" : ""}`}>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button className="bt-golpe bt-golpe--forte" disabled={!selecionada} onClick={() => void golpe("certeza")}>
-                      <span className="text-sm font-extrabold">{parceiro.golpeCerteza}</span>
-                      <span className="text-[11px] opacity-75">Tenho certeza · crítico, mas errar dói mais</span>
-                    </button>
-                    <button className="bt-golpe" disabled={!selecionada} onClick={() => void golpe("duvida")}>
-                      <span className="text-sm font-extrabold">{parceiro.golpeDuvida}</span>
-                      <span className="text-[11px] opacity-75">Estou na dúvida · dano normal</span>
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between gap-2 text-xs">
-                    <button
-                      onClick={beberPocao}
-                      disabled={partida.pocoes === 0 || hpVis >= partida.hpMax}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-hair bg-surface px-3 py-1.5 font-semibold text-muted transition hover:text-brand-500 disabled:opacity-40"
-                    >
-                      <FlaskConical size={14} /> Poção ×{partida.pocoes}
-                    </button>
-                    {!selecionada && <span className="hidden text-faint sm:inline">Escolha uma alternativa para atacar</span>}
-                    {confirmarFuga ? (
-                      <span className="inline-flex items-center gap-2">
-                        <span className="text-faint">Encerrar a partida?</span>
-                        <button onClick={desistir} className="font-bold text-danger-from">Sim</button>
-                        <button onClick={() => setConfirmarFuga(false)} className="font-semibold text-muted">Não</button>
-                      </span>
-                    ) : (
-                      <button
-                        onClick={() => setConfirmarFuga(true)}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-hair bg-surface px-3 py-1.5 font-semibold text-muted transition hover:text-brand-500"
-                      >
-                        <Flag size={14} /> Fugir
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-
               {fase === "resultado" && desfecho && (
-                <div ref={resultadoRef} className={`card bt-painel-resultado scroll-mb-28 space-y-3 p-5 ${desfecho.acertou ? "bt-painel-resultado--acerto" : "bt-painel-resultado--erro"}`}>
+                <div ref={resultadoRef} className={`card bt-painel-resultado scroll-mb-40 space-y-3 p-5 ${desfecho.acertou ? "bt-painel-resultado--acerto" : "bt-painel-resultado--erro"}`}>
                   {desfecho.acertou ? (
                     <>
                       <p className="font-display text-lg font-bold text-brand-ink">
                         {desfecho.confianca === "certeza" ? "Certeza confirmada." : "Acertou na dúvida."}
                       </p>
                       {desfecho.confianca === "duvida" && (
-                        <p className="text-sm text-muted">
-                          Leia a explicação acima com calma: é ela que transforma o palpite em certeza para a próxima vez.
-                        </p>
+                        <p className="text-sm text-muted">Leia a explicação acima com calma: é ela que transforma o palpite em certeza para a próxima vez.</p>
                       )}
                       {licaoAnterior && (
                         <p className="rounded-xl border border-hair bg-surface2 p-3 text-sm text-brand-ink">
@@ -713,9 +698,7 @@ export function Batalha() {
                   ) : (
                     <>
                       <p className="font-display text-lg font-bold text-brand-ink">
-                        {desfecho.confianca === "certeza"
-                          ? "Errou com certeza: essa é a que mais ensina."
-                          : "Errou. Bora entender por quê."}
+                        {desfecho.confianca === "certeza" ? "Errou com certeza: essa é a que mais ensina." : "Errou. Bora entender por quê."}
                       </p>
                       {partida.fim !== "derrota" && (
                         <>
@@ -756,11 +739,56 @@ export function Batalha() {
                   </button>
                 </div>
               )}
-            </>
-          )}
-        </div>
+            </div>
+
+            {/* Golpes: a aposta de confiança */}
+            {fase === "pergunta" && (
+              <div className={`bt-barra-golpes jg__golpes ${selecionada ? "bt-barra-golpes--pronta" : ""}`}>
+                <div className="grid grid-cols-2 gap-2">
+                  <button className="bt-golpe bt-golpe--forte" disabled={!selecionada} onClick={() => void golpe("certeza")}>
+                    <span className="text-sm font-extrabold">{parceiro.golpeCerteza}</span>
+                    <span className="text-[11px] opacity-75">Tenho certeza · crítico, mas errar dói mais</span>
+                  </button>
+                  <button className="bt-golpe" disabled={!selecionada} onClick={() => void golpe("duvida")}>
+                    <span className="text-sm font-extrabold">{parceiro.golpeDuvida}</span>
+                    <span className="text-[11px] opacity-75">Estou na dúvida · dano normal</span>
+                  </button>
+                </div>
+                <div className="mt-2 flex items-center justify-between gap-2 text-xs">
+                  <button
+                    onClick={beberPocao}
+                    disabled={partida.pocoes === 0 || hpVis >= partida.hpMax}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-hair bg-surface px-3 py-1.5 font-semibold text-muted transition hover:text-brand-500 disabled:opacity-40"
+                  >
+                    <FlaskConical size={14} /> Poção ×{partida.pocoes}
+                  </button>
+                  {!selecionada && <span className="hidden text-faint sm:inline">Escolha uma alternativa para atacar</span>}
+                  {confirmarFuga ? (
+                    <span className="inline-flex items-center gap-2">
+                      <span className="text-faint">Encerrar a partida?</span>
+                      <button onClick={desistir} className="font-bold text-danger-from">
+                        Sim
+                      </button>
+                      <button onClick={() => setConfirmarFuga(false)} className="font-semibold text-muted">
+                        Não
+                      </button>
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmarFuga(true)}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-hair bg-surface px-3 py-1.5 font-semibold text-muted transition hover:text-brand-500"
+                    >
+                      <Flag size={14} /> Fugir
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -824,6 +852,8 @@ function Lobby({
   erro,
   onTentar,
   onComecar,
+  emAndamento,
+  onRetomar,
 }: {
   tema: ReturnType<typeof useTheme>["tema"];
   perfil: Perfil;
@@ -832,8 +862,10 @@ function Lobby({
   erro: boolean;
   onTentar: () => void;
   onComecar: () => void;
+  emAndamento: Partida | null;
+  onRetomar: () => void;
 }) {
-  const p = PARCEIROS[tema];
+  const p = HEROIS[tema];
   const nv = nivelDoXp(perfil.xp);
   const est = estagioDoNivel(nv.nivel);
   const revisoes = pendentes ? Math.min(pendentes.length, 12) : 0;
@@ -849,12 +881,12 @@ function Lobby({
       <div className="grid gap-5 md:grid-cols-[260px_1fr]">
         <div className="card flex flex-col items-center p-5 text-center">
           <div className="bt-vitrine">
-            <div className="bt-parceiro--parado h-40 w-40">
-              <SpriteParceiro tema={tema} estagio={est} />
+            <div className="h-48 w-48">
+              <BonecoSolo tema={tema} estagio={est} />
             </div>
           </div>
-          <p className="mt-2 font-display text-xl font-bold text-brand-ink">{p.formas[est - 1].nome}</p>
-          <p className="text-xs text-faint">{p.formas[est - 1].especie} · muda com o tema</p>
+          <p className="mt-2 font-display text-xl font-bold text-brand-ink">{p.formas[est - 1]}</p>
+          <p className="text-xs text-faint">{p.especies[est - 1]} · muda com o tema</p>
           <p className="mt-3 text-sm font-bold text-brand-ink">Nível {nv.nivel}</p>
           <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--track)" }}>
             <div className="h-full rounded-full" style={{ width: `${(nv.atual / nv.proximo) * 100}%`, background: "var(--accent)" }} />
@@ -867,12 +899,12 @@ function Lobby({
             {p.formas.map((f, i) => {
               const alcancada = est >= i + 1;
               return (
-                <div key={f.nome} className="flex flex-1 flex-col items-center" title={alcancada ? f.nome : `Evolui no nível ${NIVEIS_EVOLUCAO[i]}`}>
-                  <div className="h-12 w-12" style={alcancada ? undefined : { filter: "brightness(0)", opacity: 0.28 }}>
-                    <SpriteParceiro tema={tema} estagio={i + 1} />
+                <div key={f} className="flex flex-1 flex-col items-center" title={alcancada ? f : `Evolui no nível ${NIVEIS_EVOLUCAO[i]}`}>
+                  <div className="h-14 w-14" style={alcancada ? undefined : { filter: "brightness(0)", opacity: 0.28 }}>
+                    <BonecoSolo tema={tema} estagio={i + 1} />
                   </div>
-                  <span className="mt-0.5 text-[9px] font-bold uppercase tracking-wider text-faint">
-                    {alcancada ? f.nome : `Nv.${NIVEIS_EVOLUCAO[i]}`}
+                  <span className="mt-0.5 text-center text-[9px] font-bold uppercase leading-tight tracking-wider text-faint">
+                    {alcancada ? f : `Nv.${NIVEIS_EVOLUCAO[i]}`}
                   </span>
                 </div>
               );
@@ -895,6 +927,19 @@ function Lobby({
         </div>
 
         <div className="space-y-4">
+          {emAndamento && (
+            <div className="card bt-painel-resultado--acerto flex flex-wrap items-center justify-between gap-3 p-5">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Partida pausada</p>
+                <p className="font-display text-lg font-bold text-brand-ink">
+                  Andar {emAndamento.andar} · HP {emAndamento.hp}/{emAndamento.hpMax}
+                </p>
+              </div>
+              <button onClick={onRetomar} className="btn-primary">
+                ▶ Continuar partida
+              </button>
+            </div>
+          )}
           <div className="card p-5">
             {erro ? (
               <div className="space-y-3">
@@ -923,7 +968,7 @@ function Lobby({
                     <>Sem revisão pendente hoje: a partida usa questões novas das matérias em que você mais erra.</>
                   )}
                 </p>
-                <button onClick={onComecar} className="btn-primary mt-4 w-full sm:w-auto">
+                <button onClick={onComecar} className={`${emAndamento ? "rounded-2xl border border-hair px-5 py-3 font-display font-bold text-muted" : "btn-primary"} mt-4 w-full sm:w-auto`}>
                   <Swords size={18} className="mr-2 inline" /> Começar partida
                 </button>
               </>
@@ -1004,8 +1049,8 @@ function Fim({ partida, perfil, activeId, onNova }: { partida: Partida; perfil: 
     <div className="fadeup mx-auto max-w-[760px] space-y-4 pt-4 pb-24">
       {partida.fim === "vitoria" && <Confete />}
       <div className="card p-6 text-center">
-        <div className={`mx-auto h-28 w-28 ${partida.fim === "vitoria" ? "bt-parceiro--festa" : partida.fim === "derrota" ? "bt-parceiro--triste" : ""}`}>
-          <SpriteParceiro tema={tema} estagio={est} />
+        <div className="mx-auto h-40 w-40">
+          <BonecoSolo tema={tema} estagio={est} clipe={partida.fim === "vitoria" ? "vitoria" : partida.fim === "derrota" ? "desmaio" : "guarda"} />
         </div>
         <Icone size={30} className="mx-auto mt-1 text-brand-500" strokeWidth={1.6} />
         <p className="mt-2 font-display text-3xl font-bold text-brand-ink">{titulo}</p>

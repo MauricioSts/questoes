@@ -1,67 +1,7 @@
 /* Batalha (pages/Batalha, components/batalha). O palco segue o tema; as caixas de nome e
  * de texto têm o visual retrô dos jogos de monstrinho em todos os temas. */
 
-.bt-arena {
-  position: relative;
-  height: clamp(230px, 64vw, 300px);
-  border-radius: 1.25rem;
-  overflow: hidden;
-  border: 3px solid #141018;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
-  isolation: isolate;
-  user-select: none;
-}
-@media (min-width: 1024px) {
-  .bt-arena { height: 320px; }
-}
-.bt-arena__ceu { position: absolute; inset: 0; z-index: -1; }
-
-/* Céu e chão por tema */
-[data-arena='fantasy'] .bt-arena__ceu {
-  background:
-    repeating-radial-gradient(ellipse at 70% 120%, transparent 0 18px, rgba(201,194,255,.10) 18px 19px),
-    linear-gradient(#0B0730, #1A1060 62%, #120C3A 62%);
-}
-[data-arena='rose'] .bt-arena__ceu {
-  background:
-    radial-gradient(60% 40% at 20% 20%, rgba(255,255,255,.9), transparent 70%),
-    linear-gradient(#BFD4FF, #EEF4FF 62%, #DCE7FB 62%);
-}
-[data-arena='cyberpunk'] .bt-arena__ceu {
-  background:
-    linear-gradient(transparent 61%, rgba(0,240,255,.35) 62%, transparent 63%),
-    repeating-linear-gradient(90deg, rgba(255,42,109,.12) 0 1px, transparent 1px 28px),
-    repeating-linear-gradient(0deg, rgba(0,240,255,.10) 0 1px, transparent 1px 28px),
-    linear-gradient(#07070D, #16142A 62%, #0B0B14 62%);
-}
-[data-arena='aranha'] .bt-arena__ceu {
-  background:
-    radial-gradient(circle, rgba(212,25,44,.22) 1.6px, transparent 2px) 0 0 / 9px 9px,
-    linear-gradient(#FFF6E3, #FBEBD0 62%, #F1DDB8 62%);
-}
-[data-arena='venom'] .bt-arena__ceu {
-  background:
-    radial-gradient(50% 40% at 80% 10%, rgba(93,106,168,.25), transparent 70%),
-    linear-gradient(#05060A, #121524 62%, #0A0C14 62%);
-}
-
-.bt-plataforma {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(0,0,0,.18);
-  box-shadow: inset 0 -4px 0 rgba(0,0,0,.15);
-}
-[data-arena='rose'] .bt-plataforma, [data-arena='aranha'] .bt-plataforma { background: rgba(20,16,24,.12); }
-[data-arena='cyberpunk'] .bt-plataforma { background: rgba(0,240,255,.12); box-shadow: 0 0 0 1px rgba(0,240,255,.5); }
-[data-arena='fantasy'] .bt-plataforma { background: rgba(201,194,255,.14); }
-[data-arena='venom'] .bt-plataforma { background: rgba(93,106,168,.18); }
-.bt-plataforma--inimigo { right: 4%; top: 44%; width: 40%; height: 11%; }
-.bt-plataforma--parceiro { left: 1%; bottom: 60px; width: 46%; height: 12%; }
-
-.bt-sprite { position: absolute; width: min(34%, 140px); aspect-ratio: 1; }
-.bt-sprite--inimigo { right: 12%; top: 7%; }
-.bt-sprite--chefe { width: min(40%, 165px); right: 9%; top: 2%; }
-.bt-sprite--parceiro { left: 8%; bottom: 58px; width: min(38%, 150px); }
+.bt-svg--silhueta { filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,.9)); }
 
 /* Caixas de nome */
 .bt-info {
@@ -77,8 +17,6 @@
   line-height: 1.25;
   box-shadow: 3px 3px 0 rgba(20,16,24,.35);
 }
-.bt-info--inimigo { top: 8px; left: 8px; }
-.bt-info--parceiro { right: 8px; bottom: 62px; border-radius: 10px 10px 2px 10px; }
 .bt-tipo {
   display: inline-block;
   padding: 0 6px;
@@ -119,38 +57,6 @@
 @keyframes bt-digita { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 .bt-texto__seta { position: absolute; right: 10px; bottom: 6px; font-size: 11px; animation: bt-pisca 1s steps(2) infinite; }
 @keyframes bt-pisca { 50% { opacity: 0; } }
-
-/* ---------- animações ---------- */
-
-.bt-parceiro--parado, .bt-inimigo--parado { animation: bt-respira 2.4s ease-in-out infinite; }
-@keyframes bt-respira { 50% { transform: translateY(-4px); } }
-
-.bt-parceiro--ataca { animation: bt-avanca .5s ease-in-out; }
-@keyframes bt-avanca {
-  40% { transform: translate(60%, -30%) scale(1.05); }
-}
-.bt-parceiro--dano { animation: bt-tremor .5s ease, bt-piscar .5s steps(2) 1; }
-@keyframes bt-tremor {
-  20% { transform: translateX(-8px); }
-  40% { transform: translateX(7px); }
-  60% { transform: translateX(-5px); }
-  80% { transform: translateX(3px); }
-}
-@keyframes bt-piscar {
-  25% { opacity: .2; filter: brightness(2) saturate(0); }
-  75% { opacity: .2; }
-}
-
-.bt-inimigo--entra { animation: bt-entra .75s cubic-bezier(.2, .9, .3, 1.1) both; }
-@keyframes bt-entra { from { transform: translateX(130%); opacity: 0; } }
-.bt-inimigo--ataca { animation: bt-investe .5s ease-in-out; }
-@keyframes bt-investe { 40% { transform: translate(-60%, 35%) scale(1.05); } }
-.bt-inimigo--dano { animation: bt-tremor .5s ease, bt-piscar .5s steps(2) 1; }
-.bt-inimigo--desmaia { animation: bt-desmaia .55s ease-in both; }
-@keyframes bt-desmaia { to { transform: translateY(45%) scaleY(.6); opacity: 0; } }
-.bt-inimigo--foge { animation: bt-foge .55s ease-in both; }
-@keyframes bt-foge { to { transform: translateX(140%) rotate(8deg); opacity: 0; } }
-.bt-inimigo--sumido { opacity: 0; }
 
 /* Barra de golpes (Pokémon: caixa com seta ao passar) */
 .bt-golpe {
@@ -210,226 +116,19 @@
 }
 
 
-/* ---------- partes animadas dos sprites (components/batalha/sprites) ---------- */
-
-.bt-svg { overflow: visible; }
-.bt-svg * { transform-box: view-box; }
-.bt-svg--silhueta { filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,.9)); }
-.bt-svg--silhueta * { animation: none !important; }
-
-.bt-a-respira { animation: bt-a-respira 2.6s ease-in-out infinite; }
-@keyframes bt-a-respira { 50% { transform: scale(1.03, .97); } }
-.bt-a-pisca { animation: bt-a-pisca 4.2s infinite; }
-@keyframes bt-a-pisca { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.08); } }
-.bt-a-asa-e { animation: bt-a-asa-e 1.3s ease-in-out infinite alternate; }
-.bt-a-asa-d { animation: bt-a-asa-d 1.3s ease-in-out infinite alternate; }
-@keyframes bt-a-asa-e { from { transform: rotate(6deg); } to { transform: rotate(-10deg); } }
-@keyframes bt-a-asa-d { from { transform: rotate(-6deg); } to { transform: rotate(10deg); } }
-.bt-a-cauda { animation: bt-a-cauda 1.1s ease-in-out infinite alternate; }
-@keyframes bt-a-cauda { from { transform: rotate(-9deg); } to { transform: rotate(9deg); } }
-.bt-a-orelha { animation: bt-a-orelha 3.4s ease-in-out infinite; }
-@keyframes bt-a-orelha { 0%, 80%, 100% { transform: rotate(0); } 86% { transform: rotate(-9deg); } 92% { transform: rotate(5deg); } }
-.bt-a-flutua { animation: bt-a-flutua 2.8s ease-in-out infinite; }
-@keyframes bt-a-flutua { 50% { transform: translateY(-4px); } }
-.bt-a-gira { animation: bt-a-gira 14s linear infinite; }
-.bt-a-gira-lento { animation: bt-a-gira 26s linear infinite reverse; }
+/* animações compartilhadas */
 @keyframes bt-a-gira { to { transform: rotate(360deg); } }
-.bt-a-agulha { animation: bt-a-agulha 3s ease-in-out infinite; }
-@keyframes bt-a-agulha { 0%, 100% { transform: rotate(-25deg); } 40% { transform: rotate(40deg); } 60% { transform: rotate(10deg); } }
-.bt-a-pulsa { animation: bt-a-pulsa 1.8s ease-in-out infinite; }
-.bt-a-pulsa-lento { animation: bt-a-pulsa 3.2s ease-in-out infinite; }
 @keyframes bt-a-pulsa { 50% { opacity: .45; } }
-.bt-a-aura { animation: bt-a-aura 2.4s ease-in-out infinite; }
-@keyframes bt-a-aura { 50% { transform: scale(1.08); opacity: .15; } }
-.bt-a-brilho-olho { animation: bt-a-brilho-olho 2s ease-in-out infinite; }
-@keyframes bt-a-brilho-olho { 50% { filter: drop-shadow(0 0 4px #FFE9A8) brightness(1.3); } }
-.bt-a-faisca { animation: bt-a-faisca 1.2s steps(2) infinite; }
+@keyframes bt-a-pisca { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.08); } }
 @keyframes bt-a-faisca { 50% { opacity: 0; } }
-.bt-a-scan { animation: bt-a-scan 1.8s ease-in-out infinite alternate; }
-@keyframes bt-a-scan { to { transform: translateX(50px); } }
-.bt-a-ecg { stroke-dasharray: 60 20; animation: bt-a-ecg 1.4s linear infinite; }
-@keyframes bt-a-ecg { to { stroke-dashoffset: -80; } }
-.bt-a-perna { animation: bt-a-perna .9s ease-in-out infinite alternate; }
-@keyframes bt-a-perna { from { transform: rotate(-7deg); } to { transform: rotate(7deg); } }
-.bt-a-fio { animation: bt-a-fio 2.8s ease-in-out infinite; }
-@keyframes bt-a-fio { 50% { transform: scaleY(1.2); } }
-.bt-a-tentaculo { animation: bt-a-tentaculo 1.7s ease-in-out infinite alternate; }
-@keyframes bt-a-tentaculo { from { transform: rotate(-12deg) scale(.96); } to { transform: rotate(10deg) scale(1.04); } }
-.bt-a-lingua { animation: bt-a-lingua 1.1s ease-in-out infinite alternate; }
-@keyframes bt-a-lingua { from { transform: rotate(-8deg); } to { transform: rotate(10deg) scaleY(1.08); } }
-.bt-a-pinga { animation: bt-a-pinga 2.2s ease-in infinite; }
-@keyframes bt-a-pinga { 0% { transform: translateY(0) scaleY(.4); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(14px) scaleY(1.2); opacity: 0; } }
-.bt-a-reflexo { animation: bt-a-reflexo 3s ease-in-out infinite; }
-@keyframes bt-a-reflexo { 50% { opacity: .25; } }
-.bt-a-sombra { animation: bt-a-sombra 2.8s ease-in-out infinite; }
-@keyframes bt-a-sombra { 50% { transform: scaleX(.9); opacity: .8; } }
-.bt-a-capa { animation: bt-a-capa 2s ease-in-out infinite alternate; }
-@keyframes bt-a-capa { to { transform: skewX(4deg) scaleY(1.03); } }
-.bt-a-coroa { animation: bt-a-coroa 2.2s ease-in-out infinite; }
-@keyframes bt-a-coroa { 50% { transform: rotate(-4deg) translateY(-2px); } }
-.bt-a-martelo { animation: bt-a-martelo 1.6s ease-in infinite; }
-@keyframes bt-a-martelo { 0%, 60%, 100% { transform: rotate(0); } 70% { transform: rotate(-35deg); } 80% { transform: rotate(8deg); } }
-.bt-a-linhas { animation: bt-a-pulsa 2.2s ease-in-out infinite; }
 
-/* ---------- estados extras dos sprites ---------- */
-
-.bt-inimigo--entra-chefe { animation: bt-entra-chefe 1.3s cubic-bezier(.2, .9, .3, 1) both; }
-@keyframes bt-entra-chefe {
-  0% { transform: translateY(-120%) scale(.6); opacity: 0; filter: brightness(0); }
-  55% { transform: translateY(6%) scale(1.1); opacity: 1; filter: brightness(0); }
-  70% { transform: translateY(0) scale(.96); filter: brightness(2.5); }
-  100% { transform: none; filter: none; }
-}
-.bt-inimigo--capturado { animation: bt-capturado .6s ease-in both; }
-@keyframes bt-capturado { to { transform: scale(.05) translateY(40%); opacity: 0; filter: brightness(3); } }
-.bt-parceiro--desmaia { animation: bt-desmaia .9s ease-in both; }
-.bt-parceiro--comemora { animation: bt-comemora .9s ease-in-out; }
-@keyframes bt-comemora { 25% { transform: translateY(-16px) rotate(-4deg); } 50% { transform: translateY(0); } 70% { transform: translateY(-8px) rotate(3deg); } }
 .bt-nivel { display: inline-block; animation: bt-nivel .6s cubic-bezier(.2, 1.8, .4, 1); }
 @keyframes bt-nivel { from { transform: scale(1.9); color: #3D7BD9; } }
 
-/* partículas de ambiente por tema */
-.bt-arena__particulas { position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .7; animation: bt-poeira 18s linear infinite; }
-@keyframes bt-poeira { to { background-position: 0 -300px, 40px -200px; } }
-[data-arena='fantasy'] .bt-arena__particulas { background-image: radial-gradient(circle, #fff 1px, transparent 1.5px), radial-gradient(circle, #C9C2FF 1px, transparent 1.5px); background-size: 70px 60px, 110px 90px; }
-[data-arena='rose'] .bt-arena__particulas { background-image: radial-gradient(circle, #fff 1.5px, transparent 2px), radial-gradient(circle, #9DB4E0 1px, transparent 1.5px); background-size: 90px 70px, 60px 80px; }
-[data-arena='cyberpunk'] .bt-arena__particulas { background-image: linear-gradient(#00F0FF 0 0), linear-gradient(#FF2A6D 0 0); background-size: 2px 8px, 2px 6px; background-repeat: space; opacity: .25; }
-[data-arena='aranha'] .bt-arena__particulas { background-image: radial-gradient(circle, #1446A0 1px, transparent 1.5px), radial-gradient(circle, #D4192C 1px, transparent 1.5px); background-size: 80px 70px, 120px 100px; opacity: .35; }
-[data-arena='venom'] .bt-arena__particulas { background-image: radial-gradient(circle, #5D6AA8 1.5px, transparent 2px), radial-gradient(circle, #2A3050 2px, transparent 2.5px); background-size: 90px 80px, 60px 110px; }
-
-.bt-flash { position: absolute; inset: 0; z-index: 30; pointer-events: none; animation: bt-flash .45s ease-out both; mix-blend-mode: screen; }
 @keyframes bt-flash { from { opacity: .85; } to { opacity: 0; } }
 .bt-tipo--chefe { background: #141018; animation: bt-a-faisca 1s steps(2) infinite; }
 
-/* ---------- efeitos (components/batalha/Efeitos) ---------- */
-
-.bt-fx { position: absolute; inset: 0; z-index: 20; pointer-events: none; overflow: hidden; }
-.bt-fx > * { position: absolute; }
-.bt-fx-linhas { inset: 0; width: 100%; height: 100%; overflow: visible; }
-.bt-fx-linhas path { stroke-dasharray: 600; stroke-dashoffset: 600; }
-
-.bt-fx-disparo path { animation: bt-fx-disparo 1s ease-out both; }
-@keyframes bt-fx-disparo { 0% { stroke-dashoffset: 600; } 25% { stroke-dashoffset: 0; opacity: 1; } 70% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
-.bt-fx-chicote path { animation: bt-fx-chicote 1s cubic-bezier(.6, 0, .3, 1) both; }
-@keyframes bt-fx-chicote { 0% { stroke-dashoffset: 600; } 35% { stroke-dashoffset: 0; } 65% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -600; } }
-.bt-fx-laser path { stroke-dasharray: none; stroke-dashoffset: 0; filter: drop-shadow(0 0 4px currentColor); animation: bt-fx-laser .9s steps(1) both; }
-.bt-fx-laser path:nth-child(2) { animation-delay: .05s; }
-.bt-fx-laser path:nth-child(3) { animation-delay: .1s; }
-@keyframes bt-fx-laser { 0% { opacity: 0; } 10% { opacity: 1; } 20% { opacity: .3; } 30%, 60% { opacity: 1; } 75% { opacity: .2; } 85%, 100% { opacity: 0; } }
-.bt-fx-vento path { stroke-dasharray: 90 600; animation: bt-fx-vento .9s ease-out both; }
-.bt-fx-vento path:nth-child(2) { animation-delay: .08s; }
-.bt-fx-vento path:nth-child(3) { animation-delay: .16s; }
-@keyframes bt-fx-vento { from { stroke-dashoffset: 90; opacity: 1; } to { stroke-dashoffset: -260; opacity: .2; } }
-
-.bt-fx-teia { width: 120px; height: 120px; margin: -60px 0 0 -60px; animation: bt-fx-teia 1s cubic-bezier(.2, 1.6, .4, 1) .22s both; }
-.bt-fx-teia--grande { width: 170px; height: 170px; margin: -85px 0 0 -85px; }
-@keyframes bt-fx-teia { 0% { transform: scale(.05) rotate(-60deg); opacity: 1; } 40% { transform: scale(1) rotate(0); } 80% { opacity: 1; } 100% { opacity: 0; } }
-.bt-fx-mordida { width: 110px; height: 110px; margin: -55px 0 0 -55px; animation: bt-fx-some 1.3s ease both; }
-.bt-fx-mandibula-c { animation: bt-fx-mand-c .7s cubic-bezier(.7, 0, .3, 1.4) .3s both; }
-.bt-fx-mandibula-b { animation: bt-fx-mand-b .7s cubic-bezier(.7, 0, .3, 1.4) .3s both; }
-@keyframes bt-fx-mand-c { from { transform: translateY(-30px); opacity: 0; } 60% { transform: translateY(4px); opacity: 1; } }
-@keyframes bt-fx-mand-b { from { transform: translateY(30px); opacity: 0; } 60% { transform: translateY(-4px); opacity: 1; } }
-@keyframes bt-fx-some { 0%, 75% { opacity: 1; } 100% { opacity: 0; } }
-
-.bt-fx-anel {
-  width: 46px; height: 30px; margin: -15px 0 0 -23px;
-  border: 2px solid #C9C2FF; border-radius: 50%;
-  box-shadow: 0 0 10px rgba(201,194,255,.8), inset 0 0 8px rgba(201,194,255,.6);
-  animation: bt-fx-voo .55s cubic-bezier(.5, 0, .7, 1) both;
-}
-@keyframes bt-fx-voo {
-  from { left: var(--x0); top: var(--y0); transform: scale(.4); opacity: 1; }
-  90% { opacity: 1; }
-  to { left: var(--x1); top: var(--y1); transform: scale(1.5); opacity: 0; }
-}
-.bt-fx-constelacao { width: 110px; height: 110px; margin: -55px 0 0 -55px; animation: bt-fx-constelacao 1s ease-out .4s both; }
-.bt-fx-constelacao--grande { width: 150px; height: 150px; margin: -75px 0 0 -75px; }
-.bt-fx-constelacao path:first-child { stroke-dasharray: 300; animation: bt-fx-traco .5s ease-out .45s both; }
-@keyframes bt-fx-traco { from { stroke-dashoffset: 300; } to { stroke-dashoffset: 0; } }
-@keyframes bt-fx-constelacao { 0% { transform: scale(.4) rotate(-30deg); opacity: 0; } 30% { opacity: 1; transform: scale(1) rotate(0); } 80% { opacity: 1; } 100% { opacity: 0; transform: scale(1.1); } }
-
-.bt-fx-pena { width: 22px; height: 22px; margin: -11px 0 0 -11px; animation: bt-fx-pena .7s ease-in both; }
-@keyframes bt-fx-pena {
-  from { left: var(--x0); top: var(--y0); transform: rotate(0); opacity: 1; }
-  to { left: var(--x1); top: var(--y1); transform: rotate(540deg); opacity: .3; }
-}
-.bt-fx-vortice { width: 90px; height: 90px; margin: -45px 0 0 -45px; border-radius: 50%; border: 3px dashed #7F9BD0; border-left-color: transparent; animation: bt-fx-vortice .9s ease-out .4s both; }
-@keyframes bt-fx-vortice { from { transform: scale(.2) rotate(0); opacity: 1; } to { transform: scale(1.4) rotate(720deg); opacity: 0; } }
-
-.bt-fx-pixel { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; animation: bt-fx-pixel .8s steps(5) .25s both; }
-@keyframes bt-fx-pixel { from { transform: translate(0, 0); opacity: 1; } to { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
-.bt-fx-texto {
-  transform: translateX(-50%);
-  font: 900 22px/1 'Share Tech Mono', ui-monospace, monospace;
-  letter-spacing: .2em;
-  text-shadow: 3px 0 #FF2A6D, -3px 0 #00F0FF;
-  animation: bt-fx-glitch-txt 1.1s steps(3) both;
-}
-@keyframes bt-fx-glitch-txt { 0% { opacity: 0; transform: translateX(-60%) skewX(20deg); } 20% { opacity: 1; transform: translateX(-45%); } 40% { transform: translateX(-52%) skewX(-10deg); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%); } }
-
-.bt-fx-atrasado > *, .bt-fx-atrasado-contra > * { position: absolute; }
-.bt-fx-atrasado, .bt-fx-atrasado-contra { position: absolute; inset: 0; }
-.bt-fx-impacto { width: 70px; height: 70px; margin: -35px 0 0 -35px; animation: bt-fx-impacto .5s ease-out .38s both; }
-.bt-fx-atrasado-contra .bt-fx-impacto { animation-delay: .42s; }
-.bt-fx-impacto--grande { width: 110px; height: 110px; margin: -55px 0 0 -55px; }
-@keyframes bt-fx-impacto { 0% { transform: scale(0) rotate(-30deg); opacity: 1; } 50% { transform: scale(1.1) rotate(0); opacity: 1; } 100% { transform: scale(1.3); opacity: 0; } }
-.bt-fx-faisca { animation: bt-fx-faisca .5s ease-out .38s both; }
-@keyframes bt-fx-faisca { from { transform: rotate(var(--a)) translateY(0); } to { transform: rotate(var(--a)) translateY(-46px); opacity: 0; } }
-
-.bt-fx-projetil {
-  display: grid; place-items: center;
-  width: 34px; height: 34px; margin: -17px 0 0 -17px;
-  border-radius: 8px; border: 2px solid #141018;
-  color: #fff; font: 900 12px/1 ui-monospace, monospace;
-  box-shadow: 0 0 12px rgba(0,0,0,.35);
-  animation: bt-fx-projetil .45s cubic-bezier(.5, 0, .9, .6) both;
-}
-.bt-fx-projetil--forte { width: 46px; height: 46px; margin: -23px 0 0 -23px; font-size: 15px; }
-@keyframes bt-fx-projetil {
-  from { left: var(--x0); top: var(--y0); transform: rotate(0) scale(.5); }
-  to { left: var(--x1); top: var(--y1); transform: rotate(900deg) scale(1.1); }
-}
-.bt-fx-projetil { animation-fill-mode: forwards; }
-.bt-fx-projetil { --fim: 0; }
-
-.bt-fx-numero {
-  transform: translate(-50%, -50%);
-  font: 900 20px/1 system-ui, sans-serif;
-  -webkit-text-stroke: 1.5px #141018;
-  paint-order: stroke;
-  text-shadow: 0 3px 0 #141018;
-  white-space: nowrap;
-  animation: bt-fx-numero 1.3s cubic-bezier(.2, 1.4, .4, 1) both;
-}
-.bt-fx-numero--grande { font-size: 28px; }
-@keyframes bt-fx-numero { 0% { transform: translate(-50%, 0) scale(.3); opacity: 0; } 20% { transform: translate(-50%, -60%) scale(1.15); opacity: 1; } 75% { opacity: 1; transform: translate(-50%, -90%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -140%); } }
-
-.bt-fx-mais { color: #3BC46B; font: 900 20px/1 system-ui; -webkit-text-stroke: 1px #0E5A2C; animation: bt-fx-mais 1.1s ease-out both; }
-@keyframes bt-fx-mais { from { transform: translateY(0) scale(.4); opacity: 0; } 30% { opacity: 1; transform: translateY(-10px) scale(1.1); } to { transform: translateY(-50px); opacity: 0; } }
-
-.bt-fx-orbe { width: 60px; height: 60px; margin: -30px 0 0 -30px; }
-.bt-fx-orbe__bola {
-  position: absolute; inset: 14px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff 0 12%, var(--cor) 45%, #141018 100%);
-  border: 2px solid #141018;
-  box-shadow: 0 0 18px var(--cor);
-  animation: bt-fx-orbe 2.4s ease-in-out both;
-}
-@keyframes bt-fx-orbe {
-  0% { transform: translateY(-120px) scale(.6); opacity: 0; }
-  20% { transform: translateY(0) scale(1); opacity: 1; }
-  30%, 44%, 58% { transform: rotate(0); }
-  37% { transform: rotate(-22deg); }
-  51% { transform: rotate(18deg); }
-  65% { transform: rotate(-10deg); }
-  72% { transform: rotate(0) scale(1); }
-  78% { transform: scale(1.25); filter: brightness(1.8); }
-  100% { transform: scale(1); opacity: 1; }
-}
-.bt-fx-estrela { position: absolute; left: 50%; top: 50%; margin: -8px 0 0 -6px; color: #FFC857; font-size: 16px; opacity: 0; animation: bt-fx-estrela .7s ease-out 1.8s both; }
-@keyframes bt-fx-estrela { from { transform: rotate(var(--a)) translateY(0); opacity: 1; } to { transform: rotate(var(--a)) translateY(-44px); opacity: 0; } }
-
+/* faixa ("ANDAR 2", "CHEFE!", "SUBIU DE NÍVEL!") */
 .bt-fx-banner {
   left: 0; right: 0; top: 34%;
   display: flex; flex-direction: column; align-items: center;
@@ -487,8 +186,6 @@
   animation: bt-a-gira 9s linear infinite;
 }
 .bt-vitrine::after { content: ""; position: absolute; bottom: 4px; width: 120px; height: 18px; border-radius: 50%; background: var(--accentBg); border: 1px solid var(--accentBd); z-index: -1; }
-.bt-parceiro--festa { animation: bt-comemora 1.1s ease-in-out infinite; }
-.bt-parceiro--triste { transform: translateY(8px) rotate(-6deg); filter: saturate(.4); }
 
 /* micro-animações da interface da luta */
 .bt-carta-questao { animation: bt-carta-questao .5s cubic-bezier(.2, .9, .3, 1) both; }
@@ -509,5 +206,110 @@
 @keyframes bt-confete { to { transform: translate(var(--dx), 110vh) rotate(var(--r)); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .bt-arena *, .bt-item, .bt-captura, .bt-evo *, .bt-confete, .bt-svg * { animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; }
+  .bt-item, .bt-captura, .bt-evo *, .bt-confete { animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; }
+}
+
+/* ================= MODO JOGO (pages/Batalha + components/batalha/jogo) ================= */
+
+.jg {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  background: rgb(var(--bg));
+  animation: jg-entra .35s ease both;
+}
+@keyframes jg-entra { from { opacity: 0; transform: scale(1.02); } }
+@media (min-width: 1024px) {
+  .jg { grid-template-rows: none; grid-template-columns: minmax(0, 1.35fr) minmax(400px, 1fr); }
+}
+
+.jg__palco { position: relative; display: grid; place-items: center; background: #07060F; }
+@media (min-width: 1024px) { .jg__palco { padding: 14px; } }
+
+.jg__painel {
+  position: relative;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgb(var(--surface));
+  border-left: 1px solid rgb(var(--hair));
+}
+.jg__golpes {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  background: rgb(var(--surface));
+  border-top: 1px solid rgb(var(--hair));
+  box-shadow: 0 -10px 24px rgba(0,0,0,.12);
+}
+
+/* Palco: proporção que mantém herói e vilão sempre no quadro (viewBox 1000×520, fatia) */
+.jg-palco {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.3;
+  max-height: 46vh;
+  overflow: hidden;
+  isolation: isolate;
+  user-select: none;
+}
+@media (min-width: 1024px) {
+  .jg-palco { max-height: calc(100vh - 28px); border-radius: 18px; border: 3px solid #141018; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+}
+.jg-palco__svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.jg-palco__svg * { transform-box: view-box; }
+.jg-plataforma { fill: rgba(0,0,0,.2); }
+[data-arena='cyberpunk'] .jg-plataforma { fill: rgba(0,240,255,.14); stroke: rgba(0,240,255,.5); stroke-width: 2; }
+[data-arena='fantasy'] .jg-plataforma { fill: rgba(201,194,255,.14); }
+
+.jg-topo { position: absolute; left: 10px; right: 10px; top: 10px; z-index: 6; }
+.jg-topo .bt-chip { backdrop-filter: none; box-shadow: 2px 2px 0 rgba(20,16,24,.3); }
+.jg-botao {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+  padding: 6px 10px; border-radius: 10px;
+  background: #FFFDF5; color: #141018; border: 2px solid #141018;
+  font-size: 12px; font-weight: 800;
+  box-shadow: 2px 2px 0 rgba(20,16,24,.35);
+}
+.jg-info--vilao { position: absolute; left: 10px; top: 48px; z-index: 6; }
+.jg-info--heroi { position: absolute; right: 10px; bottom: 70px; z-index: 6; border-radius: 10px 10px 2px 10px; }
+.jg-texto { position: absolute; z-index: 6; }
+@media (max-width: 640px) {
+  .jg-info--vilao, .jg-info--heroi { width: 46%; font-size: 11px; padding: 4px 7px; }
+  .jg-info--heroi { bottom: 56px; }
+  .jg-texto { min-height: 40px; font-size: 12px; padding: 5px 24px 5px 10px; }
+  .jg-topo .bt-chip { font-size: 10px; padding: 2px 7px; }
+  .jg-topo .bt-chip:nth-child(n + 4) { display: none; }
+  .jg-info--vilao { top: 40px; }
+}
+.jg-flash { position: absolute; inset: 0; z-index: 5; pointer-events: none; animation: bt-flash .45s ease-out both; mix-blend-mode: screen; }
+.jg-banner { position: absolute; z-index: 7; }
+
+/* animações de cenário */
+.jg-nuvem { animation: jg-nuvem 26s linear infinite alternate; }
+.jg-nuvem--lenta { animation-duration: 40s; }
+@keyframes jg-nuvem { to { transform: translateX(80px); } }
+.jg-pisca { animation: jg-pisca 2.4s ease-in-out infinite; }
+@keyframes jg-pisca { 50% { opacity: .25; } }
+.jg-chuva { animation: jg-chuva .6s linear infinite; }
+@keyframes jg-chuva { to { transform: translate(-40px, 80px); } }
+.jg-neon { animation: jg-neon 4s steps(1) infinite; }
+.jg-neon--2 { animation-delay: 1.7s; }
+@keyframes jg-neon { 0%, 100% { opacity: 1; } 42% { opacity: .2; } 44% { opacity: 1; } 46% { opacity: .3; } 48% { opacity: 1; } }
+.jg-goteja { transform-box: fill-box; transform-origin: top center; animation: jg-goteja 3.2s ease-in-out infinite; }
+@keyframes jg-goteja { 50% { transform: scaleY(1.6); } }
+.jg-nevoa { animation: jg-nuvem 14s ease-in-out infinite alternate; }
+.jg-flutua { animation: jg-flutua 4s ease-in-out infinite; }
+@keyframes jg-flutua { 50% { transform: translateY(-8px); } }
+.jg-vento-chao { animation: jg-vento 2.2s linear infinite; }
+@keyframes jg-vento { from { transform: translateX(-60px); opacity: 0; } 30% { opacity: .7; } to { transform: translateX(120px); opacity: 0; } }
+.jg-pulsa { animation: bt-a-pulsa 1.4s ease-in-out infinite; }
+.jg-gira { animation: bt-a-gira 6s linear infinite; }
+.jg-pisca-estrela { animation: jg-pisca 1.8s ease-in-out infinite; }
+.jg-pisca-olho { transform-box: fill-box; transform-origin: center; animation: bt-a-pisca 3.6s infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .jg *, .jg { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
