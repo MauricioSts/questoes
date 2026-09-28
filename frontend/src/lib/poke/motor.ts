@@ -29,6 +29,7 @@ import {
   golpesNovos,
   nivelDoXpPoke,
   xpDaVitoria,
+  xpMinimoPorVitoria,
   xpDoNivel,
   type Dex,
   type Especie,
@@ -497,7 +498,10 @@ export function responderPoke(dex: Dex, p: PartidaPoke, o: OpcoesResposta): { pa
       eventos.push({ tipo: "desmaiouInimigo" });
     }
     // XP só para quem lutou (e na mesma conta de treinador ×1,5 dos jogos)
-    const xp = Math.round(xpDaVitoria(inimigo, e.nivel, nivelDe(eu), !selvagem) * multXp);
+    // Piso por vitória: o time evolui em ~5 lutas de treinador; golpe pouco efetivo não atrasa.
+    // Bônus (crítico, super efetivo) multiplicam o piso também.
+    const piso = xpMinimoPorVitoria(dex, eu.id, nivelDe(eu)) * Math.max(1, multXp);
+    const xp = Math.round(Math.max(xpDaVitoria(inimigo, e.nivel, nivelDe(eu), !selvagem) * multXp, piso));
     q.xp += xp;
     ganharXp(dex, eu, xp, eventos);
     if (q.combo % 3 === 0) curar(dex, eu, hpMax(dex, eu) * 0.1, "combo", eventos);

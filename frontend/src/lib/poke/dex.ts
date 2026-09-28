@@ -161,6 +161,48 @@ export function golpesNovos(e: Especie, de: number, ate: number): number[] {
 // Troca e amizade não existem aqui: viram evolução por nível, no 32 (explicado na tela).
 export const NIVEL_TROCA_AMIZADE = 32;
 
+// Ritmo de evolução: cada estágio (do nível em que a forma surgiu até o nível em que evolui)
+// leva cerca de 5 lutas contra treinador (2–3 Pokémon cada) de acertos. A fórmula da geração 5
+// sozinha pedia umas 16 lutas do Bulbasaur Nv5 ao Ivysaur.
+export const LUTAS_POR_EVOLUCAO = 5;
+const KOS_POR_EVOLUCAO = LUTAS_POR_EVOLUCAO * 2.5;
+const NIVEL_INICIAL = 5;
+
+const nivelDeEntrada = new WeakMap<Dex, Map<number, number>>();
+// Nível em que a forma `id` aparece por evolução (5 para quem não evolui de ninguém por nível).
+function nivelEmQueSurge(dex: Dex, id: number): number {
+  let mapa = nivelDeEntrada.get(dex);
+  if (!mapa) {
+    mapa = new Map();
+    for (const e of Object.values(dex.especies))
+      for (const [para, tipo, valor] of e.e ?? []) {
+        const nv = tipo === "l" ? Number(valor) : tipo === "t" || tipo === "f" ? NIVEL_TROCA_AMIZADE : null;
+        if (nv !== null && !mapa.has(para)) mapa.set(para, nv);
+      }
+    nivelDeEntrada.set(dex, mapa);
+  }
+  return mapa.get(id) ?? NIVEL_INICIAL;
+}
+
+function nivelDaProximaEvolucao(e: Especie): number | null {
+  let menor: number | null = null;
+  for (const [, tipo, valor] of e.e ?? []) {
+    const nv = tipo === "l" ? Number(valor) : tipo === "t" || tipo === "f" ? NIVEL_TROCA_AMIZADE : null;
+    if (nv !== null && (menor === null || nv < menor)) menor = nv;
+  }
+  return menor;
+}
+
+// XP mínimo por Pokémon derrubado para evoluir em ~LUTAS_POR_EVOLUCAO lutas. Sem evolução
+// por nível pela frente, 0 (vale só a fórmula dos jogos).
+export function xpMinimoPorVitoria(dex: Dex, id: number, nivelAtual: number): number {
+  const e = dex.especies[id];
+  const alvo = e && nivelDaProximaEvolucao(e);
+  if (!alvo || nivelAtual >= alvo) return 0;
+  const inicio = Math.min(nivelEmQueSurge(dex, id), nivelAtual);
+  return Math.ceil((xpDoNivel(alvo) - xpDoNivel(inicio)) / KOS_POR_EVOLUCAO);
+}
+
 export function evolucaoPorNivel(e: Especie, nivel: number): number | null {
   for (const [para, tipo, valor] of e.e ?? []) {
     if (tipo === "l" && nivel >= Number(valor)) return para;

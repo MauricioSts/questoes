@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import dexJson from "../data/pokedex.json";
 import type { Candidata } from "../lib/batalha";
 import { resumir } from "../lib/batalha";
-import { atributos, efetividade, evolucaoPorNivel, formaNoNivel, golpesNoNivel, nivelDoXpPoke, xpDoNivel, type Dex } from "../lib/poke/dex";
+import { atributos, efetividade, evolucaoPorNivel, formaNoNivel, golpesNoNivel, nivelDoXpPoke, xpDoNivel, xpMinimoPorVitoria, type Dex } from "../lib/poke/dex";
 import {
   avancarPoke,
   criarMon,
@@ -180,3 +180,32 @@ describe("turno", () => {
     expect(resumir(r.partida).erradas).toEqual([p.atual!.questaoId]);
   });
 });
+
+describe("ritmo de evolução", () => {
+  it("inicial evolui em ~5 lutas de treinador (2–3 Pokémon cada) só acertando", () => {
+    let mon = criarMon(dex, 1, 5, "b"); // Bulbasaur, evolui no 16
+    let derrubados = 0;
+    for (let jornada = 0; jornada < 5 && mon.id === 1; jornada++) {
+      const pendentes = Array.from({ length: 12 }, (_, i) => cand(jornada * 100 + i + 1, i % 2 ? "Banco de Dados" : "Português"));
+      let p = montarPartidaPoke({ dex, time: [mon], mochila: {}, pendentes, novas: [], concursoId: null, semente: 7 + jornada })!;
+      while (!p.fim && p.time[0].id === 1) {
+        if (p.oferta) p = escolherOferta(p, p.oferta[0], dex);
+        if (!p.atual) p = avancarPoke(p, dex);
+        if (!p.atual) break;
+        p = certo(p).partida;
+        derrubados++;
+      }
+      mon = { ...mon, id: p.time[0].id, xp: p.time[0].xp };
+    }
+    expect(mon.id).toBe(2);
+    expect(derrubados).toBeGreaterThanOrEqual(10);
+    expect(derrubados).toBeLessThanOrEqual(15);
+  });
+
+  it("sem evolução por nível pela frente, vale só a fórmula", () => {
+    expect(xpMinimoPorVitoria(dex, 3, 40)).toBe(0); // Venusaur
+    expect(xpMinimoPorVitoria(dex, 1, 5)).toBe(Math.ceil((xpDoNivel(16) - xpDoNivel(5)) / 12.5));
+    expect(xpMinimoPorVitoria(dex, 2, 16)).toBe(Math.ceil((xpDoNivel(32) - xpDoNivel(16)) / 12.5));
+  });
+});
+
