@@ -1,5 +1,5 @@
-// BATALHA POKÉMON: a revisão espaçada como jornada Pokémon. Treinadores lançam Pokémon, e
-// cada Pokémon é uma questão; a resposta certa derruba, o golpe escolhido decide o resto.
+// BATALHA POKÉMON: a revisão espaçada como jornada Pokémon. Treinadores lançam Pokémon e
+// cada turno é uma questão: a resposta certa faz o golpe sair (tira HP, põe status, cura).
 // As regras (e o porquê de cada uma, sempre a favor do aprendizado) estão no motor,
 // lib/poke/motor.ts; os dados da PokéAPI, em lib/poke/dex.ts. Esta tela monta a partida,
 // grava cada resposta como estudo de verdade (contexto BATALHA: conta na meta do dia e na
@@ -38,6 +38,8 @@ import {
   MAX_TIME,
   MIN_LICAO,
   avancarPoke,
+  chanceCaptura,
+  pularQuestao,
   escolherOferta,
   fugirPoke,
   hpMax,
@@ -61,6 +63,7 @@ import {
   type PartidaPoke,
   type PerfilPoke,
   type Status,
+  type StatusGolpe,
 } from "../lib/poke/motor";
 import { useConcurso } from "../store/concurso";
 import { useMeta } from "../store/meta";
@@ -68,7 +71,8 @@ import { usePausarFundo } from "../store/fundo";
 import { QuestaoView } from "../components/QuestaoView";
 import { PageHeader } from "../components/PageHeader";
 import { Carregando } from "../components/Spinner";
-import { Arena, TipoChip, type BolaVis, type FxVis, type LadoVis, type TextoVis } from "../components/poke/Arena";
+import { Arena, TipoChip, type BolaVis, type FxVis, type LadoVis, type LancaVis, type TextoVis } from "../components/poke/Arena";
+import { CHEGADA, efeitoDoGolpe, efeitoDoStatus } from "../components/poke/fx";
 
 // ---------- persistência ----------
 
@@ -126,6 +130,16 @@ const TXT_STATUS: Record<Exclude<Status, "">, [string, string, string]> = {
   freeze: ["congelou", "está congelado", "descongelou"],
 };
 
+const TXT_STATUS_INIMIGO: Record<StatusGolpe, string> = {
+  poison: "foi envenenado",
+  burn: "se queimou",
+  paralysis: "ficou paralisado (pode não conseguir contra-atacar)",
+  sleep: "adormeceu (não contra-ataca enquanto dorme)",
+  freeze: "congelou (não contra-ataca enquanto estiver congelado)",
+  "leech-seed": "foi semeado: vai perder HP a cada turno",
+};
+const TXT_TIQUE: Partial<Record<StatusGolpe, string>> = { poison: "sofreu com o veneno", burn: "sofreu com a queimadura" };
+
 const esperar = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 type Fase = "lobby" | "entrada" | "pergunta" | "golpe" | "resultado" | "troca" | "recompensa" | "fim";
@@ -170,7 +184,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
 
   const [partida, setPartidaEstado] = useState<PartidaPoke | null>(() => {
     const p = ler<PartidaPoke>(CHAVE_PARTIDA);
-    return p && p.versao === 2 && p.concursoId === (activeId ?? null) ? p : null;
+    return p && p.versao === 3 && p.concursoId === (activeId ?? null) ? p : null;
   });
   // Toda mudança da partida vai para o perfil na hora (níveis, capturas, mochila): fechar a
   // aba no meio não perde o que o time conquistou.
@@ -205,6 +219,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   const [fx, setFx] = useState<FxVis | null>(null);
   const [textos, setTextos] = useState<TextoVis[]>([]);
   const [bolaVis, setBolaVis] = useState<BolaVis | null>(null);
+  const [lancamentos, setLancamentos] = useState<LancaVis[]>([]);
   const [evolucao, setEvolucao] = useState<{ de: number; para: number; fim: () => void } | null>(null);
   const contador = useRef(1);
   const ultimoTreinador = useRef<number | null>(null);
@@ -242,8 +257,21 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     [dex]
   );
   const visDoEncontro = (e: Encontro, anim: LadoVis["anim"] = "", capturavel = false): LadoVis => {
-    const hp = atributos(dex.especies[e.especie], e.nivel).hp;
-    return { id: e.especie, nome: nomeDe(e.especie), nivel: e.nivel, hp, hpMax: hp, status: "", anim, chave: n(), selvagem: e.tipo === "selvagem", capturavel };
+    const max = atributos(dex.especies[e.especie], e.nivel).hp;
+    return { id: e.especie, nome: nomeDe(e.especie), nivel: e.nivel, hp: e.hp, hpMax: max, status: e.status, semente: e.semente, anim, chave: n(), selvagem: e.tipo === "selvagem", capturavel };
+  };
+  // Pokébola voando até o lado e abrindo; o Pokémon sai dela (anim "saiBola").
+  const lancar = (lado: "meu" | "inimigo") => {
+    const k = n();
+    setLancamentos((xs) => [...xs.slice(-1), { n: k, lado, bola: "poke-ball" }]);
+    setTimeout(() => setLancamentos((xs) => xs.filter((x) => x.n !== k)), 1100);
+  };
+  const golpeFx = (de: "meu" | "inimigo", g: number, forte = false) => {
+    const m = dex.golpes[g] ?? dex.golpes[0];
+    const efeito = efeitoDoGolpe(m, COR_TIPO[m[1]] ?? "#fff");
+    const alvo = efeito.estilo === "cura" ? de : de === "meu" ? "inimigo" : "meu";
+    setFx({ n: n(), de, alvo, efeito, forte });
+    return CHEGADA[efeito.estilo];
   };
   const anim = (lado: "meu" | "inimigo", a: LadoVis["anim"], extra: Partial<LadoVis> = {}) => {
     const set = lado === "meu" ? setMeuVis : setInimigoVis;
@@ -307,6 +335,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
       setPartida(avancarPoke({ ...partida, atual: null }, dex));
       return;
     }
+    setLancamentos([]);
     setSelecionada(undefined);
     setDesfecho(null);
     setLicao("");
@@ -326,8 +355,9 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
       };
       if (!meuVis) {
         setMensagem(`Vai, ${nomeDe(eu.id)}!`);
-        setMeuVis(visDoLutador(eu, "entra"));
-        if (!(await passo(750))) return;
+        lancar("meu");
+        setMeuVis(visDoLutador(eu, "saiBola"));
+        if (!(await passo(1000))) return;
       }
       setInimigoVis(null);
       if (t && ultimoTreinador.current !== encontro.treinador) {
@@ -338,20 +368,22 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
         if (!(await passo(350))) return;
         setTreinadorVis(null);
         setMensagem(`${t.nome} enviou ${nomeDe(encontro.especie)}!`);
+        lancar("inimigo");
       } else if (t) {
         setTreinadorVis(null);
-        setMensagem(`${t.nome} vai enviar ${nomeDe(encontro.especie)}!`);
+        setMensagem(`${t.nome} enviou ${nomeDe(encontro.especie)}!`);
+        lancar("inimigo");
       } else {
         setTreinadorVis(null);
         setMensagem(
           encontro.retorno
-            ? `O ${nomeDe(encontro.especie)} que fugiu voltou selvagem! (questão #${encontro.questaoId})`
+            ? `Um ${nomeDe(encontro.especie)} selvagem apareceu: é a revanche da questão #${encontro.questaoId}!`
             : `Um ${nomeDe(encontro.especie)} selvagem apareceu! Essa questão já te derrubou antes.`
         );
       }
-      setInimigoVis(visDoEncontro(encontro, "entra", capturavel));
+      setInimigoVis(visDoEncontro(encontro, t ? "saiBola" : "surge", capturavel));
       ultimoTreinador.current = encontro.treinador;
-      if (!(await passo(1100))) return;
+      if (!(await passo(t ? 1400 : 1100))) return;
       setMensagem(`O que ${nomeDe(eu.id)} vai fazer?`);
       setFase("pergunta");
       inicioQuestao.current = Date.now();
@@ -360,7 +392,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
       cancelado = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fase, encontro?.questaoId, encontro?.retorno]);
+  }, [fase, encontro?.chave]);
 
   // Ao terminar, o perfil soma a partida (sincronizarPerfil só conta uma vez).
   useEffect(() => {
@@ -395,7 +427,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
       if (!ok()) return;
       switch (ev.tipo) {
         case "impedido":
-          setMensagem(`${nomeMeu()} ${TXT_STATUS[ev.status || "paralysis"][1]}! O golpe sai sem efeito extra.`);
+          setMensagem(`${nomeMeu()} ${TXT_STATUS[ev.status || "paralysis"][1]}! O golpe sai pela metade.`);
           anim("meu", "status");
           await esperar(1000);
           break;
@@ -406,36 +438,74 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           break;
         case "ataque": {
           const g = dex.golpes[ev.golpe];
-          setMensagem(`${nomeMeu()} usou ${g?.[0] ?? "Investida"}!`);
-          anim("meu", "ataca");
-          await esperar(220);
-          setFx({ n: n(), de: "meu", cor: COR_TIPO[g?.[1] ?? 0], forte: ev.critico });
-          await esperar(420);
-          anim("inimigo", "dano", { hp: 0 });
-          if (ev.critico) texto("inimigo", "CRÍTICO!", "#FFC857");
-          await esperar(650);
-          if (ev.semEfeito) setMensagem("Não afetou... mas a resposta certa derrubou mesmo assim!");
-          else if (ev.efetividade >= 2) setMensagem("É super efetivo! (+50% XP)");
-          else if (ev.efetividade < 1) setMensagem("Não é muito efetivo...");
-          else if (ev.critico) setMensagem("Um golpe crítico! (+50% XP)");
-          if (ev.semEfeito || ev.efetividade !== 1 || ev.critico) await esperar(1000);
+          setMensagem(`${nomeMeu()} usou ${g?.[0] ?? "Tackle"}!`);
+          const efeito = g ? efeitoDoGolpe(g, "") : null;
+          if (efeito && efeito.estilo !== "cura" && efeito.estilo !== "aura") anim("meu", "ataca");
+          await esperar(efeito?.estilo === "contato" || efeito?.estilo === "mordida" ? 160 : 60);
+          // golpe de status com condição: a aura aparece no evento statusInimigo
+          if (efeito?.estilo !== "aura") await esperar(golpeFx("meu", ev.golpe, ev.critico && ev.dano > 0));
+          if (ev.dano > 0) {
+            anim("inimigo", "dano", { hp: ev.hpInimigo });
+            texto("inimigo", ev.critico ? `CRÍTICO −${ev.dano}` : `−${ev.dano}`, ev.critico ? "#FFC857" : "#FF5A5F");
+            await esperar(750);
+            if (ev.semEfeito) setMensagem(`Não afeta ${nomeIni}... mas a resposta certa arranhou.`);
+            else if (ev.efetividade >= 2) setMensagem("É super efetivo!");
+            else if (ev.efetividade < 1) setMensagem("Não é muito efetivo...");
+            else if (ev.critico) setMensagem("Um golpe crítico!");
+            if (ev.semEfeito || ev.efetividade !== 1 || ev.critico) await esperar(1000);
+          } else await esperar(500);
           break;
         }
+        case "statusInimigo":
+          setFx({ n: n(), de: "meu", alvo: "inimigo", efeito: efeitoDoStatus(ev.status) });
+          anim("inimigo", "status", ev.status === "leech-seed" ? { semente: true } : { status: ev.status });
+          setMensagem(`${nomeIni} ${TXT_STATUS_INIMIGO[ev.status]}!`);
+          await esperar(1200);
+          break;
+        case "statusFalhou":
+          setMensagem(ev.motivo === "imune" ? `Não afeta ${nomeIni}!` : `${nomeIni} já está ${ev.status === "leech-seed" ? "com Leech Seed" : "com um status"}. Não teve efeito.`);
+          await esperar(1100);
+          break;
+        case "tiqueInimigo":
+          setFx({ n: n(), de: "inimigo", alvo: "inimigo", efeito: efeitoDoStatus(ev.status, "tique") });
+          await esperar(300);
+          anim("inimigo", "dano", { hp: ev.hpInimigo });
+          texto("inimigo", `−${ev.dano}`, "#C77DFF");
+          setMensagem(ev.status === "leech-seed" ? `Leech Seed drena ${nomeIni}! −${ev.dano} HP` : `${nomeIni} ${TXT_TIQUE[ev.status] ?? "perdeu HP"}! −${ev.dano} HP`);
+          await esperar(1000);
+          break;
+        case "inimigoAcordou":
+          setInimigoVis((v) => (v ? { ...v, status: "" } : v));
+          setMensagem(`${nomeIni} ${TXT_STATUS[ev.status || "sleep"][2]}!`);
+          await esperar(900);
+          break;
+        case "inimigoImpedido":
+          anim("inimigo", "status");
+          setMensagem(`${nomeIni} ${TXT_STATUS[ev.status || "paralysis"][1]} e não conseguiu contra-atacar!`);
+          await esperar(1200);
+          break;
+        case "exausto":
+          setMensagem(`${nomeIni} não aguenta mais: a resposta certa decidiu a luta!`);
+          await esperar(1100);
+          break;
         case "bola": {
           setMensagem(`Você lançou uma ${nomeItem(ev.bola)}!`);
           setBolaVis({ n: n(), bola: ev.bola, balancos: ev.balancos, sucesso: ev.sucesso });
-          await esperar(450);
+          await esperar(500);
           anim("inimigo", "bola");
-          await esperar(700 + ev.balancos * 500 + 500);
+          await esperar(850 + ev.balancos * 500);
           if (ev.sucesso) {
+            await esperar(600);
             setMensagem(`Pegou! ${nomeIni} foi capturado!${ev.paraPc ? " O time está cheio: ele foi para o PC." : ""}`);
             texto("inimigo", "CAPTURADO!", "#FFE066");
             await esperar(1500);
           } else {
-            setBolaVis(null);
+            await esperar(200);
             anim("inimigo", "entra");
-            setMensagem("Ah, não! Ele escapou da bola!");
-            await esperar(1100);
+            setMensagem(ev.balancos >= 2 ? "Argh! Quase!" : "Ah, não! Ele escapou da bola!");
+            await esperar(700);
+            setBolaVis(null);
+            await esperar(500);
           }
           break;
         }
@@ -475,9 +545,11 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           setMensagem(
             ev.motivo === "dreno"
               ? `${nomeMeu()} drenou a energia de ${nomeIni}! +${ev.valor} HP`
-              : ev.motivo === "combo"
-                ? `Combo de ${depois.combo} acertos! +${ev.valor} HP`
-                : `${nomeMeu()} recuperou ${ev.valor} HP!`
+              : ev.motivo === "semente"
+                ? `${nomeMeu()} recuperou ${ev.valor} HP com a semente.`
+                : ev.motivo === "combo"
+                  ? `Combo de ${depois.combo} acertos! +${ev.valor} HP`
+                  : `${nomeMeu()} recuperou ${ev.valor} HP!`
           );
           await esperar(900);
           break;
@@ -498,11 +570,10 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           break;
         case "contra": {
           const g = ev.golpe >= 0 ? dex.golpes[ev.golpe] : null;
-          setMensagem(`${nomeIni} contra-atacou com ${g?.[0] ?? "Investida"}!`);
+          setMensagem(`${nomeIni} contra-atacou com ${g?.[0] ?? "Tackle"}!`);
           anim("inimigo", "ataca");
-          await esperar(220);
-          setFx({ n: n(), de: "inimigo", cor: COR_TIPO[g?.[1] ?? 0], forte: ev.critico });
-          await esperar(420);
+          await esperar(120);
+          await esperar(golpeFx("inimigo", ev.golpe >= 0 ? ev.golpe : 0, ev.critico));
           hpMeu = Math.max(0, hpMeu - ev.dano);
           anim("meu", "dano", { hp: hpMeu });
           texto("meu", `−${ev.dano}`, "#FF5A5F");
@@ -519,13 +590,19 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           break;
         }
         case "status":
-          if (ev.status) setMensagem(`${nomeMeu()} ${TXT_STATUS[ev.status][0]}!`);
+          if (ev.status) {
+            setFx({ n: n(), de: "inimigo", alvo: "meu", efeito: efeitoDoStatus(ev.status) });
+            setMensagem(`${nomeMeu()} ${TXT_STATUS[ev.status][0]}!`);
+          }
           anim("meu", "status", { status: ev.status });
-          await esperar(1000);
+          await esperar(1100);
           break;
         case "tique":
           hpMeu = Math.max(0, hpMeu - ev.dano);
-          if (ev.status) setMensagem(`${nomeMeu()} ${TXT_STATUS[ev.status][1]}! −${ev.dano} HP`);
+          if (ev.status) {
+            setFx({ n: n(), de: "meu", alvo: "meu", efeito: efeitoDoStatus(ev.status, "tique") });
+            setMensagem(`${nomeMeu()} ${TXT_STATUS[ev.status][1]}! −${ev.dano} HP`);
+          }
           anim("meu", "dano", { hp: hpMeu });
           await esperar(900);
           break;
@@ -534,9 +611,13 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           setMensagem(`${nomeMeu()} desmaiou!`);
           await esperar(1100);
           break;
+        case "voltaDepois":
+          setMensagem(ev.selvagem ? "Essa questão volta daqui a pouco, como Pokémon selvagem, para a revanche." : "Essa questão volta ainda nesta luta.");
+          await esperar(1300);
+          break;
         case "fuga":
           anim("inimigo", "foge");
-          setMensagem(ev.volta ? `${nomeIni} fugiu! A questão volta daqui a pouco, selvagem, para a revanche.` : `${nomeIni} fugiu. Amanhã ela volta na revisão espaçada.`);
+          setMensagem(`${nomeIni} fugiu!`);
           await esperar(1300);
           break;
         case "treinadorVencido": {
@@ -560,9 +641,11 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
       idVis = e.para;
       setMensagem(`Parabéns! ${nomeDe(e.de)} evoluiu para ${nomeDe(e.para)}!`);
     }
-    // estado final do meu lado
+    // estado final dos dois lados
     const eu = depois.time[depois.ativo];
     if (eu) setMeuVis((v) => ({ ...visDoLutador(eu, v?.anim === "desmaia" ? "some" : ""), chave: v?.chave ?? n() }));
+    const ini = depois.atual;
+    if (ini && !ini.fim) setInimigoVis((v) => (v ? { ...v, hp: ini.hp, status: ini.status, semente: ini.semente, anim: "" } : v));
   }
 
   // ----- golpe -----
@@ -584,6 +667,32 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     setTimeout(() => resultadoRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 60);
   }
 
+  // O mesmo Pokémon inimigo segue de pé: próxima questão, sem nova entrada.
+  function proximaQuestao(p: PartidaPoke) {
+    let q = p;
+    for (let g = 0; g < 30 && q.atual && !q.atual.fim && !getQuestao(q.atual.questaoId); g++) q = pularQuestao(q);
+    if (q !== p) setPartida(q);
+    if (!q.atual || q.atual.fim) {
+      const r = avancarPoke(q, dex);
+      setPartida(r);
+      setFase(r.oferta ? "recompensa" : r.fim ? "fim" : "entrada");
+      return;
+    }
+    setSelecionada(undefined);
+    setDesfecho(null);
+    setLicao("");
+    setConfirmarFuga(false);
+    setPainel(null);
+    setTextos([]);
+    setBolaVis(null);
+    setFx(null);
+    const eu = q.time[q.ativo];
+    setMensagem(`${nomeDe(q.atual.especie)} continua de pé! O que ${nomeDe(eu.id)} vai fazer?`);
+    setFase("pergunta");
+    inicioQuestao.current = Date.now();
+    painelRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   function continuar() {
     if (!partida) return;
     if (partida.fim) {
@@ -593,6 +702,10 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     if (precisaTrocar(partida)) {
       setMensagem("Escolha o próximo Pokémon.");
       setFase("troca");
+      return;
+    }
+    if (partida.atual && !partida.atual.fim) {
+      proximaQuestao(partida);
       return;
     }
     const p = avancarPoke(partida, dex);
@@ -622,9 +735,14 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
       await esperar(600);
     }
     setMensagem(`Vai, ${nomeDe(novo.id)}!`);
-    setMeuVis(visDoLutador(novo, "entra"));
-    await esperar(800);
+    lancar("meu");
+    setMeuVis(visDoLutador(novo, "saiBola"));
+    await esperar(1050);
     if (!vivo.current) return;
+    if (forcada && p.atual && !p.atual.fim) {
+      proximaQuestao(p);
+      return;
+    }
     if (forcada) {
       const q = avancarPoke(p, dex);
       setPartida(q);
@@ -785,6 +903,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           fx={fx}
           textos={textos}
           bola={bolaVis}
+          lancamentos={lancamentos}
           cor={corBioma}
           aguardando={fase === "pergunta" || fase === "resultado"}
           topo={
@@ -862,6 +981,11 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
                   {desfecho.acertou ? (
                     <>
                       <p className="font-display text-lg font-bold text-brand-ink">{desfecho.confianca === "certeza" ? "Certeza confirmada." : "Acertou na dúvida."}</p>
+                      {partida.atual && !partida.atual.fim && (
+                        <p className="text-sm text-muted">
+                          {nomeDe(partida.atual.especie)} ainda tem {Math.round((partida.atual.hp / atributos(dex.especies[partida.atual.especie], partida.atual.nivel).hp) * 100)}% do HP: a próxima questão continua a luta.
+                        </p>
+                      )}
                       {desfecho.confianca === "duvida" && <p className="text-sm text-muted">Leia a explicação acima com calma: é ela que transforma o palpite em certeza.</p>}
                       {licaoAnterior && (
                         <p className="rounded-xl border border-hair bg-surface2 p-3 text-sm text-brand-ink">
@@ -908,7 +1032,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
                     </>
                   )}
                   <button onClick={continuar} className="btn-primary w-full">
-                    {partida.fim ? "Ver resultado" : precisaTrocar(partida) ? "Escolher o próximo Pokémon ▶" : "Continuar ▶"}
+                    {partida.fim ? "Ver resultado" : precisaTrocar(partida) ? "Escolher o próximo Pokémon ▶" : partida.atual && !partida.atual.fim ? "Próxima questão ▶" : "Continuar ▶"}
                   </button>
                 </div>
               )}
@@ -962,10 +1086,19 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
                         >
                           <img src={spriteItem(b)} alt="" className="pk-mini h-8 w-8" />
                           {nomeItem(b)} ×{partida.mochila[b] ?? 0}
+                          {inimigoEsp && encontro && (
+                            <span className="font-normal text-faint">
+                              ~
+                              {Math.round(
+                                chanceCaptura(inimigoEsp, b, certeza ? "certeza" : "duvida", encontro.hp / atributos(inimigoEsp, encontro.nivel).hp, encontro.status !== "" || encontro.semente) * 100
+                              )}
+                              %
+                            </span>
+                          )}
                         </button>
                       ))}
                     </div>
-                    {!selecionada && <p className="mt-2 text-xs text-faint">Escolha a alternativa antes.</p>}
+                    <p className="mt-2 text-xs text-faint">{selecionada ? "HP baixo e status (sono, veneno...) aumentam a chance." : "Escolha a alternativa antes."}</p>
                   </Gaveta>
                 )}
 
@@ -1183,7 +1316,7 @@ function Lobby({
 
   return (
     <div className="fadeup mx-auto max-w-[980px] pt-2 pb-24">
-      <PageHeader rotulo="Batalha" titulo="Jornada Pokémon" subtitulo="Treinadores lançam questões. Acertar derruba o Pokémon; errar leva contra-ataque." />
+      <PageHeader rotulo="Batalha" titulo="Jornada Pokémon" subtitulo="Cada turno é uma questão. Acertar faz o golpe sair; errar leva contra-ataque." />
       {alternar}
 
       <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
@@ -1294,12 +1427,13 @@ function Lobby({
           <div className="card space-y-2.5 p-5 text-sm text-muted">
             <p className="font-display text-base font-bold text-brand-ink">Como se joga (e por que ajuda)</p>
             <p>
-              <b className="text-brand-ink">Escolha a alternativa e o golpe.</b> Acertou, o Pokémon cai. O golpe decide o bônus: tipo super efetivo rende mais XP, dreno e cura
-              recuperam HP, golpe de status deixa em guarda. Marcar "tenho certeza" vira crítico, mas o erro dói 1,5×: treina saber o que você sabe.
+              <b className="text-brand-ink">Escolha a alternativa e o golpe.</b> Acertou, o golpe sai e tira HP: tipo conta (fogo em planta é super efetivo), um Pokémon
+              aguenta uns 2 acertos. Golpes de status envenenam, queimam, paralisam ou fazem dormir, e Pokémon dormindo não contra-ataca. Marcar "tenho certeza" vira
+              crítico, mas o erro dói 1,5×: treina saber o que você sabe.
             </p>
             <p>
-              <b className="text-brand-ink">Errou? Contra-ataque</b> (com veneno, sono, paralisia...) e a questão foge. Ela volta selvagem logo depois, com as alternativas em outra
-              ordem: acerte e lance uma Poké Bola para capturá-la. Escrever por que o gabarito está certo cura 25% do HP.
+              <b className="text-brand-ink">Errou? Contra-ataque</b> (com veneno, sono, paralisia...). A questão volta selvagem logo depois, com as alternativas em outra
+              ordem: acerte e lance uma Poké Bola para capturá-la (HP baixo ajuda). Escrever por que o gabarito está certo cura 25% do HP.
             </p>
             <p>
               <b className="text-brand-ink">Evolução</b> por nível como nos jogos, por pedra na mochila, e as de troca ou amizade no nível {NIVEL_TROCA_AMIZADE}. Cada treinador

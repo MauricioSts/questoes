@@ -84,26 +84,90 @@
 .pk-xp__barra { height: 100%; background: #3D8BE8; transition: width .9s ease; }
 .pk-selo { margin-left: .3em; color: #E8474C; font-size: .8em; }
 
-/* bola */
-.pk-bola { position: absolute; left: 71%; top: 38%; z-index: 3; transform: translate(-50%, -50%); animation: pk-arremesso .55s cubic-bezier(.3,.7,.4,1) both; }
-.pk-bola img { width: 8cqw; image-rendering: pixelated; animation: pk-balanca .5s ease-in-out 1.05s var(--balancos) both; transform-origin: 50% 90%; }
-.pk-bola--pegou img { animation: pk-balanca .5s ease-in-out 1.05s 3 both, pk-pegou .5s ease 2.6s both; }
-.pk-bola--escapou { animation: pk-arremesso .55s cubic-bezier(.3,.7,.4,1) both, pk-estoura .3s ease calc(1.1s + var(--balancos) * .5s) both; }
-@keyframes pk-arremesso { from { transform: translate(-280%, 260%) rotate(-540deg) scale(1.4); } 70% { transform: translate(-50%, -140%) rotate(0); } }
-@keyframes pk-balanca { 25% { rotate: -22deg; } 75% { rotate: 18deg; } }
-@keyframes pk-pegou { 50% { filter: brightness(.55) drop-shadow(0 0 1cqw #FFE066); } to { filter: brightness(.7) drop-shadow(0 0 2cqw #FFE066); } }
-@keyframes pk-estoura { to { transform: translate(-50%, -50%) scale(2.2); opacity: 0; filter: brightness(5); } }
+/* ---------- Pokébola: mandar a campo ---------- */
+.pk-anim-saiBola img { animation: pk-entra .55s cubic-bezier(.2,1.4,.4,1) .42s both; }
+.pk-anim-surge img { animation: pk-surge .7s cubic-bezier(.2,.9,.3,1) both; }
+@keyframes pk-surge { from { transform: translateX(40cqw); opacity: 0; filter: brightness(.2); } 70% { filter: brightness(.6); } to { transform: none; opacity: 1; filter: none; } }
+.pk-lanca { position: absolute; z-index: 3; width: 6cqw; pointer-events: none; transform: translate(-50%, -50%); }
+.pk-lanca img { width: 100%; image-rendering: pixelated; animation: pk-lanca-some .12s ease-in .4s both; }
+.pk-lanca--meu { animation: pk-lanca-meu .42s cubic-bezier(.3,.6,.5,1) both; }
+.pk-lanca--inimigo { animation: pk-lanca-inimigo .42s cubic-bezier(.3,.6,.5,1) both; }
+@keyframes pk-lanca-meu { from { left: -6%; top: 95%; rotate: -720deg; } 55% { top: 50%; } to { left: 24%; top: 70%; rotate: 0deg; } }
+@keyframes pk-lanca-inimigo { from { left: 96%; top: 22%; rotate: 720deg; } 50% { top: 12%; } to { left: 71%; top: 30%; rotate: 0deg; } }
+@keyframes pk-lanca-some { to { transform: scale(1.4); opacity: 0; } }
+.pk-lanca__abre { position: absolute; left: 50%; top: 50%; width: 30cqw; height: 30cqw; border-radius: 50%; transform: translate(-50%, -50%) scale(0);
+  background: radial-gradient(circle, #fff 0 18%, rgba(255,255,255,.85) 30%, rgba(255,236,160,.35) 52%, transparent 70%),
+    repeating-conic-gradient(rgba(255,255,255,.9) 0 6deg, transparent 6deg 30deg);
+  -webkit-mask: radial-gradient(circle, #000 55%, transparent 71%); mask: radial-gradient(circle, #000 55%, transparent 71%);
+  animation: pk-abre .45s ease-out .4s both; }
+@keyframes pk-abre { 0% { transform: translate(-50%, -50%) scale(0); opacity: 1; } 60% { opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.1) rotate(25deg); opacity: 0; } }
 
-/* projétil do golpe */
-.pk-fx { position: absolute; z-index: 3; width: 7cqw; height: 7cqw; border-radius: 50%; background: radial-gradient(circle, #fff 0 25%, var(--cor) 55%, transparent 72%); box-shadow: 0 0 3cqw var(--cor); pointer-events: none; }
-.pk-fx--forte { width: 11cqw; height: 11cqw; }
-.pk-fx--meu { animation: pk-fx-ida .45s ease-in both; }
-.pk-fx--inimigo { animation: pk-fx-volta .45s ease-in both; }
-@keyframes pk-fx-ida { from { left: 24%; top: 66%; transform: translate(-50%, -50%) scale(.4); } 85% { opacity: 1; } to { left: 71%; top: 30%; transform: translate(-50%, -50%) scale(1.3); opacity: 0; } }
-@keyframes pk-fx-volta { from { left: 71%; top: 30%; transform: translate(-50%, -50%) scale(.4); } 85% { opacity: 1; } to { left: 24%; top: 66%; transform: translate(-50%, -50%) scale(1.3); opacity: 0; } }
+/* ---------- Pokébola: captura ---------- */
+.pk-bola { position: absolute; left: 71%; top: 38%; z-index: 3; width: 8cqw; height: 8cqw; transform: translate(-50%, -50%); animation: pk-arremesso .55s cubic-bezier(.3,.7,.4,1) both, pk-cai .35s cubic-bezier(.5,0,.7,1.6) .95s both; pointer-events: none; }
+.pk-bola__corpo { width: 100%; height: 100%; transform-origin: 50% 90%; animation: pk-balanca .5s ease-in-out 1.3s var(--balancos) both; }
+.pk-bola__corpo img { width: 100%; image-rendering: pixelated; }
+.pk-bola--pegou .pk-bola__corpo { animation: pk-balanca .5s ease-in-out 1.3s 3 both, pk-pegou .5s ease 2.85s both; }
+@keyframes pk-arremesso { from { transform: translate(-280%, 260%) rotate(-540deg) scale(1.4); } 70% { transform: translate(-50%, -140%) rotate(0); } to { transform: translate(-50%, -100%); } }
+@keyframes pk-cai { from { transform: translate(-50%, -100%); } to { transform: translate(-50%, -50%); } }
+@keyframes pk-balanca { 25% { rotate: -24deg; } 75% { rotate: 20deg; } }
+@keyframes pk-pegou { 40% { filter: brightness(.5); scale: .92; } to { filter: brightness(.7) drop-shadow(0 0 1.5cqw #FFE066); scale: 1; } }
+/* clarão vermelho que puxa o Pokémon para dentro */
+.pk-bola__flash { position: absolute; left: 50%; top: 50%; width: 26cqw; height: 26cqw; border-radius: 50%; transform: translate(-50%, -50%) scale(0);
+  background: radial-gradient(circle, #fff 0 12%, rgba(255,120,120,.8) 30%, rgba(255,60,60,.25) 55%, transparent 70%); animation: pk-flash .55s ease-out .5s both; }
+@keyframes pk-flash { 0% { transform: translate(-50%, -30%) scale(.2); opacity: 1; } 100% { transform: translate(-50%, -30%) scale(1.2); opacity: 0; } }
+.pk-bola__estrelas { position: absolute; left: 50%; top: 20%; }
+.pk-bola__estrelas i { position: absolute; font-style: normal; font-size: 4cqw; color: #FFE066; text-shadow: 0 0 1cqw #fff; opacity: 0; animation: pk-estrela .8s ease-out 2.9s both; }
+.pk-bola__estrelas i:nth-child(1) { --ex: -7cqw; --ey: -6cqw; }
+.pk-bola__estrelas i:nth-child(2) { --ex: 0cqw; --ey: -9cqw; animation-delay: 2.95s; }
+.pk-bola__estrelas i:nth-child(3) { --ex: 7cqw; --ey: -6cqw; animation-delay: 3s; }
+@keyframes pk-estrela { 0% { opacity: 0; transform: translate(-50%, 0) scale(.3); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--ex)), var(--ey)) scale(1.2) rotate(90deg); } }
+.pk-bola--escapou .pk-bola__corpo img { animation: pk-estoura-bola .25s ease-in calc(1.35s + var(--balancos) * .5s) both; }
+@keyframes pk-estoura-bola { to { transform: scale(1.8); opacity: 0; filter: brightness(4); } }
+.pk-bola__estouro { position: absolute; left: 50%; top: 50%; width: 30cqw; height: 30cqw; border-radius: 50%; transform: translate(-50%, -50%) scale(0);
+  background: radial-gradient(circle, #fff 0 20%, rgba(255,255,255,.7) 34%, transparent 62%), repeating-conic-gradient(rgba(255,255,255,.95) 0 5deg, transparent 5deg 24deg);
+  -webkit-mask: radial-gradient(circle, #000 50%, transparent 70%); mask: radial-gradient(circle, #000 50%, transparent 70%);
+  animation: pk-abre .45s ease-out calc(1.35s + var(--balancos) * .5s) both; }
+
+/* ---------- golpes (desenhos do Pokémon Showdown) ---------- */
+.fx { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.fx img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 .8cqw var(--cor)); }
+.fx > span { position: absolute; transform: translate(-50%, -50%); }
+.fx-voo { width: 7cqw; height: 7cqw; animation: fx-voo .48s cubic-bezier(.4,.1,.8,.6) both; }
+.fx-voo--grande { width: 11cqw; height: 11cqw; }
+.fx--forte .fx-voo--grande { width: 15cqw; height: 15cqw; }
+.fx-voo--raio { width: 8cqw; height: 8cqw; animation-duration: .38s; animation-timing-function: linear; }
+.fx-voo--rajada { width: 5.5cqw; height: 5.5cqw; animation: fx-rajada .55s ease-in both; }
+@keyframes fx-voo { from { left: var(--x0); top: var(--y0); opacity: 0; scale: .5; } 12% { opacity: 1; } 90% { opacity: 1; } to { left: var(--x1); top: var(--y1); opacity: 0; scale: 1.15; } }
+@keyframes fx-rajada { from { left: var(--x0); top: var(--y0); opacity: 0; scale: .6; rotate: 0deg; translate: 0 0; } 15% { opacity: 1; } 50% { translate: 0 var(--dy); } 92% { opacity: 1; } to { left: var(--x1); top: var(--y1); opacity: 0; rotate: var(--giro); translate: 0 0; } }
+.fx-cai { left: calc(var(--x1) + var(--dx)); top: var(--y1); width: 7cqw; height: 7cqw; animation: fx-cai .42s cubic-bezier(.5,0,.9,.6) both; }
+@keyframes fx-cai { from { translate: 0 -38cqw; opacity: 0; rotate: -30deg; } 20% { opacity: 1; } 85% { opacity: 1; } to { translate: 0 0; opacity: 0; rotate: 40deg; } }
+.fx-trovao { left: var(--x1); top: calc(var(--y1) - 14cqw); width: 9cqw; height: 26cqw; transform-origin: 50% 0; animation: fx-trovao .4s steps(2) both; }
+.fx-trovao img { object-fit: fill; }
+@keyframes fx-trovao { 0% { scale: 1 0; opacity: 1; } 50% { scale: 1 1; opacity: 1; } 75% { opacity: .2; } 100% { scale: 1 1; opacity: 0; } }
+.fx-clarao { inset: 0 !important; transform: none !important; background: #fff; animation: fx-clarao .35s ease-out both; }
+.fx-clarao--leve { animation-name: fx-clarao-leve; animation-delay: .35s; }
+@keyframes fx-clarao { 0% { opacity: 0; } 20% { opacity: .75; } 100% { opacity: 0; } }
+@keyframes fx-clarao-leve { 0% { opacity: 0; } 30% { opacity: .45; } 100% { opacity: 0; } }
+.fx-impacto { left: var(--x1); top: var(--y1); width: 14cqw; height: 14cqw; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.95) 0 14%, color-mix(in srgb, var(--cor) 70%, transparent) 36%, transparent 66%);
+  animation: fx-impacto .38s ease-out both; }
+.fx--forte .fx-impacto { width: 20cqw; height: 20cqw; }
+@keyframes fx-impacto { 0% { scale: .2; opacity: 0; } 25% { opacity: 1; } 100% { scale: 1.3; opacity: 0; } }
+.fx-dente { left: var(--x1); width: 9cqw; height: 9cqw; animation: .5s cubic-bezier(.6,0,.9,.5) both; }
+.fx-dente--cima { top: calc(var(--y1) - 6cqw); rotate: 90deg; animation-name: fx-dente-cima; }
+.fx-dente--baixo { top: calc(var(--y1) + 6cqw); rotate: -90deg; animation-name: fx-dente-baixo; }
+@keyframes fx-dente-cima { from { translate: 0 -5cqw; opacity: 0; } 30% { opacity: 1; } 65% { translate: 0 4cqw; opacity: 1; } to { translate: 0 4cqw; opacity: 0; } }
+@keyframes fx-dente-baixo { from { translate: 0 5cqw; opacity: 0; } 30% { opacity: 1; } 65% { translate: 0 -4cqw; opacity: 1; } to { translate: 0 -4cqw; opacity: 0; } }
+.fx-orbita { left: var(--x1); top: var(--y1); width: 8cqw; height: 8cqw; animation: fx-orbita .9s ease-in-out both; }
+@keyframes fx-orbita { from { opacity: 0; transform: translate(-50%, -50%) rotate(var(--ang)) translateX(16cqw) rotate(calc(-1 * var(--ang))); } 25% { opacity: 1; } 80% { opacity: 1; } to { opacity: 0; transform: translate(-50%, -50%) rotate(calc(var(--ang) + 200deg)) translateX(3cqw) rotate(calc(-1 * var(--ang) - 200deg)); } }
+.fx-sobe { left: calc(var(--x1) + var(--dx)); top: calc(var(--y1) + 6cqw); width: 5cqw; height: 5cqw; animation: fx-sobe .8s ease-out both; }
+@keyframes fx-sobe { from { opacity: 0; translate: 0 0; scale: .6; } 25% { opacity: 1; } to { opacity: 0; translate: 0 -16cqw; scale: 1.1; } }
+.fx-anel { left: var(--x1); top: var(--y1); width: 22cqw; height: 22cqw; border-radius: 50%; border: 1.1cqw solid var(--cor); box-shadow: 0 0 2cqw var(--cor), inset 0 0 2cqw var(--cor); animation: fx-anel .8s ease-out both; }
+@keyframes fx-anel { from { scale: .3; opacity: 0; } 30% { opacity: .9; } to { scale: 1.2; opacity: 0; } }
+.fx--tique .fx-anel { display: none; }
 
 .pk-texto { position: absolute; z-index: 5; font-weight: 900; font-size: 1.3em; text-shadow: 0 2px 0 #1d1d24, 0 0 6px rgba(0,0,0,.5); pointer-events: none; transform: translate(-50%, 0); animation: pk-texto 1.3s ease-out both; white-space: nowrap; }
-.pk-texto--inimigo { left: 71%; top: 14%; }
+.pk-texto--inimigo { left: 71%; top: 12%; }
 .pk-texto--meu { left: 24%; top: 48%; }
 @keyframes pk-texto { from { opacity: 0; translate: 0 10px; } 15% { opacity: 1; translate: 0 0; } 70% { opacity: 1; } to { opacity: 0; translate: 0 -18px; } }
 

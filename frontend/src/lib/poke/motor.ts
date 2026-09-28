@@ -2,15 +2,19 @@
 // jogo não pode piorar o estudo.
 // - As questões vêm da fila da revisão espaçada (e completam com novas); o sorteio do jogo
 //   mexe em Pokémon, itens e recompensas, nunca em QUAIS questões caem.
-// - Cada treinador lança Pokémon, e cada Pokémon é uma questão. Resposta certa derruba o
-//   Pokémon SEMPRE: saber a matéria é o que vence. O golpe escolhido decide o resto (tipo
-//   super efetivo rende mais XP, dreno e cura recuperam HP, golpe de status dá foco).
+// - Cada treinador lança Pokémon; cada turno é uma questão (no máximo 3 por Pokémon: na 3ª
+//   resposta certa ele cai, para a luta não empacar num tipo imune). Só a resposta certa faz o golpe
+//   sair: tira HP de verdade (tipo, STAB, nível, crítico), aplica status (veneno, queimadura,
+//   paralisia, sono, Leech Seed) ou cura. Um Pokémon aguenta ~2 acertos; super efetivo
+//   derruba de uma vez. Cada Pokémon abre com a "sua" questão e as seguintes vêm da reserva
+//   da partida; sem reserva, a próxima resposta certa derruba.
 // - Resposta errada: o golpe erra e o Pokémon contra-ataca com dano de verdade (fórmula da
-//   5ª geração, tipos contam), podendo envenenar, queimar, paralisar ou fazer dormir.
-// - A questão errada foge e VOLTA algumas lutas depois como Pokémon SELVAGEM, com as
-//   alternativas em outra ordem. Só selvagem pode ser capturado: capturar é vencer uma
-//   questão que já te derrubou. A bola só é lançada se a resposta estiver certa.
-// - "Tenho certeza" continua sendo a aposta de confiança: acerto vira crítico (mais XP),
+//   5ª geração, tipos contam), podendo envenenar, queimar, paralisar ou fazer dormir. Inimigo
+//   dormindo, congelado ou paralisado pode não conseguir contra-atacar.
+// - A questão errada VOLTA algumas lutas depois como Pokémon SELVAGEM, com as alternativas
+//   em outra ordem. Só selvagem pode ser capturado, e a bola só é lançada se a resposta
+//   estiver certa; HP baixo e status facilitam a captura.
+// - "Tenho certeza" continua sendo a aposta de confiança: acerto vira crítico (1,5× dano),
 //   erro dói 1,5×. O placar de calibragem do fim usa isso.
 // - Escrever a lição de um erro cura o Pokémon ativo (autoexplicação).
 // Funções puras: a tela chama, guarda o resultado e anima os eventos.
@@ -62,11 +66,23 @@ export interface Lutador extends Mon {
 export type TipoEncontro = "treinador" | "selvagem" | "lider";
 
 export interface Encontro {
-  questaoId: number;
+  questaoId: number; // questão da vez (troca a cada turno em que ele sobrevive)
   tipo: TipoEncontro;
   treinador: number; // índice em partida.treinadores; -1 = selvagem
   especie: number;
   nivel: number;
+  retorno: boolean; // a questão da vez é a revanche de um erro desta partida
+  chave: number; // identifica o Pokémon inimigo (a questão muda, ele continua)
+  hp: number;
+  status: Status;
+  sono: number;
+  semente: boolean; // Leech Seed
+  turnos?: number; // questões já respondidas contra ele
+  fim?: "ko" | "captura" | "fuga";
+}
+
+export interface QuestaoReserva {
+  questaoId: number;
   retorno: boolean;
 }
 
@@ -84,12 +100,14 @@ export const PEDRAS = ["fire-stone", "water-stone", "thunder-stone", "leaf-stone
 export type Item = Bola | "potion" | "super-potion" | "hyper-potion" | "revive" | "full-heal" | "rare-candy" | (string & {});
 
 export interface PartidaPoke {
-  versao: 2;
+  versao: 3;
   concursoId: string | null;
   iniciadaEm: string;
   treinadores: Treinador[];
   fila: Encontro[];
   atual: Encontro | null;
+  reserva: QuestaoReserva[]; // questões para os turnos seguintes de um mesmo Pokémon
+  chaves: number;
   time: Lutador[];
   ativo: number;
   mochila: Record<string, number>;
@@ -106,8 +124,17 @@ export interface PartidaPoke {
   rng: number;
 }
 
+export type StatusGolpe = Exclude<Status, ""> | "leech-seed";
+
 export type Evento =
-  | { tipo: "ataque"; golpe: number; efetividade: number; critico: boolean; semEfeito: boolean }
+  | { tipo: "ataque"; golpe: number; efetividade: number; critico: boolean; semEfeito: boolean; dano: number; hpInimigo: number }
+  | { tipo: "statusInimigo"; status: StatusGolpe }
+  | { tipo: "statusFalhou"; status: StatusGolpe; motivo: "imune" | "ja" }
+  | { tipo: "tiqueInimigo"; status: StatusGolpe; dano: number; hpInimigo: number }
+  | { tipo: "inimigoAcordou"; status: Status }
+  | { tipo: "inimigoImpedido"; status: Status }
+  | { tipo: "exausto" }
+  | { tipo: "voltaDepois"; selvagem: boolean }
   | { tipo: "impedido"; status: Status } // dormindo/congelado/paralisado: o golpe sai sem bônus
   | { tipo: "desmaiouInimigo" }
   | { tipo: "bola"; bola: Bola; sucesso: boolean; balancos: number; uid?: string; paraPc?: boolean }
@@ -115,7 +142,7 @@ export type Evento =
   | { tipo: "nivel"; uid: string; nivel: number }
   | { tipo: "aprendeu"; uid: string; golpe: number; esqueceu: number | null }
   | { tipo: "evolui"; uid: string; de: number; para: number }
-  | { tipo: "cura"; uid: string; valor: number; motivo: "dreno" | "cura" | "combo" | "licao" | "item" }
+  | { tipo: "cura"; uid: string; valor: number; motivo: "dreno" | "cura" | "combo" | "licao" | "item" | "semente" }
   | { tipo: "foco"; uid: string }
   | { tipo: "errou" }
   | { tipo: "contra"; golpe: number; dano: number; efetividade: number; critico: boolean; foco: boolean }
@@ -123,15 +150,17 @@ export type Evento =
   | { tipo: "tique"; uid: string; dano: number; status: Status }
   | { tipo: "acordou"; uid: string; status: Status }
   | { tipo: "desmaiou"; uid: string }
-  | { tipo: "fuga"; volta: boolean }
+  | { tipo: "fuga" }
   | { tipo: "treinadorVencido"; treinador: number; lider: boolean }
   | { tipo: "derrota" };
 
 export const MIN_LICAO = 12;
-const ALVO_ENCONTROS = 10;
-const MAX_REVISOES = 12;
+const ALVO_QUESTOES = 18;
+const MAX_REVISOES = 14;
+const QUESTOES_POR_POKEMON = 2.2;
 const DISTANCIA_RETORNO = 3;
 export const MAX_TIME = 6;
+const MAX_TURNOS_POKEMON = 3;
 
 // ---------- sorteio ----------
 
@@ -247,7 +276,7 @@ export function montarPartidaPoke(opts: {
   const { dex } = opts;
   if (!opts.time.length) return null;
   const revisoes = opts.pendentes.slice(0, MAX_REVISOES);
-  const faltam = Math.max(0, ALVO_ENCONTROS + 1 - revisoes.length);
+  const faltam = Math.max(0, ALVO_QUESTOES - revisoes.length);
   const pool = [...revisoes, ...opts.novas.slice(0, faltam)];
   if (pool.length === 0) return null;
   let rng = opts.semente ?? Date.now() >>> 0;
@@ -269,11 +298,30 @@ export function montarPartidaPoke(opts: {
   const comuns = intercalar(pool.filter((c) => c !== chefe));
   const treinadores: Treinador[] = [];
   const fila: Encontro[] = [];
+  let chaves = 0;
+  const inimigo = (c: Candidata, tipo: TipoEncontro, treinador: number, especie: number, nivel: number): Encontro => ({
+    questaoId: c.questaoId,
+    tipo,
+    treinador,
+    especie,
+    nivel,
+    retorno: false,
+    chave: ++chaves,
+    hp: atributos(dex.especies[especie], nivel).hp,
+    status: "",
+    sono: 0,
+    semente: false,
+  });
   const ehRevisao = new Set(revisoes.map((r) => r.questaoId));
-  // Questões que já me derrubaram aparecem selvagens (dá para capturar); o resto vem em
-  // grupos de 2–3 por treinador.
-  const selvagens = comuns.filter((c) => c.erros > 0 && ehRevisao.has(c.questaoId));
-  const deTreinador = comuns.filter((c) => !selvagens.includes(c));
+  // Cada Pokémon aguenta ~2 acertos: só parte das questões abre um Pokémon; as outras ficam
+  // na reserva para os turnos seguintes. Questões que já me derrubaram aparecem selvagens
+  // (dá para capturar); o resto vem em grupos de 2–3 por treinador.
+  const orcamento = Math.max(2, Math.round(pool.length / QUESTOES_POR_POKEMON) - (chefe ? 1 : 0));
+  const selvagens = comuns.filter((c) => c.erros > 0 && ehRevisao.has(c.questaoId)).slice(0, Math.max(1, Math.round(orcamento / 3)));
+  const outras = comuns.filter((c) => !selvagens.includes(c));
+  const nTreinador = Math.max(0, orcamento - selvagens.length);
+  const deTreinador = outras.slice(0, nTreinador);
+  const reserva: QuestaoReserva[] = outras.slice(nTreinador).map((c) => ({ questaoId: c.questaoId, retorno: false }));
   let i = 0;
   while (i < deTreinador.length) {
     const tam = Math.min(deTreinador.length - i, rolar() < 0.5 ? 2 : 3);
@@ -285,34 +333,36 @@ export function montarPartidaPoke(opts: {
     treinadores.push({ nome: NOMES_TREINADOR[sprite] ?? "Treinador", sprite, lider: false });
     for (const c of grupo) {
       const nivel = nivelEntre(-1, 1);
-      fila.push({ questaoId: c.questaoId, tipo: "treinador", treinador: idx, especie: especieDaQuestao(dex, c.questaoId, c.materia, nivel), nivel, retorno: false });
+      fila.push(inimigo(c, "treinador", idx, especieDaQuestao(dex, c.questaoId, c.materia, nivel), nivel));
     }
     // um selvagem entre treinadores, quando houver
     const s = selvagens.shift();
     if (s) {
       const nivel = nivelEntre(-2, 0);
-      fila.push({ questaoId: s.questaoId, tipo: "selvagem", treinador: -1, especie: especieDaQuestao(dex, s.questaoId, s.materia, nivel), nivel, retorno: false });
+      fila.push(inimigo(s, "selvagem", -1, especieDaQuestao(dex, s.questaoId, s.materia, nivel), nivel));
     }
   }
   for (const s of selvagens) {
     const nivel = nivelEntre(-2, 0);
-    fila.push({ questaoId: s.questaoId, tipo: "selvagem", treinador: -1, especie: especieDaQuestao(dex, s.questaoId, s.materia, nivel), nivel, retorno: false });
+    fila.push(inimigo(s, "selvagem", -1, especieDaQuestao(dex, s.questaoId, s.materia, nivel), nivel));
   }
   if (chefe) {
     const idx = treinadores.length;
     const sprite = LIDERES[Math.floor(rolar() * LIDERES.length)];
     treinadores.push({ nome: `Líder ${sprite[0].toUpperCase()}${sprite.slice(1)}`, sprite, lider: true });
     const nivel = Math.min(MAX_NIVEL, base + 3);
-    fila.push({ questaoId: chefe.questaoId, tipo: "lider", treinador: idx, especie: especieDoLider(dex, chefe.questaoId, chefe.materia, nivel), nivel, retorno: false });
+    fila.push(inimigo(chefe, "lider", idx, especieDoLider(dex, chefe.questaoId, chefe.materia, nivel), nivel));
   }
 
   const p: PartidaPoke = {
-    versao: 2,
+    versao: 3,
     concursoId: opts.concursoId,
     iniciadaEm: (opts.agora ?? new Date()).toISOString(),
     treinadores,
     fila,
     atual: null,
+    reserva,
+    chaves,
     time: opts.time.slice(0, MAX_TIME).map((m) => lutador(dex, m)),
     ativo: 0,
     mochila: { ...opts.mochila },
@@ -324,7 +374,7 @@ export function montarPartidaPoke(opts: {
     vencidos: [],
     recompensa: false,
     oferta: null,
-    totalEncontros: fila.length,
+    totalEncontros: fila.length + reserva.length,
     fim: null,
     rng,
   };
@@ -401,21 +451,71 @@ const curar = (dex: Dex, l: Lutador, valor: number, motivo: Extract<Evento, { ti
   eventos.push({ tipo: "cura", uid: l.uid, valor: real, motivo });
 };
 
-export function chanceCaptura(e: Especie, bola: Bola, confianca: Confianca): number {
-  // Mais generosa que a dos jogos: a questão já foi vencida pela resposta certa. Lendário
-  // (taxa 3) fica perto de 35%; um comum (45) com Poké Bola, perto de 60%.
-  const base = (e.c / 255) * MULT_BOLA[bola] + 0.35 + (confianca === "certeza" ? 0.05 : 0);
+// Captura: mais generosa que a dos jogos (a questão já foi vencida pela resposta certa), mas
+// com a mesma lógica: HP baixo, status e bola melhor ajudam. Comum (taxa 45) com HP cheio e
+// Poké Bola ≈ 30%; no vermelho ≈ 75%; dormindo, +15 pontos.
+export function chanceCaptura(e: Especie, bola: Bola, confianca: Confianca, fracHp = 1, comStatus = false): number {
+  const base = 0.25 + (0.5 * (1 - fracHp) + 0.3 * (e.c / 255)) * MULT_BOLA[bola] + (comStatus ? 0.15 : 0) + (confianca === "certeza" ? 0.05 : 0);
   return Math.min(1, base);
 }
 
+// Quanto do HP do inimigo um golpe tira. Parte da fórmula da 5ª geração (tipo, STAB,
+// atributos, nível, crítico), normalizada para um golpe neutro de 50 de poder tirar ~60%:
+// uns 2 acertos por Pokémon, 1 se for super efetivo com STAB.
+export function danoDaResposta(opts: {
+  dex: Dex;
+  eu: Lutador;
+  e: Encontro;
+  golpe: Golpe;
+  critico: boolean;
+  aleatorio: number;
+}): { valor: number; efetividade: number } {
+  const { dex, eu, e, golpe, critico, aleatorio } = opts;
+  const [, tipo, poder, classe] = golpe;
+  const minha = dex.especies[eu.id];
+  const inimigo = dex.especies[e.especie];
+  const max = atributos(inimigo, e.nivel).hp;
+  const ef = efetividade(tipo, inimigo.t);
+  if (poder <= 0 || classe === 2) return { valor: 0, efetividade: 1 };
+  // Imune não zera: a resposta certa arranha (25%).
+  if (ef === 0) return { valor: Math.max(1, Math.round(max * 0.25)), efetividade: 0 };
+  const sa = atributos(minha, nivelDe(eu));
+  const sd = atributos(inimigo, e.nivel);
+  const a = classe === 0 ? sa.atk : sa.spa;
+  const d = classe === 0 ? sd.def : sd.spd;
+  const relacao = Math.min(1.4, Math.max(0.7, Math.sqrt((nivelDe(eu) * a) / (e.nivel * d))));
+  const stab = minha.t.includes(tipo) ? 1.5 : 1;
+  const lider = e.tipo === "lider" ? 0.7 : 1;
+  const frac = 0.6 * Math.sqrt(poder / 50) * stab * ef * relacao * lider * (critico ? 1.5 : 1) * aleatorio;
+  return { valor: Math.max(1, Math.round(frac * max)), efetividade: ef };
+}
+
+// Status que um golpe pode pôr no inimigo (null: o golpe não tem, ou o tipo é imune).
+function statusDoGolpe(dex: Dex, g: Golpe, e: Encontro): { status: StatusGolpe; imune: boolean } | null {
+  const cond = g[6];
+  if (cond !== "leech-seed" && !STATUS_VALIDOS.includes(cond as Status)) return null;
+  const status = cond as StatusGolpe;
+  const t = dex.especies[e.especie].t;
+  const imune =
+    (status === "poison" && (t.includes(7) || t.includes(16))) ||
+    (status === "burn" && t.includes(1)) ||
+    (status === "freeze" && t.includes(5)) ||
+    (status === "paralysis" && (t.includes(3) || efetividade(g[1], t) === 0)) ||
+    (status === "leech-seed" && t.includes(4));
+  return { status, imune };
+}
+
 export function responderPoke(dex: Dex, p: PartidaPoke, o: OpcoesResposta): { partida: PartidaPoke; eventos: Evento[] } {
-  const e = p.atual;
+  const e0 = p.atual;
   const eu0 = p.time[p.ativo];
-  if (!e || p.fim || p.oferta || !eu0 || eu0.hp <= 0) return { partida: p, eventos: [] };
+  if (!e0 || e0.fim || p.fim || p.oferta || !eu0 || eu0.hp <= 0) return { partida: p, eventos: [] };
+  const e: Encontro = { ...e0 };
   const q: PartidaPoke = {
     ...p,
+    atual: e,
     time: p.time.map((l) => ({ ...l, golpes: [...l.golpes] })),
     fila: [...p.fila],
+    reserva: [...p.reserva],
     registros: [...p.registros],
     mochila: { ...p.mochila },
     novos: [...p.novos],
@@ -430,13 +530,33 @@ export function responderPoke(dex: Dex, p: PartidaPoke, o: OpcoesResposta): { pa
     return r;
   };
   const inimigo = dex.especies[e.especie];
+  const maxIni = atributos(inimigo, e.nivel).hp;
   const lider = e.tipo === "lider";
   const selvagem = e.tipo === "selvagem";
   const bola = "bola" in o.acao ? o.acao.bola : null;
   if (bola && (!selvagem || (q.mochila[bola] ?? 0) <= 0)) return { partida: p, eventos: [] };
+  const questaoDaVez = e.questaoId;
+  const retornoDaVez = e.retorno;
+  const critico = o.acertou && o.confianca === "certeza";
+  let multXp = critico ? 1.5 : 1;
 
-  // Sono e congelamento passam com o tempo; enquanto durarem (e em 25% dos turnos de
-  // paralisia) o golpe sai sem bônus. A resposta certa derruba o Pokémon do mesmo jeito.
+  // XP só para quem lutou, no KO (como nos jogos; treinador ×1,5). Piso: o time evolui em
+  // ~5 lutas de treinador; bônus (crítico, super efetivo) multiplicam o piso também.
+  const darXp = () => {
+    if (eu.hp <= 0) return;
+    const piso = xpMinimoPorVitoria(dex, eu.id, nivelDe(eu)) * Math.max(1, multXp);
+    const xp = Math.round(Math.max(xpDaVitoria(inimigo, e.nivel, nivelDe(eu), !selvagem) * multXp, piso));
+    q.xp += xp;
+    ganharXp(dex, eu, xp, eventos);
+  };
+  const derrubar = () => {
+    e.hp = 0;
+    e.fim = "ko";
+    eventos.push({ tipo: "desmaiouInimigo" });
+    darXp();
+  };
+
+  // Meu Pokémon dormindo/congelado (ou em 25% dos turnos paralisado) luta pela metade.
   let impedido = false;
   if (eu.status === "sleep") {
     eu.sono -= 1;
@@ -451,119 +571,150 @@ export function responderPoke(dex: Dex, p: PartidaPoke, o: OpcoesResposta): { pa
     } else impedido = true;
   } else if (eu.status === "paralysis" && rolar() < 0.25) impedido = true;
 
-  let capturada = false;
   if (o.acertou) {
     q.combo += 1;
-    const critico = o.confianca === "certeza";
-    let multXp = critico ? 1.5 : 1;
-    if (impedido) eventos.push({ tipo: "impedido", status: eu.status || "paralysis" });
     if (bola) {
       q.mochila[bola] -= 1;
-      const chance = chanceCaptura(inimigo, bola, o.confianca);
-      const r = rolar();
-      const sucesso = r < chance;
+      const chance = chanceCaptura(inimigo, bola, o.confianca, e.hp / maxIni, e.status !== "" || e.semente);
+      const sucesso = rolar() < chance;
       const balancos = sucesso ? 3 : Math.floor(rolar() * 3);
       if (sucesso) {
-        capturada = true;
+        e.fim = "captura";
         const novo = criarMon(dex, e.especie, e.nivel, `m${Date.parse(q.iniciadaEm).toString(36)}${q.registros.length}${Math.floor(rolar() * 1e6).toString(36)}`, {
-          questaoId: e.questaoId,
+          questaoId: questaoDaVez,
           capturadoEm: q.iniciadaEm,
         });
         const paraPc = q.time.length >= MAX_TIME;
         if (paraPc) q.novos.push(novo);
         else q.time.push(lutador(dex, novo));
         eventos.push({ tipo: "bola", bola, sucesso, balancos, uid: novo.uid, paraPc });
-      } else {
-        eventos.push({ tipo: "bola", bola, sucesso, balancos });
-        eventos.push({ tipo: "desmaiouInimigo" });
-      }
+        darXp();
+      } else eventos.push({ tipo: "bola", bola, sucesso, balancos });
     } else {
+      if (impedido) eventos.push({ tipo: "impedido", status: eu.status || "paralysis" });
       const idx = "golpe" in o.acao ? o.acao.golpe : eu.golpes[0];
       const g = dex.golpes[idx] ?? dex.golpes[0];
-      const [, tipoG, poder, classe, dreno, cura] = g;
-      const ef = poder > 0 && classe !== 2 ? efetividade(tipoG, inimigo.t) : 1;
-      eventos.push({ tipo: "ataque", golpe: idx, efetividade: ef, critico, semEfeito: ef === 0 });
-      if (!impedido) {
-        if (ef >= 2) multXp *= 1.5;
-        else if (ef > 0 && ef < 1) multXp *= 0.8;
-        if (poder > 0 && classe !== 2) {
-          const d = dano({ golpe: g, atacante: dex.especies[eu.id], nivel: nivelDe(eu), atkStats: atributos(dex.especies[eu.id], nivelDe(eu)), defensor: inimigo, defStats: atributos(inimigo, e.nivel), critico });
-          if (dreno > 0) curar(dex, eu, Math.max(1, (Math.min(d.valor, atributos(inimigo, e.nivel).hp) * dreno) / 100), "dreno", eventos);
+      const [, , poder, classe, dreno, cura] = g;
+      if (poder > 0 && classe !== 2) {
+        const d = danoDaResposta({ dex, eu, e, golpe: g, critico, aleatorio: 0.85 + rolar() * 0.15 });
+        const valor = impedido ? Math.max(1, Math.round(d.valor / 2)) : d.valor;
+        const tirou = Math.min(e.hp, valor);
+        e.hp -= tirou;
+        if (d.efetividade >= 2) multXp *= 1.5;
+        eventos.push({ tipo: "ataque", golpe: idx, efetividade: d.efetividade, critico, semEfeito: d.efetividade === 0, dano: tirou, hpInimigo: e.hp });
+        if (dreno > 0) curar(dex, eu, Math.max(1, (tirou * dreno) / 100), "dreno", eventos);
+        // efeito secundário (Ember queima 10%, Thunderbolt paralisa 10%...)
+        const st = statusDoGolpe(dex, g, e);
+        if (e.hp > 0 && st && !st.imune && rolar() * 100 < g[7]) aplicarStatusInimigo(e, st.status, rolar, eventos);
+        if (e.hp <= 0) derrubar();
+      } else {
+        eventos.push({ tipo: "ataque", golpe: idx, efetividade: 1, critico: false, semEfeito: false, dano: 0, hpInimigo: e.hp });
+        const st = statusDoGolpe(dex, g, e);
+        if (st) {
+          if (st.imune) eventos.push({ tipo: "statusFalhou", status: st.status, motivo: "imune" });
+          else if (st.status === "leech-seed" ? e.semente : e.status !== "") eventos.push({ tipo: "statusFalhou", status: st.status, motivo: "ja" });
+          else aplicarStatusInimigo(e, st.status, rolar, eventos);
         } else if (cura > 0) curar(dex, eu, (hpMax(dex, eu) * cura) / 100, "cura", eventos);
-        else if (classe === 2) {
+        else {
           eu.foco += 1;
           eventos.push({ tipo: "foco", uid: eu.uid });
         }
       }
-      eventos.push({ tipo: "desmaiouInimigo" });
     }
-    // XP só para quem lutou (e na mesma conta de treinador ×1,5 dos jogos)
-    // Piso por vitória: o time evolui em ~5 lutas de treinador; golpe pouco efetivo não atrasa.
-    // Bônus (crítico, super efetivo) multiplicam o piso também.
-    const piso = xpMinimoPorVitoria(dex, eu.id, nivelDe(eu)) * Math.max(1, multXp);
-    const xp = Math.round(Math.max(xpDaVitoria(inimigo, e.nivel, nivelDe(eu), !selvagem) * multXp, piso));
-    q.xp += xp;
-    ganharXp(dex, eu, xp, eventos);
     if (q.combo % 3 === 0) curar(dex, eu, hpMax(dex, eu) * 0.1, "combo", eventos);
   } else {
     q.combo = 0;
     eventos.push({ tipo: "errou" });
-    // O inimigo contra-ataca com o golpe que mais machuca o meu Pokémon.
-    const minha = dex.especies[eu.id];
-    const golpesInimigo = golpesNoNivel(inimigo, e.nivel).filter((x) => dex.golpes[x][2] > 0 && dex.golpes[x][3] !== 2);
-    const statsI = atributos(inimigo, e.nivel);
-    const statsE = atributos(minha, nivelDe(eu));
-    const escolher = (x: number) => dano({ golpe: dex.golpes[x], atacante: inimigo, nivel: e.nivel, atkStats: statsI, defensor: minha, defStats: statsE }).valor;
-    const gi = golpesInimigo.length ? golpesInimigo.reduce((a, b) => (escolher(b) > escolher(a) ? b : a)) : -1;
-    const golpeI = gi >= 0 ? dex.golpes[gi] : INVESTIDA;
-    const crit = rolar() < 1 / 16;
-    const d = dano({
-      golpe: golpeI,
-      atacante: inimigo,
-      nivel: e.nivel,
-      atkStats: statsI,
-      defensor: minha,
-      defStats: statsE,
-      critico: crit,
-      aleatorio: 0.85 + rolar() * 0.15,
-    });
-    // Imunidade de tipo não livra do erro: a questão acerta "de raspão".
-    // Teto de 40% do HP por golpe (antes da certeza e do líder): com o time pequeno do
-    // começo, um erro só nunca encerra a partida. Uns 3 erros derrubam um Pokémon.
-    let valor = d.efetividade === 0 ? Math.max(1, Math.round(hpMax(dex, eu) * 0.1)) : Math.min(d.valor, Math.ceil(hpMax(dex, eu) * 0.4));
-    valor = Math.round(valor * (o.confianca === "certeza" ? 1.5 : 1) * (lider ? 1.2 : 1));
-    const comFoco = eu.foco > 0;
-    if (comFoco) {
-      eu.foco -= 1;
-      valor = Math.max(1, Math.round(valor / 2));
+    // O inimigo pode estar sem conseguir agir.
+    let preso = false;
+    if (e.status === "sleep") {
+      e.sono -= 1;
+      if (e.sono <= 0) {
+        e.status = "";
+        eventos.push({ tipo: "inimigoAcordou", status: "sleep" });
+      } else preso = true;
+    } else if (e.status === "freeze") {
+      if (rolar() < 0.2) {
+        e.status = "";
+        eventos.push({ tipo: "inimigoAcordou", status: "freeze" });
+      } else preso = true;
+    } else if (e.status === "paralysis" && rolar() < 0.25) preso = true;
+    if (preso) eventos.push({ tipo: "inimigoImpedido", status: e.status || "paralysis" });
+    else {
+      // Contra-ataca com o golpe que mais machuca o meu Pokémon.
+      const minha = dex.especies[eu.id];
+      const golpesInimigo = golpesNoNivel(inimigo, e.nivel).filter((x) => dex.golpes[x][2] > 0 && dex.golpes[x][3] !== 2);
+      const statsI = atributos(inimigo, e.nivel);
+      const statsE = atributos(minha, nivelDe(eu));
+      const escolher = (x: number) => dano({ golpe: dex.golpes[x], atacante: inimigo, nivel: e.nivel, atkStats: statsI, defensor: minha, defStats: statsE }).valor;
+      const gi = golpesInimigo.length ? golpesInimigo.reduce((a, b) => (escolher(b) > escolher(a) ? b : a)) : -1;
+      const golpeI = gi >= 0 ? dex.golpes[gi] : INVESTIDA;
+      const crit = rolar() < 1 / 16;
+      const d = dano({ golpe: golpeI, atacante: inimigo, nivel: e.nivel, atkStats: statsI, defensor: minha, defStats: statsE, critico: crit, aleatorio: 0.85 + rolar() * 0.15 });
+      // Imunidade de tipo não livra do erro: a questão acerta "de raspão". Teto de 40% do HP
+      // por golpe (antes da certeza e do líder): um erro só nunca encerra a partida.
+      let valor = d.efetividade === 0 ? Math.max(1, Math.round(hpMax(dex, eu) * 0.1)) : Math.min(d.valor, Math.ceil(hpMax(dex, eu) * 0.4));
+      valor = Math.round(valor * (o.confianca === "certeza" ? 1.5 : 1) * (lider ? 1.2 : 1) * (e.status === "burn" && golpeI[3] === 0 ? 0.5 : 1));
+      const comFoco = eu.foco > 0;
+      if (comFoco) {
+        eu.foco -= 1;
+        valor = Math.max(1, Math.round(valor / 2));
+      }
+      valor = Math.max(1, valor);
+      eu.hp = Math.max(0, eu.hp - valor);
+      eventos.push({ tipo: "contra", golpe: gi, dano: valor, efetividade: d.efetividade, critico: crit, foco: comFoco });
+      const cond = golpeI[6] as Status;
+      if (eu.hp > 0 && !eu.status && STATUS_VALIDOS.includes(cond) && rolar() * 100 < (golpeI[7] || 0)) {
+        eu.status = cond;
+        if (cond === "sleep") eu.sono = 1 + Math.floor(rolar() * 3);
+        eventos.push({ tipo: "status", uid: eu.uid, status: cond });
+      }
     }
-    eu.hp = Math.max(0, eu.hp - valor);
-    eventos.push({ tipo: "contra", golpe: gi, dano: valor, efetividade: d.efetividade, critico: crit, foco: comFoco });
-    // condição do golpe inimigo
-    const cond = golpeI[6] as Status;
-    if (eu.hp > 0 && !eu.status && STATUS_VALIDOS.includes(cond) && rolar() * 100 < (golpeI[7] || 0)) {
-      eu.status = cond;
-      if (cond === "sleep") eu.sono = 1 + Math.floor(rolar() * 3);
-      eventos.push({ tipo: "status", uid: eu.uid, status: cond });
-    }
-    // Uma volta só, como selvagem: errou de novo, fica para a revisão espaçada.
-    const volta = !e.retorno;
-    if (volta) {
-      const retorno: Encontro = { ...e, retorno: true, tipo: lider ? "lider" : "selvagem", treinador: lider ? e.treinador : -1 };
-      if (lider) q.fila.push(retorno);
+    // A questão errada volta uma vez: selvagem mais adiante (ou na reserva, contra o líder).
+    // Errou de novo, fica para a revisão espaçada.
+    if (!retornoDaVez) {
+      if (lider) q.reserva.splice(Math.min(2, q.reserva.length), 0, { questaoId: questaoDaVez, retorno: true });
       else {
+        const retorno: Encontro = {
+          ...e,
+          questaoId: questaoDaVez,
+          retorno: true,
+          tipo: "selvagem",
+          treinador: -1,
+          chave: ++q.chaves,
+          hp: maxIni,
+          status: "",
+          sono: 0,
+          semente: false,
+          turnos: 0,
+          fim: undefined,
+        };
         const temLider = q.fila[q.fila.length - 1]?.tipo === "lider";
         const limite = q.fila.length - (temLider ? 1 : 0);
         // não corta um treinador no meio: vai para depois do grupo em que cair
         let pos = Math.min(DISTANCIA_RETORNO, limite);
         while (pos > 0 && pos < limite && q.fila[pos].treinador >= 0 && q.fila[pos].treinador === q.fila[pos - 1].treinador) pos++;
+        if (e.treinador >= 0) while (pos < limite && q.fila[pos]?.treinador === e.treinador) pos++;
         q.fila.splice(pos, 0, retorno);
       }
+      eventos.push({ tipo: "voltaDepois", selvagem: !lider });
     }
-    eventos.push({ tipo: "fuga", volta });
   }
 
-  // veneno e queimadura: tique no fim do turno
+  // fim do turno: veneno, queimadura e Leech Seed no inimigo
+  if (!e.fim && e.hp > 0) {
+    const tique = (status: StatusGolpe) => {
+      const t = Math.max(1, Math.floor(maxIni / 8));
+      const tirou = Math.min(e.hp, t);
+      e.hp -= tirou;
+      eventos.push({ tipo: "tiqueInimigo", status, dano: tirou, hpInimigo: e.hp });
+      if (status === "leech-seed") curar(dex, eu, tirou, "semente", eventos);
+    };
+    if (e.status === "poison" || e.status === "burn") tique(e.status);
+    if (e.hp > 0 && e.semente) tique("leech-seed");
+    if (e.hp <= 0) derrubar();
+  }
+  // e no meu
   if (eu.hp > 0 && (eu.status === "poison" || eu.status === "burn")) {
     const t = Math.max(1, Math.floor(hpMax(dex, eu) / (eu.status === "poison" ? 8 : 16)));
     eu.hp = Math.max(0, eu.hp - t);
@@ -579,21 +730,61 @@ export function responderPoke(dex: Dex, p: PartidaPoke, o: OpcoesResposta): { pa
     }
   }
 
+  // O inimigo segue de pé: a próxima questão vem da reserva. Sem reserva (ou na 3ª questão
+  // contra ele), acabou a luta: desmaia de cansaço se eu acertei com golpe, foge se eu errei
+  // ou se escapou da bola.
+  e.turnos = (e.turnos ?? 0) + 1;
+  if (!e.fim && !q.fim) {
+    const prox = e.turnos >= MAX_TURNOS_POKEMON && o.acertou ? undefined : q.reserva.shift();
+    if (prox) {
+      e.questaoId = prox.questaoId;
+      e.retorno = prox.retorno;
+    } else if (o.acertou && !bola) {
+      eventos.push({ tipo: "exausto" });
+      derrubar();
+    } else {
+      e.fim = "fuga";
+      eventos.push({ tipo: "fuga" });
+    }
+  }
+
   // o treinador ficou sem Pokémon?
-  if (e.treinador >= 0 && !q.fim && (!lider || o.acertou) && !q.fila.some((x) => x.treinador === e.treinador) && !q.vencidos.includes(e.treinador)) {
+  if (e.treinador >= 0 && !q.fim && e.fim && e.fim !== "fuga" && !q.fila.some((x) => x.treinador === e.treinador) && !q.vencidos.includes(e.treinador)) {
     q.vencidos.push(e.treinador);
     q.recompensa = !lider;
     eventos.push({ tipo: "treinadorVencido", treinador: e.treinador, lider });
   }
 
-  q.registros.push({ questaoId: e.questaoId, acertou: o.acertou, confianca: o.confianca, retorno: e.retorno, chefe: lider, capturada });
+  q.registros.push({ questaoId: questaoDaVez, acertou: o.acertou, confianca: o.confianca, retorno: retornoDaVez, chefe: lider, capturada: e.fim === "captura" });
   q.rng = rng;
   return { partida: q, eventos };
+}
+
+function aplicarStatusInimigo(e: Encontro, status: StatusGolpe, rolar: () => number, eventos: Evento[]) {
+  if (status === "leech-seed") {
+    if (e.semente) return;
+    e.semente = true;
+  } else {
+    if (e.status) return;
+    e.status = status;
+    if (status === "sleep") e.sono = 1 + Math.floor(rolar() * 3);
+  }
+  eventos.push({ tipo: "statusInimigo", status });
+}
+
+// A questão da vez sumiu do acervo: passa para a próxima da reserva (ou encerra a luta com
+// esse Pokémon, sem XP). Não grava nada.
+export function pularQuestao(p: PartidaPoke): PartidaPoke {
+  if (!p.atual || p.atual.fim) return p;
+  const reserva = [...p.reserva];
+  const prox = reserva.shift();
+  return prox ? { ...p, reserva, atual: { ...p.atual, questaoId: prox.questaoId, retorno: prox.retorno } } : { ...p, atual: { ...p.atual, fim: "fuga" } };
 }
 
 // Próximo encontro, ou a recompensa de quem acabou de vencer um treinador.
 export function avancarPoke(p: PartidaPoke, dex?: Dex): PartidaPoke {
   if (p.fim || p.oferta) return p;
+  if (p.atual && !p.atual.fim) return p; // a luta com esse Pokémon continua
   if (p.recompensa && p.fila.length > 0) return sortearOferta({ ...p, recompensa: false, atual: null }, dex);
   const q: PartidaPoke = { ...p, fila: [...p.fila], recompensa: false };
   const prox = q.fila.shift() ?? null;

@@ -5,8 +5,10 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { COR_TIPO, spriteCostas, spriteEstatico, spriteFrente, spriteItem, spriteTreinador } from "../../lib/poke/dex";
 import type { Status } from "../../lib/poke/motor";
+import { fxSprite, type EfeitoGolpe } from "./fx";
 
-export type AnimLado = "" | "entra" | "ataca" | "dano" | "desmaia" | "some" | "bola" | "foge" | "status";
+// entra: surge com brilho; saiBola: o mesmo, depois da bola abrir; surge: selvagem chegando
+export type AnimLado = "" | "entra" | "saiBola" | "surge" | "ataca" | "dano" | "desmaia" | "some" | "bola" | "foge" | "status";
 
 export interface LadoVis {
   id: number;
@@ -20,13 +22,22 @@ export interface LadoVis {
   xp?: number; // 0–1, só o seu
   selvagem?: boolean;
   capturavel?: boolean; // selo de "já te derrubou"
+  semente?: boolean; // Leech Seed
 }
 
 export interface FxVis {
   n: number;
   de: "meu" | "inimigo";
-  cor: string;
+  alvo: "meu" | "inimigo";
+  efeito: EfeitoGolpe;
   forte?: boolean;
+}
+
+// Pokébola lançada para mandar um Pokémon a campo
+export interface LancaVis {
+  n: number;
+  lado: "meu" | "inimigo";
+  bola: string;
 }
 
 export interface TextoVis {
@@ -75,6 +86,11 @@ function Caixa({ lado, meu }: { lado: LadoVis; meu: boolean }) {
         ) : (
           <span className="pk-hp-rotulo">HP</span>
         )}
+        {lado.semente && (
+          <span className="pk-status" style={{ background: "#4E9A2F" }} title="Leech Seed: perde HP a cada turno">
+            SEM
+          </span>
+        )}
         <div className="pk-hp">
           <div className="pk-hp__barra" style={{ width: `${f * 100}%`, background: corHp(f) }} />
         </div>
@@ -117,6 +133,91 @@ function Sprite({ lado, meu }: { lado: LadoVis; meu: boolean }) {
   );
 }
 
+// Centro de cada lado, em % da arena (o golpe sai de um e chega no outro).
+const CENTRO = { meu: ["24%", "68%"], inimigo: ["71%", "29%"] } as const;
+
+function GolpeFx({ fx }: { fx: FxVis }) {
+  const { estilo, sprites, cor } = fx.efeito;
+  const [x0, y0] = CENTRO[fx.de];
+  const [x1, y1] = CENTRO[fx.alvo];
+  const vars = { "--x0": x0, "--y0": y0, "--x1": x1, "--y1": y1, "--cor": cor } as CSSProperties;
+  const img = (i: number) => fxSprite(sprites[i % sprites.length]);
+  const pecas: ReactNode[] = [];
+  const impacto = (atraso: number, sprite?: string) =>
+    pecas.push(
+      <span key="impacto" className="fx-impacto" style={{ animationDelay: `${atraso}ms` }}>
+        {sprite ? <img src={fxSprite(sprite)} alt="" /> : null}
+      </span>
+    );
+  if (estilo === "contato") impacto(120, sprites[0]);
+  else if (estilo === "mordida") {
+    pecas.push(
+      <span key="d1" className="fx-dente fx-dente--cima">
+        <img src={img(0)} alt="" />
+      </span>,
+      <span key="d2" className="fx-dente fx-dente--baixo">
+        <img src={img(0)} alt="" />
+      </span>
+    );
+    impacto(300);
+  } else if (estilo === "projetil") {
+    pecas.push(
+      <span key="p" className="fx-voo fx-voo--grande">
+        <img src={img(0)} alt="" />
+      </span>
+    );
+    impacto(420);
+  } else if (estilo === "raio" || estilo === "rajada") {
+    const n = estilo === "raio" ? 8 : 6;
+    for (let i = 0; i < n; i++)
+      pecas.push(
+        <span
+          key={i}
+          className={`fx-voo ${estilo === "raio" ? "fx-voo--raio" : "fx-voo--rajada"}`}
+          style={{ animationDelay: `${i * (estilo === "raio" ? 45 : 70)}ms`, "--dy": `${((i * 37) % 7) - 3}cqw`, "--giro": `${i % 2 ? 360 : -360}deg` } as CSSProperties}
+        >
+          <img src={img(i)} alt="" />
+        </span>
+      );
+    impacto(estilo === "raio" ? 450 : 560);
+  } else if (estilo === "chuva") {
+    for (let i = 0; i < 5; i++)
+      pecas.push(
+        <span key={i} className="fx-cai" style={{ animationDelay: `${i * 90}ms`, "--dx": `${((i * 53) % 13) - 6}cqw` } as CSSProperties}>
+          <img src={img(i)} alt="" />
+        </span>
+      );
+    impacto(560);
+  } else if (estilo === "trovao") {
+    pecas.push(
+      <span key="t" className="fx-trovao">
+        <img src={img(0)} alt="" />
+      </span>,
+      <span key="c" className="fx-clarao" />
+    );
+    impacto(300);
+  } else if (estilo === "aura" || estilo === "cura" || estilo === "tique") {
+    const n = estilo === "tique" ? 3 : 6;
+    for (let i = 0; i < n; i++)
+      pecas.push(
+        <span
+          key={i}
+          className={estilo === "aura" ? "fx-orbita" : "fx-sobe"}
+          style={{ animationDelay: `${i * 80}ms`, "--ang": `${(360 / n) * i}deg`, "--dx": `${((i * 29) % 9) - 4}cqw` } as CSSProperties}
+        >
+          <img src={img(i)} alt="" />
+        </span>
+      );
+    pecas.push(<span key="anel" className="fx-anel" />);
+  }
+  if (fx.forte && estilo !== "trovao") pecas.push(<span key="c" className="fx-clarao fx-clarao--leve" />);
+  return (
+    <div key={fx.n} className={`fx fx--${estilo} ${fx.forte ? "fx--forte" : ""}`} style={vars} aria-hidden>
+      {pecas}
+    </div>
+  );
+}
+
 export function Arena({
   inimigo,
   meu,
@@ -125,6 +226,7 @@ export function Arena({
   fx,
   textos,
   bola,
+  lancamentos = [],
   cor,
   topo,
   aguardando,
@@ -136,6 +238,7 @@ export function Arena({
   fx: FxVis | null;
   textos: TextoVis[];
   bola: BolaVis | null;
+  lancamentos?: LancaVis[];
   cor: string; // cor do "bioma" (tipo da matéria)
   topo?: ReactNode;
   aguardando?: boolean;
@@ -158,13 +261,32 @@ export function Arena({
       {inimigo && <Sprite lado={inimigo} meu={false} />}
       {meu && <Sprite lado={meu} meu />}
 
+      {lancamentos.map((l) => (
+        <div key={l.n} className={`pk-lanca pk-lanca--${l.lado}`} aria-hidden>
+          <img src={spriteItem(l.bola)} alt="" draggable={false} />
+          <span className="pk-lanca__abre" />
+        </div>
+      ))}
+
       {bola && (
-        <div key={bola.n} className={`pk-bola ${bola.sucesso ? "pk-bola--pegou" : "pk-bola--escapou"}`} style={{ "--balancos": bola.balancos } as CSSProperties}>
-          <img src={spriteItem(bola.bola)} alt="" draggable={false} />
+        <div key={bola.n} className={`pk-bola ${bola.sucesso ? "pk-bola--pegou" : "pk-bola--escapou"}`} style={{ "--balancos": bola.balancos } as CSSProperties} aria-hidden>
+          <span className="pk-bola__flash" />
+          <div className="pk-bola__corpo">
+            <img src={spriteItem(bola.bola)} alt="" draggable={false} />
+          </div>
+          {bola.sucesso ? (
+            <span className="pk-bola__estrelas">
+              <i>★</i>
+              <i>★</i>
+              <i>★</i>
+            </span>
+          ) : (
+            <span className="pk-bola__estouro" />
+          )}
         </div>
       )}
 
-      {fx && <div key={fx.n} className={`pk-fx pk-fx--${fx.de} ${fx.forte ? "pk-fx--forte" : ""}`} style={{ "--cor": fx.cor } as CSSProperties} />}
+      {fx && <GolpeFx key={fx.n} fx={fx} />}
 
       {textos.map((t) => (
         <span key={t.n} className={`pk-texto pk-texto--${t.lado}`} style={{ color: t.cor }}>

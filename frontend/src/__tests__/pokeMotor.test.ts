@@ -5,7 +5,9 @@ import { resumir } from "../lib/batalha";
 import { atributos, efetividade, evolucaoPorNivel, formaNoNivel, golpesNoNivel, nivelDoXpPoke, xpDoNivel, xpMinimoPorVitoria, type Dex } from "../lib/poke/dex";
 import {
   avancarPoke,
+  chanceCaptura,
   criarMon,
+  danoDaResposta,
   escolherOferta,
   especieDaQuestao,
   hpMax,
@@ -61,32 +63,85 @@ describe("dex", () => {
   });
 });
 
+// avança até haver um Pokémon inimigo de pé (pegando a 1ª recompensa no caminho)
+function seguir(p: PartidaPoke): PartidaPoke {
+  for (let g = 0; g < 10 && !p.fim && (!p.atual || p.atual.fim || p.oferta); g++) p = p.oferta ? escolherOferta(p, p.oferta[0], dex) : avancarPoke(p, dex);
+  return p;
+}
+
 describe("montagem", () => {
   it("a mesma questão é sempre o mesmo Pokémon", () => {
     expect(especieDaQuestao(dex, 42, "Português", 10)).toBe(especieDaQuestao(dex, 42, "Português", 10));
   });
-  it("treinadores em grupos, líder no fim, questões com erro selvagens", () => {
+  it("treinadores em grupos, líder no fim, reserva com o resto, questões com erro selvagens", () => {
     const p = partida(8, [{ erros: 2 }]);
     const todos = [p.atual!, ...p.fila];
-    expect(todos).toHaveLength(8);
+    expect(todos.length).toBeLessThan(8);
+    expect(todos.length + p.reserva.length).toBe(8);
     expect(todos[todos.length - 1].tipo).toBe("lider");
-    expect(todos.filter((e) => e.tipo === "selvagem").map((e) => e.questaoId)).toEqual([]); // a de erro virou líder
+    expect(todos.every((e) => e.hp === atributos(dex.especies[e.especie], e.nivel).hp)).toBe(true);
     const p2 = partida(8, [{ erros: 1 }, {}, {}, { erros: 3 }]);
     expect([p2.atual!, ...p2.fila].some((e) => e.tipo === "selvagem" && e.questaoId === 1)).toBe(true);
   });
 });
 
 describe("turno", () => {
-  it("acerto derruba, dá XP e o treinador vencido rende oferta", () => {
-    let p = partida();
+  it("acerto tira HP; o Pokémon de pé recebe a próxima questão da reserva", () => {
+    const p = partida(12, [], 10);
+    const r = certo(p);
+    const at = r.eventos.find((e) => e.tipo === "ataque") as { dano: number; hpInimigo: number };
+    expect(at.dano).toBeGreaterThan(0);
+    if (!r.partida.atual!.fim) {
+      expect(r.partida.atual!.hp).toBe(at.hpInimigo);
+      expect(r.partida.atual!.questaoId).toBe(p.reserva[0].questaoId);
+      expect(r.partida.reserva).toHaveLength(p.reserva.length - 1);
+      expect(avancarPoke(r.partida, dex)).toBe(r.partida);
+    }
+  });
+
+  it("tipo conta: fogo em planta tira mais que em água", () => {
+    const p = partida(8, [], 10);
+    const eu = p.time[0];
+    const ember = dex.golpes.findIndex((g) => g[0] === "Ember");
+    const contra = (especie: number) =>
+      danoDaResposta({ dex, eu, e: { ...p.atual!, especie, nivel: 10, tipo: "treinador" }, golpe: dex.golpes[ember], critico: false, aleatorio: 1 });
+    const planta = contra(1); // Bulbasaur (planta/veneno)
+    const agua = contra(7); // Squirtle
+    expect(planta.efetividade).toBe(2);
+    expect(agua.efetividade).toBe(0.5);
+    expect(planta.valor / atributos(dex.especies[1], 10).hp).toBeGreaterThan((agua.valor / atributos(dex.especies[7], 10).hp) * 3);
+  });
+
+  it("golpe de status envenena o inimigo e o veneno tira HP no fim do turno", () => {
+    const p = partida(12, [], 10);
+    const pp = dex.golpes.findIndex((g) => g[0] === "Poison Powder");
+    const eu = { ...p.time[0], golpes: [pp] };
+    // alvo sem imunidade a veneno
+    const q: PartidaPoke = { ...p, time: [eu], atual: { ...p.atual!, especie: 16 } };
+    const r = responderPoke(dex, q, { acertou: true, confianca: "duvida", acao: { golpe: pp } });
+    expect(r.eventos.some((e) => e.tipo === "statusInimigo" && e.status === "poison")).toBe(true);
+    const t = r.eventos.find((e) => e.tipo === "tiqueInimigo") as { dano: number } | undefined;
+    expect(t?.dano).toBeGreaterThan(0);
+    expect(r.partida.atual!.status).toBe("poison");
+    // Poison Powder em Pokémon de veneno não pega
+    const r2 = responderPoke(dex, { ...q, atual: { ...q.atual!, especie: 23 } }, { acertou: true, confianca: "duvida", acao: { golpe: pp } });
+    expect(r2.eventos.some((e) => e.tipo === "statusFalhou")).toBe(true);
+  });
+
+  it("acertos derrubam, dão XP e o treinador vencido rende oferta", () => {
+    let p = partida(12, [], 10);
     const t0 = p.atual!.treinador;
+    let kos = 0;
     let guard = 0;
-    while (p.atual && p.atual.treinador === t0 && guard++ < 5) {
+    while (p.atual && p.atual.treinador === t0 && !p.oferta && guard++ < 20) {
       const r = certo(p);
-      expect(r.eventos.some((e) => e.tipo === "desmaiouInimigo")).toBe(true);
-      expect(r.eventos.some((e) => e.tipo === "xp")).toBe(true);
+      if (r.eventos.some((e) => e.tipo === "desmaiouInimigo")) {
+        kos++;
+        expect(r.eventos.some((e) => e.tipo === "xp")).toBe(true);
+      }
       p = avancarPoke(r.partida, dex);
     }
+    expect(kos).toBeGreaterThan(0);
     expect(p.oferta).toHaveLength(3);
     const item = p.oferta![0];
     const antes = p.mochila[item] ?? 0;
@@ -95,17 +150,27 @@ describe("turno", () => {
     expect(p.atual).not.toBeNull();
   });
 
-  it("erro tira HP, a questão volta como selvagem, certeza dói mais", () => {
-    const p = partida(8, [], 20);
+  it("erro tira HP, o inimigo fica, a questão volta como selvagem, certeza dói mais", () => {
+    const p = partida(12, [], 20);
     const a = errado(p, "duvida");
     const b = errado(p, "certeza");
     const da = (a.eventos.find((e) => e.tipo === "contra") as { dano: number }).dano;
     const db = (b.eventos.find((e) => e.tipo === "contra") as { dano: number }).dano;
     expect(db).toBeGreaterThan(da);
     expect(a.partida.time[0].hp).toBeLessThan(p.time[0].hp);
+    expect(a.partida.atual!.fim).toBeUndefined();
+    expect(a.partida.atual!.chave).toBe(p.atual!.chave);
     const volta = a.partida.fila.find((e) => e.questaoId === p.atual!.questaoId);
     expect(volta?.tipo).toBe("selvagem");
     expect(volta?.retorno).toBe(true);
+    expect(volta?.chave).not.toBe(p.atual!.chave);
+  });
+
+  it("inimigo dormindo não contra-ataca", () => {
+    const p = partida(12, [], 20);
+    const r = errado({ ...p, atual: { ...p.atual!, status: "sleep", sono: 3 } });
+    expect(r.eventos.some((e) => e.tipo === "inimigoImpedido")).toBe(true);
+    expect(r.eventos.some((e) => e.tipo === "contra")).toBe(false);
   });
 
   it("time inteiro desmaiado é derrota; desmaio com reserva pede troca", () => {
@@ -115,36 +180,40 @@ describe("turno", () => {
     let r = errado(p);
     expect(r.partida.fim).toBeNull();
     expect(precisaTrocar(r.partida)).toBe(true);
-    let q = trocar(avancarPoke(r.partida, dex), 1);
+    const q = trocar(avancarPoke(r.partida, dex), 1);
     expect(q.ativo).toBe(1);
     r = errado(q);
     expect(r.partida.fim).toBe("derrota");
   });
 
-  it("captura só em selvagem, gasta bola e entra no time", () => {
+  it("captura só em selvagem, gasta bola e entra no time; falhar não derruba", () => {
     let p = partida(8, [{}, { erros: 1 }, {}, {}, {}, { erros: 5 }]);
     let guard = 0;
-    while (p.atual?.tipo !== "selvagem" && guard++ < 20) {
-      if (p.oferta) p = escolherOferta(p, p.oferta[0], dex);
-      else p = avancarPoke(certo(p).partida, dex);
-    }
+    while (p.atual?.tipo !== "selvagem" && guard++ < 30) p = seguir(certo(seguir(p)).partida);
     expect(p.atual?.tipo).toBe("selvagem");
-    // em treinador não dá (já testado pela guarda do motor); aqui tenta até capturar
     let capturou = false;
-    for (let s = 0; s < 20 && !capturou; s++) {
+    let falhou = false;
+    for (let s = 0; s < 30 && !(capturou && falhou); s++) {
       const r = responderPoke(dex, { ...p, rng: s * 977 }, { acertou: true, confianca: "certeza", acao: { bola: "poke-ball" } });
       expect(r.partida.mochila["poke-ball"]).toBe(p.mochila["poke-ball"] - 1);
       const ev = r.eventos.find((e) => e.tipo === "bola") as { sucesso: boolean } | undefined;
       if (ev?.sucesso) {
         capturou = true;
         expect(r.partida.time).toHaveLength(2);
+        expect(r.partida.atual!.fim).toBe("captura");
         expect(r.partida.registros.at(-1)!.capturada).toBe(true);
         const perfil = sincronizarPerfil(perfilInicial(dex, 4, "a"), r.partida);
         expect(perfil.colecao).toHaveLength(2);
         expect(perfil.capturadasQuestoes).toContain(p.atual!.questaoId);
+      } else if (r.partida.reserva.length < p.reserva.length) {
+        falhou = true;
+        expect(r.eventos.some((e) => e.tipo === "desmaiouInimigo")).toBe(false);
+        expect(r.partida.atual!.fim).toBeUndefined();
       }
     }
     expect(capturou).toBe(true);
+    // HP baixo facilita
+    expect(chanceCaptura(dex.especies[16], "poke-ball", "duvida", 0.1)).toBeGreaterThan(chanceCaptura(dex.especies[16], "poke-ball", "duvida", 1) + 0.3);
     // resposta errada não lança bola
     const r = responderPoke(dex, p, { acertou: false, confianca: "duvida", acao: { bola: "poke-ball" } });
     expect(r.partida.mochila["poke-ball"]).toBe(p.mochila["poke-ball"]);
@@ -152,7 +221,7 @@ describe("turno", () => {
 
   it("subir de nível evolui (Charmander 15 -> Charmeleon)", () => {
     let p = partida(8, [], 15);
-    p = { ...p, time: [{ ...p.time[0], xp: xpDoNivel(16) - 1 }] };
+    p = { ...p, time: [{ ...p.time[0], xp: xpDoNivel(16) - 1 }], atual: { ...p.atual!, hp: 1 } };
     const r = certo(p);
     expect(r.eventos.some((e) => e.tipo === "evolui" && e.para === 5)).toBe(true);
     expect(r.partida.time[0].id).toBe(5);
@@ -185,15 +254,15 @@ describe("ritmo de evolução", () => {
   it("inicial evolui em ~5 lutas de treinador (2–3 Pokémon cada) só acertando", () => {
     let mon = criarMon(dex, 1, 5, "b"); // Bulbasaur, evolui no 16
     let derrubados = 0;
-    for (let jornada = 0; jornada < 5 && mon.id === 1; jornada++) {
-      const pendentes = Array.from({ length: 12 }, (_, i) => cand(jornada * 100 + i + 1, i % 2 ? "Banco de Dados" : "Português"));
+    for (let jornada = 0; jornada < 8 && mon.id === 1; jornada++) {
+      const pendentes = Array.from({ length: 18 }, (_, i) => cand(jornada * 100 + i + 1, i % 2 ? "Banco de Dados" : "Português"));
       let p = montarPartidaPoke({ dex, time: [mon], mochila: {}, pendentes, novas: [], concursoId: null, semente: 7 + jornada })!;
-      while (!p.fim && p.time[0].id === 1) {
-        if (p.oferta) p = escolherOferta(p, p.oferta[0], dex);
-        if (!p.atual) p = avancarPoke(p, dex);
-        if (!p.atual) break;
-        p = certo(p).partida;
-        derrubados++;
+      for (let g = 0; g < 60 && !p.fim && p.time[0].id === 1; g++) {
+        p = seguir(p);
+        if (!p.atual || p.fim) break;
+        const r = certo(p);
+        if (r.eventos.some((e) => e.tipo === "desmaiouInimigo")) derrubados++;
+        p = r.partida;
       }
       mon = { ...mon, id: p.time[0].id, xp: p.time[0].xp };
     }
