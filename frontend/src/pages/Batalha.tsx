@@ -25,13 +25,13 @@ import {
   Swords,
   Trophy,
 } from "lucide-react";
-import type { Alternativa, Questao } from "../types/questao";
-import { getQuestao, todas } from "../lib/questoesRepo";
-import { carregarRevisao } from "../lib/revisao";
+import type { Alternativa } from "../types/questao";
+import { getQuestao } from "../lib/questoesRepo";
+import { carregarFilaBatalha, novasPorFraqueza, type HistoricoQ } from "../lib/filaBatalha";
 import { api } from "../lib/api";
 import { enviarResposta } from "../lib/answers";
 import { montarResultado } from "../lib/correcao";
-import { criarPagina, salvarPagina } from "../lib/multiApi";
+import { salvarLicoesNoCaderno, textoCalibragem } from "../lib/licoes";
 import {
   MIN_LICAO,
   avancar,
@@ -111,55 +111,6 @@ const ITENS: Record<ItemId, { nome: string; texto: string; icone: typeof Shield 
 
 // ---------- montagem da partida ----------
 
-interface HistoricoQ {
-  questaoId: number;
-  tentativas: number;
-  acertos: number;
-  erros: number;
-}
-
-function embaralhar<T>(xs: T[]): T[] {
-  const a = [...xs];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-// Questões nunca respondidas, começando pelas matérias em que mais erro, em rodízio (uma
-// de cada matéria por vez) para a partida não virar um bloco de uma matéria só.
-function novasPorFraqueza(hist: Map<number, HistoricoQ>): Candidata[] {
-  const taxa = new Map<string, { a: number; t: number }>();
-  const porMateria = new Map<string, Questao[]>();
-  for (const q of todas()) {
-    const h = hist.get(q.id);
-    if (h) {
-      const m = taxa.get(q.materia) ?? { a: 0, t: 0 };
-      m.a += h.acertos;
-      m.t += h.tentativas;
-      taxa.set(q.materia, m);
-    } else {
-      porMateria.set(q.materia, [...(porMateria.get(q.materia) ?? []), q]);
-    }
-  }
-  const acerto = (m: string) => {
-    const x = taxa.get(m);
-    return x && x.t > 0 ? x.a / x.t : 0.5;
-  };
-  const filas = [...porMateria.entries()]
-    .sort((a, b) => acerto(a[0]) - acerto(b[0]))
-    .map(([, qs]) => embaralhar(qs));
-  const saida: Candidata[] = [];
-  while (filas.some((f) => f.length)) {
-    for (const f of filas) {
-      const q = f.shift();
-      if (q) saida.push({ questaoId: q.id, materia: q.materia, nivel: 0, erros: 0, dificuldade: q.dificuldade });
-    }
-  }
-  return saida;
-}
-
 type Fase = "lobby" | "entrada" | "pergunta" | "golpe" | "resultado" | "recompensa" | "fim";
 
 interface Desfecho {
@@ -170,9 +121,7 @@ interface Desfecho {
   marcada: Alternativa;
 }
 
-const escapar = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-export function Batalha() {
+export function Batalha({ alternar }: { alternar?: ReactNode } = {}) {
   usePausarFundo();
   const { tema } = useTheme();
   const { activeId } = useConcurso();
@@ -269,25 +218,10 @@ export function Batalha() {
   const carregarLobby = useCallback(() => {
     setErroCarga(false);
     setPendentes(null);
-    Promise.all([carregarRevisao(), api<{ questoes: HistoricoQ[] }>("/answers/por-questao")])
-      .then(([fila, h]) => {
-        const mapa = new Map(h.questoes.map((x) => [x.questaoId, x]));
-        setHist(mapa);
-        setPendentes(
-          fila.questoes
-            .map((i): Candidata | null => {
-              const q = getQuestao(i.questaoId);
-              if (!q) return null;
-              return {
-                questaoId: q.id,
-                materia: q.materia,
-                nivel: i.streak ?? 0,
-                erros: mapa.get(q.id)?.erros ?? 0,
-                dificuldade: q.dificuldade,
-              };
-            })
-            .filter((c): c is Candidata => c !== null)
-        );
+    carregarFilaBatalha()
+      .then(({ hist: h, pendentes: pend }) => {
+        setHist(h);
+        setPendentes(pend);
       })
       .catch(() => setErroCarga(true));
   }, []);
@@ -564,6 +498,7 @@ export function Batalha() {
         onComecar={comecar}
         emAndamento={partida && !partida.fim ? partida : null}
         onRetomar={retomar}
+        alternar={alternar}
       />
       </>
     );
@@ -854,6 +789,7 @@ function Lobby({
   onComecar,
   emAndamento,
   onRetomar,
+  alternar,
 }: {
   tema: ReturnType<typeof useTheme>["tema"];
   perfil: Perfil;
@@ -864,6 +800,7 @@ function Lobby({
   onComecar: () => void;
   emAndamento: Partida | null;
   onRetomar: () => void;
+  alternar?: ReactNode;
 }) {
   const p = HEROIS[tema];
   const nv = nivelDoXp(perfil.xp);
@@ -877,6 +814,7 @@ function Lobby({
         titulo="Masmorra da revisão"
         subtitulo="Sua revisão espaçada do dia virou uma partida: cada acerto é um golpe, cada erro é um contra-ataque."
       />
+      {alternar}
 
       <div className="grid gap-5 md:grid-cols-[260px_1fr]">
         <div className="card flex flex-col items-center p-5 text-center">
@@ -1006,37 +944,18 @@ function Fim({ partida, perfil, activeId, onNova }: { partida: Partida; perfil: 
   const r = resumir(partida);
   const [salvando, setSalvando] = useState<"nao" | "salvando" | "salvo" | "erro">("nao");
   const licoes = Object.entries(partida.licoes);
-  const pct = (x: { total: number; acertos: number }) => (x.total ? Math.round((x.acertos / x.total) * 100) : 0);
 
   const titulo =
     partida.fim === "vitoria" ? "Vitória!" : partida.fim === "derrota" ? "Seu parceiro desmaiou" : "Você fugiu da masmorra";
   const Icone = partida.fim === "vitoria" ? Trophy : partida.fim === "derrota" ? Skull : Flag;
 
-  let calibragem = "Responda mais algumas com o golpe forte para medir a sua certeza.";
-  if (r.certeza.total >= 3 && pct(r.certeza) < 70)
-    calibragem = `Sua certeza anda otimista: ${pct(r.certeza)}% de acerto quando tinha certeza. Nessas matérias, desconfie do "óbvio" e releia o enunciado.`;
-  else if (r.duvida.total >= 3 && pct(r.duvida) >= 80)
-    calibragem = `Você sabe mais do que acha: ${pct(r.duvida)}% de acerto na dúvida. Pode arriscar o golpe forte.`;
-  else if (r.certeza.total >= 3) calibragem = `Certeza bem calibrada: ${pct(r.certeza)}% de acerto quando tinha certeza.`;
+  const calibragem = textoCalibragem(r);
 
   async function salvarLicoes() {
     if (!activeId || licoes.length === 0) return;
     setSalvando("salvando");
     try {
-      const porMateria = new Map<string, string[]>();
-      for (const [id, texto] of licoes) {
-        const q = getQuestao(Number(id));
-        if (!q) continue;
-        const curto = q.enunciado.replace(/\s+/g, " ").trim().slice(0, 220);
-        const bloco = `<h3>Questão ${q.id} · gabarito ${q.gabarito}</h3><blockquote><p>${escapar(curto)}${q.enunciado.length > 220 ? "…" : ""}</p></blockquote><p>${escapar(texto)}</p>`;
-        porMateria.set(q.materia, [...(porMateria.get(q.materia) ?? []), bloco]);
-      }
-      const dia = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
-      for (const [materia, blocos] of porMateria) {
-        const titulo = `Lições da batalha · ${dia}`;
-        const { pagina } = await criarPagina(activeId, materia, titulo);
-        await salvarPagina(pagina.id, { titulo, materia, formato: "html", conteudo: blocos.join("") });
-      }
+      await salvarLicoesNoCaderno(activeId, licoes);
       setSalvando("salvo");
     } catch {
       setSalvando("erro");

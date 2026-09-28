@@ -314,7 +314,7 @@ export interface Resumo {
   erradas: number[]; // ficaram erradas: voltam amanhã na revisão espaçada
 }
 
-export function resumir(p: Partida): Resumo {
+export function resumir(p: { registros: Registro[] }): Resumo {
   const r = p.registros;
   const faixa = (c: Confianca) => {
     const xs = r.filter((x) => x.confianca === c);

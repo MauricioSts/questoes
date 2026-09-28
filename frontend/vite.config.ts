@@ -41,6 +41,18 @@ export default defineConfig({
             handler: "NetworkFirst",
             options: { cacheName: "api-cache", networkTimeoutSeconds: 5 },
           },
+          {
+            // Sprites da Batalha Pokémon (PokéAPI e Showdown): não mudam nunca.
+            urlPattern: ({ url }) =>
+              (url.hostname === "raw.githubusercontent.com" && url.pathname.startsWith("/PokeAPI/sprites/")) ||
+              (url.hostname === "play.pokemonshowdown.com" && url.pathname.startsWith("/sprites/")),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "poke-sprites",
+              expiration: { maxEntries: 800, maxAgeSeconds: 60 * 60 * 24 * 90 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
         ],
       },
     }),

@@ -1,0 +1,149 @@
+/* ================= BATALHA POKÉMON (pages/BatalhaPokemon + components/poke) =================
+   A arena tem paleta própria (a de Black/White), igual em todos os temas. Posições e
+   tamanhos em % e cqw: o palco escala inteiro com a largura. */
+
+.pk-arena {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.4;
+  max-height: 46vh;
+  overflow: hidden;
+  isolation: isolate;
+  user-select: none;
+  container-type: inline-size;
+  font-size: clamp(11px, 3.1cqw, 17px);
+  color: #1d1d24;
+  --bioma: #7AC74C;
+}
+@media (min-width: 1024px) {
+  .pk-arena { max-height: calc(100vh - 28px); border-radius: 18px; border: 3px solid #141018; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+}
+.pk-ceu {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(120% 60% at 70% 0%, rgba(255,255,255,.7), transparent 60%),
+    linear-gradient(180deg, #9fd3f7 0%, #d9f0ff 44%, color-mix(in srgb, var(--bioma) 45%, #cfe9a8) 44%, color-mix(in srgb, var(--bioma) 60%, #7fb85a) 100%);
+}
+.pk-plataforma { position: absolute; border-radius: 50%; background: color-mix(in srgb, var(--bioma) 55%, #5d8f3b); box-shadow: inset 0 -.6cqw 0 rgba(0,0,0,.18), 0 .4cqw 0 rgba(255,255,255,.35); }
+.pk-plataforma--inimigo { left: 53%; top: 37%; width: 36%; height: 9%; }
+.pk-plataforma--meu { left: 0%; bottom: 13%; width: 48%; height: 11%; }
+
+/* sprites: ancorados pelo pé no centro da plataforma */
+.pk-sprite { position: absolute; transform: translate(-50%, -100%); pointer-events: none; z-index: 2; }
+.pk-sprite img { display: block; image-rendering: pixelated; transform-origin: 50% 100%; }
+.pk-sprite--inimigo { left: 71%; top: 42%; }
+.pk-sprite--inimigo img { width: calc(var(--nw) * 100cqw / 300); }
+.pk-sprite--meu { left: 24%; top: 88%; }
+.pk-sprite--meu img { width: calc(var(--nw) * 100cqw / 210); }
+
+.pk-anim-entra img { animation: pk-entra .55s cubic-bezier(.2,1.4,.4,1) both; }
+@keyframes pk-entra { 0% { transform: scale(0); filter: brightness(6); } 60% { transform: scale(1.08); filter: brightness(2.5); } 100% { transform: none; filter: none; } }
+.pk-sprite--meu.pk-anim-ataca img { animation: pk-ataca-meu .45s ease-in-out; }
+.pk-sprite--inimigo.pk-anim-ataca img { animation: pk-ataca-inimigo .45s ease-in-out; }
+@keyframes pk-ataca-meu { 40% { transform: translate(9cqw, -5cqw) scale(1.05); } }
+@keyframes pk-ataca-inimigo { 40% { transform: translate(-9cqw, 5cqw) scale(1.05); } }
+.pk-anim-dano img { animation: pk-dano .6s steps(1) both, pk-treme .6s ease-in-out; }
+@keyframes pk-dano { 0%, 30%, 60% { opacity: .1; } 15%, 45%, 75%, 100% { opacity: 1; } }
+@keyframes pk-treme { 20% { translate: -1.2cqw 0; } 40% { translate: 1.2cqw 0; } 60% { translate: -.8cqw 0; } 80% { translate: .6cqw 0; } }
+.pk-anim-desmaia img { animation: pk-desmaia .6s ease-in both; }
+@keyframes pk-desmaia { to { transform: translateY(45%); opacity: 0; clip-path: inset(0 0 100% 0); } }
+.pk-anim-some img { opacity: 0; }
+.pk-anim-bola img { animation: pk-recolhe .45s ease-in .5s both; }
+@keyframes pk-recolhe { to { transform: scale(0) translateY(-40%); filter: brightness(4) sepia(1) hue-rotate(-40deg) saturate(6); opacity: 0; } }
+.pk-anim-foge img { animation: pk-foge .6s ease-in both; }
+@keyframes pk-foge { to { transform: translateX(35cqw); opacity: 0; } }
+.pk-anim-status img { animation: pk-status .7s ease-in-out; }
+@keyframes pk-status { 30%, 70% { filter: drop-shadow(0 0 2cqw #b565d9) saturate(2); } }
+
+/* treinador inimigo */
+.pk-treinador {
+  position: absolute; left: 71%; top: 42%; z-index: 2;
+  width: calc(80 * 100cqw / 280); image-rendering: pixelated;
+  transform: translate(-50%, -100%);
+  animation: pk-treinador-entra .5s cubic-bezier(.2,1,.3,1) both;
+}
+.pk-treinador--sai { animation: pk-treinador-sai .45s ease-in both; }
+@keyframes pk-treinador-entra { from { transform: translate(60%, -100%); opacity: 0; } }
+@keyframes pk-treinador-sai { from { transform: translate(-50%, -100%); } to { transform: translate(90%, -100%); opacity: 0; } }
+
+/* caixas de HP */
+.pk-caixa {
+  position: absolute; z-index: 4; width: 44%; padding: .45em .7em .5em;
+  background: #F8F7EE; border: 2px solid #2b2b33; border-radius: .8em;
+  box-shadow: .25em .25em 0 rgba(0,0,0,.22); line-height: 1.2;
+  animation: pk-caixa .4s ease both;
+}
+.pk-caixa--inimigo { left: 3%; top: 15%; border-top-right-radius: .2em; }
+.pk-caixa--meu { right: 3%; bottom: 20%; border-bottom-left-radius: .2em; }
+@keyframes pk-caixa { from { opacity: 0; transform: translateY(-6px); } }
+.pk-hp-rotulo { font-size: .7em; font-weight: 800; color: #E8A23A; background: #2b2b33; border-radius: .3em; padding: 0 .3em; }
+.pk-status { font-size: .66em; font-weight: 800; color: #fff; border-radius: .3em; padding: 0 .35em; }
+.pk-hp { flex: 1; height: .5em; border-radius: 1em; background: #3b3b44; padding: 1px; }
+.pk-hp__barra { height: 100%; border-radius: 1em; transition: width .7s ease, background .7s; }
+.pk-xp { height: .3em; margin-top: .2em; border-radius: 1em; background: #cfcfc6; overflow: hidden; }
+.pk-xp__barra { height: 100%; background: #3D8BE8; transition: width .9s ease; }
+.pk-selo { margin-left: .3em; color: #E8474C; font-size: .8em; }
+
+/* bola */
+.pk-bola { position: absolute; left: 71%; top: 38%; z-index: 3; transform: translate(-50%, -50%); animation: pk-arremesso .55s cubic-bezier(.3,.7,.4,1) both; }
+.pk-bola img { width: 8cqw; image-rendering: pixelated; animation: pk-balanca .5s ease-in-out 1.05s var(--balancos) both; transform-origin: 50% 90%; }
+.pk-bola--pegou img { animation: pk-balanca .5s ease-in-out 1.05s 3 both, pk-pegou .5s ease 2.6s both; }
+.pk-bola--escapou { animation: pk-arremesso .55s cubic-bezier(.3,.7,.4,1) both, pk-estoura .3s ease calc(1.1s + var(--balancos) * .5s) both; }
+@keyframes pk-arremesso { from { transform: translate(-280%, 260%) rotate(-540deg) scale(1.4); } 70% { transform: translate(-50%, -140%) rotate(0); } }
+@keyframes pk-balanca { 25% { rotate: -22deg; } 75% { rotate: 18deg; } }
+@keyframes pk-pegou { 50% { filter: brightness(.55) drop-shadow(0 0 1cqw #FFE066); } to { filter: brightness(.7) drop-shadow(0 0 2cqw #FFE066); } }
+@keyframes pk-estoura { to { transform: translate(-50%, -50%) scale(2.2); opacity: 0; filter: brightness(5); } }
+
+/* projétil do golpe */
+.pk-fx { position: absolute; z-index: 3; width: 7cqw; height: 7cqw; border-radius: 50%; background: radial-gradient(circle, #fff 0 25%, var(--cor) 55%, transparent 72%); box-shadow: 0 0 3cqw var(--cor); pointer-events: none; }
+.pk-fx--forte { width: 11cqw; height: 11cqw; }
+.pk-fx--meu { animation: pk-fx-ida .45s ease-in both; }
+.pk-fx--inimigo { animation: pk-fx-volta .45s ease-in both; }
+@keyframes pk-fx-ida { from { left: 24%; top: 66%; transform: translate(-50%, -50%) scale(.4); } 85% { opacity: 1; } to { left: 71%; top: 30%; transform: translate(-50%, -50%) scale(1.3); opacity: 0; } }
+@keyframes pk-fx-volta { from { left: 71%; top: 30%; transform: translate(-50%, -50%) scale(.4); } 85% { opacity: 1; } to { left: 24%; top: 66%; transform: translate(-50%, -50%) scale(1.3); opacity: 0; } }
+
+.pk-texto { position: absolute; z-index: 5; font-weight: 900; font-size: 1.3em; text-shadow: 0 2px 0 #1d1d24, 0 0 6px rgba(0,0,0,.5); pointer-events: none; transform: translate(-50%, 0); animation: pk-texto 1.3s ease-out both; white-space: nowrap; }
+.pk-texto--inimigo { left: 71%; top: 14%; }
+.pk-texto--meu { left: 24%; top: 48%; }
+@keyframes pk-texto { from { opacity: 0; translate: 0 10px; } 15% { opacity: 1; translate: 0 0; } 70% { opacity: 1; } to { opacity: 0; translate: 0 -18px; } }
+
+.pk-topo { position: absolute; z-index: 6; top: 8px; left: 8px; right: 8px; font-size: 14px; }
+.pk-mensagem {
+  position: absolute; z-index: 5; left: 0; right: 0; bottom: 0; min-height: 13%;
+  display: flex; align-items: center; justify-content: space-between; gap: .5em;
+  padding: .55em 1em; background: #262b3a; color: #fff; font-weight: 700;
+  border-top: .22em solid #C9B46A; box-shadow: inset 0 0 0 .15em #3f4760;
+}
+.pk-mensagem__seta { color: #F2C33A; animation: pk-seta 1s ease-in-out infinite; }
+@keyframes pk-seta { 50% { transform: translateY(3px); } }
+
+/* painel */
+.pk-tipo { display: inline-block; border-radius: 6px; padding: 1px 6px; font-size: 10px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.pk-golpe {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-height: 58px;
+  padding: 7px 10px; border-radius: 12px; text-align: left; color: #1d1d24;
+  background: color-mix(in srgb, var(--cor) 22%, #fff); border: 2px solid var(--cor);
+  box-shadow: 2px 2px 0 rgba(20,16,24,.3); transition: transform .12s, box-shadow .12s;
+}
+.pk-golpe:not(:disabled):hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 rgba(20,16,24,.35); }
+.pk-golpe:disabled { opacity: .45; cursor: not-allowed; }
+.pk-golpe__ef { position: absolute; top: 5px; right: 7px; font-size: 10px; font-weight: 800; }
+.pk-certeza { display: inline-flex; align-items: center; gap: 8px; border-radius: 12px; padding: 6px 10px; border: 2px solid rgb(var(--hair)); font-size: 12px; font-weight: 700; }
+.pk-certeza--on { border-color: #E0A800; background: #FFF1C2; color: #5a4300; }
+.pk-mini { image-rendering: pixelated; object-fit: contain; }
+.pk-carta { animation: bt-carta .45s cubic-bezier(.2, .9, .3, 1.2) both; }
+
+/* evolução */
+.pk-evo { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: radial-gradient(circle, #2a2f45, #0c0d14); color: #fff; }
+.pk-evo__palco { position: relative; width: 220px; height: 220px; display: grid; place-items: center; }
+.pk-evo__palco img { position: absolute; width: 190px; image-rendering: pixelated; }
+.pk-evo__de { animation: pk-evo-de 3.2s ease-in both; }
+.pk-evo__para { animation: pk-evo-para 3.2s ease-in both; }
+@keyframes pk-evo-de { 0% { filter: none; } 15% { filter: brightness(0) invert(1); opacity: 1; } 25%, 45%, 65%, 80% { opacity: 1; transform: scale(1); } 35%, 55%, 72%, 86% { opacity: 0; transform: scale(.7); } 90%, 100% { opacity: 0; filter: brightness(0) invert(1); } }
+@keyframes pk-evo-para { 0%, 25% { opacity: 0; filter: brightness(0) invert(1); } 35%, 55%, 72%, 86% { opacity: 1; transform: scale(1.1); } 45%, 65%, 80% { opacity: 0; transform: scale(.8); } 90% { opacity: 1; filter: brightness(0) invert(1); transform: scale(1.15); } 100% { opacity: 1; filter: none; transform: scale(1); } }
+.pk-evo__brilho { position: absolute; inset: -40px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.6), transparent 65%); animation: pk-evo-brilho 3.2s ease both; }
+@keyframes pk-evo-brilho { 0%, 80% { opacity: 0; transform: scale(.5); } 90% { opacity: 1; transform: scale(1.3); } 100% { opacity: 0; transform: scale(1.6); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pk-arena *, .pk-evo * { animation-duration: .01ms !important; animation-delay: 0s !important; }
+}

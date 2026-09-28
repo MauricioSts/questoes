@@ -6,6 +6,7 @@ import "./temas-heroi.css";
 import "./transicoes-tema.css";
 import "./eliminar.css";
 import "./batalha.css";
+import "./poke.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
