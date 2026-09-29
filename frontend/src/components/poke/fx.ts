@@ -36,9 +36,9 @@ export interface EfeitoGolpe {
 }
 
 export function efeitoDoGolpe(g: Golpe, cor: string): EfeitoGolpe {
-  const [nome, tipo, poder, classe, , cura, cond] = g;
+  const [nome, tipo, , classe, , cura, cond] = g;
   const doTipo = DO_TIPO[tipo] ?? "wisp";
-  if (classe === 2 || poder <= 0) {
+  if (classe === 2) {
     if (cura > 0) return { estilo: "cura", sprites: ["shine"], cor: "#7CF29A" };
     if (cond) return { estilo: "aura", sprites: [doTipo], cor };
     return { estilo: "cura", sprites: [doTipo], cor };

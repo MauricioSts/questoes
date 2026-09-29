@@ -17,12 +17,19 @@
 // - "Tenho certeza" continua sendo a aposta de confiança: acerto vira crítico (1,5× dano),
 //   erro dói 1,5×. O placar de calibragem do fim usa isso.
 // - Escrever a lição de um erro cura o Pokémon ativo (autoexplicação).
+// - A jornada tem modos: Rota (treino, com selvagens no meio), Ginásio (8 líderes de Kanto,
+//   um por insígnia, em ordem), Zona Safári (só selvagens, com Safari Balls da partida) e
+//   Liga Pokémon (Elite dos 4 + Campeão, com as 8 insígnias). Em todos, as questões são as
+//   mesmas da revisão espaçada: o modo muda os Pokémon, nunca quais questões caem.
+// - Golpe novo com 4 golpes já aprendidos não substitui nada sozinho: fica pendente em
+//   `aprender` e o jogador escolhe qual esquecer (ou não aprender).
 // Funções puras: a tela chama, guarda o resultado e anima os eventos.
 import type { Confianca, Candidata, Registro } from "../batalha";
 import { intercalar } from "../batalha";
 import {
   MAX_GOLPES,
   MAX_NIVEL,
+  NOME_TIPO,
   atributos,
   dano,
   efetividade,
@@ -41,6 +48,11 @@ import {
 } from "./dex";
 
 const INVESTIDA: Golpe = ["Tackle", 0, 40, 0, 0, 0, "", 0, 0];
+
+// Golpes de dano fixo (Dragon Rage, Seismic Toss, Night Shade, Super Fang...) vêm da PokéAPI
+// sem poder: aqui valem como poder 60, senão a resposta certa não tiraria HP nenhum.
+export const PODER_FIXO = 60;
+const poderDe = (g: Golpe) => (g[2] > 0 ? g[2] : g[3] !== 2 ? PODER_FIXO : 0);
 
 // ---------- tipos ----------
 
@@ -64,6 +76,7 @@ export interface Lutador extends Mon {
 }
 
 export type TipoEncontro = "treinador" | "selvagem" | "lider";
+export type ModoJornada = "rota" | "ginasio" | "safari" | "liga";
 
 export interface Encontro {
   questaoId: number; // questão da vez (troca a cada turno em que ele sobrevive)
@@ -89,18 +102,65 @@ export interface QuestaoReserva {
 export interface Treinador {
   nome: string;
   sprite: string;
-  lider: boolean;
+  lider: boolean; // chefe (líder, Elite dos 4, campeão, treinador Ás da rota)
+  insignia?: number; // líder de ginásio: índice em GINASIOS
+  elite?: boolean;
+  campeao?: boolean;
+  fala?: string;
 }
 
-export type Bola = "poke-ball" | "great-ball" | "ultra-ball";
-export const BOLAS: Bola[] = ["poke-ball", "great-ball", "ultra-ball"];
-export const MULT_BOLA: Record<Bola, number> = { "poke-ball": 1, "great-ball": 1.5, "ultra-ball": 2 };
+export type Bola = "poke-ball" | "great-ball" | "ultra-ball" | "safari-ball";
+export const BOLAS: Bola[] = ["safari-ball", "poke-ball", "great-ball", "ultra-ball"];
+export const MULT_BOLA: Record<Bola, number> = { "poke-ball": 1, "great-ball": 1.5, "ultra-ball": 2, "safari-ball": 1.5 };
+// Safari Balls só valem dentro da Zona Safári: não vão para a mochila do perfil.
+export const BOLAS_SAFARI = 12;
+
+// ---------- ginásios, Elite dos 4, campeão ----------
+
+export interface Ginasio {
+  lider: string;
+  sprite: string;
+  tipo: number; // tipo Pokémon (índice de NOME_TIPO)
+  insignia: string;
+  cidade: string;
+  piso: number; // nível de referência do líder (os jogos de Kanto)
+  ajudantes: string[];
+}
+
+// Os 8 de Kanto. Insígnia i = sprites/badges/(i+1).png da PokéAPI.
+export const GINASIOS: Ginasio[] = [
+  { lider: "Brock", sprite: "brock", tipo: 12, insignia: "Insígnia Rocha", cidade: "Pewter", piso: 12, ajudantes: ["hiker", "camper"] },
+  { lider: "Misty", sprite: "misty", tipo: 2, insignia: "Insígnia Cascata", cidade: "Cerulean", piso: 18, ajudantes: ["swimmer", "sailor"] },
+  { lider: "Lt. Surge", sprite: "ltsurge", tipo: 3, insignia: "Insígnia Trovão", cidade: "Vermilion", piso: 24, ajudantes: ["sailor", "guitarist"] },
+  { lider: "Erika", sprite: "erika", tipo: 4, insignia: "Insígnia Arco-Íris", cidade: "Celadon", piso: 29, ajudantes: ["beauty", "lass"] },
+  { lider: "Koga", sprite: "koga", tipo: 7, insignia: "Insígnia Alma", cidade: "Fuchsia", piso: 37, ajudantes: ["juggler", "burglar"] },
+  { lider: "Sabrina", sprite: "sabrina", tipo: 10, insignia: "Insígnia Pântano", cidade: "Saffron", piso: 43, ajudantes: ["psychic", "psychicf"] },
+  { lider: "Blaine", sprite: "blaine", tipo: 1, insignia: "Insígnia Vulcão", cidade: "Cinnabar", piso: 47, ajudantes: ["burglar", "scientist"] },
+  { lider: "Giovanni", sprite: "giovanni", tipo: 8, insignia: "Insígnia Terra", cidade: "Viridian", piso: 50, ajudantes: ["blackbelt", "acetrainer"] },
+];
+
+export const ELITE: { nome: string; sprite: string; tipo: number; piso: number }[] = [
+  { nome: "Lorelei", sprite: "lorelei-gen3", tipo: 5, piso: 54 },
+  { nome: "Bruno", sprite: "bruno", tipo: 6, piso: 56 },
+  { nome: "Agatha", sprite: "agatha-gen3", tipo: 13, piso: 58 },
+  { nome: "Lance", sprite: "lance", tipo: 14, piso: 60 },
+];
+export const CAMPEAO = { nome: "Blue", sprite: "blue", piso: 63 };
+
+// Nível dos inimigos: metade do caminho entre o time e o nível dos jogos (nunca abaixo do
+// time + delta). O ginásio puxa o time para cima sem virar um muro.
+export function nivelDoDesafio(base: number, piso: number, delta: number): number {
+  return Math.max(2, Math.min(MAX_NIVEL, Math.max(base + delta, Math.round((base + piso) / 2) + delta)));
+}
 
 export const PEDRAS = ["fire-stone", "water-stone", "thunder-stone", "leaf-stone", "moon-stone", "sun-stone", "shiny-stone", "dusk-stone", "dawn-stone", "ice-stone"];
 export type Item = Bola | "potion" | "super-potion" | "hyper-potion" | "revive" | "full-heal" | "rare-candy" | (string & {});
 
 export interface PartidaPoke {
   versao: 3;
+  modo?: ModoJornada; // ausente = rota (partidas salvas antes dos modos)
+  ginasio?: number; // modo ginasio: índice em GINASIOS
+  aprender?: { uid: string; golpe: number }[]; // golpes novos esperando a escolha de qual esquecer
   concursoId: string | null;
   iniciadaEm: string;
   treinadores: Treinador[];
@@ -141,6 +201,7 @@ export type Evento =
   | { tipo: "xp"; uid: string; valor: number }
   | { tipo: "nivel"; uid: string; nivel: number }
   | { tipo: "aprendeu"; uid: string; golpe: number; esqueceu: number | null }
+  | { tipo: "querAprender"; uid: string; golpe: number }
   | { tipo: "evolui"; uid: string; de: number; para: number }
   | { tipo: "cura"; uid: string; valor: number; motivo: "dreno" | "cura" | "combo" | "licao" | "item" | "semente" }
   | { tipo: "foco"; uid: string }
@@ -151,7 +212,7 @@ export type Evento =
   | { tipo: "acordou"; uid: string; status: Status }
   | { tipo: "desmaiou"; uid: string }
   | { tipo: "fuga" }
-  | { tipo: "treinadorVencido"; treinador: number; lider: boolean }
+  | { tipo: "treinadorVencido"; treinador: number; lider: boolean; insignia?: number }
   | { tipo: "derrota" };
 
 export const MIN_LICAO = 12;
@@ -200,7 +261,7 @@ const TIPOS_DA_MATERIA: [RegExp, number[], string[]][] = [
   [/inform|program|rede|sistema|engenharia|seguran|desenvolv|software|comput|\bti\b|nuvem|devops/, [11, 3, 14], ["scientist", "guitarist", "clerkf", "burglar"]],
 ];
 const TREINADORES_GERAIS = ["youngster", "lass", "acetrainer", "acetrainerf", "bugcatcher", "fisherman", "birdkeeper", "waitress"];
-const LIDERES = ["brock", "misty", "elesa", "clay", "lenora", "skyla", "drayden", "iris", "burgh", "roxie", "marlon", "brycen", "cynthia"];
+const CHEFES_ROTA: [string, string][] = [["acetrainer", "Treinador Ás"], ["acetrainerf", "Treinadora Ás"], ["veteran", "Veterano"], ["blackbelt", "Faixa-preta"]];
 const NOMES_TREINADOR: Record<string, string> = {
   teacher: "Professora", schoolkidf: "Estudante", lass: "Moça", artist: "Artista", sailor: "Marinheiro",
   swimmerf: "Nadadora", backpacker: "Mochileiro", pilot: "Piloto", policeman: "Policial", gentleman: "Cavalheiro",
@@ -208,7 +269,7 @@ const NOMES_TREINADOR: Record<string, string> = {
   pokemaniac: "Pokémaníaco", scientistf: "Cientista", clerk: "Analista", worker: "Operário", hiker: "Alpinista",
   guitarist: "Guitarrista", clerkf: "Analista", burglar: "Hacker", youngster: "Garoto", acetrainer: "Treinador Ás",
   acetrainerf: "Treinadora Ás", bugcatcher: "Caçador de Insetos", fisherman: "Pescador", birdkeeper: "Criador de Aves",
-  waitress: "Garçonete",
+  waitress: "Garçonete", camper: "Campista", swimmer: "Nadador", beauty: "Beldade", juggler: "Malabarista",
 };
 
 const semAcento = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -270,34 +331,43 @@ export function montarPartidaPoke(opts: {
   pendentes: Candidata[];
   novas: Candidata[];
   concursoId: string | null;
+  modo?: ModoJornada;
+  ginasio?: number;
   semente?: number;
   agora?: Date;
 }): PartidaPoke | null {
   const { dex } = opts;
+  const modo = opts.modo ?? "rota";
   if (!opts.time.length) return null;
-  const revisoes = opts.pendentes.slice(0, MAX_REVISOES);
-  const faltam = Math.max(0, ALVO_QUESTOES - revisoes.length);
-  const pool = [...revisoes, ...opts.novas.slice(0, faltam)];
-  if (pool.length === 0) return null;
+  if (modo === "ginasio" && !GINASIOS[opts.ginasio ?? -1]) return null;
   let rng = opts.semente ?? Date.now() >>> 0;
   const rolar = () => {
     const [r, n] = sortear(rng);
     rng = n;
     return r;
   };
-
-  // Líder de Ginásio: a questão em que mais errei (sem erro, a mais difícil).
-  let chefe: Candidata | undefined;
-  if (pool.length > 1) {
-    const peso = (c: Candidata) => c.erros * 10 + (c.dificuldade === "dificil" ? 2 : c.dificuldade === "media" ? 1 : 0);
-    chefe = pool.reduce((m, c) => (peso(c) > peso(m) ? c : m), pool[0]);
-  }
   const base = nivelMedio(opts.time);
   const nivelEntre = (d0: number, d1: number) => Math.max(2, Math.min(MAX_NIVEL, base + d0 + Math.floor(rolar() * (d1 - d0 + 1))));
 
+  // Quantos Pokémon inimigos o modo pede; a partida puxa ~2,2 questões por Pokémon.
+  const planos = modo === "rota" ? null : modo === "safari" ? planoSafari(dex, nivelEntre, rolar) : modo === "liga" ? planoLiga(dex, base) : planoGinasio(dex, opts.ginasio!, base, rolar);
+  const nMons = planos ? planos.reduce((a, x) => a + x.mons.length, 0) : 0;
+  const alvo = planos ? Math.max(4, Math.round(nMons * (modo === "safari" ? 3 : QUESTOES_POR_POKEMON)) + 1) : ALVO_QUESTOES;
+  const revisoes = opts.pendentes.slice(0, Math.min(MAX_REVISOES, alvo));
+  const pool = [...revisoes, ...opts.novas.slice(0, Math.max(0, alvo - revisoes.length))];
+  if (pool.length === 0) return null;
+
+  // O chefe (líder, campeão, treinador Ás) abre com a questão em que mais errei (sem erro, a
+  // mais difícil). Na Zona Safári não há chefe.
+  let chefe: Candidata | undefined;
+  if (pool.length > 1 && modo !== "safari") {
+    const peso = (c: Candidata) => c.erros * 10 + (c.dificuldade === "dificil" ? 2 : c.dificuldade === "media" ? 1 : 0);
+    chefe = pool.reduce((m, c) => (peso(c) > peso(m) ? c : m), pool[0]);
+  }
   const comuns = intercalar(pool.filter((c) => c !== chefe));
   const treinadores: Treinador[] = [];
   const fila: Encontro[] = [];
+  let reserva: QuestaoReserva[] = [];
   let chaves = 0;
   const inimigo = (c: Candidata, tipo: TipoEncontro, treinador: number, especie: number, nivel: number): Encontro => ({
     questaoId: c.questaoId,
@@ -312,50 +382,78 @@ export function montarPartidaPoke(opts: {
     sono: 0,
     semente: false,
   });
-  const ehRevisao = new Set(revisoes.map((r) => r.questaoId));
-  // Cada Pokémon aguenta ~2 acertos: só parte das questões abre um Pokémon; as outras ficam
-  // na reserva para os turnos seguintes. Questões que já me derrubaram aparecem selvagens
-  // (dá para capturar); o resto vem em grupos de 2–3 por treinador.
-  const orcamento = Math.max(2, Math.round(pool.length / QUESTOES_POR_POKEMON) - (chefe ? 1 : 0));
-  const selvagens = comuns.filter((c) => c.erros > 0 && ehRevisao.has(c.questaoId)).slice(0, Math.max(1, Math.round(orcamento / 3)));
-  const outras = comuns.filter((c) => !selvagens.includes(c));
-  const nTreinador = Math.max(0, orcamento - selvagens.length);
-  const deTreinador = outras.slice(0, nTreinador);
-  const reserva: QuestaoReserva[] = outras.slice(nTreinador).map((c) => ({ questaoId: c.questaoId, retorno: false }));
-  let i = 0;
-  while (i < deTreinador.length) {
-    const tam = Math.min(deTreinador.length - i, rolar() < 0.5 ? 2 : 3);
-    const grupo = deTreinador.slice(i, i + tam);
-    i += tam;
-    const { treinadores: classes } = tiposDaMateria(grupo[0].materia);
-    const sprite = classes[Math.floor(rolar() * classes.length)];
-    const idx = treinadores.length;
-    treinadores.push({ nome: NOMES_TREINADOR[sprite] ?? "Treinador", sprite, lider: false });
-    for (const c of grupo) {
-      const nivel = nivelEntre(-1, 1);
-      fila.push(inimigo(c, "treinador", idx, especieDaQuestao(dex, c.questaoId, c.materia, nivel), nivel));
+
+  if (planos) {
+    // Cada Pokémon abre com uma questão; o que sobra vai para a reserva (turnos seguintes).
+    // Com poucas questões, os ajudantes perdem Pokémon antes do chefe.
+    const slots = planos.flatMap((pl, t) => pl.mons.map((m, j) => ({ ...m, t, ultimo: j === pl.mons.length - 1 })));
+    const cabe = comuns.length + (chefe ? 1 : 0);
+    while (slots.length > Math.max(1, cabe)) {
+      const i = slots.findIndex((s) => !s.ultimo && s.tipo !== "lider");
+      slots.splice(i >= 0 ? i : 0, 1);
     }
-    // um selvagem entre treinadores, quando houver
-    const s = selvagens.shift();
-    if (s) {
+    const usados = [...new Set(slots.filter((s) => s.tipo !== "selvagem").map((s) => s.t))];
+    for (const t of usados) treinadores.push(planos[t].t);
+    const idxChefe = chefe ? slots.map((s) => s.tipo).lastIndexOf("lider") : -1;
+    let k = 0;
+    slots.forEach((s, i) => {
+      const c = i === idxChefe && chefe ? chefe : comuns[k++] ?? chefe!;
+      fila.push(inimigo(c, s.tipo, s.tipo === "selvagem" ? -1 : usados.indexOf(s.t), s.especie, s.nivel));
+    });
+    reserva = comuns.slice(k).map((c) => ({ questaoId: c.questaoId, retorno: false }));
+  } else {
+    // ROTA: treinadores de 2–3 Pokémon, selvagens entre eles (primeiro as questões que já
+    // me derrubaram, que dá para capturar) e o Treinador Ás no fim.
+    const ehRevisao = new Set(revisoes.map((r) => r.questaoId));
+    const orcamento = Math.max(2, Math.round(pool.length / QUESTOES_POR_POKEMON) - (chefe ? 1 : 0));
+    const nSelv = Math.max(1, Math.round(orcamento / 3));
+    const comErro = comuns.filter((c) => c.erros > 0 && ehRevisao.has(c.questaoId));
+    const selvagens = [...comErro, ...comuns.filter((c) => !comErro.includes(c))].slice(0, nSelv);
+    const outras = comuns.filter((c) => !selvagens.includes(c));
+    const nTreinador = Math.max(0, orcamento - selvagens.length);
+    const deTreinador = outras.slice(0, nTreinador);
+    reserva = outras.slice(nTreinador).map((c) => ({ questaoId: c.questaoId, retorno: false }));
+    let i = 0;
+    while (i < deTreinador.length) {
+      const tam = Math.min(deTreinador.length - i, rolar() < 0.5 ? 2 : 3);
+      const grupo = deTreinador.slice(i, i + tam);
+      i += tam;
+      const { treinadores: classes } = tiposDaMateria(grupo[0].materia);
+      const sprite = classes[Math.floor(rolar() * classes.length)];
+      const idx = treinadores.length;
+      treinadores.push({ nome: NOMES_TREINADOR[sprite] ?? "Treinador", sprite, lider: false });
+      for (const c of grupo) {
+        const nivel = nivelEntre(-1, 1);
+        fila.push(inimigo(c, "treinador", idx, especieDaQuestao(dex, c.questaoId, c.materia, nivel), nivel));
+      }
+      // um selvagem entre treinadores, quando houver
+      const s = selvagens.shift();
+      if (s) {
+        const nivel = nivelEntre(-2, 0);
+        fila.push(inimigo(s, "selvagem", -1, especieDaQuestao(dex, s.questaoId, s.materia, nivel), nivel));
+      }
+    }
+    for (const s of selvagens) {
       const nivel = nivelEntre(-2, 0);
       fila.push(inimigo(s, "selvagem", -1, especieDaQuestao(dex, s.questaoId, s.materia, nivel), nivel));
     }
-  }
-  for (const s of selvagens) {
-    const nivel = nivelEntre(-2, 0);
-    fila.push(inimigo(s, "selvagem", -1, especieDaQuestao(dex, s.questaoId, s.materia, nivel), nivel));
-  }
-  if (chefe) {
-    const idx = treinadores.length;
-    const sprite = LIDERES[Math.floor(rolar() * LIDERES.length)];
-    treinadores.push({ nome: `Líder ${sprite[0].toUpperCase()}${sprite.slice(1)}`, sprite, lider: true });
-    const nivel = Math.min(MAX_NIVEL, base + 3);
-    fila.push(inimigo(chefe, "lider", idx, especieDoLider(dex, chefe.questaoId, chefe.materia, nivel), nivel));
+    if (chefe) {
+      const idx = treinadores.length;
+      const [sprite, nome] = CHEFES_ROTA[Math.floor(rolar() * CHEFES_ROTA.length)];
+      treinadores.push({ nome, sprite, lider: true });
+      const nivel = Math.min(MAX_NIVEL, base + 3);
+      fila.push(inimigo(chefe, "lider", idx, especieDoLider(dex, chefe.questaoId, chefe.materia, nivel), nivel));
+    }
   }
 
+  const mochila = { ...opts.mochila };
+  if (modo === "safari") mochila["safari-ball"] = BOLAS_SAFARI;
+  else delete mochila["safari-ball"];
   const p: PartidaPoke = {
     versao: 3,
+    modo,
+    ...(modo === "ginasio" ? { ginasio: opts.ginasio } : {}),
+    aprender: [],
     concursoId: opts.concursoId,
     iniciadaEm: (opts.agora ?? new Date()).toISOString(),
     treinadores,
@@ -365,7 +463,7 @@ export function montarPartidaPoke(opts: {
     chaves,
     time: opts.time.slice(0, MAX_TIME).map((m) => lutador(dex, m)),
     ativo: 0,
-    mochila: { ...opts.mochila },
+    mochila,
     novos: [],
     combo: 0,
     xp: 0,
@@ -379,6 +477,91 @@ export function montarPartidaPoke(opts: {
     rng,
   };
   return avancarPoke(p, dex);
+}
+
+// ---------- planos dos modos ----------
+
+interface Plano {
+  t: Treinador;
+  mons: { especie: number; nivel: number; tipo: TipoEncontro }[];
+}
+
+// Pokémon de um tipo, sempre o mesmo para a mesma semente (o time do Brock não muda a cada
+// tentativa), na forma do nível.
+function especieDoTipo(dex: Dex, tipo: number, nivel: number, semente: number): number {
+  const pool = basesPorTipo(dex, tipo);
+  const base = pool[Math.floor(hash(semente) * pool.length)] ?? 1;
+  return formaNoNivel(dex, base, nivel);
+}
+
+// O "ás" do chefe: uma das linhas evolutivas mais fortes do tipo, na forma do nível (Onix no
+// Brock do começo, Golem/Steelix se o time já estiver alto).
+function aceDoTipo(dex: Dex, tipo: number, nivel: number, semente: number): number {
+  const fortes = basesPorTipo(dex, tipo)
+    .map((id) => ({ id, soma: dex.especies[formaNoNivel(dex, id, 100)].s.reduce((a, b) => a + b, 0) }))
+    .sort((a, b) => b.soma - a.soma || a.id - b.id)
+    .slice(0, 6);
+  if (!fortes.length) return especieDoTipo(dex, tipo, nivel, semente);
+  return formaNoNivel(dex, fortes[Math.floor(hash(semente) * fortes.length)].id, nivel);
+}
+
+function planoGinasio(dex: Dex, i: number, base: number, rolar: () => number): Plano[] {
+  const g = GINASIOS[i];
+  const nvLider = nivelDoDesafio(base, g.piso, 1);
+  const nAjud = i < 4 ? 1 : 2;
+  const nLider = i < 2 ? 2 : i < 5 ? 3 : 4;
+  const planos: Plano[] = g.ajudantes.map((sprite, k) => ({
+    t: { nome: NOMES_TREINADOR[sprite] ?? "Treinador", sprite, lider: false },
+    mons: Array.from({ length: nAjud }, (_, j) => {
+      const nivel = Math.max(2, nvLider - 4 + Math.floor(rolar() * 2));
+      return { especie: especieDoTipo(dex, g.tipo, nivel, 1000 * (i + 1) + 10 * k + j), nivel, tipo: "treinador" as const };
+    }),
+  }));
+  planos.push({
+    t: { nome: g.lider, sprite: g.sprite, lider: true, insignia: i, fala: `${g.lider}, líder do Ginásio de ${g.cidade}, aceita o desafio pela ${g.insignia}!` },
+    mons: Array.from({ length: nLider }, (_, j) => {
+      const ace = j === nLider - 1;
+      const nivel = ace ? nvLider : Math.max(2, nvLider - 2);
+      return { especie: ace ? aceDoTipo(dex, g.tipo, nivel, 77 * (i + 1)) : especieDoTipo(dex, g.tipo, nivel, 1000 * (i + 1) + 500 + j), nivel, tipo: "lider" as const };
+    }),
+  });
+  return planos;
+}
+
+// Elite dos 4 (2 Pokémon cada, o ás é chefe) e o Campeão (4 Pokémon, todos chefes).
+const TIME_CAMPEAO = [18, 65, 130, 6];
+function planoLiga(dex: Dex, base: number): Plano[] {
+  const planos: Plano[] = ELITE.map((m, i) => ({
+    t: { nome: m.nome, sprite: m.sprite, lider: true, elite: true, fala: `${m.nome}, da Elite dos 4, especialista em ${NOME_TIPO[m.tipo]}.` },
+    mons: [0, 1].map((j) => {
+      const nivel = nivelDoDesafio(base, m.piso, j ? 1 : -1);
+      return { especie: j ? aceDoTipo(dex, m.tipo, nivel, 313 * (i + 1)) : especieDoTipo(dex, m.tipo, nivel, 9000 + 10 * i), nivel, tipo: (j ? "lider" : "treinador") as TipoEncontro };
+    }),
+  }));
+  planos.push({
+    t: { nome: `Campeão ${CAMPEAO.nome}`, sprite: CAMPEAO.sprite, lider: true, campeao: true, fala: `${CAMPEAO.nome} é o Campeão da Liga. Vença e entre para o Hall da Fama!` },
+    mons: TIME_CAMPEAO.filter((id) => dex.especies[id]).map((id, j, xs) => ({ especie: id, nivel: nivelDoDesafio(base, CAMPEAO.piso, j === xs.length - 1 ? 2 : 0), tipo: "lider" as const })),
+  });
+  return planos;
+}
+
+// Zona Safári: 6 selvagens de qualquer tipo (os comuns aparecem mais), um pouco abaixo do time.
+const SELVAGENS_SAFARI = 6;
+function planoSafari(dex: Dex, nivelEntre: (a: number, b: number) => number, rolar: () => number): Plano[] {
+  const todas = basesPorTipo(dex, "todas");
+  const pesoTotal = todas.reduce((a, id) => a + 30 + dex.especies[id].c, 0);
+  const mons: Plano["mons"] = [];
+  for (let i = 0; i < SELVAGENS_SAFARI; i++) {
+    let r = rolar() * pesoTotal;
+    let id = todas[0];
+    for (const x of todas) if ((r -= 30 + dex.especies[x].c) < 0) {
+      id = x;
+      break;
+    }
+    const nivel = nivelEntre(-3, 0);
+    mons.push({ especie: formaNoNivel(dex, id, nivel), nivel, tipo: "selvagem" });
+  }
+  return [{ t: { nome: "", sprite: "", lider: false }, mons }];
 }
 
 // ---------- XP, nível, golpes, evolução ----------
@@ -403,23 +586,64 @@ function subiuPara(dex: Dex, l: Lutador, antes: number, hpAntes: number, eventos
   if (l.hp > 0) l.hp = Math.min(hpMax(dex, l), l.hp + (hpMax(dex, l) - hpAntes));
 }
 
-// Com 4 golpes, esquece o mais fraco (status conta como 0), a não ser que o novo seja ainda
-// mais fraco: aí não aprende.
-function aprender(dex: Dex, l: Lutador, g: number, eventos: Evento[]) {
+// Com menos de 4 golpes, aprende na hora. Com 4, como nos jogos, o jogador decide qual
+// esquecer (ou não aprender): o golpe fica pendente em `partida.aprender`.
+function aprender(_dex: Dex, l: Lutador, g: number, eventos: Evento[]) {
   if (l.golpes.includes(g)) return;
   if (l.golpes.length < MAX_GOLPES) {
     l.golpes = [...l.golpes, g];
     eventos.push({ tipo: "aprendeu", uid: l.uid, golpe: g, esqueceu: null });
     return;
   }
-  const valor = (x: number) => {
-    const m = dex.golpes[x];
-    return m[2] + (m[5] > 0 || m[4] > 0 ? 60 : 0) + (dex.especies[l.id].t.includes(m[1]) ? 20 : 0);
-  };
-  const pior = l.golpes.reduce((a, b) => (valor(b) < valor(a) ? b : a), l.golpes[0]);
-  if (valor(g) < valor(pior)) return;
-  l.golpes = l.golpes.map((x) => (x === pior ? g : x));
-  eventos.push({ tipo: "aprendeu", uid: l.uid, golpe: g, esqueceu: pior });
+  eventos.push({ tipo: "querAprender", uid: l.uid, golpe: g });
+}
+
+function comPendentes(anteriores: PartidaPoke["aprender"], eventos: Evento[]): NonNullable<PartidaPoke["aprender"]> {
+  const lista = [...(anteriores ?? [])];
+  for (const e of eventos) if (e.tipo === "querAprender" && !lista.some((x) => x.uid === e.uid && x.golpe === e.golpe)) lista.push({ uid: e.uid, golpe: e.golpe });
+  return lista;
+}
+
+// Resolve o primeiro golpe pendente: `esquecer` = golpe que sai (null = não aprender).
+export function decidirGolpe(p: PartidaPoke, esquecer: number | null): { partida: PartidaPoke; eventos: Evento[] } {
+  const [pend, ...resto] = p.aprender ?? [];
+  if (!pend) return { partida: p, eventos: [] };
+  const eventos: Evento[] = [];
+  const time = p.time.map((l) => {
+    if (l.uid !== pend.uid || l.golpes.includes(pend.golpe)) return l;
+    if (l.golpes.length < MAX_GOLPES) {
+      eventos.push({ tipo: "aprendeu", uid: l.uid, golpe: pend.golpe, esqueceu: null });
+      return { ...l, golpes: [...l.golpes, pend.golpe] };
+    }
+    if (esquecer === null || !l.golpes.includes(esquecer)) return l;
+    eventos.push({ tipo: "aprendeu", uid: l.uid, golpe: pend.golpe, esqueceu: esquecer });
+    return { ...l, golpes: l.golpes.map((x) => (x === esquecer ? pend.golpe : x)) };
+  });
+  return { partida: { ...p, time, aprender: resto }, eventos };
+}
+
+// Golpes que o Pokémon pode ter (como o Relembrador de Golpes): tudo o que a espécie e as
+// pré-evoluções aprendem por nível até o nível atual, mais os que ele já sabe.
+export function golpesDisponiveis(dex: Dex, m: Mon): number[] {
+  const nv = nivelDe(m);
+  const set = new Set<number>(m.golpes);
+  let id: number | undefined = m.id;
+  for (let passo = 0; id && passo < 4; passo++) {
+    const e: Especie | undefined = dex.especies[id];
+    if (!e) break;
+    for (const [g, lv] of e.g) if (lv <= nv && dex.golpes[g]) set.add(g);
+    id = e.p;
+  }
+  return [...set];
+}
+
+export function definirGolpes(dex: Dex, perfil: PerfilPoke, uid: string, golpes: number[]): PerfilPoke {
+  const m = perfil.colecao.find((x) => x.uid === uid);
+  if (!m) return perfil;
+  const ok = new Set(golpesDisponiveis(dex, m));
+  const limpos = [...new Set(golpes)].filter((g) => ok.has(g)).slice(0, MAX_GOLPES);
+  if (!limpos.length) return perfil;
+  return { ...perfil, colecao: perfil.colecao.map((x) => (x.uid === uid ? { ...x, golpes: limpos } : x)) };
 }
 
 function evoluir(dex: Dex, l: Lutador, para: number, eventos: Evento[]) {
@@ -471,7 +695,8 @@ export function danoDaResposta(opts: {
   aleatorio: number;
 }): { valor: number; efetividade: number } {
   const { dex, eu, e, golpe, critico, aleatorio } = opts;
-  const [, tipo, poder, classe] = golpe;
+  const [, tipo, , classe] = golpe;
+  const poder = poderDe(golpe);
   const minha = dex.especies[eu.id];
   const inimigo = dex.especies[e.especie];
   const max = atributos(inimigo, e.nivel).hp;
@@ -509,6 +734,8 @@ export function responderPoke(dex: Dex, p: PartidaPoke, o: OpcoesResposta): { pa
   const e0 = p.atual;
   const eu0 = p.time[p.ativo];
   if (!e0 || e0.fim || p.fim || p.oferta || !eu0 || eu0.hp <= 0) return { partida: p, eventos: [] };
+  // Ginásio e Liga não têm mato: a questão errada volta dentro da mesma luta (reserva).
+  const semMato = p.modo === "ginasio" || p.modo === "liga";
   const e: Encontro = { ...e0 };
   const q: PartidaPoke = {
     ...p,
@@ -594,8 +821,8 @@ export function responderPoke(dex: Dex, p: PartidaPoke, o: OpcoesResposta): { pa
       if (impedido) eventos.push({ tipo: "impedido", status: eu.status || "paralysis" });
       const idx = "golpe" in o.acao ? o.acao.golpe : eu.golpes[0];
       const g = dex.golpes[idx] ?? dex.golpes[0];
-      const [, , poder, classe, dreno, cura] = g;
-      if (poder > 0 && classe !== 2) {
+      const [, , , classe, dreno, cura] = g;
+      if (poderDe(g) > 0 && classe !== 2) {
         const d = danoDaResposta({ dex, eu, e, golpe: g, critico, aleatorio: 0.85 + rolar() * 0.15 });
         const valor = impedido ? Math.max(1, Math.round(d.valor / 2)) : d.valor;
         const tirou = Math.min(e.hp, valor);
@@ -670,10 +897,10 @@ export function responderPoke(dex: Dex, p: PartidaPoke, o: OpcoesResposta): { pa
         eventos.push({ tipo: "status", uid: eu.uid, status: cond });
       }
     }
-    // A questão errada volta uma vez: selvagem mais adiante (ou na reserva, contra o líder).
-    // Errou de novo, fica para a revisão espaçada.
+    // A questão errada volta uma vez: selvagem mais adiante (ou na reserva, contra o chefe e
+    // em ginásio/Liga). Errou de novo, fica para a revisão espaçada.
     if (!retornoDaVez) {
-      if (lider) q.reserva.splice(Math.min(2, q.reserva.length), 0, { questaoId: questaoDaVez, retorno: true });
+      if (lider || semMato) q.reserva.splice(Math.min(2, q.reserva.length), 0, { questaoId: questaoDaVez, retorno: true });
       else {
         const retorno: Encontro = {
           ...e,
@@ -697,7 +924,7 @@ export function responderPoke(dex: Dex, p: PartidaPoke, o: OpcoesResposta): { pa
         if (e.treinador >= 0) while (pos < limite && q.fila[pos]?.treinador === e.treinador) pos++;
         q.fila.splice(pos, 0, retorno);
       }
-      eventos.push({ tipo: "voltaDepois", selvagem: !lider });
+      eventos.push({ tipo: "voltaDepois", selvagem: !lider && !semMato });
     }
   }
 
@@ -731,11 +958,19 @@ export function responderPoke(dex: Dex, p: PartidaPoke, o: OpcoesResposta): { pa
   }
 
   // O inimigo segue de pé: a próxima questão vem da reserva. Sem reserva (ou na 3ª questão
-  // contra ele), acabou a luta: desmaia de cansaço se eu acertei com golpe, foge se eu errei
-  // ou se escapou da bola.
+  // contra ele), acabou a luta: desmaia de cansaço se eu acertei com golpe. Se eu errei (ou
+  // ele escapou da bola), o selvagem foge; Pokémon de treinador não foge: volta uma questão
+  // já feita nesta partida (a mais antiga, recuperação espaçada dentro da própria luta).
   e.turnos = (e.turnos ?? 0) + 1;
   if (!e.fim && !q.fim) {
-    const prox = e.turnos >= MAX_TURNOS_POKEMON && o.acertou ? undefined : q.reserva.shift();
+    let prox = e.turnos >= MAX_TURNOS_POKEMON && o.acertou ? undefined : q.reserva.shift();
+    if (!prox && !selvagem && !(o.acertou && !bola)) {
+      const vezes = new Map<number, number>();
+      for (const r of q.registros) vezes.set(r.questaoId, (vezes.get(r.questaoId) ?? 0) + 1);
+      vezes.set(questaoDaVez, (vezes.get(questaoDaVez) ?? 0) + 1);
+      const [id] = [...vezes.entries()].filter(([x]) => x !== questaoDaVez).sort((a, b) => a[1] - b[1])[0] ?? [questaoDaVez];
+      prox = { questaoId: id, retorno: true };
+    }
     if (prox) {
       e.questaoId = prox.questaoId;
       e.retorno = prox.retorno;
@@ -751,10 +986,12 @@ export function responderPoke(dex: Dex, p: PartidaPoke, o: OpcoesResposta): { pa
   // o treinador ficou sem Pokémon?
   if (e.treinador >= 0 && !q.fim && e.fim && e.fim !== "fuga" && !q.fila.some((x) => x.treinador === e.treinador) && !q.vencidos.includes(e.treinador)) {
     q.vencidos.push(e.treinador);
-    q.recompensa = !lider;
-    eventos.push({ tipo: "treinadorVencido", treinador: e.treinador, lider });
+    q.recompensa = true; // avancarPoke só oferece se ainda houver luta pela frente
+    const insignia = q.treinadores[e.treinador]?.insignia;
+    eventos.push({ tipo: "treinadorVencido", treinador: e.treinador, lider: q.treinadores[e.treinador]?.lider ?? lider, ...(insignia !== undefined ? { insignia } : {}) });
   }
 
+  q.aprender = comPendentes(p.aprender, eventos);
   q.registros.push({ questaoId: questaoDaVez, acertou: o.acertou, confianca: o.confianca, retorno: retornoDaVez, chefe: lider, capturada: e.fim === "captura" });
   q.rng = rng;
   return { partida: q, eventos };
@@ -885,6 +1122,7 @@ export function usarItem(dex: Dex, p: PartidaPoke, item: string, alvo: number): 
     const para = evolucaoPorPedra(dex.especies[l.id], item);
     if (para) evoluir(dex, l, para, eventos);
   }
+  q.aprender = comPendentes(p.aprender, eventos);
   return { partida: q, eventos };
 }
 
@@ -920,7 +1158,14 @@ export interface PerfilPoke {
   vistos: number[];
   capturadasQuestoes: number[];
   ultimaContada?: string;
+  ginasios?: number; // insígnias dos ginásios (0–8): o próximo desafio é GINASIOS[ginasios]
+  campeao?: number; // vezes que venceu a Liga
+  hallDaFama?: { data: string; time: { id: number; nivel: number }[] }[];
 }
+
+export const insigniasDe = (perfil: PerfilPoke) => Math.min(GINASIOS.length, perfil.ginasios ?? 0);
+export const ligaLiberada = (perfil: PerfilPoke) => insigniasDe(perfil) >= GINASIOS.length;
+const semSafari = (m: Record<string, number>) => Object.fromEntries(Object.entries(m).filter(([k]) => k !== "safari-ball"));
 
 export const MOCHILA_INICIAL: Record<string, number> = { "poke-ball": 5, potion: 3 };
 
@@ -946,7 +1191,7 @@ export function sincronizarPerfil(perfil: PerfilPoke, p: PartidaPoke): PerfilPok
     ...perfil,
     colecao,
     time: p.time.map((l) => l.uid),
-    mochila: { ...p.mochila },
+    mochila: semSafari(p.mochila),
     vistos: [...vistos],
     capturadasQuestoes: [...capt],
   };
@@ -954,7 +1199,12 @@ export function sincronizarPerfil(perfil: PerfilPoke, p: PartidaPoke): PerfilPok
     novo.partidas += 1;
     if (p.fim === "vitoria") {
       novo.vitorias += 1;
-      if (p.treinadores.some((t, i) => t.lider && p.vencidos.includes(i))) novo.insignias += 1;
+      const venceu = (f: (t: Treinador) => boolean) => p.treinadores.some((t, i) => f(t) && p.vencidos.includes(i));
+      if (p.modo === "ginasio" && p.ginasio !== undefined && venceu((t) => t.insignia === p.ginasio)) novo.ginasios = Math.max(novo.ginasios ?? 0, p.ginasio + 1);
+      if (p.modo === "liga" && venceu((t) => !!t.campeao)) {
+        novo.campeao = (novo.campeao ?? 0) + 1;
+        novo.hallDaFama = [...(novo.hallDaFama ?? []), { data: p.iniciadaEm, time: p.time.map((l) => ({ id: l.id, nivel: nivelDe(l) })) }].slice(-20);
+      }
     }
     novo.ultimaContada = p.iniciadaEm;
   }

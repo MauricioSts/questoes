@@ -4,8 +4,13 @@ import type { Candidata } from "../lib/batalha";
 import { resumir } from "../lib/batalha";
 import { atributos, efetividade, evolucaoPorNivel, formaNoNivel, golpesNoNivel, nivelDoXpPoke, xpDoNivel, xpMinimoPorVitoria, type Dex } from "../lib/poke/dex";
 import {
+  GINASIOS,
   avancarPoke,
   chanceCaptura,
+  decidirGolpe,
+  definirGolpes,
+  golpesDisponiveis,
+  insigniasDe,
   criarMon,
   danoDaResposta,
   escolherOferta,
@@ -278,3 +283,116 @@ describe("ritmo de evolução", () => {
   });
 });
 
+
+describe("modos da jornada", () => {
+  const pend = (n: number) => Array.from({ length: n }, (_, i) => cand(i + 1, i % 2 ? "Banco de Dados" : "Português"));
+  const montar = (modo: "ginasio" | "safari" | "liga", ginasio?: number, nivel = 10) =>
+    montarPartidaPoke({ dex, time: [criarMon(dex, 4, nivel, "a")], mochila: { "poke-ball": 1 }, pendentes: pend(14), novas: pend(40).map((c) => ({ ...c, questaoId: c.questaoId + 100 })), concursoId: null, modo, ginasio, semente: 5 })!;
+  const jogarAteOFim = (p0: PartidaPoke) => {
+    let p = p0;
+    for (let g = 0; g < 400 && !p.fim; g++) {
+      if (p.oferta) p = escolherOferta(p, p.oferta[0], dex);
+      else if ((p.aprender ?? []).length) p = decidirGolpe(p, null).partida;
+      else p = avancarPoke(certo(p).partida, dex);
+    }
+    return p;
+  };
+
+  it("ginásio: ajudantes do tipo e o líder no fim; vencer dá a insígnia", () => {
+    const p = montar("ginasio", 0);
+    expect(p.modo).toBe("ginasio");
+    const lider = p.treinadores.at(-1)!;
+    expect(lider).toMatchObject({ nome: "Brock", lider: true, insignia: 0 });
+    const todos = [p.atual!, ...p.fila];
+    expect(todos.every((e) => dex.especies[e.especie].t.includes(GINASIOS[0].tipo))).toBe(true);
+    expect(todos.at(-1)!.tipo).toBe("lider");
+    const fim = jogarAteOFim(p);
+    expect(fim.fim).toBe("vitoria");
+    const perfil = sincronizarPerfil(perfilInicial(dex, 4, "a"), fim);
+    expect(insigniasDe(perfil)).toBe(1);
+    // o mesmo ginásio tem sempre o mesmo líder e os mesmos tipos
+    expect(montar("ginasio", 0).fila.at(-1)!.especie).toBe(p.fila.at(-1)!.especie);
+  });
+
+  it("Pokémon de treinador não foge sem reserva: volta uma questão já feita", () => {
+    let p = montar("ginasio", 0);
+    p = certo(p).partida;
+    p = { ...p, reserva: [], atual: { ...p.atual!, retorno: true } };
+    const r = errado(p);
+    expect(r.eventos.some((e) => e.tipo === "fuga")).toBe(false);
+    expect(r.partida.atual!.fim).toBeUndefined();
+    expect(r.partida.atual!.questaoId).not.toBe(p.atual!.questaoId);
+    // e o ginásio só vale insígnia se o líder cair
+    const semLider = sincronizarPerfil(perfilInicial(dex, 4, "a"), { ...p, fim: "vitoria", vencidos: [0, 1] });
+    expect(insigniasDe(semLider)).toBe(0);
+  });
+
+  it("ginásio: erro volta na mesma luta (reserva), não como selvagem", () => {
+    const p = montar("ginasio", 3, 30);
+    const r = errado(p);
+    expect(r.partida.fila.some((e) => e.tipo === "selvagem")).toBe(false);
+    expect(r.partida.reserva.some((x) => x.questaoId === p.atual!.questaoId && x.retorno)).toBe(true);
+  });
+
+  it("Liga: Elite dos 4 e Campeão; vencer entra no Hall da Fama", () => {
+    const p = montar("liga", undefined, 50);
+    expect(p.treinadores.map((t) => t.nome)).toEqual(["Lorelei", "Bruno", "Agatha", "Lance", "Campeão Blue"]);
+    const fim = jogarAteOFim(p);
+    expect(fim.fim).toBe("vitoria");
+    const perfil = sincronizarPerfil({ ...perfilInicial(dex, 4, "a"), ginasios: 8 }, fim);
+    expect(perfil.campeao).toBe(1);
+    expect(perfil.hallDaFama).toHaveLength(1);
+  });
+
+  it("Zona Safári: só selvagens, Safari Balls da partida que não vão para o perfil", () => {
+    const p = montar("safari");
+    expect([p.atual!, ...p.fila].every((e) => e.tipo === "selvagem" && e.treinador === -1)).toBe(true);
+    expect(p.treinadores).toHaveLength(0);
+    expect(p.mochila["safari-ball"]).toBeGreaterThan(0);
+    let capturou = false;
+    for (let s = 0; s < 30 && !capturou; s++) {
+      const r = responderPoke(dex, { ...p, rng: s * 131 }, { acertou: true, confianca: "duvida", acao: { bola: "safari-ball" } });
+      capturou = r.eventos.some((e) => e.tipo === "bola" && e.sucesso);
+      if (capturou) {
+        const perfil = sincronizarPerfil(perfilInicial(dex, 4, "a"), r.partida);
+        expect(perfil.colecao).toHaveLength(2);
+        expect(perfil.mochila["safari-ball"]).toBeUndefined();
+      }
+    }
+    expect(capturou).toBe(true);
+  });
+});
+
+describe("golpes", () => {
+  it("com 4 golpes, o novo fica pendente e o jogador escolhe qual esquecer", () => {
+    // Charmander Nv15 com 4 golpes; no 16 evolui e aprende golpe novo
+    let p = partida(8, [], 15);
+    const lv = dex.especies[4].g.find(([g, l]) => l > 15 && !p.time[0].golpes.includes(g))![1];
+    const eu = { ...p.time[0], xp: xpDoNivel(lv) - 1, golpes: golpesNoNivel(dex.especies[4], lv - 1) };
+    expect(eu.golpes).toHaveLength(4);
+    let r = certo({ ...p, time: [eu], atual: { ...p.atual!, hp: 1 } });
+    const quer = r.eventos.filter((e) => e.tipo === "querAprender");
+    expect(quer.length).toBeGreaterThan(0);
+    expect(r.partida.time[0].golpes).toEqual(r.partida.time[0].golpes.slice(0, 4));
+    p = r.partida;
+    const pend = p.aprender![0];
+    const sai = p.time[0].golpes[0];
+    r = decidirGolpe(p, sai);
+    expect(r.partida.time[0].golpes).toContain(pend.golpe);
+    expect(r.partida.time[0].golpes).not.toContain(sai);
+    expect(r.partida.aprender).toHaveLength(p.aprender!.length - 1);
+    // não aprender mantém os 4
+    const r2 = decidirGolpe(p, null);
+    expect(r2.partida.time[0].golpes).toEqual(p.time[0].golpes);
+  });
+
+  it("relembrar: troca por golpes que a linha evolutiva já aprendeu até o nível", () => {
+    const m = criarMon(dex, 6, 40, "z"); // Charizard
+    const disp = golpesDisponiveis(dex, m);
+    const scratch = dex.golpes.findIndex((g) => g[0] === "Scratch");
+    expect(disp).toContain(scratch); // golpe do Charmander
+    const perfil = { ...perfilInicial(dex, 4, "a"), colecao: [m], time: ["z"] };
+    const novo = definirGolpes(dex, perfil, "z", [scratch, 99999]);
+    expect(novo.colecao[0].golpes).toEqual([scratch]);
+  });
+});

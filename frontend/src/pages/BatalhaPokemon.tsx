@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
-import { Backpack, Flag, Flame, NotebookPen, Pause, RotateCcw, Swords, Trophy, Users, X } from "lucide-react";
+import { Backpack, Crown, Flag, Flame, Lock, Map as MapaIcone, NotebookPen, Pause, RotateCcw, Swords, Trees, Trophy, Users, X } from "lucide-react";
 import type { Alternativa } from "../types/questao";
 import { getQuestao } from "../lib/questoesRepo";
 import { carregarFilaBatalha, novasPorFraqueza, type HistoricoQ } from "../lib/filaBatalha";
@@ -30,12 +30,23 @@ import {
   spriteEstatico,
   spriteFrente,
   spriteItem,
+  spriteTreinador,
   xpDoNivel,
+  MAX_GOLPES,
   type Dex,
 } from "../lib/poke/dex";
 import {
   BOLAS,
+  BOLAS_SAFARI,
+  CAMPEAO,
+  ELITE,
+  GINASIOS,
   MAX_TIME,
+  decidirGolpe,
+  definirGolpes,
+  golpesDisponiveis,
+  insigniasDe,
+  ligaLiberada,
   MIN_LICAO,
   avancarPoke,
   chanceCaptura,
@@ -59,6 +70,7 @@ import {
   type Encontro,
   type Evento,
   type Lutador,
+  type ModoJornada,
   type Mon,
   type PartidaPoke,
   type PerfilPoke,
@@ -108,6 +120,7 @@ export const ITENS: Record<string, { nome: string; texto: string }> = {
   "poke-ball": { nome: "Poké Bola", texto: "Captura um Pokémon selvagem, se a resposta estiver certa." },
   "great-ball": { nome: "Grande Bola", texto: "Captura com 1,5× mais chance." },
   "ultra-ball": { nome: "Ultra Bola", texto: "Captura com 2× mais chance." },
+  "safari-ball": { nome: "Safari Ball", texto: "Só na Zona Safári: captura com 1,5× mais chance." },
   "fire-stone": { nome: "Pedra de Fogo", texto: "Evolui certos Pokémon (ex.: Vulpix, Growlithe, Eevee)." },
   "water-stone": { nome: "Pedra d'Água", texto: "Evolui certos Pokémon (ex.: Poliwhirl, Staryu, Eevee)." },
   "thunder-stone": { nome: "Pedra do Trovão", texto: "Evolui certos Pokémon (ex.: Pikachu, Eevee)." },
@@ -144,12 +157,20 @@ const esperar = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 type Fase = "lobby" | "entrada" | "pergunta" | "golpe" | "resultado" | "troca" | "recompensa" | "fim";
 
+// A questão respondida. O motor já troca `atual.questaoId` para a próxima questão quando o
+// inimigo sobrevive, então o resultado precisa guardar a questão da vez (e a ordem em que as
+// alternativas apareceram) para não mostrar a próxima já revelada.
 interface Desfecho {
   acertou: boolean;
   confianca: Confianca;
   questaoId: number;
   marcada: Alternativa;
+  retorno: boolean;
+  historico?: { tentativas: number; erros: number };
 }
+
+export const insigniaImg = (i: number) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/${i + 1}.png`;
+const NOME_MODO: Record<ModoJornada, string> = { rota: "Rota", ginasio: "Ginásio", safari: "Zona Safári", liga: "Liga Pokémon" };
 
 // ---------- página ----------
 
@@ -305,10 +326,10 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   }, [fase, hist]);
   const novas = useMemo(() => (hist ? novasPorFraqueza(hist) : []), [hist]);
 
-  function comecar() {
+  function comecar(modo: ModoJornada, ginasio?: number) {
     if (!pendentes || !perfil) return;
     const time = perfil.time.map((uid) => perfil.colecao.find((m) => m.uid === uid)).filter((m): m is Mon => !!m);
-    const p = montarPartidaPoke({ dex, time, mochila: perfil.mochila, pendentes, novas, concursoId: activeId ?? null });
+    const p = montarPartidaPoke({ dex, time, mochila: perfil.mochila, pendentes, novas, concursoId: activeId ?? null, modo, ginasio });
     if (!p) return;
     setPartida(p);
     entrarNaLuta(p);
@@ -362,8 +383,8 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
       setInimigoVis(null);
       if (t && ultimoTreinador.current !== encontro.treinador) {
         setTreinadorVis({ sprite: t.sprite, chave: n(), sai: false });
-        setMensagem(t.lider ? `${t.nome} te desafia! É a questão que mais te derrubou.` : `${t.nome} quer batalhar!`);
-        if (!(await passo(1500))) return;
+        setMensagem(t.fala ? `${t.fala} O ás dele é a questão que mais te derrubou.` : t.lider ? `${t.nome} te desafia! É a questão que mais te derrubou.` : `${t.nome} quer batalhar!`);
+        if (!(await passo(t.fala ? 2600 : 1500))) return;
         setTreinadorVis((v) => (v ? { ...v, sai: true } : v));
         if (!(await passo(350))) return;
         setTreinadorVis(null);
@@ -378,7 +399,9 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
         setMensagem(
           encontro.retorno
             ? `Um ${nomeDe(encontro.especie)} selvagem apareceu: é a revanche da questão #${encontro.questaoId}!`
-            : `Um ${nomeDe(encontro.especie)} selvagem apareceu! Essa questão já te derrubou antes.`
+            : partida.modo === "safari" || partida.modo === "rota"
+              ? `Um ${nomeDe(encontro.especie)} selvagem apareceu! Acerte e lance uma bola para capturar.`
+              : `Um ${nomeDe(encontro.especie)} selvagem apareceu!`
         );
       }
       setInimigoVis(visDoEncontro(encontro, t ? "saiBola" : "surge", capturavel));
@@ -535,6 +558,10 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           );
           await esperar(1300);
           break;
+        case "querAprender":
+          setMensagem(`${nomeMeu()} quer aprender ${nomeGolpe(ev.golpe)}, mas já sabe ${MAX_GOLPES} golpes...`);
+          await esperar(1300);
+          break;
         case "evolui":
           evos.push({ de: ev.de, para: ev.para });
           break;
@@ -623,8 +650,16 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
         case "treinadorVencido": {
           const t = depois.treinadores[ev.treinador];
           setTreinadorVis({ sprite: t.sprite, chave: n(), sai: false });
-          setMensagem(ev.lider ? `Você venceu ${t.nome}! Ganhou uma insígnia!` : `Você venceu ${t.nome}!`);
-          await esperar(1600);
+          setMensagem(
+            ev.insignia !== undefined
+              ? `Você venceu ${t.nome}! Ganhou a ${GINASIOS[ev.insignia].insignia}!`
+              : t.campeao
+                ? `Você venceu o ${t.nome}! Você é o novo Campeão da Liga!`
+                : t.elite
+                  ? `Você venceu ${t.nome}, da Elite dos 4!`
+                  : `Você venceu ${t.nome}!`
+          );
+          await esperar(ev.insignia !== undefined || t.campeao ? 2400 : 1600);
           break;
         }
         case "derrota":
@@ -648,6 +683,13 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     if (ini && !ini.fim) setInimigoVis((v) => (v ? { ...v, hp: ini.hp, status: ini.status, semente: ini.semente, anim: "" } : v));
   }
 
+  // Semente da ordem das alternativas (e selo "3ª vez"): a volta de um erro desta partida
+  // conta como mais uma tentativa.
+  function historicoDe(id: number, retorno: boolean) {
+    const h = hist?.get(id);
+    return h ? { tentativas: h.tentativas + (retorno ? 1 : 0), erros: h.erros + (retorno ? 1 : 0) } : undefined;
+  }
+
   // ----- golpe -----
   async function atacar(acao: Acao) {
     if (!partida || !questao || !selecionada || fase !== "pergunta") return;
@@ -659,7 +701,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     void enviarResposta(montarResultado(questao, selecionada, "BATALHA", tempo));
     const { partida: nova, eventos } = responderPoke(dex, partida, { acertou, confianca, acao });
     setPartida(nova);
-    setDesfecho({ acertou, confianca, questaoId: questao.id, marcada: selecionada });
+    setDesfecho({ acertou, confianca, questaoId: questao.id, marcada: selecionada, retorno: !!encontro?.retorno, historico: historicoDe(questao.id, !!encontro?.retorno) });
     if (!window.matchMedia("(min-width: 1024px)").matches) painelRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     await animar(eventos, partida, nova, "golpe" in acao ? acao.golpe : null);
     if (!vivo.current) return;
@@ -785,6 +827,19 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     setFase(p.fim ? "fim" : "entrada");
   }
 
+  async function escolherGolpe(esquecer: number | null) {
+    if (!partida) return;
+    const pend = partida.aprender?.[0];
+    const { partida: p, eventos } = decidirGolpe(partida, esquecer);
+    setPartida(p);
+    const l = p.time.find((x) => x.uid === pend?.uid);
+    const ev = eventos[0] as Extract<Evento, { tipo: "aprendeu" }> | undefined;
+    if (l && pend)
+      setMensagem(
+        ev ? `1, 2 e... Puf! ${nomeDe(l.id)} esqueceu ${nomeGolpe(ev.esqueceu ?? -1)} e aprendeu ${nomeGolpe(ev.golpe)}!` : `${nomeDe(l.id)} não aprendeu ${nomeGolpe(pend.golpe)}.`
+      );
+  }
+
   function anotarLicao() {
     if (!partida || !desfecho) return;
     const { partida: p, curou } = registrarLicaoPoke(dex, partida, desfecho.questaoId, licao);
@@ -813,6 +868,11 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   // ---------- telas ----------
 
   const telaEvolucao = evolucao && createPortal(<EvolucaoPoke de={evolucao.de} para={evolucao.para} nome={nomeDe} onFim={evolucao.fim} />, document.body);
+  const pendente = partida && !evolucao && fase !== "golpe" && fase !== "entrada" ? partida.aprender?.[0] : undefined;
+  const lutadorPendente = pendente && partida?.time.find((l) => l.uid === pendente.uid);
+  const telaGolpe = pendente && lutadorPendente && (
+    <EscolherGolpe dex={dex} lutador={lutadorPendente} novo={pendente.golpe} onEscolher={(g) => void escolherGolpe(g)} />
+  );
 
   if (!perfil) {
     return (
@@ -854,8 +914,10 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   const bolasTenho = BOLAS.filter((b) => (partida.mochila[b] ?? 0) > 0);
   const itensUsaveis = Object.entries(partida.mochila).filter(([i, q]) => q > 0 && !BOLAS.includes(i as Bola));
   const licaoAnterior = desfecho ? partida.licoes[desfecho.questaoId] : undefined;
-  const hist1 = questao && hist?.get(questao.id);
-  const historicoView = questao && hist1 ? { tentativas: hist1.tentativas + (encontro?.retorno ? 1 : 0), erros: hist1.erros + (encontro?.retorno ? 1 : 0) } : undefined;
+  const respondida = (fase === "golpe" || fase === "resultado") && desfecho ? getQuestao(desfecho.questaoId) : undefined;
+  const questaoVista = respondida ?? questao;
+  const retornoVisto = respondida ? desfecho!.retorno : !!encontro?.retorno;
+  const historicoVisto = respondida ? desfecho!.historico : questao ? historicoDe(questao.id, !!encontro?.retorno) : undefined;
   const vencidos = partida.vencidos.length;
 
   const listaTime = (onEscolher: (i: number) => void, desabilitar: (l: Lutador, i: number) => boolean) => (
@@ -894,6 +956,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   return createPortal(
     <div className="jg">
       {telaEvolucao}
+      {telaGolpe}
       <div className="jg__palco">
         <Arena
           inimigo={fase === "recompensa" || fase === "troca" ? null : inimigoVis}
@@ -909,9 +972,19 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           topo={
             <div className="flex items-start justify-between gap-2">
               <div className="flex flex-wrap gap-1.5">
-                <Chip title="Treinadores vencidos">
-                  <Swords size={12} /> {vencidos}/{partida.treinadores.length}
+                <Chip title="Onde você está">
+                  {partida.modo === "safari" ? <Trees size={12} /> : partida.modo === "liga" ? <Crown size={12} /> : <MapaIcone size={12} />}
+                  {partida.modo === "ginasio" && partida.ginasio !== undefined ? `Ginásio de ${GINASIOS[partida.ginasio].cidade}` : NOME_MODO[partida.modo ?? "rota"]}
                 </Chip>
+                {partida.modo === "safari" ? (
+                  <Chip title="Safari Balls desta visita">
+                    <img src={spriteItem("safari-ball")} alt="" className="pk-mini h-4 w-4" /> ×{partida.mochila["safari-ball"] ?? 0}
+                  </Chip>
+                ) : (
+                  <Chip title="Treinadores vencidos">
+                    <Swords size={12} /> {vencidos}/{partida.treinadores.length}
+                  </Chip>
+                )}
                 {partida.combo >= 2 && (
                   <Chip title="Acertos seguidos: a cada 3, cura 10% do HP">
                     <Flame size={12} className="text-orange-500" /> Combo {partida.combo}
@@ -962,16 +1035,16 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           </div>
         )}
 
-        {(fase === "entrada" || fase === "pergunta" || fase === "golpe" || fase === "resultado") && questao && eu && (
+        {(fase === "entrada" || fase === "pergunta" || fase === "golpe" || fase === "resultado") && questaoVista && eu && (
           <div className="flex min-h-full flex-col">
             <div className="flex-1 space-y-4 p-4 sm:p-6">
-              <div key={`${questao.id}-${encontro?.retorno ? "r" : "a"}`} className="bt-carta-questao" style={fase === "entrada" ? { opacity: 0.35 } : undefined}>
+              <div key={`${questaoVista.id}-${retornoVisto ? "r" : "a"}`} className="bt-carta-questao" style={fase === "entrada" ? { opacity: 0.35 } : undefined}>
                 <QuestaoView
-                  key={`${questao.id}-${encontro?.retorno ? "r" : "a"}`}
-                  questao={questao}
-                  selecionada={fase === "resultado" || fase === "golpe" ? desfecho?.marcada : selecionada}
+                  key={`${questaoVista.id}-${retornoVisto ? "r" : "a"}`}
+                  questao={questaoVista}
+                  selecionada={respondida ? desfecho?.marcada : selecionada}
                   revelado={fase === "resultado"}
-                  historico={historicoView}
+                  historico={historicoVisto}
                   onSelecionar={(a) => fase === "pergunta" && setSelecionada(a)}
                 />
               </div>
@@ -1006,7 +1079,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
                         ) : (
                           <>
                             <label className="block text-sm text-muted" htmlFor="licao">
-                              Em uma frase, com suas palavras: por que a <b className="text-brand-ink">{questao.gabarito}</b> é a certa
+                              Em uma frase, com suas palavras: por que a <b className="text-brand-ink">{questaoVista.gabarito}</b> é a certa
                               {desfecho.marcada ? <> e a {desfecho.marcada} não</> : null}? Escrever cura 25% do HP.
                             </label>
                             <div className="flex flex-col gap-2 sm:flex-row">
@@ -1113,8 +1186,8 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
                   {eu.golpes.map((g) => {
                     const m = dex.golpes[g];
                     if (!m) return null;
-                    const ef = m[2] > 0 && m[3] !== 2 && inimigoEsp ? efetividade(m[1], inimigoEsp.t) : 1;
-                    const efeito = m[3] === 2 ? (m[5] > 0 ? "cura" : "guarda") : m[4] > 0 ? "dreno" : `${m[2]} poder`;
+                    const ef = m[3] !== 2 && inimigoEsp ? efetividade(m[1], inimigoEsp.t) : 1;
+                    const efeito = m[3] === 2 ? (m[6] ? "status" : m[5] > 0 ? "cura" : "guarda") : m[4] > 0 ? "dreno" : m[2] > 0 ? `${m[2]} poder` : "dano fixo";
                     return (
                       <button key={g} className="pk-golpe" style={{ "--cor": COR_TIPO[m[1]] } as CSSProperties} disabled={!selecionada} onClick={() => void atacar({ golpe: g })}>
                         <span className="text-sm font-extrabold leading-tight">{m[0]}</span>
@@ -1208,6 +1281,113 @@ function Gaveta({ titulo, children, onFechar }: { titulo: string; children: Reac
   );
 }
 
+function GolpeInfo({ dex, g, destaque }: { dex: Dex; g: number; destaque?: boolean }) {
+  const m = dex.golpes[g];
+  if (!m) return null;
+  const efeito = m[3] === 2 ? (m[6] ? "status" : m[5] > 0 ? "cura" : "guarda") : m[2] > 0 ? `${m[2]} poder${m[4] > 0 ? " · dreno" : ""}` : "dano fixo";
+  return (
+    <span className="min-w-0 text-left">
+      <span className={`block truncate text-sm font-extrabold leading-tight ${destaque ? "text-brand-500" : "text-brand-ink"}`}>{m[0]}</span>
+      <span className="mt-0.5 flex items-center gap-1.5 text-[11px] text-faint">
+        <TipoChip tipo={m[1]} nome={NOME_TIPO[m[1]]} /> {efeito}
+      </span>
+    </span>
+  );
+}
+
+// Golpe novo com 4 golpes já aprendidos: o jogador escolhe qual esquecer (como nos jogos).
+function EscolherGolpe({ dex, lutador, novo, onEscolher }: { dex: Dex; lutador: Lutador; novo: number; onEscolher: (esquecer: number | null) => void }) {
+  const nome = dex.especies[lutador.id]?.n ?? "";
+  return (
+    <div className="pk-evo" style={{ background: "rgba(8,10,24,.78)" }}>
+      <div className="w-[min(460px,calc(100vw-32px))] space-y-3 rounded-2xl border border-hair p-5 text-left shadow-2xl" style={{ background: "rgb(var(--surface))" }}>
+        <div className="flex items-center gap-3">
+          <img src={spriteFrente(lutador.id)} alt="" className="pk-mini h-14 w-14" />
+          <p className="text-sm text-muted">
+            <b className="text-brand-ink">{nome}</b> quer aprender <b className="text-brand-500">{dex.golpes[novo]?.[0]}</b>, mas já sabe {MAX_GOLPES} golpes. Qual esquecer?
+          </p>
+        </div>
+        <div className="rounded-xl border border-brand-500 bg-surface p-2.5">
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-faint">Golpe novo</p>
+          <GolpeInfo dex={dex} g={novo} destaque />
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {lutador.golpes.map((g) => (
+            <button key={g} onClick={() => onEscolher(g)} className="flex items-center justify-between gap-2 rounded-xl border border-hair bg-surface2 p-2.5 transition hover:border-danger-from">
+              <GolpeInfo dex={dex} g={g} />
+              <span className="shrink-0 text-[11px] font-bold text-danger-from">esquecer</span>
+            </button>
+          ))}
+        </div>
+        <button onClick={() => onEscolher(null)} className="w-full rounded-xl border border-hair px-4 py-2 text-sm font-semibold text-muted transition hover:text-brand-500">
+          Não aprender {dex.golpes[novo]?.[0]}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Relembrador de golpes (lobby): escolhe até 4 entre tudo que a linha evolutiva já aprendeu.
+function EditorGolpes({ dex, m, onSalvar, onFechar }: { dex: Dex; m: Mon; onSalvar: (golpes: number[]) => void; onFechar: () => void }) {
+  const [escolhidos, setEscolhidos] = useState<number[]>(m.golpes);
+  const disponiveis = useMemo(
+    () =>
+      golpesDisponiveis(dex, m).sort((a, b) => {
+        const ga = dex.golpes[a];
+        const gb = dex.golpes[b];
+        return ga[1] - gb[1] || gb[2] - ga[2] || ga[0].localeCompare(gb[0]);
+      }),
+    [dex, m]
+  );
+  const alternar = (g: number) =>
+    setEscolhidos((xs) => (xs.includes(g) ? (xs.length > 1 ? xs.filter((x) => x !== g) : xs) : xs.length < MAX_GOLPES ? [...xs, g] : xs));
+  return createPortal(
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-4" onClick={onFechar}>
+      <div className="flex max-h-[88vh] w-[min(560px,100%)] flex-col rounded-2xl border border-hair p-5 shadow-2xl" style={{ background: "rgb(var(--surface))" }} onClick={(e) => e.stopPropagation()}>
+        <div className="mb-3 flex items-center gap-3">
+          <img src={spriteFrente(m.id)} alt="" className="pk-mini h-14 w-14" />
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-lg font-bold text-brand-ink">Golpes de {dex.especies[m.id]?.n}</p>
+            <p className="text-xs text-faint">
+              Escolha até {MAX_GOLPES} ({escolhidos.length}/{MAX_GOLPES}). Vale tudo que ele e as pré-evoluções aprendem até o Nv{nivelDe(m)}.
+            </p>
+          </div>
+          <button onClick={onFechar} className="rounded-lg p-1 text-muted hover:text-brand-500" aria-label="Fechar">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="grid flex-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
+          {disponiveis.map((g) => {
+            const on = escolhidos.includes(g);
+            const cheio = !on && escolhidos.length >= MAX_GOLPES;
+            return (
+              <button
+                key={g}
+                onClick={() => alternar(g)}
+                disabled={cheio}
+                aria-pressed={on}
+                className={`flex items-center justify-between gap-2 rounded-xl border p-2.5 transition disabled:opacity-40 ${on ? "border-brand-500 bg-surface" : "border-hair bg-surface2 hover:border-brand-500"}`}
+              >
+                <GolpeInfo dex={dex} g={g} />
+                <span className={`shrink-0 text-base ${on ? "text-brand-500" : "text-faint"}`}>{on ? "✓" : "+"}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="mt-3 flex gap-2">
+          <button onClick={onFechar} className="flex-1 rounded-2xl border border-hair px-4 py-2.5 text-sm font-semibold text-muted">
+            Cancelar
+          </button>
+          <button onClick={() => onSalvar(escolhidos)} className="btn-primary flex-1">
+            Salvar golpes
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 function EvolucaoPoke({ de, para, nome, onFim }: { de: number; para: number; nome: (id: number) => string; onFim: () => void }) {
   const [pronto, setPronto] = useState(false);
   useEffect(() => {
@@ -1295,7 +1475,7 @@ function Lobby({
   novas: number;
   erro: boolean;
   onTentar: () => void;
-  onComecar: () => void;
+  onComecar: (modo: ModoJornada, ginasio?: number) => void;
   emAndamento: PartidaPoke | null;
   onRetomar: () => void;
   alternar?: ReactNode;
@@ -1306,6 +1486,19 @@ function Lobby({
   const completa = pendentes ? Math.min(novas, Math.max(0, 11 - revisoes)) : 0;
   const mochila = Object.entries(perfil.mochila).filter(([, q]) => q > 0);
   const podeMexer = !emAndamento;
+  const [editando, setEditando] = useState<string | null>(null);
+  const monEditando = editando ? perfil.colecao.find((m) => m.uid === editando) : undefined;
+  const insignias = insigniasDe(perfil);
+  const proximo = GINASIOS[insignias];
+  const botaoGolpes = (m: Mon) => (
+    <button
+      onClick={() => setEditando(m.uid)}
+      disabled={!podeMexer}
+      className="w-full rounded-lg border border-hair px-2 py-1 text-[11px] font-semibold text-muted transition hover:border-brand-500 hover:text-brand-500 disabled:opacity-40"
+    >
+      Golpes
+    </button>
+  );
   const alternarTime = (uid: string) => {
     if (!podeMexer) return;
     if (perfil.time.includes(uid)) {
@@ -1328,16 +1521,23 @@ function Lobby({
             </div>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
               {time.map((m) => (
-                <MonCard
-                  key={m.uid}
-                  dex={dex}
-                  m={m}
-                  marcado
-                  onClick={() => alternarTime(m.uid)}
-                  rodape={<Evolui dex={dex} m={m} />}
-                />
+                <div key={m.uid} className="flex flex-col gap-1">
+                  <MonCard dex={dex} m={m} marcado onClick={() => alternarTime(m.uid)} rodape={<Evolui dex={dex} m={m} />} />
+                  {botaoGolpes(m)}
+                </div>
               ))}
             </div>
+            {monEditando && (
+              <EditorGolpes
+                dex={dex}
+                m={monEditando}
+                onFechar={() => setEditando(null)}
+                onSalvar={(golpes) => {
+                  setPerfil(definirGolpes(dex, perfil, monEditando.uid, golpes));
+                  setEditando(null);
+                }}
+              />
+            )}
           </div>
 
           <div className="card p-5">
@@ -1348,11 +1548,14 @@ function Lobby({
             {pc.length ? (
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
                 {pc.map((m) => (
-                  <MonCard key={m.uid} dex={dex} m={m} onClick={() => alternarTime(m.uid)} rodape={m.questaoId ? <span className="text-[10px] text-faint">questão #{m.questaoId}</span> : null} />
+                  <div key={m.uid} className="flex flex-col gap-1">
+                    <MonCard dex={dex} m={m} onClick={() => alternarTime(m.uid)} rodape={m.questaoId ? <span className="text-[10px] text-faint">questão #{m.questaoId}</span> : null} />
+                    {botaoGolpes(m)}
+                  </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted">Vazio. Questão que te derrubou aparece selvagem: acerte e lance uma Poké Bola.</p>
+              <p className="text-sm text-muted">Vazio. Vá à Zona Safári (ou ache selvagens na Rota): acerte a questão e lance uma bola.</p>
             )}
           </div>
         </div>
@@ -1383,30 +1586,77 @@ function Lobby({
               <p className="text-sm text-muted">Nenhuma questão disponível neste concurso ainda.</p>
             ) : (
               <>
-                <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Rota de hoje</p>
-                <p className="mt-1 font-display text-2xl font-bold text-brand-ink">{revisoes + completa} questões</p>
+                <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Para onde?</p>
                 <p className="mt-1 text-sm text-muted">
-                  {revisoes > 0 ? (
-                    <>
-                      <b className="text-brand-ink">{revisoes}</b> da revisão espaçada{completa > 0 ? <> e <b className="text-brand-ink">{completa}</b> novas das matérias em que você mais erra</> : null}. No fim, o Líder de Ginásio é a questão que mais te derrubou.
-                    </>
-                  ) : (
-                    <>Sem revisão pendente: a rota usa questões novas das matérias em que você mais erra.</>
-                  )}
+                  Todo destino usa as mesmas questões: {revisoes > 0 ? <><b className="text-brand-ink">{revisoes}</b> da revisão espaçada{completa > 0 ? " e novas das matérias em que você mais erra" : ""}</> : "sem revisão pendente, novas das matérias em que você mais erra"}. O chefe de cada luta é a questão que mais te derrubou.
                 </p>
-                <p className="mt-2 text-xs text-faint">Pokémon inimigos por volta do nível {nivelMedio(time)}.</p>
-                {!emAndamento && (
-                  <button onClick={onComecar} className="btn-primary mt-4 w-full">
-                    <Swords size={18} className="mr-2 inline" /> Começar jornada
-                  </button>
-                )}
+                <div className="mt-3 space-y-2">
+                  {proximo ? (
+                    <Destino
+                      titulo={`Ginásio de ${proximo.cidade}`}
+                      texto={`${proximo.lider} · ${NOME_TIPO[proximo.tipo]} · vale a ${proximo.insignia}`}
+                      imagem={spriteTreinador(proximo.sprite)}
+                      selo={insigniaImg(insignias)}
+                      destaque
+                      disabled={!!emAndamento}
+                      onClick={() => onComecar("ginasio", insignias)}
+                    />
+                  ) : null}
+                  <Destino
+                    titulo="Liga Pokémon"
+                    texto={ligaLiberada(perfil) ? `Elite dos 4 (${ELITE.map((e) => e.nome).join(", ")}) e o Campeão ${CAMPEAO.nome}` : `Precisa das 8 insígnias (${insignias}/8)`}
+                    imagem={spriteTreinador(ligaLiberada(perfil) ? ELITE[0].sprite : CAMPEAO.sprite)}
+                    icone={ligaLiberada(perfil) ? <Crown size={16} /> : <Lock size={16} />}
+                    destaque={ligaLiberada(perfil)}
+                    disabled={!!emAndamento || !ligaLiberada(perfil)}
+                    onClick={() => onComecar("liga")}
+                  />
+                  <Destino
+                    titulo="Zona Safári"
+                    texto={`Só Pokémon selvagens para capturar · ${BOLAS_SAFARI} Safari Balls grátis`}
+                    imagem={spriteItem("safari-ball")}
+                    icone={<Trees size={16} />}
+                    disabled={!!emAndamento}
+                    onClick={() => onComecar("safari")}
+                  />
+                  <Destino
+                    titulo="Rota (treino)"
+                    texto="Treinadores, selvagens no mato e um Treinador Ás no fim"
+                    imagem={spriteItem("poke-ball")}
+                    icone={<MapaIcone size={16} />}
+                    disabled={!!emAndamento}
+                    onClick={() => onComecar("rota")}
+                  />
+                </div>
+                <p className="mt-2 text-xs text-faint">Seu time está no nível {nivelMedio(time)} em média. Ginásios e Liga puxam os inimigos para cima.</p>
               </>
             )}
           </div>
 
           <div className="card p-5">
+            <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Insígnias ({insignias}/8)</p>
+            <div className="mt-2 grid grid-cols-8 gap-1">
+              {GINASIOS.map((g, i) => (
+                <img
+                  key={g.sprite}
+                  src={insigniaImg(i)}
+                  alt={g.insignia}
+                  title={`${g.insignia} (${g.lider})${i < insignias ? "" : " · ainda não"}`}
+                  className="pk-mini mx-auto h-8 w-8 object-contain"
+                  style={i < insignias ? undefined : { filter: "grayscale(1) brightness(.6)", opacity: 0.35 }}
+                />
+              ))}
+            </div>
+            {(perfil.campeao ?? 0) > 0 && (
+              <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-brand-ink">
+                <Crown size={15} className="text-amber-500" /> Campeão da Liga ×{perfil.campeao}
+              </p>
+            )}
+          </div>
+
+          <div className="card p-5">
             <div className="grid grid-cols-3 gap-2 text-center">
-              <Numero valor={perfil.insignias} rotulo="insígnias" />
+              <Numero valor={perfil.vitorias} rotulo="vitórias" />
               <Numero valor={perfil.colecao.length} rotulo="capturados" />
               <Numero valor={perfil.vistos.length} rotulo="vistos" />
             </div>
@@ -1432,18 +1682,60 @@ function Lobby({
               crítico, mas o erro dói 1,5×: treina saber o que você sabe.
             </p>
             <p>
-              <b className="text-brand-ink">Errou? Contra-ataque</b> (com veneno, sono, paralisia...). A questão volta selvagem logo depois, com as alternativas em outra
-              ordem: acerte e lance uma Poké Bola para capturá-la (HP baixo ajuda). Escrever por que o gabarito está certo cura 25% do HP.
+              <b className="text-brand-ink">Errou? Contra-ataque</b> (com veneno, sono, paralisia...). A questão volta logo depois, com as alternativas em outra ordem (na Rota e
+              na Safári, como selvagem: acerte e lance uma bola para capturar; HP baixo ajuda). Escrever por que o gabarito está certo cura 25% do HP.
             </p>
             <p>
-              <b className="text-brand-ink">Evolução</b> por nível como nos jogos, por pedra na mochila, e as de troca ou amizade no nível {NIVEL_TROCA_AMIZADE}. Cada treinador
-              vencido dá um item; o Líder dá insígnia.
+              <b className="text-brand-ink">Evolução</b> por nível como nos jogos, por pedra na mochila, e as de troca ou amizade no nível {NIVEL_TROCA_AMIZADE}. Com 4 golpes, você
+              escolhe qual esquecer para aprender o novo; no botão "Golpes" dá para trocar por qualquer golpe que ele já aprendeu.
+            </p>
+            <p>
+              <b className="text-brand-ink">Jornada:</b> 8 ginásios em ordem (cada líder vale uma insígnia), depois a Liga: Elite dos 4 e o Campeão. Na Zona Safári só aparecem
+              selvagens. Cada treinador vencido dá um item.
             </p>
             <p className="text-faint">Cada resposta conta na meta do dia, na ofensiva e reagenda a revisão espaçada.</p>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function Destino({
+  titulo,
+  texto,
+  imagem,
+  selo,
+  icone,
+  destaque,
+  disabled,
+  onClick,
+}: {
+  titulo: string;
+  texto: string;
+  imagem: string;
+  selo?: string;
+  icone?: ReactNode;
+  destaque?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex w-full items-center gap-3 rounded-2xl border p-2.5 text-left transition hover:border-brand-500 disabled:cursor-not-allowed disabled:opacity-45 ${destaque ? "border-brand-500 bg-surface" : "border-hair bg-surface2"}`}
+    >
+      <img src={imagem} alt="" className="pk-mini h-12 w-12 shrink-0 object-contain" />
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-1.5 font-display text-base font-bold text-brand-ink">
+          {icone}
+          {titulo}
+        </span>
+        <span className="block text-xs leading-snug text-muted">{texto}</span>
+      </span>
+      {selo && <img src={selo} alt="" className="pk-mini h-8 w-8 shrink-0 object-contain" />}
+    </button>
   );
 }
 
@@ -1472,6 +1764,8 @@ function Fim({ dex, partida, perfil, activeId, onNova }: { dex: Dex; partida: Pa
   const licoes = Object.entries(partida.licoes);
   const titulo = partida.fim === "vitoria" ? "Vitória!" : partida.fim === "derrota" ? "Seu time desmaiou" : "Você fugiu da rota";
   const capturados = [...partida.time, ...partida.novos].filter((m) => m.capturadoEm === partida.iniciadaEm);
+  const ganhouInsignia = partida.fim === "vitoria" && partida.modo === "ginasio" && partida.ginasio !== undefined ? partida.ginasio : null;
+  const campeao = partida.fim === "vitoria" && partida.modo === "liga";
 
   async function salvar() {
     if (!activeId || !licoes.length) return;
@@ -1492,12 +1786,20 @@ function Fim({ dex, partida, perfil, activeId, onNova }: { dex: Dex; partida: Pa
             <img key={l.uid} src={spriteFrente(l.id)} alt="" className="pk-mini h-16 w-16" style={l.hp <= 0 ? { filter: "grayscale(1)", opacity: 0.5 } : undefined} />
           ))}
         </div>
-        <p className="mt-2 font-display text-3xl font-bold text-brand-ink">{titulo}</p>
+        <p className="mt-2 font-display text-3xl font-bold text-brand-ink">{campeao ? "Campeão da Liga!" : titulo}</p>
+        {ganhouInsignia !== null && (
+          <div className="mt-3 flex flex-col items-center gap-1">
+            <img src={insigniaImg(ganhouInsignia)} alt="" className="pk-mini h-16 w-16 object-contain" />
+            <p className="font-bold text-brand-ink">{GINASIOS[ganhouInsignia].insignia}</p>
+            <p className="text-xs text-muted">{ganhouInsignia + 1 < GINASIOS.length ? `Próximo: Ginásio de ${GINASIOS[ganhouInsignia + 1].cidade} (${GINASIOS[ganhouInsignia + 1].lider}).` : "8 insígnias! A Liga Pokémon está aberta."}</p>
+          </div>
+        )}
+        {campeao && <p className="mt-2 text-sm text-muted">Seu time entrou para o Hall da Fama.</p>}
         <p className="mt-1 text-muted">
           {partida.vencidos.length}/{partida.treinadores.length} treinadores · {r.acertos}/{r.respondidas} acertos · +{partida.xp} XP
         </p>
         <p className="mt-1 text-xs text-faint">
-          {r.respondidas} respostas contaram na meta do dia e na ofensiva. Insígnias: {perfil.insignias}.
+          {r.respondidas} respostas contaram na meta do dia e na ofensiva. Insígnias: {insigniasDe(perfil)}/8.
         </p>
       </div>
 
