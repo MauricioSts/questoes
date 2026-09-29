@@ -22,6 +22,9 @@ import { getSessaoAtiva, salvarSessao, atualizarCursor, encerrarSessao } from ".
 import { carregarMetaMateria, ordemDeEstudo } from "../lib/metaMateria";
 import { Carregando } from "../components/Spinner";
 
+// Quanto tempo uma questão respondida fica fora das sessões do Estudar.
+const DESCANSO_MS = 20 * 3600e3;
+
 export function Estudar() {
   const progresso = useProgresso();
   const navigate = useNavigate();
@@ -125,15 +128,28 @@ export function Estudar() {
     return lista;
   }, [modulo, materia, assunto, dificuldade, origem, prova, soNaoRespondidas, soErradas, progresso]);
 
+  // Descanso: o que foi respondido nas últimas 20h fica fora da sessão. Refazer em seguida
+  // dá acerto de memória da letra (85% no mesmo dia contra 19% duas semanas depois, nos
+  // dados do dono), e esse acerto falso é o que fazia errar de novo na prova.
+  const agora = useMemo(() => Date.now(), [progresso]);
+  const emDescanso = useMemo(
+    () => pool.filter((q) => agora - (progresso.ultima.get(q.id) ?? 0) < DESCANSO_MS).length,
+    [pool, progresso, agora]
+  );
+  const disponiveis = useMemo(
+    () => pool.filter((q) => agora - (progresso.ultima.get(q.id) ?? 0) >= DESCANSO_MS),
+    [pool, progresso, agora]
+  );
+
   async function iniciar() {
     // "Priorizar as que errei mais": as erradas vêm primeiro na seleção.
     let sel: Questao[];
     if (priorizarErradas) {
-      const err = shuffle(pool.filter((q) => progresso.erradas.has(q.id)));
-      const resto = shuffle(pool.filter((q) => !progresso.erradas.has(q.id)));
+      const err = shuffle(disponiveis.filter((q) => progresso.erradas.has(q.id)));
+      const resto = shuffle(disponiveis.filter((q) => !progresso.erradas.has(q.id)));
       sel = [...err, ...resto].slice(0, quantidade);
     } else {
-      sel = shuffle(pool).slice(0, quantidade);
+      sel = shuffle(disponiveis).slice(0, quantidade);
     }
     setResultado(null);
     setCursorInicial(0);
@@ -310,17 +326,27 @@ export function Estudar() {
       <p className="mt-5 text-center text-sm text-muted" aria-live="polite">
         {pool.length === 0 ? (
           <span className="text-danger-from">Nenhuma questão bate com esses filtros.</span>
+        ) : disponiveis.length === 0 ? (
+          <span className="text-danger-from">
+            Todas as {pool.length} já foram respondidas nas últimas 20h. Volte amanhã: refazer
+            agora só testa se você lembra a letra.
+          </span>
         ) : (
           <>
-            <b className="text-brand-ink">{pool.length}</b>{" "}
-            {pool.length === 1 ? "questão disponível" : "questões disponíveis"} · a sessão vai usar{" "}
-            <b className="text-brand-ink">{Math.min(quantidade, pool.length)}</b>
+            <b className="text-brand-ink">{disponiveis.length}</b>{" "}
+            {disponiveis.length === 1 ? "questão disponível" : "questões disponíveis"} · a sessão vai usar{" "}
+            <b className="text-brand-ink">{Math.min(quantidade, disponiveis.length)}</b>
           </>
         )}
       </p>
+      {emDescanso > 0 && disponiveis.length > 0 && (
+        <p className="mt-1 text-center text-xs text-faint">
+          {emDescanso} em descanso (respondidas há menos de 20h) · voltam amanhã
+        </p>
+      )}
 
       {/* Botão */}
-      <Button onClick={iniciar} fullWidth size="lg" className="mt-3" disabled={pool.length === 0}>
+      <Button onClick={iniciar} fullWidth size="lg" className="mt-3" disabled={disponiveis.length === 0}>
         {/* inline-flex no conteúdo: sem isso a seta quebra para a linha de baixo no
             botão de largura total, porque o texto é centralizado como texto corrido. */}
         <span className="inline-flex items-center justify-center gap-2">

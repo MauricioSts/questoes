@@ -5,7 +5,7 @@ import { PageHeader } from "../components/PageHeader";
 import { api } from "../lib/api";
 import { ehDiaDeSimulado } from "../lib/agenda";
 import { todas, getQuestoes } from "../lib/questoesRepo";
-import { montarSimulado, type SemanaItem } from "../lib/sessionBuilder";
+import { montarSimulado, type SemanaItem, type HistoricoSimulado } from "../lib/sessionBuilder";
 import { montarResultado } from "../lib/correcao";
 import { enviarLote } from "../lib/answers";
 import {
@@ -77,13 +77,21 @@ export function Simulado() {
     setCarregando(true);
     setAviso(null);
     let semana: SemanaItem[] = [];
+    let historico: HistoricoSimulado | undefined;
     try {
-      const r = await api<{ questoes: SemanaItem[] }>("/answers/week");
+      const [r, ids] = await Promise.all([
+        api<{ questoes: SemanaItem[] }>("/answers/week"),
+        api<{ erradas: number[]; ultima?: Record<string, number> }>("/answers/ids"),
+      ]);
       semana = r.questoes;
+      historico = {
+        erradas: new Set(ids.erradas),
+        ultima: new Map(Object.entries(ids.ultima ?? {}).map(([id, t]) => [Number(id), t])),
+      };
     } catch {
       setAviso("Sem conexão. Montando o simulado sem histórico da semana.");
     }
-    const sim = montarSimulado({ semana, todas: todas() });
+    const sim = montarSimulado({ semana, todas: todas(), historico });
     if (sim.length < TOTAL_SIMULADO) {
       setAviso(
         `Só foi possível montar ${sim.length}/${TOTAL_SIMULADO} questões. Adicione mais questões ao banco para fechar a proporção.`

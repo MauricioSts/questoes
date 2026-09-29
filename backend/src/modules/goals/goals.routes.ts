@@ -14,6 +14,7 @@ import {
   casarMaterias,
   materiaDoDia,
   sortearMeta,
+  piorDoRodizio,
   type CandidataMeta,
 } from "../../lib/metaMateria.js";
 
@@ -185,7 +186,25 @@ goalsRouter.get(
     const qf = await escopoQuestoes(concursoId, req.userId!); // ver nota no GET /goals
     const inicioHoje = startOfToday();
     const diaIndex = localWeekdayIndex(new Date());
-    const doDia = materiaDoDia(diaIndex);
+    // Fim de semana: o extra vai para a matéria do rodízio com pior acerto nos últimos 30
+    // dias. Só consulta quando é fim de semana (dia útil tem matéria fixa).
+    let extraIndex = 0;
+    if (diaIndex > 4) {
+      const desempenho = await prisma.answer.groupBy({
+        by: ["materiaSnapshot", "acertou"],
+        where: { userId: req.userId!, ...cf, createdAt: { gte: new Date(Date.now() - 30 * 864e5) } },
+        _count: { _all: true },
+      });
+      const porMateria = new Map<string, { materia: string; total: number; acertos: number }>();
+      for (const d of desempenho) {
+        const cur = porMateria.get(d.materiaSnapshot) ?? { materia: d.materiaSnapshot, total: 0, acertos: 0 };
+        cur.total += d._count._all;
+        if (d.acertou) cur.acertos += d._count._all;
+        porMateria.set(d.materiaSnapshot, cur);
+      }
+      extraIndex = piorDoRodizio([...porMateria.values()]);
+    }
+    const doDia = materiaDoDia(diaIndex, extraIndex);
 
     // Nomes de matéria que existem NESTE concurso e casam com o rodízio do dia.
     const materiasDoBanco = (
@@ -226,12 +245,27 @@ goalsRouter.get(
         _count: { _all: true },
       });
       const errosPorQuestao = new Map(erradasAntes.map((e) => [e.questaoId, e._count._all]));
+      const ultimas = await prisma.answer.groupBy({
+        by: ["questaoId"],
+        where: {
+          userId: req.userId!,
+          ...cf,
+          questaoId: { in: candidatasBrutas.map((q) => q.id) },
+          createdAt: { lt: inicioHoje },
+        },
+        _max: { createdAt: true },
+      });
+      const ultimaPorQuestao = new Map(ultimas.map((u) => [u.questaoId, u._max.createdAt]));
 
-      const candidatas: CandidataMeta[] = candidatasBrutas.map((q) => ({
-        id: q.id,
-        origem: q.origem,
-        erros: errosPorQuestao.get(q.id) ?? 0,
-      }));
+      const candidatas: CandidataMeta[] = candidatasBrutas.map((q) => {
+        const ultima = ultimaPorQuestao.get(q.id);
+        return {
+          id: q.id,
+          origem: q.origem,
+          erros: errosPorQuestao.get(q.id) ?? 0,
+          diasDesdeUltima: ultima ? (inicioHoje.getTime() - ultima.getTime()) / 864e5 : null,
+        };
+      });
 
       registro = await prisma.metaMateriaDia.create({
         data: {

@@ -4,6 +4,7 @@ import {
   casarMaterias,
   materiaDoDia,
   pesoMeta,
+  piorDoRodizio,
   sortearMeta,
   normalizar,
 } from "../lib/metaMateria.js";
@@ -132,5 +133,28 @@ describe("sortearMeta", () => {
 
   it("respeita o rng: com rng fixo em 0 pega sempre o primeiro do pool restante", () => {
     expect(sortearMeta(candidatas.slice(0, 5), 3, rngFixo([0]))).toEqual([1, 2, 3]);
+  });
+});
+
+describe("recência e pior matéria", () => {
+  it("inédita pesa mais que vista há tempo, que pesa mais que vista há pouco", () => {
+    const base = { id: 1, origem: "oficial", erros: 0 };
+    const inedita = pesoMeta({ ...base, diasDesdeUltima: null });
+    const antiga = pesoMeta({ ...base, diasDesdeUltima: 30 });
+    const recente = pesoMeta({ ...base, diasDesdeUltima: 2 });
+    expect(inedita).toBeGreaterThan(antiga);
+    expect(antiga).toBeGreaterThan(recente);
+    expect(recente).toBeGreaterThan(0);
+  });
+
+  it("fim de semana oferece a pior matéria do rodízio", () => {
+    const desempenho = [
+      { materia: "Língua Portuguesa", total: 40, acertos: 30 },
+      { materia: "Língua Inglesa", total: 20, acertos: 8 },
+      { materia: "Raciocínio Lógico-Matemático", total: 3, acertos: 0 }, // pouco volume: ignora
+    ];
+    const i = piorDoRodizio(desempenho);
+    expect(materiaDoDia(5, i).rotulo).toBe("Língua Inglesa");
+    expect(piorDoRodizio([])).toBe(0);
   });
 });

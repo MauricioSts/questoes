@@ -3,6 +3,7 @@ import { corrigir } from "../lib/correcao";
 import {
   montarFlash,
   montarSimulado,
+  pesoSimulado,
   calcularNotaSimulado,
   sampleWeighted,
 } from "../lib/sessionBuilder";
@@ -223,5 +224,52 @@ describe("sampleWeighted", () => {
     const out = sampleWeighted(itens, 10);
     expect(out.length).toBe(3);
     expect(new Set(out).size).toBe(3);
+  });
+});
+
+describe("montarSimulado (frescor: prefere inéditas e esquecidas há 14+ dias)", () => {
+  const todas: Questao[] = [
+    ...Array.from({ length: 30 }, (_, i) => q(1 + i, "I", "Língua Portuguesa")),
+    ...Array.from({ length: 30 }, (_, i) => q(100 + i, "I", "Língua Inglesa")),
+    ...Array.from({ length: 30 }, (_, i) => q(200 + i, "I", "Raciocínio Lógico-Matemático")),
+    ...Array.from({ length: 30 }, (_, i) => q(300 + i, "I", "Atualidades e IA")),
+    ...Array.from({ length: 30 }, (_, i) => q(400 + i, "I", "Legislação (SI e Proteção de Dados)")),
+    ...Array.from({ length: 60 }, (_, i) => q(500 + i, "II", "Especificos")),
+  ];
+  const agora = Date.now();
+
+  it("questões vistas há menos de 14 dias quase não entram quando há inéditas", () => {
+    // Português: 1..15 vistas ontem, 16..30 inéditas; 12 vagas.
+    const ultima = new Map(Array.from({ length: 15 }, (_, i) => [1 + i, agora - 864e5] as [number, number]));
+    let recentes = 0;
+    let total = 0;
+    for (let i = 0; i < 100; i++) {
+      const sim = montarSimulado({ semana: [], todas, historico: { ultima, erradas: new Set(), agora } });
+      for (const x of sim) {
+        if (x.materia !== "Língua Portuguesa") continue;
+        total++;
+        if (ultima.has(x.id)) recentes++;
+      }
+    }
+    expect(recentes / total).toBeLessThan(0.05);
+  });
+
+  it("completa com vistas recentes se faltar volume (não quebra a proporção)", () => {
+    const ultima = new Map(todas.map((x) => [x.id, agora - 864e5] as [number, number]));
+    const sim = montarSimulado({ semana: [], todas, historico: { ultima, erradas: new Set(), agora } });
+    expect(sim.length).toBe(70);
+  });
+
+  it("errada e esquecida há 14+ dias pesa mais que acertada e esquecida", () => {
+    const antiga = agora - 30 * 864e5;
+    const hist = { ultima: new Map([[1, antiga], [2, antiga]]), erradas: new Set([1]), agora };
+    const errada = pesoSimulado(q(1, "I", "Língua Portuguesa"), new Map(), hist);
+    const certa = pesoSimulado(q(2, "I", "Língua Portuguesa"), new Map(), hist);
+    const recente = pesoSimulado(q(3, "I", "Língua Portuguesa"), new Map(), {
+      ...hist,
+      ultima: new Map([[3, agora - 864e5]]),
+    });
+    expect(errada).toBeGreaterThan(certa);
+    expect(certa).toBeGreaterThan(recente);
   });
 });

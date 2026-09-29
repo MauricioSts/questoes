@@ -7,8 +7,9 @@
 //   quarta  → Raciocínio Lógico-Matemático
 //   quinta  → Língua Inglesa
 //   sexta   → Banco de Dados
-// Fim de semana não tem matéria OBRIGATÓRIA, mas continua oferecendo a de segunda como
-// extra: quem quiser adiantar não deveria esbarrar numa tela que só diz "hoje não".
+// Fim de semana não tem matéria OBRIGATÓRIA, mas continua oferecendo uma como extra: a do
+// rodízio em que o acerto recente está pior (ver `piorDoRodizio`). Quem quiser adiantar
+// não deveria esbarrar numa tela que só diz "hoje não", e o extra vai para onde dói.
 //
 // As 10 questões são sorteadas UMA vez por dia e gravadas (MetaMateriaDia): a meta do dia
 // não pode trocar de questão no meio do dia, senão "faltam 3" viraria outra prova.
@@ -28,6 +29,13 @@ export const PESO_ORIGEM: Record<string, number> = {
 // dobra a chance; errar muito não pode monopolizar o sorteio (por isso o teto).
 const PESO_POR_ERRO = 2;
 const TETO_PESO_ERRO = 6;
+
+// Recência: questão inédita pesa mais (é o que mede se o conteúdo virou habilidade), e a
+// vista há menos de DIAS_DESCANSO_META dias quase não sai — refazer em seguida só treina a
+// memória da letra. Nunca zero: se a matéria tiver poucas questões, a meta ainda fecha.
+export const PESO_INEDITA = 2;
+export const PESO_VISTA_RECENTE = 0.1;
+export const DIAS_DESCANSO_META = 7;
 
 // Rodízio: índice do dia (0=segunda … 6=domingo) → pedaços do nome da matéria, já sem
 // acento e em minúsculas. É busca por pedaço porque o nome vem do lote e varia entre
@@ -55,12 +63,13 @@ export interface MateriaDoDia {
   extra: boolean; // true = o dia não pedia matéria (fim de semana); é adiantamento
 }
 
-// A matéria do rodízio para o dia informado. No fim de semana devolve a de segunda com
-// `extra: true`: o sábado é de simulado e o domingo de folga, mas a meta continua à mão
-// para quem quiser adiantar. Nunca devolve null: a tela sempre tem o que mostrar.
-export function materiaDoDia(diaIndex: number): MateriaDoDia {
+// A matéria do rodízio para o dia informado. No fim de semana devolve `extraIndex` (a pior
+// do rodízio, calculada por quem chama; segunda por padrão) com `extra: true`: o sábado é
+// de simulado e o domingo de folga, mas a meta continua à mão para quem quiser adiantar.
+// Nunca devolve null: a tela sempre tem o que mostrar.
+export function materiaDoDia(diaIndex: number, extraIndex = 0): MateriaDoDia {
   const extra = diaIndex > 4;
-  const item = RODIZIO[extra ? 0 : diaIndex] ?? RODIZIO[0];
+  const item = RODIZIO[extra ? extraIndex : diaIndex] ?? RODIZIO[0];
   return { diaIndex, rotulo: item.rotulo, termos: item.termos, extra };
 }
 
@@ -74,17 +83,42 @@ export function casarMaterias(materiasDoBanco: string[], termos: string[]): stri
   });
 }
 
+// Índice do rodízio com o pior acerto, dado o desempenho recente por matéria do banco.
+// Matéria com menos de `minimo` respostas não entra (taxa de 2 questões é ruído). Sem
+// nenhuma elegível, devolve 0 (segunda).
+export function piorDoRodizio(
+  desempenho: { materia: string; total: number; acertos: number }[],
+  minimo = 5
+): number {
+  let pior = 0;
+  let piorTaxa = Infinity;
+  RODIZIO.forEach((item, i) => {
+    const doItem = desempenho.filter((d) => casarMaterias([d.materia], item.termos).length > 0);
+    const total = doItem.reduce((s, d) => s + d.total, 0);
+    if (total < minimo) return;
+    const taxa = doItem.reduce((s, d) => s + d.acertos, 0) / total;
+    if (taxa < piorTaxa) {
+      piorTaxa = taxa;
+      pior = i;
+    }
+  });
+  return pior;
+}
+
 export interface CandidataMeta {
   id: number;
   origem: string;
   erros: number; // erros ANTERIORES a hoje nesta questão
+  diasDesdeUltima?: number | null; // null/ausente = nunca respondida
 }
 
-// Peso de sorteio de uma candidata: procedência × reincidência de erro.
+// Peso de sorteio de uma candidata: procedência × reincidência de erro × recência.
 export function pesoMeta(c: CandidataMeta): number {
   const origem = PESO_ORIGEM[c.origem] ?? 1;
   const erro = Math.min(1 + c.erros * PESO_POR_ERRO, TETO_PESO_ERRO);
-  return origem * erro;
+  const d = c.diasDesdeUltima;
+  const recencia = d == null ? PESO_INEDITA : d < DIAS_DESCANSO_META ? PESO_VISTA_RECENTE : 1;
+  return origem * erro * recencia;
 }
 
 // Sorteio ponderado SEM reposição. `rng` injetável para teste determinístico.

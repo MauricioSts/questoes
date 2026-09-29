@@ -116,8 +116,23 @@ export interface SemanaItem {
 export interface SimuladoInput {
   semana: SemanaItem[]; // do backend: /answers/week (respondidas nos últimos 7 dias)
   todas: Questao[]; // do JSON
+  // Do backend: /answers/ids. Sem eles (offline) o sorteio cai no peso só por semana.
+  historico?: HistoricoSimulado;
   rng?: Rng;
 }
+
+export interface HistoricoSimulado {
+  ultima: Map<number, number>; // questaoId → ms da última resposta
+  erradas: Set<number>; // já erradas alguma vez
+  agora?: number;
+}
+
+// Simulado mede o que você SABE, não o que lembra: questão vista há menos de 14 dias
+// quase não entra (acerto nela é memória da letra — o simulado dava 92% com 24s por
+// questão). Inédita e vista há 14+ dias concorrem normalmente; a já errada e esquecida
+// há 14+ dias ganha peso, porque é o teste real de retenção.
+export const DIAS_FRESCOR_SIMULADO = 14;
+export const PESO_VISTA_RECENTE_SIMULADO = 0.01;
 
 // Sorteia as 70 questões com a proporção da prova e as entrega EM BLOCOS POR
 // DISCIPLINA, na ordem do caderno: Português, Inglês, RLM, Atualidades, Legislação e,
@@ -127,6 +142,7 @@ export interface SimuladoInput {
 export function montarSimulado(input: SimuladoInput): Questao[] {
   const rng = input.rng ?? Math.random;
   const semanaMap = new Map(input.semana.map((s) => [s.questaoId, s]));
+  const peso = (q: Questao) => pesoSimulado(q, semanaMap, input.historico);
   const jaEscolhidos = new Set<number>();
   const blocos: Questao[][] = [];
 
@@ -134,7 +150,7 @@ export function montarSimulado(input: SimuladoInput): Questao[] {
   for (const [materia, alvo] of Object.entries(PROPORCAO_SIMULADO.moduloI)) {
     const candidatas = input.todas.filter((q) => q.modulo === "I" && q.materia === materia);
     const bloco: Questao[] = [];
-    selecionarGrupo(candidatas, alvo, semanaMap, jaEscolhidos, bloco, rng);
+    selecionarGrupo(candidatas, alvo, peso, jaEscolhidos, bloco, rng);
     if (bloco.length) blocos.push(ordenarBloco(bloco, rng));
   }
 
@@ -145,7 +161,7 @@ export function montarSimulado(input: SimuladoInput): Questao[] {
   selecionarGrupo(
     candidatasII,
     PROPORCAO_SIMULADO.moduloIITotal,
-    semanaMap,
+    peso,
     jaEscolhidos,
     sorteadasII,
     rng
@@ -185,9 +201,22 @@ function ordenarBloco(bloco: Questao[], rng: Rng): Questao[] {
 // Peso de sorteio de uma questão no simulado. Multiplicativo e NUNCA zero: toda questão
 // do tema entra no bolo, o peso só muda a chance.
 // - procedência: oficial e adaptada pesam mais (é ensaio da prova real);
-// - erro na semana: multiplica por PESO_ERRADA.
-export function pesoSimulado(q: Questao, semanaMap: Map<number, SemanaItem>): number {
+// - com histórico: vista há < 14 dias quase some; errada e não vista há 14+ dias pesa
+//   PESO_ERRADA;
+// - sem histórico (offline): erro na semana multiplica por PESO_ERRADA, como antes.
+export function pesoSimulado(
+  q: Questao,
+  semanaMap: Map<number, SemanaItem>,
+  historico?: HistoricoSimulado
+): number {
   const origem = PESO_ORIGEM[q.origem ?? "autoral"] ?? 1;
+  if (historico) {
+    const ultima = historico.ultima.get(q.id);
+    if (ultima === undefined) return origem;
+    const dias = ((historico.agora ?? Date.now()) - ultima) / 864e5;
+    if (dias < DIAS_FRESCOR_SIMULADO) return origem * PESO_VISTA_RECENTE_SIMULADO;
+    return origem * (historico.erradas.has(q.id) ? PESO_ERRADA : 1);
+  }
   const erros = semanaMap.get(q.id)?.erros ?? 0;
   return origem * (erros > 0 ? PESO_ERRADA : 1);
 }
@@ -199,13 +228,13 @@ export function pesoSimulado(q: Questao, semanaMap: Map<number, SemanaItem>): nu
 function selecionarGrupo(
   candidatas: Questao[],
   alvo: number,
-  semanaMap: Map<number, SemanaItem>,
+  peso: (q: Questao) => number,
   jaEscolhidos: Set<number>,
   resultado: Questao[],
   rng: Rng
 ) {
   const pool = candidatas.filter((q) => !jaEscolhidos.has(q.id));
-  const ponderadas = pool.map((q) => ({ item: q, peso: pesoSimulado(q, semanaMap) }));
+  const ponderadas = pool.map((q) => ({ item: q, peso: peso(q) }));
   for (const q of sampleWeighted(ponderadas, alvo, rng)) {
     resultado.push(q);
     jaEscolhidos.add(q.id);

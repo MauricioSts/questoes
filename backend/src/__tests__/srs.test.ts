@@ -38,4 +38,27 @@ describe("srs: repetição espaçada", () => {
     const pend = revisoesPendentes(answers);
     expect(pend.map((p) => p.questaoId)).toEqual([1, 2]);
   });
+
+  it("acerto logo depois do erro não avança o intervalo (memória da letra)", () => {
+    // Errou há 2 dias e acertou 5 min depois: continua pendente como se só tivesse errado.
+    const t = Date.now() - 2 * 864e5;
+    const hist: AnswerRev[] = [
+      { ...mk(1, false, 0), createdAt: new Date(t) },
+      { ...mk(1, true, 0), createdAt: new Date(t + 5 * 60e3) },
+    ];
+    const [item] = calcularRevisoes(hist);
+    expect(item.streak).toBe(0);
+    expect(item.dueDate.getTime()).toBeLessThan(Date.now());
+  });
+
+  it("acerto no dia seguinte conta", () => {
+    const [item] = calcularRevisoes([mk(1, false, 3), mk(1, true, 2)]);
+    expect(item.streak).toBe(1);
+  });
+
+  it("dominada só com acerto após 7+ dias sem ver, e perde ao errar", () => {
+    expect(calcularRevisoes([mk(1, true, 10), mk(1, true, 9)])[0].dominada).toBe(false);
+    expect(calcularRevisoes([mk(1, false, 20), mk(1, true, 10)])[0].dominada).toBe(true);
+    expect(calcularRevisoes([mk(1, true, 20), mk(1, true, 10), mk(1, false, 1)])[0].dominada).toBe(false);
+  });
 });

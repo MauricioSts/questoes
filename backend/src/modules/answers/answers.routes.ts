@@ -72,22 +72,28 @@ answersRouter.post(
   })
 );
 
-// GET /answers/ids: conjuntos de IDs respondidos e (algum dia) errados pelo usuário.
+// GET /answers/ids: conjuntos de IDs respondidos e (algum dia) errados pelo usuário,
+// mais a data da última resposta de cada questão.
 // Usado nos filtros "só não respondidas" / "só erradas" (modo Estudo e Tópico).
 answersRouter.get(
   "/ids",
   asyncHandler(async (req, res) => {
     const rows = await prisma.answer.findMany({
       where: { userId: req.userId!, ...cf(req) },
-      select: { questaoId: true, acertou: true },
+      select: { questaoId: true, acertou: true, createdAt: true },
     });
     const respondidas = new Set<number>();
     const erradas = new Set<number>();
+    // Última resposta por questão (ms): o front usa para deixar em "descanso" o que foi
+    // visto há pouco (Estudar) e para o simulado preferir o que não é visto há 14+ dias.
+    const ultima: Record<number, number> = {};
     for (const r of rows) {
       respondidas.add(r.questaoId);
       if (!r.acertou) erradas.add(r.questaoId);
+      const t = r.createdAt.getTime();
+      if (!(ultima[r.questaoId] >= t)) ultima[r.questaoId] = t;
     }
-    res.json({ respondidas: [...respondidas], erradas: [...erradas] });
+    res.json({ respondidas: [...respondidas], erradas: [...erradas], ultima });
   })
 );
 
