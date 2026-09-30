@@ -374,7 +374,7 @@ describe("modos da jornada", () => {
 
 describe("regiões", () => {
   const pend = (n: number) => Array.from({ length: n }, (_, i) => cand(i + 1, i % 2 ? "Banco de Dados" : "Português"));
-  const montar = (modo: "ginasio" | "safari" | "liga", extra: { regiao?: number; habitat?: number; ginasio?: number } = {}, nivel = 10) =>
+  const montar = (modo: "ginasio" | "safari" | "liga" | "rota", extra: { regiao?: number; habitat?: number; ginasio?: number; terreno?: number } = {}, nivel = 10) =>
     montarPartidaPoke({ dex, time: [criarMon(dex, 4, nivel, "a")], mochila: { "poke-ball": 1 }, pendentes: pend(14), novas: pend(40).map((c) => ({ ...c, questaoId: c.questaoId + 100 })), concursoId: null, modo, semente: 5, ...extra })!;
   const jogarAteOFim = (p0: PartidaPoke) => {
     let p = p0;
@@ -454,14 +454,66 @@ describe("regiões", () => {
       return [...linha].some((x) => x >= a && x <= b);
     };
     for (const [h, r] of REGIOES.entries()) {
-      const p = montar("safari", { habitat: h });
+      const p = montar("safari", { habitat: h, regiao: 4 });
       expect(p.habitat).toBe(h);
       expect([p.atual!, ...p.fila].every((e) => naFaixa(e.especie, r.faixa))).toBe(true);
     }
   });
 
+  it("em Kanto só aparece a 1ª geração (inimigos e formas), em qualquer modo e nível", () => {
+    for (const nivel of [10, 45, 80])
+      for (const modo of ["rota", "safari", "liga"] as const)
+        for (let g = 0; g < (modo === "liga" ? 1 : 8); g++) {
+          const p = modo === "rota" || modo === "safari" ? montarPartidaPoke({ dex, time: [criarMon(dex, 4, nivel, "a")], mochila: {}, pendentes: pend(14), novas: [], concursoId: null, modo, semente: g * 7 + 1 })! : montar(modo, {}, nivel);
+          const ids = [p.atual!, ...p.fila].map((e) => e.especie);
+          expect(ids.filter((id) => id > 151)).toEqual([]);
+        }
+    for (let g = 0; g < 8; g++) {
+      const p = montar("ginasio", { ginasio: g }, 60);
+      expect([p.atual!, ...p.fila].every((e) => e.especie <= 151)).toBe(true);
+    }
+    // Safári de Johto ainda não abre em Kanto: cai para Kanto
+    expect(montar("safari", { habitat: 1 }).habitat).toBe(0);
+    // em Johto, 1ª e 2ª gerações
+    const j = montar("safari", { regiao: 1, habitat: 1 }, 60);
+    expect([j.atual!, ...j.fila].every((e) => e.especie <= 251)).toBe(true);
+  });
+
+  it("meu Pokémon não evolui para forma de geração futura (Golbat não vira Crobat em Kanto)", () => {
+    const asa = dex.golpes.findIndex((g) => g[0] === "Wing Attack");
+    const golbat = { ...criarMon(dex, 42, 40, "z"), xp: xpDoNivel(41) - 1, golpes: [asa] };
+    const base = montarPartidaPoke({ dex, time: [golbat], mochila: {}, pendentes: pend(8), novas: [], concursoId: null, modo: "rota", semente: 3 })!;
+    const r = certo({ ...base, atual: { ...base.atual!, hp: 1 } });
+    expect(r.eventos.some((e) => e.tipo === "evolui")).toBe(false);
+    const emJohto = montarPartidaPoke({ dex, time: [golbat], mochila: {}, pendentes: pend(8), novas: [], concursoId: null, modo: "rota", regiao: 1, semente: 3 })!;
+    const r2 = certo({ ...emJohto, atual: { ...emJohto.atual!, hp: 1 } });
+    expect(r2.eventos.some((e) => e.tipo === "evolui" && e.para === 169)).toBe(true);
+  });
+
+  it("terreno da Safári: Mato alto só tem Planta e Inseto, inclusive na troca", () => {
+    const mato = 0;
+    const deBase = (id: number) => {
+      let x = id;
+      while (dex.especies[x]?.p && dex.especies[x].p! <= 151) x = dex.especies[x].p!;
+      return dex.especies[x].t;
+    };
+    for (let g = 0; g < 6; g++) {
+      let p = montarPartidaPoke({ dex, time: [criarMon(dex, 4, 20, "a")], mochila: {}, pendentes: pend(14), novas: [], concursoId: null, modo: "safari", terreno: mato, semente: g + 1 })!;
+      expect(p.terreno).toBe(mato);
+      const ids = [p.atual!, ...p.fila].map((e) => e.especie);
+      for (let t = 0; t < MAX_TROCAS; t++) {
+        p = trocarSelvagem(dex, p);
+        ids.push(p.atual!.especie);
+      }
+      for (const id of ids) {
+        expect(id).toBeLessThanOrEqual(151);
+        expect(deBase(id).some((t) => t === 4 || t === 11)).toBe(true);
+      }
+    }
+  });
+
   it("trocar o selvagem: outro Pokémon, mesma questão, até 3 vezes e só antes de responder", () => {
-    let p = montar("safari", { habitat: 3 });
+    let p = montar("safari", { habitat: 3, regiao: 3 });
     const q = p.atual!.questaoId;
     for (let i = 0; i < MAX_TROCAS; i++) {
       expect(podeTrocarSelvagem(p)).toBe(true);
@@ -475,7 +527,7 @@ describe("regiões", () => {
     expect(podeTrocarSelvagem(p)).toBe(false);
     expect(trocarSelvagem(dex, p)).toBe(p);
     // depois de responder, não troca mais
-    const outro = montar("safari", { habitat: 3 });
+    const outro = montar("safari", { habitat: 3, regiao: 3 });
     const r = errado(outro);
     if (r.partida.atual && !r.partida.atual.fim) expect(podeTrocarSelvagem(r.partida)).toBe(false);
     // Pokémon de treinador não troca

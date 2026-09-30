@@ -203,26 +203,29 @@ export function xpMinimoPorVitoria(dex: Dex, id: number, nivelAtual: number): nu
   return Math.ceil((xpDoNivel(alvo) - xpDoNivel(inicio)) / KOS_POR_EVOLUCAO);
 }
 
-export function evolucaoPorNivel(e: Especie, nivel: number): number | null {
+// `ate`: maior número da Pokédex que já existe na região da jornada (evoluções de gerações
+// seguintes, como Golbat -> Crobat em Kanto, esperam a região chegar).
+export function evolucaoPorNivel(e: Especie, nivel: number, ate = Infinity): number | null {
   for (const [para, tipo, valor] of e.e ?? []) {
+    if (para > ate) continue;
     if (tipo === "l" && nivel >= Number(valor)) return para;
     if ((tipo === "t" || tipo === "f") && nivel >= NIVEL_TROCA_AMIZADE) return para;
   }
   return null;
 }
 
-export function evolucaoPorPedra(e: Especie, pedra: string): number | null {
-  return e.e?.find(([, tipo, valor]) => tipo === "i" && valor === pedra)?.[0] ?? null;
+export function evolucaoPorPedra(e: Especie, pedra: string, ate = Infinity): number | null {
+  return e.e?.find(([para, tipo, valor]) => tipo === "i" && valor === pedra && para <= ate)?.[0] ?? null;
 }
 
 // Forma que um Pokémon "de treinador" teria nesse nível (inimigos evoluem sozinhos; pedra
 // conta como nível 30).
-export function formaNoNivel(dex: Dex, id: number, nivel: number): number {
+export function formaNoNivel(dex: Dex, id: number, nivel: number, ate = Infinity): number {
   let atual = id;
   for (let passo = 0; passo < 3; passo++) {
     const e = dex.especies[atual];
-    const prox = (e?.e ?? []).find(([, tipo, valor]) =>
-      tipo === "l" ? nivel >= Number(valor) : nivel >= (tipo === "i" ? 30 : NIVEL_TROCA_AMIZADE)
+    const prox = (e?.e ?? []).find(([para, tipo, valor]) =>
+      para <= ate && (tipo === "l" ? nivel >= Number(valor) : nivel >= (tipo === "i" ? 30 : NIVEL_TROCA_AMIZADE))
     );
     if (!prox || !dex.especies[prox[0]]) break;
     atual = prox[0];

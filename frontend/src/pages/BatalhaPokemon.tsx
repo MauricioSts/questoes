@@ -41,7 +41,9 @@ import {
   MAX_TIME,
   MAX_TROCAS,
   REGIOES,
+  TERRENOS,
   campeaoDe,
+  limiteDaRegiao,
   podeLutar,
   podeTrocarSelvagem,
   proximaRegiao,
@@ -335,7 +337,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   }, [fase, hist]);
   const novas = useMemo(() => (hist ? novasPorFraqueza(hist) : []), [hist]);
 
-  function comecar(modo: ModoJornada, opts: { ginasio?: number; habitat?: number } = {}) {
+  function comecar(modo: ModoJornada, opts: { ginasio?: number; habitat?: number; terreno?: number } = {}) {
     if (!pendentes || !perfil) return;
     const time = perfil.time.map((uid) => perfil.colecao.find((m) => m.uid === uid)).filter((m): m is Mon => !!m && podeLutar(perfil, m));
     const p = montarPartidaPoke({ dex, time, mochila: perfil.mochila, pendentes, novas, concursoId: activeId ?? null, modo, regiao: regiaoAtual(perfil), ...opts });
@@ -1014,7 +1016,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
                   {partida.modo === "ginasio" && partida.ginasio !== undefined
                     ? `Ginásio de ${regiaoDe(partida.regiao).ginasios[partida.ginasio].cidade}`
                     : partida.modo === "safari" || partida.modo === "liga"
-                      ? `${NOME_MODO[partida.modo]} · ${regiaoDe(partida.habitat ?? partida.regiao).nome}`
+                      ? `${NOME_MODO[partida.modo]} · ${regiaoDe(partida.habitat ?? partida.regiao).nome}${partida.modo === "safari" && partida.terreno !== undefined ? ` · ${TERRENOS[partida.terreno]?.nome}` : ""}`
                       : NOME_MODO[partida.modo ?? "rota"]}
                 </Chip>
                 {partida.modo === "safari" ? (
@@ -1157,14 +1159,14 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
                 {painel === "mochila" && (
                   <Gaveta titulo={alvoItem ? `${nomeItem(alvoItem)}: em quem?` : "Mochila"} onFechar={() => (alvoItem ? setAlvoItem(null) : setPainel(null))}>
                     {alvoItem ? (
-                      listaTime((i) => void aplicarItem(alvoItem, i), (l) => !podeUsar(dex, l, alvoItem))
+                      listaTime((i) => void aplicarItem(alvoItem, i), (l) => !podeUsar(dex, l, alvoItem, limiteDaRegiao(partida.regiao)))
                     ) : itensUsaveis.length ? (
                       <div className="grid gap-1.5 sm:grid-cols-2">
                         {itensUsaveis.map(([i, q]) => (
                           <button
                             key={i}
                             onClick={() => setAlvoItem(i)}
-                            disabled={!partida.time.some((l) => podeUsar(dex, l, i))}
+                            disabled={!partida.time.some((l) => podeUsar(dex, l, i, limiteDaRegiao(partida.regiao)))}
                             className="flex items-center gap-2 rounded-xl border border-hair bg-surface p-2 text-left text-sm transition hover:border-brand-500 disabled:opacity-40"
                           >
                             <img src={spriteItem(i)} alt="" className="pk-mini h-8 w-8" />
@@ -1547,7 +1549,7 @@ function Lobby({
   novas: number;
   erro: boolean;
   onTentar: () => void;
-  onComecar: (modo: ModoJornada, opts?: { ginasio?: number; habitat?: number }) => void;
+  onComecar: (modo: ModoJornada, opts?: { ginasio?: number; habitat?: number; terreno?: number }) => void;
   emAndamento: PartidaPoke | null;
   onRetomar: () => void;
   onViajar: () => void;
@@ -1559,6 +1561,8 @@ function Lobby({
   const regiao = REGIOES[r];
   const destino = proximaRegiao(perfil);
   const [habitat, setHabitat] = useState(r);
+  const [terreno, setTerreno] = useState(-1);
+  const terrenoSel = TERRENOS[terreno];
   const revisoes = pendentes ? Math.min(pendentes.length, 12) : 0;
   const completa = pendentes ? Math.min(novas, Math.max(0, 11 - revisoes)) : 0;
   const mochila = Object.entries(perfil.mochila).filter(([, q]) => q > 0);
@@ -1603,7 +1607,7 @@ function Lobby({
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
               {time.map((m) => (
                 <div key={m.uid} className="flex flex-col gap-1">
-                  <MonCard dex={dex} m={m} marcado onClick={() => alternarTime(m.uid)} rodape={<Evolui dex={dex} m={m} />} />
+                  <MonCard dex={dex} m={m} marcado onClick={() => alternarTime(m.uid)} rodape={<Evolui dex={dex} m={m} ate={limiteDaRegiao(r)} />} />
                   {botaoGolpes(m)}
                 </div>
               ))}
@@ -1720,24 +1724,34 @@ function Lobby({
                   />
                   <div className="rounded-2xl border border-hair bg-surface2">
                     <Destino
-                      titulo={`Zona Safári · ${REGIOES[habitat].nome}`}
-                      texto={`Só Pokémon selvagens de ${REGIOES[habitat].nome} · ${BOLAS_SAFARI} Safari Balls grátis · troque o selvagem até ${MAX_TROCAS}× por questão`}
+                      titulo={`Zona Safári · ${REGIOES[habitat].nome}${terrenoSel ? ` · ${terrenoSel.nome}` : ""}`}
+                      texto={`${terrenoSel ? `Só ${terrenoSel.tipos.map((t) => NOME_TIPO[t]).join(" e ")}` : "Todos os tipos"} de ${REGIOES[habitat].nome} · ${BOLAS_SAFARI} Safari Balls grátis · troque o selvagem até ${MAX_TROCAS}× por questão`}
                       imagem={spriteItem("safari-ball")}
                       icone={<Trees size={16} />}
                       disabled={!!emAndamento}
-                      onClick={() => onComecar("safari", { habitat })}
+                      onClick={() => onComecar("safari", { habitat, terreno })}
                     />
-                    <div className="flex flex-wrap gap-1 px-2.5 pb-2.5" role="radiogroup" aria-label="Região da Zona Safári">
+                    <p className="px-2.5 text-[11px] font-bold uppercase tracking-wider text-faint">Região</p>
+                    <div className="flex flex-wrap gap-1 px-2.5 pb-2 pt-1" role="radiogroup" aria-label="Região da Zona Safári">
                       {REGIOES.map((x, i) => (
-                        <button
-                          key={x.nome}
-                          role="radio"
-                          aria-checked={habitat === i}
-                          onClick={() => setHabitat(i)}
-                          className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold transition ${habitat === i ? "border-brand-500 bg-brand-500 text-white" : "border-hair text-muted hover:border-brand-500"}`}
-                        >
+                        <Pilula key={x.nome} ativa={habitat === i} disabled={i > r} titulo={i > r ? "Chega lá viajando: vire Campeão da região atual" : undefined} onClick={() => setHabitat(i)}>
+                          {i > r && <Lock size={10} className="mr-0.5 inline" />}
                           {x.nome}
-                        </button>
+                        </Pilula>
+                      ))}
+                    </div>
+                    <p className="px-2.5 text-[11px] font-bold uppercase tracking-wider text-faint">Terreno</p>
+                    <div className="flex flex-wrap gap-1 px-2.5 pb-2.5 pt-1" role="radiogroup" aria-label="Terreno da Zona Safári">
+                      <Pilula ativa={terreno === -1} onClick={() => setTerreno(-1)}>
+                        Todos
+                      </Pilula>
+                      {TERRENOS.map((x, i) => (
+                        <Pilula key={x.nome} ativa={terreno === i} titulo={x.tipos.map((t) => NOME_TIPO[t]).join(", ")} onClick={() => setTerreno(i)}>
+                          {x.nome}
+                          {x.tipos.map((t) => (
+                            <span key={t} className="ml-1 inline-block h-2 w-2 rounded-full align-middle" style={{ background: COR_TIPO[t] }} />
+                          ))}
+                        </Pilula>
                       ))}
                     </div>
                   </div>
@@ -1833,6 +1847,21 @@ function Lobby({
   );
 }
 
+function Pilula({ children, ativa, disabled, titulo, onClick }: { children: ReactNode; ativa: boolean; disabled?: boolean; titulo?: string; onClick: () => void }) {
+  return (
+    <button
+      role="radio"
+      aria-checked={ativa}
+      disabled={disabled}
+      title={titulo}
+      onClick={onClick}
+      className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${ativa ? "border-brand-500 bg-brand-500 text-white" : "border-hair text-muted hover:border-brand-500"}`}
+    >
+      {children}
+    </button>
+  );
+}
+
 function Destino({
   titulo,
   texto,
@@ -1871,8 +1900,8 @@ function Destino({
   );
 }
 
-function Evolui({ dex, m }: { dex: Dex; m: Mon }) {
-  const evo = dex.especies[m.id].e?.[0];
+function Evolui({ dex, m, ate }: { dex: Dex; m: Mon; ate: number }) {
+  const evo = dex.especies[m.id].e?.find(([para]) => para <= ate);
   if (!evo) return null;
   const [, tipo, valor] = evo;
   const txt = tipo === "l" ? `evolui no Nv${valor}` : tipo === "i" ? `evolui com ${nomeItem(String(valor))}` : `evolui no Nv${NIVEL_TROCA_AMIZADE}`;

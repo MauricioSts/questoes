@@ -262,6 +262,8 @@ export const REGIOES: Regiao[] = [
 ];
 
 export const regiaoDe = (i: number | undefined) => REGIOES[i ?? 0] ?? REGIOES[0];
+// Maior número da Pokédex que existe na jornada até a região r (cumulativo: Johto = #1–251).
+export const limiteDaRegiao = (r: number | undefined) => regiaoDe(r).faixa[1];
 // Kanto (compatibilidade com partidas, perfis e testes de antes das regiões).
 export const GINASIOS = REGIOES[0].ginasios;
 export const ELITE = REGIOES[0].elite;
@@ -281,6 +283,7 @@ export interface PartidaPoke {
   modo?: ModoJornada; // ausente = rota (partidas salvas antes dos modos)
   regiao?: number; // região da jornada (ausente = Kanto): ginásios, Liga e capturas
   habitat?: number; // Zona Safári: de que região são os selvagens
+  terreno?: number; // Zona Safári: índice em TERRENOS (ausente = todos os tipos)
   ginasio?: number; // modo ginasio: índice nos ginásios da região
   aprender?: { uid: string; golpe: number }[]; // golpes novos esperando a escolha de qual esquecer
   concursoId: string | null;
@@ -403,46 +406,50 @@ function tiposDaMateria(materia: string): { tipos: number[] | null; treinadores:
   return achou ? { tipos: achou[1], treinadores: achou[2] } : { tipos: null, treinadores: TREINADORES_GERAIS };
 }
 
-// Espécies "de base" (sem pré-evolução, não lendárias), por tipo. Com `faixa`, só as linhas
-// com alguma forma nativa da região (Pichu é de Johto, mas a linha dele também aparece em
-// Kanto por causa de Pikachu). Região com menos de 3 do tipo cai para a Pokédex toda.
+// Espécies "de base" (não lendárias, sem pré-evolução que já exista até `ate`), por tipo.
+// `ate` = maior número da Pokédex da região da jornada: em Kanto só aparece até o #151 (e
+// Pikachu conta como base, porque Pichu é de Johto); em Johto, 1ª e 2ª gerações, e assim por
+// diante. Com `faixa`, prefere as linhas com alguma forma nativa da região (até `ate`); com
+// menos de 3 do tipo, vale tudo até `ate`; se nem assim houver, a Pokédex toda.
 // Memorizado por dex.
 const bases = new WeakMap<Dex, Map<string, number[]>>();
-function basesPorTipo(dex: Dex, tipo: number | "todas", faixa?: [number, number]): number[] {
+function basesPorTipo(dex: Dex, tipo: number | "todas", faixa?: [number, number], ate = Infinity): number[] {
   let mapa = bases.get(dex);
   if (!mapa) bases.set(dex, (mapa = new Map()));
-  const chave = `${tipo}:${faixa?.join("-") ?? ""}`;
+  const chave = `${tipo}:${faixa?.join("-") ?? ""}:${ate}`;
   let lista = mapa.get(chave);
   if (!lista) {
     const naFaixa = (id: number) => !faixa || (id >= faixa[0] && id <= faixa[1]);
-    const linhaNaFaixa = (id: number) => naFaixa(id) || (dex.especies[id]?.e ?? []).some(([para]) => naFaixa(para) || (dex.especies[para]?.e ?? []).some(([p2]) => naFaixa(p2)));
+    const linha = (id: number): number[] => [id, ...(dex.especies[id]?.e ?? []).filter(([para]) => para <= ate).flatMap(([para]) => linha(para))];
     lista = Object.entries(dex.especies)
-      .filter(([id, e]) => !e.p && !e.l && (tipo === "todas" || e.t.includes(tipo)) && linhaNaFaixa(Number(id)))
+      .filter(([id, e]) => Number(id) <= ate && !e.l && (!e.p || e.p > ate) && (tipo === "todas" || e.t.includes(tipo)) && linha(Number(id)).some(naFaixa))
       .map(([id]) => Number(id));
-    if (faixa && lista.length < 3) lista = basesPorTipo(dex, tipo);
+    if (faixa && lista.length < 3) lista = basesPorTipo(dex, tipo, undefined, ate);
+    if (!lista.length && ate !== Infinity) lista = basesPorTipo(dex, tipo);
     mapa.set(chave, lista);
   }
   return lista;
 }
+
 // A mesma questão é sempre o mesmo Pokémon (na forma do nível em que aparece): a questão
 // #123 "é um Gengar" e o aluno reconhece a velha conhecida.
-export function especieDaQuestao(dex: Dex, questaoId: number, materia: string, nivel: number): number {
+export function especieDaQuestao(dex: Dex, questaoId: number, materia: string, nivel: number, ate = Infinity): number {
   const { tipos } = tiposDaMateria(materia);
   const tipo = tipos ? tipos[Math.floor(hash(questaoId) * tipos.length)] : "todas";
-  const pool = basesPorTipo(dex, tipo);
+  const pool = basesPorTipo(dex, tipo, undefined, ate);
   const base = pool[Math.floor(hash(questaoId + 7919) * pool.length)] ?? 1;
-  return formaNoNivel(dex, base, nivel);
+  return formaNoNivel(dex, base, nivel, ate);
 }
 
 // O líder usa uma forma final forte; com o time já alto, pode ser um lendário.
-function especieDoLider(dex: Dex, questaoId: number, materia: string, nivel: number): number {
+function especieDoLider(dex: Dex, questaoId: number, materia: string, nivel: number, ate = Infinity): number {
   const { tipos } = tiposDaMateria(materia);
   const finais = Object.entries(dex.especies)
-    .filter(([, e]) => !e.e?.length && (nivel >= 45 || !e.l) && (!tipos || e.t.some((t) => tipos.includes(t))))
+    .filter(([id, e]) => Number(id) <= ate && !e.e?.some(([para]) => para <= ate) && (nivel >= 45 || !e.l) && (!tipos || e.t.some((t) => tipos.includes(t))))
     .map(([id, e]) => ({ id: Number(id), soma: e.s.reduce((a, b) => a + b, 0) }))
     .filter((x) => x.soma >= 450)
     .sort((a, b) => a.id - b.id);
-  if (!finais.length) return especieDaQuestao(dex, questaoId, materia, nivel);
+  if (!finais.length) return especieDaQuestao(dex, questaoId, materia, nivel, ate);
   return finais[Math.floor(hash(questaoId + 104729) * finais.length)].id;
 }
 
@@ -463,6 +470,7 @@ export function montarPartidaPoke(opts: {
   modo?: ModoJornada;
   regiao?: number;
   habitat?: number;
+  terreno?: number;
   ginasio?: number;
   semente?: number;
   agora?: Date;
@@ -470,7 +478,10 @@ export function montarPartidaPoke(opts: {
   const { dex } = opts;
   const modo = opts.modo ?? "rota";
   const regiao = REGIOES[opts.regiao ?? 0] ? (opts.regiao ?? 0) : 0;
-  const habitat = REGIOES[opts.habitat ?? -1] ? opts.habitat! : regiao;
+  // Safári só das regiões já alcançadas (Pokémon de geração futura esperam a viagem).
+  const habitat = REGIOES[opts.habitat ?? -1] && opts.habitat! <= regiao ? opts.habitat! : regiao;
+  const ate = limiteDaRegiao(regiao);
+  const terreno = TERRENOS[opts.terreno ?? -1] ? opts.terreno : undefined;
   if (!opts.time.length) return null;
   if (modo === "ginasio" && !REGIOES[regiao].ginasios[opts.ginasio ?? -1]) return null;
   let rng = opts.semente ?? Date.now() >>> 0;
@@ -483,7 +494,7 @@ export function montarPartidaPoke(opts: {
   const nivelEntre = (d0: number, d1: number) => Math.max(2, Math.min(MAX_NIVEL, base + d0 + Math.floor(rolar() * (d1 - d0 + 1))));
 
   // Quantos Pokémon inimigos o modo pede; a partida puxa ~2,2 questões por Pokémon.
-  const planos = modo === "rota" ? null : modo === "safari" ? planoSafari(dex, REGIOES[habitat].faixa, nivelEntre, rolar) : modo === "liga" ? planoLiga(dex, regiao, base) : planoGinasio(dex, regiao, opts.ginasio!, base, rolar);
+  const planos = modo === "rota" ? null : modo === "safari" ? planoSafari(dex, REGIOES[habitat].faixa, terreno, nivelEntre, rolar) : modo === "liga" ? planoLiga(dex, regiao, base) : planoGinasio(dex, regiao, opts.ginasio!, base, rolar);
   const nMons = planos ? planos.reduce((a, x) => a + x.mons.length, 0) : 0;
   const alvo = planos ? Math.max(4, Math.round(nMons * (modo === "safari" ? 3 : QUESTOES_POR_POKEMON)) + 1) : ALVO_QUESTOES;
   const revisoes = opts.pendentes.slice(0, Math.min(MAX_REVISOES, alvo));
@@ -557,25 +568,25 @@ export function montarPartidaPoke(opts: {
       treinadores.push({ nome: NOMES_TREINADOR[sprite] ?? "Treinador", sprite, lider: false });
       for (const c of grupo) {
         const nivel = nivelEntre(-1, 1);
-        fila.push(inimigo(c, "treinador", idx, especieDaQuestao(dex, c.questaoId, c.materia, nivel), nivel));
+        fila.push(inimigo(c, "treinador", idx, especieDaQuestao(dex, c.questaoId, c.materia, nivel, ate), nivel));
       }
       // um selvagem entre treinadores, quando houver
       const s = selvagens.shift();
       if (s) {
         const nivel = nivelEntre(-2, 0);
-        fila.push(inimigo(s, "selvagem", -1, especieDaQuestao(dex, s.questaoId, s.materia, nivel), nivel));
+        fila.push(inimigo(s, "selvagem", -1, especieDaQuestao(dex, s.questaoId, s.materia, nivel, ate), nivel));
       }
     }
     for (const s of selvagens) {
       const nivel = nivelEntre(-2, 0);
-      fila.push(inimigo(s, "selvagem", -1, especieDaQuestao(dex, s.questaoId, s.materia, nivel), nivel));
+      fila.push(inimigo(s, "selvagem", -1, especieDaQuestao(dex, s.questaoId, s.materia, nivel, ate), nivel));
     }
     if (chefe) {
       const idx = treinadores.length;
       const [sprite, nome] = CHEFES_ROTA[Math.floor(rolar() * CHEFES_ROTA.length)];
       treinadores.push({ nome, sprite, lider: true });
       const nivel = Math.min(MAX_NIVEL, base + 3);
-      fila.push(inimigo(chefe, "lider", idx, especieDoLider(dex, chefe.questaoId, chefe.materia, nivel), nivel));
+      fila.push(inimigo(chefe, "lider", idx, especieDoLider(dex, chefe.questaoId, chefe.materia, nivel, ate), nivel));
     }
   }
 
@@ -586,7 +597,7 @@ export function montarPartidaPoke(opts: {
     versao: 3,
     modo,
     regiao,
-    ...(modo === "safari" ? { habitat } : {}),
+    ...(modo === "safari" ? { habitat, ...(terreno !== undefined ? { terreno } : {}) } : {}),
     ...(modo === "ginasio" ? { ginasio: opts.ginasio } : {}),
     aprender: [],
     concursoId: opts.concursoId,
@@ -624,20 +635,22 @@ interface Plano {
 // Pokémon de um tipo, sempre o mesmo para a mesma semente (o time do Brock não muda a cada
 // tentativa), na forma do nível.
 function especieDoTipo(dex: Dex, tipo: number, nivel: number, semente: number, faixa?: [number, number]): number {
-  const pool = basesPorTipo(dex, tipo, faixa);
+  const ate = faixa?.[1] ?? Infinity;
+  const pool = basesPorTipo(dex, tipo, faixa, ate);
   const base = pool[Math.floor(hash(semente) * pool.length)] ?? 1;
-  return formaNoNivel(dex, base, nivel);
+  return formaNoNivel(dex, base, nivel, ate);
 }
 
 // O "ás" do chefe: uma das linhas evolutivas mais fortes do tipo, na forma do nível (Onix no
 // Brock do começo, Golem/Steelix se o time já estiver alto).
 function aceDoTipo(dex: Dex, tipo: number, nivel: number, semente: number, faixa?: [number, number]): number {
-  const fortes = basesPorTipo(dex, tipo, faixa)
-    .map((id) => ({ id, soma: dex.especies[formaNoNivel(dex, id, 100)].s.reduce((a, b) => a + b, 0) }))
+  const ate = faixa?.[1] ?? Infinity;
+  const fortes = basesPorTipo(dex, tipo, faixa, ate)
+    .map((id) => ({ id, soma: dex.especies[formaNoNivel(dex, id, 100, ate)].s.reduce((a, b) => a + b, 0) }))
     .sort((a, b) => b.soma - a.soma || a.id - b.id)
     .slice(0, 6);
   if (!fortes.length) return especieDoTipo(dex, tipo, nivel, semente, faixa);
-  return formaNoNivel(dex, fortes[Math.floor(hash(semente) * fortes.length)].id, nivel);
+  return formaNoNivel(dex, fortes[Math.floor(hash(semente) * fortes.length)].id, nivel, ate);
 }
 
 function planoGinasio(dex: Dex, r: number, i: number, base: number, rolar: () => number): Plano[] {
@@ -685,18 +698,35 @@ function planoLiga(dex: Dex, r: number, base: number): Plano[] {
 
 // Zona Safári: 6 selvagens da região escolhida (os comuns aparecem mais), um pouco abaixo do time.
 const SELVAGENS_SAFARI = 6;
-function planoSafari(dex: Dex, faixa: [number, number], nivelEntre: (a: number, b: number) => number, rolar: () => number): Plano[] {
+function planoSafari(dex: Dex, faixa: [number, number], terreno: number | undefined, nivelEntre: (a: number, b: number) => number, rolar: () => number): Plano[] {
   const mons: Plano["mons"] = [];
   for (let i = 0; i < SELVAGENS_SAFARI; i++) {
     const nivel = nivelEntre(-3, 0);
-    mons.push({ especie: selvagemDaRegiao(dex, faixa, nivel, rolar()), nivel, tipo: "selvagem" });
+    mons.push({ especie: selvagemDaRegiao(dex, faixa, nivel, rolar(), undefined, terreno), nivel, tipo: "selvagem" });
   }
   return [{ t: { nome: "", sprite: "", lider: false }, mons }];
 }
 
-// Sorteio de selvagem da região, ponderado pela taxa de captura (comum aparece mais).
-function selvagemDaRegiao(dex: Dex, faixa: [number, number], nivel: number, r01: number, evitar?: number): number {
-  const todas = basesPorTipo(dex, "todas", faixa).filter((id) => evitar === undefined || formaNoNivel(dex, id, nivel) !== evitar);
+// Terrenos da Zona Safári: cada um só tem Pokémon (de base) desses tipos.
+export const TERRENOS: { nome: string; tipos: number[] }[] = [
+  { nome: "Mato alto", tipos: [4, 11] },
+  { nome: "Água", tipos: [2] },
+  { nome: "Caverna", tipos: [12, 8] },
+  { nome: "Vulcão", tipos: [1] },
+  { nome: "Usina", tipos: [3, 16] },
+  { nome: "Pântano", tipos: [7] },
+  { nome: "Torre", tipos: [13, 10] },
+  { nome: "Montanha gelada", tipos: [5, 6] },
+  { nome: "Céu", tipos: [9, 14] },
+  { nome: "Cidade", tipos: [0, 17, 15] },
+];
+
+// Sorteio de selvagem da região (e do terreno), ponderado pela taxa de captura (comum aparece mais).
+function selvagemDaRegiao(dex: Dex, faixa: [number, number], nivel: number, r01: number, evitar?: number, terreno?: number): number {
+  const tipos = TERRENOS[terreno ?? -1]?.tipos;
+  const pool = tipos ? [...new Set(tipos.flatMap((t) => basesPorTipo(dex, t, faixa, faixa[1])))] : basesPorTipo(dex, "todas", faixa, faixa[1]);
+  const semRepetir = pool.filter((id) => evitar === undefined || formaNoNivel(dex, id, nivel, faixa[1]) !== evitar);
+  const todas = semRepetir.length ? semRepetir : pool;
   const pesoTotal = todas.reduce((a, id) => a + 30 + dex.especies[id].c, 0);
   let r = r01 * pesoTotal;
   let id = todas[0] ?? 1;
@@ -704,7 +734,7 @@ function selvagemDaRegiao(dex: Dex, faixa: [number, number], nivel: number, r01:
     id = x;
     break;
   }
-  return formaNoNivel(dex, id, nivel);
+  return formaNoNivel(dex, id, nivel, faixa[1]);
 }
 
 // ---------- trocar o selvagem ----------
@@ -719,7 +749,7 @@ export function trocarSelvagem(dex: Dex, p: PartidaPoke): PartidaPoke {
   if (!podeTrocarSelvagem(p)) return p;
   const e = p.atual!;
   const [r, rng] = sortear(p.rng);
-  const especie = selvagemDaRegiao(dex, regiaoDe(p.habitat ?? p.regiao).faixa, e.nivel, r, e.especie);
+  const especie = selvagemDaRegiao(dex, regiaoDe(p.habitat ?? p.regiao).faixa, e.nivel, r, e.especie, p.modo === "safari" ? p.terreno : undefined);
   const chaves = p.chaves + 1;
   return {
     ...p,
@@ -732,20 +762,20 @@ export function trocarSelvagem(dex: Dex, p: PartidaPoke): PartidaPoke {
 // ---------- XP, nível, golpes, evolução ----------
 
 // Dá XP a um lutador e devolve os eventos de nível/golpe/evolução. Muta `l`.
-function ganharXp(dex: Dex, l: Lutador, valor: number, eventos: Evento[]) {
+function ganharXp(dex: Dex, l: Lutador, valor: number, eventos: Evento[], ate: number) {
   const antes = nivelDe(l);
   const hpAntes = hpMax(dex, l);
   l.xp = Math.min(xpDoNivel(MAX_NIVEL), l.xp + valor);
   eventos.push({ tipo: "xp", uid: l.uid, valor });
-  subiuPara(dex, l, antes, hpAntes, eventos);
+  subiuPara(dex, l, antes, hpAntes, eventos, ate);
 }
 
-function subiuPara(dex: Dex, l: Lutador, antes: number, hpAntes: number, eventos: Evento[]) {
+function subiuPara(dex: Dex, l: Lutador, antes: number, hpAntes: number, eventos: Evento[], ate: number) {
   const depois = nivelDe(l);
   if (depois <= antes) return;
   eventos.push({ tipo: "nivel", uid: l.uid, nivel: depois });
   for (const g of golpesNovos(dex.especies[l.id], antes, depois)) aprender(dex, l, g, eventos);
-  const para = evolucaoPorNivel(dex.especies[l.id], depois);
+  const para = evolucaoPorNivel(dex.especies[l.id], depois, ate);
   if (para && dex.especies[para]) evoluir(dex, l, para, eventos);
   // Subir de nível aumenta o HP máximo; o HP atual sobe junto (como nos jogos).
   if (l.hp > 0) l.hp = Math.min(hpMax(dex, l), l.hp + (hpMax(dex, l) - hpAntes));
@@ -939,7 +969,7 @@ export function responderPoke(dex: Dex, p: PartidaPoke, o: OpcoesResposta): { pa
     const piso = xpMinimoPorVitoria(dex, eu.id, nivelDe(eu)) * Math.max(1, multXp);
     const xp = Math.round(Math.max(xpDaVitoria(inimigo, e.nivel, nivelDe(eu), !selvagem) * multXp, piso));
     q.xp += xp;
-    ganharXp(dex, eu, xp, eventos);
+    ganharXp(dex, eu, xp, eventos, limiteDaRegiao(q.regiao));
   };
   const derrubar = () => {
     e.hp = 0;
@@ -1226,7 +1256,7 @@ export function sortearOferta(p: PartidaPoke, dex?: Dex): PartidaPoke {
     return r;
   };
   // Pedra útil para o time, se houver; senão qualquer uma.
-  const uteis = dex ? PEDRAS.filter((s) => p.time.some((l) => evolucaoPorPedra(dex.especies[l.id], s))) : [];
+  const uteis = dex ? PEDRAS.filter((s) => p.time.some((l) => evolucaoPorPedra(dex.especies[l.id], s, limiteDaRegiao(p.regiao)))) : [];
   const escolhidas: string[] = [];
   // Com alguém desmaiado ou HP baixo, sempre há algo que ajude.
   const ferido = p.time.some((l) => l.hp <= 0);
@@ -1256,18 +1286,18 @@ export function escolherOferta(p: PartidaPoke, item: string, dex?: Dex): Partida
 export const CURA_ITEM: Record<string, number> = { potion: 20, "super-potion": 60, "hyper-potion": 200 };
 
 // Usar item (fora a bola, que é ação de turno). Não gasta turno: o inimigo só age no erro.
-export function podeUsar(dex: Dex, l: Lutador, item: string): boolean {
+export function podeUsar(dex: Dex, l: Lutador, item: string, ate = Infinity): boolean {
   if (item in CURA_ITEM) return l.hp > 0 && l.hp < hpMax(dex, l);
   if (item === "revive") return l.hp <= 0;
   if (item === "full-heal") return l.hp > 0 && l.status !== "";
   if (item === "rare-candy") return nivelDe(l) < MAX_NIVEL;
-  if (PEDRAS.includes(item)) return evolucaoPorPedra(dex.especies[l.id], item) !== null;
+  if (PEDRAS.includes(item)) return evolucaoPorPedra(dex.especies[l.id], item, ate) !== null;
   return false;
 }
 
 export function usarItem(dex: Dex, p: PartidaPoke, item: string, alvo: number): { partida: PartidaPoke; eventos: Evento[] } {
   const l0 = p.time[alvo];
-  if (!l0 || p.fim || (p.mochila[item] ?? 0) <= 0 || !podeUsar(dex, l0, item)) return { partida: p, eventos: [] };
+  if (!l0 || p.fim || (p.mochila[item] ?? 0) <= 0 || !podeUsar(dex, l0, item, limiteDaRegiao(p.regiao))) return { partida: p, eventos: [] };
   const q: PartidaPoke = { ...p, time: p.time.map((l) => ({ ...l, golpes: [...l.golpes] })), mochila: { ...p.mochila, [item]: p.mochila[item] - 1 } };
   const l = q.time[alvo];
   const eventos: Evento[] = [];
@@ -1283,9 +1313,9 @@ export function usarItem(dex: Dex, p: PartidaPoke, item: string, alvo: number): 
     const antes = nivelDe(l);
     const hpAntes = hpMax(dex, l);
     l.xp = Math.max(l.xp, xpDoNivel(antes + 1));
-    subiuPara(dex, l, antes, hpAntes, eventos);
+    subiuPara(dex, l, antes, hpAntes, eventos, limiteDaRegiao(p.regiao));
   } else {
-    const para = evolucaoPorPedra(dex.especies[l.id], item);
+    const para = evolucaoPorPedra(dex.especies[l.id], item, limiteDaRegiao(p.regiao));
     if (para) evoluir(dex, l, para, eventos);
   }
   q.aprender = comPendentes(p.aprender, eventos);
