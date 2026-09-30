@@ -220,6 +220,12 @@ function GolpeFx({ fx }: { fx: FxVis }) {
   );
 }
 
+export interface ItemVis {
+  n: number;
+  item: string;
+  grande?: boolean;
+}
+
 export function Arena({
   inimigo,
   meu,
@@ -234,6 +240,7 @@ export function Arena({
   topo,
   aguardando,
   fundo,
+  item,
 }: {
   inimigo: LadoVis | null;
   meu: LadoVis | null;
@@ -248,6 +255,7 @@ export function Arena({
   fundo?: string; // imagem do cenário; sem ela, céu e chão desenhados
   topo?: ReactNode;
   aguardando?: boolean;
+  item?: ItemVis | null; // item segurado agindo (pequeno, sobre o meu Pokémon) ou prêmio (grande, no centro)
 }) {
   const [fundoOk, setFundoOk] = useState<string | null>(null);
   const comFundo = !!fundo && fundoOk === fundo;
@@ -297,6 +305,20 @@ export function Arena({
       )}
 
       {fx && <GolpeFx key={fx.n} fx={fx} />}
+
+      {item && (
+        <div key={item.n} className={`pk-itempop ${item.grande ? "pk-itempop--grande" : ""}`} aria-hidden>
+          <span className="pk-itempop__raios" />
+          <img src={spriteItem(item.item)} alt="" draggable={false} />
+          {item.grande && (
+            <span className="pk-itempop__faiscas">
+              {Array.from({ length: 8 }, (_, i) => (
+                <i key={i} style={{ "--ang": `${i * 45}deg` } as CSSProperties} />
+              ))}
+            </span>
+          )}
+        </div>
+      )}
 
       {textos.map((t) => (
         <span key={t.n} className={`pk-texto pk-texto--${t.lado}`} style={{ color: t.cor }}>

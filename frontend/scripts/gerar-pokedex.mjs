@@ -10,7 +10,8 @@
 //   golpes: [nome, tipo, poder, classe(0 físico, 1 especial, 2 status), dreno%, cura%,
 //            condição, chance%, crítico]
 //   especies[id]: { n, t:[tipos], s:[hp,atk,def,spa,spd,spe], a: habilidade, c: taxa de
-//            captura, l: lendário, g:[[golpe, nível]], e:[[paraId, tipo, valor]], p: pré }
+//            captura, l: lendário, g:[[golpe, nível]], e:[[paraId, tipo, valor]], p: pré,
+//            x: XP base (base_experience), r: curva de crescimento (índice em CURVAS) }
 //   evolução: tipo "l" = nível (valor), "i" = item (nome), "t" = troca, "f" = amizade/outro
 import { writeFile, mkdir } from "node:fs/promises";
 
@@ -18,6 +19,9 @@ const API = "https://pokeapi.co/api/v2";
 const MAX_ID = 649;
 const VERSAO = "black-white";
 const TIPOS = ["normal", "fire", "water", "electric", "grass", "ice", "fighting", "poison", "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "dark", "steel", "fairy"];
+
+// Ordem dos índices de `r` (curvas de XP dos jogos; o app usa em dex.ts).
+export const CURVAS = ["medium", "fast", "medium-slow", "slow", "slow-then-very-fast", "fast-then-very-slow"];
 
 const cache = new Map();
 async function get(url) {
@@ -144,6 +148,8 @@ for (const { id, p, s } of pokes) {
     g: aprende.get(id).filter(([n]) => idxGolpe.has(n)).map(([n, lv]) => [idxGolpe.get(n), lv]),
     ...(evolucoes.has(id) ? { e: evolucoes.get(id) } : {}),
     ...(pre.has(id) ? { p: pre.get(id) } : {}),
+    x: p.base_experience ?? Math.round(p.stats.reduce((a, x) => a + x.base_stat, 0) / 5),
+    r: Math.max(0, CURVAS.indexOf(s.growth_rate?.name)),
   };
 }
 

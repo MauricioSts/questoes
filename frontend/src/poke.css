@@ -231,6 +231,71 @@
 .pk-evo__brilho { position: absolute; inset: -40px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.6), transparent 65%); animation: pk-evo-brilho 3.2s ease both; }
 @keyframes pk-evo-brilho { 0%, 80% { opacity: 0; transform: scale(.5); } 90% { opacity: 1; transform: scale(1.3); } 100% { opacity: 0; transform: scale(1.6); } }
 
+/* ---------- itens ---------- */
+
+/* item segurado agindo (sobre o meu Pokémon) e prêmio de líder (grande, no centro) */
+.pk-itempop { position: absolute; z-index: 6; left: 24%; top: 40%; width: 11cqw; max-width: 64px; aspect-ratio: 1; translate: -50% -50%; pointer-events: none; animation: pk-itempop 1.3s cubic-bezier(.2,1.4,.4,1) both; }
+.pk-itempop img { position: relative; width: 100%; height: 100%; image-rendering: pixelated; object-fit: contain; filter: drop-shadow(0 2px 0 #1d1d24) drop-shadow(0 0 8px rgba(255,255,255,.7)); }
+.pk-itempop__raios { position: absolute; inset: -60%; border-radius: 50%; background: repeating-conic-gradient(from 0deg, rgba(255,236,150,.55) 0 12deg, transparent 12deg 30deg); mask: radial-gradient(circle, #000 25%, transparent 70%); animation: pk-gira 2.4s linear infinite; }
+.pk-itempop--grande { left: 50%; top: 42%; width: 22cqw; max-width: 140px; animation: pk-premio-pop 2.6s cubic-bezier(.2,1.4,.4,1) both; }
+.pk-itempop__faiscas i { position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; border-radius: 50%; background: #FFE066; box-shadow: 0 0 8px #FFE066; animation: pk-faisca .9s .15s ease-out both; }
+@keyframes pk-itempop { 0% { opacity: 0; scale: .2; translate: -50% -20%; } 25% { opacity: 1; scale: 1.15; translate: -50% -60%; } 45% { scale: 1; } 80% { opacity: 1; translate: -50% -70%; } 100% { opacity: 0; scale: .8; translate: -50% -90%; } }
+@keyframes pk-premio-pop { 0% { opacity: 0; scale: 0; rotate: -30deg; } 18% { opacity: 1; scale: 1.25; rotate: 8deg; } 30% { scale: 1; rotate: 0deg; } 85% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: .6; translate: -50% -80%; } }
+@keyframes pk-gira { to { rotate: 360deg; } }
+@keyframes pk-faisca { from { opacity: 1; transform: translate(-50%, -50%) rotate(var(--ang)) translateY(0) scale(1); } to { opacity: 0; transform: translate(-50%, -50%) rotate(var(--ang)) translateY(-70px) scale(.3); } }
+
+/* recompensa: bolas caem, tremem e abrem; a carta do item aparece com o brilho da raridade */
+.pk-rc { --cor: 142 197 255; position: relative; display: block; width: 100%; min-height: 76px; border-radius: 18px; border: 2px solid rgb(var(--hair)); background: rgb(var(--surface-2)); text-align: left; overflow: hidden; transition: transform .2s, box-shadow .2s, border-color .2s; animation: pk-rc-cai .55s calc(var(--i) * 110ms) cubic-bezier(.3,1.5,.5,1) both; }
+.pk-rc--incomum { --cor: 91 214 160; }
+.pk-rc--raro { --cor: 255 200 87; }
+.pk-rc__bola { position: absolute; inset: 0; display: grid; place-items: center; }
+.pk-rc__bola img { width: 46px; height: 46px; image-rendering: pixelated; animation: pk-rc-treme .5s calc(var(--i) * 110ms + .5s) ease-in-out 2; }
+.pk-rc__conteudo { display: flex; align-items: center; gap: 12px; padding: 12px 14px; opacity: 0; }
+.pk-rc__icone { position: relative; display: grid; place-items: center; width: 52px; height: 52px; flex-shrink: 0; }
+.pk-rc__icone img { position: relative; width: 44px; height: 44px; image-rendering: pixelated; object-fit: contain; }
+.pk-rc__brilho { position: absolute; inset: -6px; border-radius: 50%; background: radial-gradient(circle, rgb(var(--cor) / .55), transparent 70%); }
+.pk-rc--raro .pk-rc__brilho { background: repeating-conic-gradient(rgb(var(--cor) / .6) 0 14deg, transparent 14deg 32deg); mask: radial-gradient(circle, #000 30%, transparent 72%); animation: pk-gira 3s linear infinite; }
+.pk-rc__selo { border-radius: 999px; padding: 1px 7px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; background: rgb(var(--cor) / .18); color: rgb(var(--cor)); border: 1px solid rgb(var(--cor) / .5); }
+.pk-rc--aberta { border-color: rgb(var(--cor) / .7); box-shadow: 0 0 0 1px rgb(var(--cor) / .25), 0 6px 22px -8px rgb(var(--cor) / .7); cursor: pointer; }
+.pk-rc--aberta .pk-rc__bola { animation: pk-rc-abre .45s ease-out both; }
+.pk-rc--aberta .pk-rc__conteudo { animation: pk-rc-revela .5s .12s cubic-bezier(.2,1.3,.4,1) both; }
+.pk-rc--aberta:not(:disabled):hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 0 0 1px rgb(var(--cor) / .5), 0 10px 26px -8px rgb(var(--cor) / .9); }
+.pk-rc--aberta:not(:disabled):hover .pk-rc__icone img { animation: pk-balanca .5s ease-in-out; }
+.pk-rc--aberta::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.35) 50%, transparent 65%); translate: -100% 0; animation: pk-rc-reflexo 1s .2s ease-out both; pointer-events: none; }
+.pk-rc--escolhido { z-index: 2; animation: pk-rc-escolhe .9s cubic-bezier(.3,1.2,.5,1) both !important; }
+.pk-rc--some { animation: pk-rc-some .4s ease-in both !important; }
+@keyframes pk-rc-cai { from { opacity: 0; transform: translateY(-40px) scale(.9); } to { opacity: 1; transform: none; } }
+@keyframes pk-rc-treme { 0%, 100% { rotate: 0deg; } 25% { rotate: -14deg; } 75% { rotate: 14deg; } }
+@keyframes pk-rc-abre { 0% { opacity: 1; scale: 1; filter: brightness(1); } 40% { scale: 1.3; filter: brightness(3); } 100% { opacity: 0; scale: 1.8; filter: brightness(4); } }
+@keyframes pk-rc-revela { from { opacity: 0; transform: scale(.7) rotateX(70deg); } to { opacity: 1; transform: none; } }
+@keyframes pk-rc-reflexo { to { translate: 100% 0; } }
+@keyframes pk-rc-escolhe { 0% { transform: none; } 30% { transform: scale(1.06); box-shadow: 0 0 0 3px rgb(var(--cor)), 0 0 40px rgb(var(--cor) / .9); } 100% { transform: translateY(-60px) scale(.4); opacity: 0; } }
+@keyframes pk-rc-some { to { opacity: 0; transform: scale(.9) translateY(10px); filter: grayscale(1); } }
+@keyframes pk-balanca { 0%, 100% { rotate: 0deg; } 30% { rotate: -12deg; scale: 1.15; } 60% { rotate: 10deg; } }
+
+/* lobby: item segurado no card, seletor com cascata e o item voando até o Pokémon */
+.pk-segura { filter: drop-shadow(0 1px 0 rgba(0,0,0,.4)); animation: pk-segura-entra .5s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes pk-segura-entra { from { opacity: 0; scale: 0; rotate: -40deg; } to { opacity: 1; scale: 1; rotate: 0deg; } }
+.pk-modal { animation: pk-fade .2s ease-out both; }
+.pk-modal__caixa { animation: pk-sobe .35s cubic-bezier(.2,1.3,.4,1) both; }
+@keyframes pk-fade { from { opacity: 0; } }
+@keyframes pk-sobe { from { opacity: 0; transform: translateY(24px) scale(.96); } }
+.pk-escolha { animation: pk-escolha-entra .4s calc(var(--i) * 40ms) cubic-bezier(.2,1.4,.4,1) both; }
+.pk-escolha:not(:disabled):hover { transform: translateY(-2px); }
+.pk-escolha:not(:disabled):hover img { animation: pk-balanca .5s ease-in-out; }
+.pk-escolha--indo { border-color: rgb(var(--brand-500)); }
+.pk-escolha--indo img { visibility: hidden; }
+@keyframes pk-escolha-entra { from { opacity: 0; transform: translateY(12px) scale(.9); } }
+.pk-voa { position: fixed; z-index: 90; width: 40px; height: 40px; margin: -20px 0 0 -20px; pointer-events: none; filter: drop-shadow(0 0 10px rgba(255,236,150,.9)); animation: pk-voa .62s cubic-bezier(.5,0,.6,1) both; }
+@keyframes pk-voa { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(calc(var(--dx) * .5), calc(var(--dy) * .5 - 70px)) scale(1.4) rotate(180deg); } 100% { transform: translate(var(--dx), var(--dy)) scale(.5) rotate(360deg); opacity: .6; } }
+.pk-slot { position: absolute; right: -8px; bottom: -6px; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; border: 2px dashed rgb(var(--hair)); background: rgb(var(--surface-2)); }
+.pk-slot--cheio { border-style: solid; border-color: rgb(var(--brand-500)); }
+.pk-slot__item { width: 24px; height: 24px; animation: pk-segura-entra .5s cubic-bezier(.2,1.6,.4,1) both; }
+.pk-slot__faiscas i { position: absolute; right: 7px; bottom: 7px; width: 6px; height: 6px; border-radius: 50%; background: #FFE066; box-shadow: 0 0 6px #FFE066; animation: pk-faisca .7s ease-out both; }
+.pk-feliz { animation: pk-feliz .6s ease-out; }
+@keyframes pk-feliz { 0%, 100% { transform: none; } 30% { transform: translateY(-14px) scale(1.08); } 55% { transform: translateY(0) scale(.96, 1.04); } 75% { transform: translateY(-5px); } }
+.pk-premio { animation: pk-segura-entra .6s .3s cubic-bezier(.2,1.6,.4,1) both; }
+
 @media (prefers-reduced-motion: reduce) {
-  .pk-arena *, .pk-evo * { animation-duration: .01ms !important; animation-delay: 0s !important; }
+  .pk-arena *, .pk-evo *, .pk-rc, .pk-rc *, .pk-modal, .pk-modal *, .pk-voa, .pk-segura, .pk-premio { animation-duration: .01ms !important; animation-delay: 0s !important; }
 }

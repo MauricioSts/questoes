@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import dexJson from "../data/pokedex.json";
 import type { Candidata } from "../lib/batalha";
 import { resumir } from "../lib/batalha";
-import { atributos, efetividade, evolucaoPorNivel, formaNoNivel, golpesNoNivel, nivelDoXpPoke, xpDoNivel, xpMinimoPorVitoria, type Dex } from "../lib/poke/dex";
+import { atributos, efetividade, evolucaoPorNivel, formaNoNivel, golpesNoNivel, nivelDoXpPoke, somarXp, xpDaCurva, xpDoNivel, type Dex } from "../lib/poke/dex";
 import {
   GINASIOS,
   MAX_TROCAS,
@@ -28,7 +28,10 @@ import {
   levelCap,
   lutador,
   montarPartidaPoke,
-  XP_SELVAGEM,
+  darItem,
+  multItemAtaque,
+  premiosDoGinasio,
+  sortearOferta,
   perfilInicial,
   precisaTrocar,
   registrarLicaoPoke,
@@ -273,34 +276,132 @@ describe("turno", () => {
   });
 });
 
-describe("ritmo de evolução", () => {
-  it("inicial evolui em ~5 lutas de treinador (2–3 Pokémon cada) só acertando", () => {
-    let mon = criarMon(dex, 1, 5, "b"); // Bulbasaur, evolui no 16
-    let derrubados = 0;
-    for (let jornada = 0; jornada < 8 && mon.id === 1; jornada++) {
-      const pendentes = Array.from({ length: 18 }, (_, i) => cand(jornada * 100 + i + 1, i % 2 ? "Banco de Dados" : "Português"));
-      let p = montarPartidaPoke({ dex, time: [mon], mochila: {}, pendentes, novas: [], concursoId: null, semente: 7 + jornada })!;
-      for (let g = 0; g < 60 && !p.fim && p.time[0].id === 1; g++) {
-        p = seguir(p);
-        if (!p.atual || p.fim) break;
-        const r = certo(p);
-        if (r.eventos.some((e) => e.tipo === "desmaiouInimigo")) derrubados++;
-        p = r.partida;
-      }
-      mon = { ...mon, id: p.time[0].id, xp: p.time[0].xp };
-    }
-    expect(mon.id).toBe(2);
-    expect(derrubados).toBeGreaterThanOrEqual(10);
-    expect(derrubados).toBeLessThanOrEqual(15);
+describe("XP como nos jogos", () => {
+  it("fórmula da 5ª geração com o XP base real (Bulbasaur Nv5 derruba Pidgey Nv3 selvagem: 23)", () => {
+    let p = partida(8, [], 5);
+    p = { ...p, time: [lutador(dex, criarMon(dex, 1, 5, "a"))], atual: { ...p.atual!, tipo: "selvagem", treinador: -1, especie: 16, nivel: 3, hp: 1 } };
+    const r = certo(p);
+    expect((r.eventos.find((e) => e.tipo === "xp") as { valor: number }).valor).toBe(23);
   });
 
-  it("sem evolução por nível pela frente, vale só a fórmula", () => {
-    expect(xpMinimoPorVitoria(dex, 3, 40)).toBe(0); // Venusaur
-    expect(xpMinimoPorVitoria(dex, 1, 5)).toBe(Math.ceil((xpDoNivel(16) - xpDoNivel(5)) / 12.5));
-    expect(xpMinimoPorVitoria(dex, 2, 16)).toBe(Math.ceil((xpDoNivel(32) - xpDoNivel(16)) / 12.5));
+  it("curva da espécie: XP real de um nível na curva médio-lenta sobe exatamente um nível", () => {
+    const bulba = dex.especies[1];
+    expect(bulba.r).toBe(2);
+    const faixa = xpDaCurva(2, 6) - xpDaCurva(2, 5);
+    expect(somarXp(bulba, xpDoNivel(5), faixa)).toBe(xpDoNivel(6));
+    expect(nivelDoXpPoke(somarXp(bulba, xpDoNivel(5), faixa - 1))).toBe(5);
+    // curva lenta pede mais XP real por nível que a rápida
+    expect(xpDaCurva(3, 20) - xpDaCurva(3, 19)).toBeGreaterThan(xpDaCurva(1, 20) - xpDaCurva(1, 19));
+  });
+
+  it("Exp. Share dá metade a quem segura; Exp. All ao time todo; Ovo da Sorte ×1,5", () => {
+    const base = partida(8, [], 10);
+    const time = [lutador(dex, criarMon(dex, 4, 10, "a")), lutador(dex, criarMon(dex, 7, 10, "b")), lutador(dex, criarMon(dex, 1, 10, "c"))];
+    const xpPor = (p: PartidaPoke) => {
+      const r = certo({ ...p, atual: { ...p.atual!, hp: 1, especie: 19, nivel: 10 } });
+      return Object.fromEntries(r.eventos.filter((e) => e.tipo === "xp").map((e) => [(e as { uid: string }).uid, (e as { valor: number }).valor]));
+    };
+    const sem = xpPor({ ...base, time });
+    expect(Object.keys(sem)).toEqual(["a"]);
+    const share = xpPor({ ...base, time: [time[0], { ...time[1], item: "exp-share" }, time[2]] });
+    expect(share.b).toBe(Math.floor(sem.a * 0.5) || 1);
+    expect(share.c).toBeUndefined();
+    const all = xpPor({ ...base, time, expAll: true });
+    expect(Object.keys(all).sort()).toEqual(["a", "b", "c"]);
+    const ovo = xpPor({ ...base, time: [{ ...time[0], item: "lucky-egg" }, time[1]] });
+    expect(ovo.a).toBe(Math.floor(sem.a * 1.5));
+    // desmaiado não ganha
+    expect(xpPor({ ...base, time: [time[0], { ...time[1], hp: 0 }], expAll: true }).b).toBeUndefined();
+  });
+
+  it("treinador vale 1,5× o selvagem", () => {
+    const p = partida(8, [], 20);
+    const e = { ...p.atual!, hp: 1, especie: 19, nivel: 18 };
+    const xpDe = (tipo: "treinador" | "selvagem") =>
+      (certo({ ...p, atual: { ...e, tipo, treinador: tipo === "selvagem" ? -1 : 0 } }).eventos.find((x) => x.tipo === "xp") as { valor: number }).valor;
+    expect(xpDe("treinador")).toBeGreaterThanOrEqual(Math.floor((xpDe("selvagem") - 1) * 1.5));
+    expect(xpDe("treinador")).toBeLessThanOrEqual(Math.ceil(xpDe("selvagem") * 1.5) + 1);
   });
 });
 
+describe("itens segurados e frutas", () => {
+  it("reforço de tipo e itens de dano", () => {
+    const ember = dex.golpes.find((g) => g[0] === "Ember")!;
+    const tackle = dex.golpes.find((g) => g[0] === "Tackle")!;
+    expect(multItemAtaque("charcoal", ember, 1)).toBe(1.2);
+    expect(multItemAtaque("charcoal", tackle, 1)).toBe(1);
+    expect(multItemAtaque("choice-band", tackle, 1)).toBe(1.5);
+    expect(multItemAtaque("choice-specs", tackle, 1)).toBe(1);
+    expect(multItemAtaque("expert-belt", tackle, 2)).toBe(1.2);
+  });
+
+  it("Fruta Oran é comida com metade do HP ou menos e some", () => {
+    const p = partida(8, [], 10);
+    const eu = p.time[0];
+    const max = hpMax(dex, eu);
+    const r = errado({ ...p, time: [{ ...eu, item: "oran-berry", hp: Math.floor(max / 2) }], atual: { ...p.atual!, hp: 9999 } });
+    const ev = r.eventos.find((e) => e.tipo === "item") as { item: string; efeito: string } | undefined;
+    if (r.partida.time[0].hp > 0) {
+      expect(ev).toMatchObject({ item: "oran-berry", efeito: "cura" });
+      expect(r.partida.time[0].item).toBeUndefined();
+    }
+  });
+
+  it("Faixa do Foco segura um golpe que derrubaria com metade do HP ou mais", () => {
+    const p = partida(8, [], 5);
+    const l0 = lutador(dex, criarMon(dex, 1, 5, "a"));
+    const eu = { ...l0, hp: Math.ceil(l0.hp * 0.55), item: "focus-sash" };
+    const forte = { ...p, time: [eu], atual: { ...p.atual!, especie: 6, nivel: 60, hp: 9999, status: "" as const } };
+    const r = errado(forte, "certeza");
+    expect(r.partida.time[0].hp).toBe(1);
+    expect(r.eventos.some((e) => e.tipo === "item" && e.efeito === "segurou")).toBe(true);
+    expect(r.partida.time[0].item).toBeUndefined();
+  });
+
+  it("Pedra Eterna impede a evolução por nível", () => {
+    let p = partida(8, [], 15);
+    const quase = { ...lutador(dex, criarMon(dex, 1, 15, "a")), xp: xpDoNivel(16) - 1, item: "everstone" };
+    p = { ...p, time: [quase], atual: { ...p.atual!, hp: 1 } };
+    const r = certo(p);
+    expect(r.eventos.some((e) => e.tipo === "nivel")).toBe(true);
+    expect(r.eventos.some((e) => e.tipo === "evolui")).toBe(false);
+    expect(r.partida.time[0].id).toBe(1);
+  });
+
+  it("dar item no lobby: sai da mochila, o antigo volta", () => {
+    const perfil = { ...perfilInicial(dex, 4, "a"), mochila: { "oran-berry": 1, leftovers: 1, potion: 2 } };
+    const p1 = darItem(perfil, "a", "oran-berry");
+    expect(p1.colecao[0].item).toBe("oran-berry");
+    expect(p1.mochila["oran-berry"]).toBeUndefined();
+    const p2 = darItem(p1, "a", "leftovers");
+    expect(p2.colecao[0].item).toBe("leftovers");
+    expect(p2.mochila["oran-berry"]).toBe(1);
+    expect(darItem(p2, "a", "potion")).toBe(p2); // poção não se segura
+    expect(darItem(p2, "a", null).colecao[0].item).toBeUndefined();
+    // o item vai para a partida e volta no perfil
+    const partidaComItem = montarPartidaPoke({ dex, time: p2.colecao, mochila: p2.mochila, pendentes: [cand(1), cand(2), cand(3)], novas: [], concursoId: null, semente: 1 })!;
+    expect(partidaComItem.time[0].item).toBe("leftovers");
+    expect(sincronizarPerfil(p2, partidaComItem).colecao[0].item).toBe("leftovers");
+  });
+
+  it("prêmios: Exp. Share no 3º ginásio, Exp. All no 6º, sem repetir", () => {
+    expect(premiosDoGinasio(0, 2, [])).toContain("exp-share");
+    expect(premiosDoGinasio(0, 2, ["exp-share"])).not.toContain("exp-share");
+    expect(premiosDoGinasio(0, 5, [])).toContain("exp-all");
+    expect(premiosDoGinasio(0, 0, [])).toEqual(["hard-stone"]); // Brock, Pedra
+  });
+
+  it("recompensas: itens fortes só com insígnias; Moeda Amuleto mostra 4", () => {
+    const p = partida(8, [], 10);
+    const vistos = new Set<string>();
+    for (let s = 1; s < 300; s++) for (const i of sortearOferta({ ...p, rng: s, insignias: 0 }).oferta!) vistos.add(i);
+    expect(vistos.has("master-ball")).toBe(false);
+    expect(vistos.has("exp-share")).toBe(false);
+    expect(vistos.has("life-orb")).toBe(false);
+    expect(vistos.has("oran-berry")).toBe(true);
+    expect(sortearOferta({ ...p, time: [{ ...p.time[0], item: "amulet-coin" }] }).oferta).toHaveLength(4);
+  });
+});
 
 describe("modos da jornada", () => {
   const pend = (n: number) => Array.from({ length: n }, (_, i) => cand(i + 1, i % 2 ? "Banco de Dados" : "Português"));
@@ -364,10 +465,20 @@ describe("modos da jornada", () => {
     expect(perfil.hallDaFama).toHaveLength(1);
   });
 
+  it("caminho: mais treinadores e ninguém acima do level cap do ginásio", () => {
+    for (const nivel of [6, 10, 14]) {
+      const p = montarPartidaPoke({ dex, time: [criarMon(dex, 4, nivel, "a")], mochila: {}, pendentes: pend(14), novas: pend(40).map((c) => ({ ...c, questaoId: c.questaoId + 100 })), concursoId: null, modo: "rota", rumo: 0, cap: 12, semente: nivel })!;
+      const todos = [p.atual!, ...p.fila];
+      expect(p.treinadores.length).toBeGreaterThanOrEqual(4);
+      expect(Math.max(...todos.map((e) => e.nivel))).toBeLessThanOrEqual(11);
+      expect(Math.max(...todos.filter((e) => e.tipo === "treinador").map((e) => e.nivel))).toBeLessThanOrEqual(10);
+    }
+  });
+
   it("modo história: treinadores do caminho liberam o líder; a insígnia zera o caminho", () => {
     const base = perfilInicial(dex, 4, "a");
-    expect(treinadoresParaGinasio(0)).toBe(3);
-    expect(treinadoresParaGinasio(7)).toBe(6);
+    expect(treinadoresParaGinasio(0)).toBe(5);
+    expect(treinadoresParaGinasio(7)).toBe(8);
     expect(liderLiberado(base)).toBe(false);
     const rota = montarPartidaPoke({ dex, time: [criarMon(dex, 4, 10, "a")], mochila: {}, pendentes: pend(14), novas: [], concursoId: null, modo: "rota", rumo: 0, semente: 5 })!;
     expect(rota.rumo).toBe(0);
@@ -377,7 +488,7 @@ describe("modos da jornada", () => {
     expect(liderLiberado(doisVencidos)).toBe(false);
     // a mesma partida não conta duas vezes
     expect(historiaDe(sincronizarPerfil(doisVencidos, { ...rota, fim: "fuga", vencidos: [0, 1] }))).toBe(2);
-    const outra = { ...rota, iniciadaEm: "2026-01-02T00:00:00.000Z", fim: "derrota" as const, vencidos: [0] };
+    const outra = { ...rota, iniciadaEm: "2026-01-02T00:00:00.000Z", fim: "derrota" as const, vencidos: [0, 1, 2] };
     const liberado = sincronizarPerfil(doisVencidos, outra);
     expect(liderLiberado(liberado)).toBe(true);
     // ginásio vencido: insígnia e o caminho até o próximo recomeça
@@ -594,16 +705,6 @@ describe("level cap, XP e revide", () => {
     const p2 = montarPartidaPoke({ dex, time: [quase], mochila: {}, pendentes: pend(8), novas: [], concursoId: null, cap: 12, semente: 3 })!;
     const r2 = certo({ ...p2, atual: { ...p2.atual!, hp: 1 } });
     expect(r2.partida.time[0].xp).toBe(xpDoNivel(12));
-  });
-
-  it("selvagem vale metade do XP de treinador", () => {
-    const p = montarPartidaPoke({ dex, time: [criarMon(dex, 4, 20, "a")], mochila: {}, pendentes: pend(8), novas: [], concursoId: null, semente: 3 })!;
-    const e = { ...p.atual!, hp: 1, especie: 19, nivel: 18 };
-    const xpDe = (tipo: "treinador" | "selvagem") => {
-      const r = certo({ ...p, atual: { ...e, tipo, treinador: tipo === "selvagem" ? -1 : 0 } });
-      return (r.eventos.find((x) => x.tipo === "xp") as { valor: number }).valor;
-    };
-    expect(xpDe("selvagem")).toBeLessThanOrEqual(Math.ceil(xpDe("treinador") * XP_SELVAGEM) + 1);
   });
 
   it("acertou e o inimigo ficou de pé: ele revida mais fraco que no erro", () => {

@@ -16,6 +16,8 @@ export interface Especie {
   g: [number, number][]; // [golpe, nível]
   e?: Evo[];
   p?: number;
+  x?: number; // XP base (base_experience da PokéAPI)
+  r?: number; // curva de crescimento: índice em CURVAS
 }
 
 export interface Dex {
@@ -85,7 +87,8 @@ const SPR = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites";
 export const spriteFrente = (id: number) => `${SPR}/pokemon/versions/generation-v/black-white/animated/${id}.gif`;
 export const spriteCostas = (id: number) => `${SPR}/pokemon/versions/generation-v/black-white/animated/back/${id}.gif`;
 export const spriteEstatico = (id: number) => `${SPR}/pokemon/${id}.png`;
-export const spriteItem = (nome: string) => `${SPR}/items/${nome}.png`;
+const SPRITE_ITEM: Record<string, string> = { "exp-all": "exp-share" }; // sem sprite próprio na PokéAPI
+export const spriteItem = (nome: string) => `${SPR}/items/${SPRITE_ITEM[nome] ?? nome}.png`;
 export const spriteTreinador = (nome: string) => `https://play.pokemonshowdown.com/sprites/trainers/${nome}.png`;
 
 // Quem o jogador pode ser na arena (sprites de treinador do Showdown), por geração.
@@ -140,7 +143,10 @@ export function atributos(e: Especie, nivel: number): Atributos {
   return { hp: Math.floor(((2 * hp + 15) * nivel) / 100) + nivel + 10, atk: outro(atk), def: outro(def), spa: outro(spa), spd: outro(spd), spe: outro(spe) };
 }
 
-// Curva "médio-rápida": XP total para estar no nível n.
+// O `xp` salvo de cada Pokémon está na curva "médio-rápida" (n³): o nível sai dele sem
+// precisar da espécie. As outras curvas dos jogos entram na hora de somar XP (somarXp): o
+// XP real ganho vira a mesma fração do nível na curva da espécie, então um Pokémon de curva
+// lenta pede tanto XP real por nível quanto nos jogos.
 export const xpDoNivel = (n: number) => (n <= 1 ? 0 : n ** 3);
 export function nivelDoXpPoke(xp: number): number {
   let n = 1;
@@ -148,12 +154,61 @@ export function nivelDoXpPoke(xp: number): number {
   return n;
 }
 
-// XP de derrubar um Pokémon (fórmula escalonada da geração 5). Sem "experiência base" no
-// JSON, ela sai da soma dos atributos base / 5 (Bulbasaur: 318/5 ≈ 64, o valor real).
+export const CURVAS = ["medium", "fast", "medium-slow", "slow", "slow-then-very-fast", "fast-then-very-slow"] as const;
+// XP total para estar no nível n em cada curva (fórmulas dos jogos).
+export function xpDaCurva(curva: number, n: number): number {
+  if (n <= 1) return 0;
+  const c = n ** 3;
+  switch (curva) {
+    case 1:
+      return Math.floor((4 * c) / 5);
+    case 2:
+      return Math.max(0, Math.floor((6 * c) / 5 - 15 * n * n + 100 * n - 140));
+    case 3:
+      return Math.floor((5 * c) / 4);
+    case 4: // errática
+      if (n < 50) return Math.floor((c * (100 - n)) / 50);
+      if (n < 68) return Math.floor((c * (150 - n)) / 100);
+      if (n < 98) return Math.floor((c * Math.floor((1911 - 10 * n) / 3)) / 500);
+      return Math.floor((c * (160 - n)) / 100);
+    case 5: // flutuante
+      if (n < 15) return Math.floor((c * (Math.floor((n + 1) / 3) + 24)) / 50);
+      if (n < 36) return Math.floor((c * (n + 14)) / 50);
+      return Math.floor((c * (Math.floor(n / 2) + 32)) / 50);
+    default:
+      return c;
+  }
+}
+
+// Soma `real` pontos de XP (os números dos jogos) a um `xp` salvo, pela curva da espécie.
+export function somarXp(e: Especie, xp: number, real: number): number {
+  const curva = e.r ?? 0;
+  let x = xp;
+  let resto = real;
+  while (resto > 0) {
+    const n = nivelDoXpPoke(x);
+    if (n >= MAX_NIVEL) break;
+    const a = xpDoNivel(n);
+    const b = xpDoNivel(n + 1);
+    const faixa = Math.max(1, xpDaCurva(curva, n + 1) - xpDaCurva(curva, n));
+    const falta = ((b - x) / (b - a)) * faixa; // XP real que falta para o próximo nível
+    if (resto >= falta) {
+      x = b;
+      resto -= falta;
+    } else {
+      x += Math.max(1, Math.floor((resto / faixa) * (b - a)));
+      resto = 0;
+    }
+  }
+  return Math.min(x, xpDoNivel(MAX_NIVEL));
+}
+
+// XP de derrubar um Pokémon: fórmula escalonada da geração 5, com o XP base real da espécie
+// (treinador ×1,5; Ovo da Sorte ×1,5 fica com quem chama). `nivelMeu` é o de quem recebe.
 export function xpDaVitoria(inimigo: Especie, nivelInimigo: number, nivelMeu: number, treinador: boolean): number {
-  const base = inimigo.s.reduce((a, b) => a + b, 0) / 5;
+  const base = inimigo.x ?? inimigo.s.reduce((a, b) => a + b, 0) / 5;
   const escala = ((2 * nivelInimigo + 10) / (nivelInimigo + nivelMeu + 10)) ** 2.5;
-  return Math.max(1, Math.floor(((base * nivelInimigo) / 5) * escala * (treinador ? 1.5 : 1)) + 1);
+  return Math.floor(((base * nivelInimigo) / 5) * escala * (treinador ? 1.5 : 1)) + 1;
 }
 
 // Dano da geração 5 (sem aleatório: quem chama sorteia 0,85–1).
@@ -194,48 +249,6 @@ export function golpesNovos(e: Especie, de: number, ate: number): number[] {
 
 // Troca e amizade não existem aqui: viram evolução por nível, no 32 (explicado na tela).
 export const NIVEL_TROCA_AMIZADE = 32;
-
-// Ritmo de evolução: cada estágio (do nível em que a forma surgiu até o nível em que evolui)
-// leva cerca de 5 lutas contra treinador (2–3 Pokémon cada) de acertos. A fórmula da geração 5
-// sozinha pedia umas 16 lutas do Bulbasaur Nv5 ao Ivysaur.
-export const LUTAS_POR_EVOLUCAO = 5;
-const KOS_POR_EVOLUCAO = LUTAS_POR_EVOLUCAO * 2.5;
-const NIVEL_INICIAL = 5;
-
-const nivelDeEntrada = new WeakMap<Dex, Map<number, number>>();
-// Nível em que a forma `id` aparece por evolução (5 para quem não evolui de ninguém por nível).
-function nivelEmQueSurge(dex: Dex, id: number): number {
-  let mapa = nivelDeEntrada.get(dex);
-  if (!mapa) {
-    mapa = new Map();
-    for (const e of Object.values(dex.especies))
-      for (const [para, tipo, valor] of e.e ?? []) {
-        const nv = tipo === "l" ? Number(valor) : tipo === "t" || tipo === "f" ? NIVEL_TROCA_AMIZADE : null;
-        if (nv !== null && !mapa.has(para)) mapa.set(para, nv);
-      }
-    nivelDeEntrada.set(dex, mapa);
-  }
-  return mapa.get(id) ?? NIVEL_INICIAL;
-}
-
-function nivelDaProximaEvolucao(e: Especie): number | null {
-  let menor: number | null = null;
-  for (const [, tipo, valor] of e.e ?? []) {
-    const nv = tipo === "l" ? Number(valor) : tipo === "t" || tipo === "f" ? NIVEL_TROCA_AMIZADE : null;
-    if (nv !== null && (menor === null || nv < menor)) menor = nv;
-  }
-  return menor;
-}
-
-// XP mínimo por Pokémon derrubado para evoluir em ~LUTAS_POR_EVOLUCAO lutas. Sem evolução
-// por nível pela frente, 0 (vale só a fórmula dos jogos).
-export function xpMinimoPorVitoria(dex: Dex, id: number, nivelAtual: number): number {
-  const e = dex.especies[id];
-  const alvo = e && nivelDaProximaEvolucao(e);
-  if (!alvo || nivelAtual >= alvo) return 0;
-  const inicio = Math.min(nivelEmQueSurge(dex, id), nivelAtual);
-  return Math.ceil((xpDoNivel(alvo) - xpDoNivel(inicio)) / KOS_POR_EVOLUCAO);
-}
 
 // `ate`: maior número da Pokédex que já existe na região da jornada (evoluções de gerações
 // seguintes, como Golbat -> Crobat em Kanto, esperam a região chegar).

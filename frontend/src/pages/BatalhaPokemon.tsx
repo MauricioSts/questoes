@@ -13,6 +13,7 @@ import { Backpack, Crown, Flag, Flame, Lock, Map as MapaIcone, NotebookPen, Paus
 import type { Alternativa } from "../types/questao";
 import { getQuestao } from "../lib/questoesRepo";
 import { carregarFilaBatalha, novasPorFraqueza, type HistoricoQ } from "../lib/filaBatalha";
+import { ITENS, REVIVER, categoriaDe, nomeItem, seguravel, type CategoriaItem } from "../lib/poke/itens";
 import { api } from "../lib/api";
 import { enviarResposta } from "../lib/answers";
 import { montarResultado } from "../lib/correcao";
@@ -47,6 +48,9 @@ import {
   TERRENOS,
   campeaoDe,
   levelCap,
+  darItem,
+  expAllLigado,
+  itensPossuidos,
   liderLiberado,
   historiaDe,
   treinadoresParaGinasio,
@@ -82,7 +86,6 @@ import {
   trocar,
   usarItem,
   type Acao,
-  type Bola,
   type Encontro,
   type Evento,
   type Lutador,
@@ -100,7 +103,7 @@ import { usePausarFundo } from "../store/fundo";
 import { QuestaoView } from "../components/QuestaoView";
 import { PageHeader } from "../components/PageHeader";
 import { Carregando } from "../components/Spinner";
-import { Arena, TipoChip, type BolaVis, type FxVis, type LadoVis, type LancaVis, type TextoVis } from "../components/poke/Arena";
+import { Arena, TipoChip, type BolaVis, type FxVis, type ItemVis, type LadoVis, type LancaVis, type TextoVis } from "../components/poke/Arena";
 import { CHEGADA, efeitoDoGolpe, efeitoDoStatus } from "../components/poke/fx";
 
 // ---------- persistência ----------
@@ -128,29 +131,6 @@ function gravar(chave: string, valor: unknown) {
 
 // ---------- textos ----------
 
-export const ITENS: Record<string, { nome: string; texto: string }> = {
-  potion: { nome: "Poção", texto: "+20 HP em um Pokémon." },
-  "super-potion": { nome: "Super Poção", texto: "+60 HP em um Pokémon." },
-  "hyper-potion": { nome: "Hiper Poção", texto: "+200 HP em um Pokémon." },
-  revive: { nome: "Reviver", texto: "Levanta um Pokémon desmaiado com metade do HP." },
-  "full-heal": { nome: "Cura Total", texto: "Tira veneno, queimadura, paralisia, sono e congelamento." },
-  "rare-candy": { nome: "Doce Raro", texto: "Sobe um nível na hora (e pode evoluir)." },
-  "poke-ball": { nome: "Poké Bola", texto: "Captura um Pokémon selvagem, se a resposta estiver certa." },
-  "great-ball": { nome: "Grande Bola", texto: "Captura com 1,5× mais chance." },
-  "ultra-ball": { nome: "Ultra Bola", texto: "Captura com 2× mais chance." },
-  "safari-ball": { nome: "Safari Ball", texto: "Só na Zona Safári: captura com 1,5× mais chance." },
-  "fire-stone": { nome: "Pedra de Fogo", texto: "Evolui certos Pokémon (ex.: Vulpix, Growlithe, Eevee)." },
-  "water-stone": { nome: "Pedra d'Água", texto: "Evolui certos Pokémon (ex.: Poliwhirl, Staryu, Eevee)." },
-  "thunder-stone": { nome: "Pedra do Trovão", texto: "Evolui certos Pokémon (ex.: Pikachu, Eevee)." },
-  "leaf-stone": { nome: "Pedra da Folha", texto: "Evolui certos Pokémon (ex.: Gloom, Weepinbell)." },
-  "moon-stone": { nome: "Pedra da Lua", texto: "Evolui certos Pokémon (ex.: Clefairy, Nidorina)." },
-  "sun-stone": { nome: "Pedra do Sol", texto: "Evolui certos Pokémon (ex.: Gloom, Sunkern)." },
-  "shiny-stone": { nome: "Pedra Brilhante", texto: "Evolui certos Pokémon (ex.: Togetic, Roselia)." },
-  "dusk-stone": { nome: "Pedra do Crepúsculo", texto: "Evolui certos Pokémon (ex.: Murkrow, Misdreavus)." },
-  "dawn-stone": { nome: "Pedra da Aurora", texto: "Evolui certos Pokémon (ex.: Kirlia ♂, Snorunt ♀)." },
-  "ice-stone": { nome: "Pedra de Gelo", texto: "Evolui certos Pokémon." },
-};
-const nomeItem = (i: string) => ITENS[i]?.nome ?? i;
 
 const TXT_STATUS: Record<Exclude<Status, "">, [string, string, string]> = {
   // [pegou, tique/impede, curou]
@@ -373,6 +353,12 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     const set = lado === "meu" ? setMeuVis : setInimigoVis;
     set((v) => (v ? { ...v, ...extra, anim: a, chave: n() } : v));
   };
+  const [itemVis, setItemVis] = useState<ItemVis | null>(null);
+  const mostrarItem = (item: string, grande = false) => {
+    const k = n();
+    setItemVis({ n: k, item, grande });
+    setTimeout(() => setItemVis((v) => (v?.n === k ? null : v)), grande ? 2600 : 1300);
+  };
   const texto = (lado: "meu" | "inimigo", t: string, cor: string) => {
     const k = n();
     setTextos((xs) => [...xs.slice(-3), { n: k, lado, texto: t, cor }]);
@@ -404,7 +390,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   function comecar(modo: ModoJornada, opts: { ginasio?: number; habitat?: number; terreno?: number; rumo?: number } = {}) {
     if (!pendentes || !perfil) return;
     const time = perfil.time.map((uid) => perfil.colecao.find((m) => m.uid === uid)).filter((m): m is Mon => !!m && podeLutar(perfil, m));
-    const p = montarPartidaPoke({ dex, time, mochila: perfil.mochila, pendentes, novas, concursoId: activeId ?? null, modo, regiao: regiaoAtual(perfil), cap: levelCap(perfil), ...opts });
+    const p = montarPartidaPoke({ dex, time, mochila: perfil.mochila, pendentes, novas, concursoId: activeId ?? null, modo, regiao: regiaoAtual(perfil), cap: levelCap(perfil), insignias: insigniasDe(perfil), expAll: expAllLigado(perfil), possui: itensPossuidos(perfil), tem: [...new Set(perfil.colecao.map((m) => m.id))], ...opts });
     if (!p) return;
     setPartida(p);
     entrarNaLuta(p);
@@ -530,7 +516,11 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     const nomeMeu = () => nomeDe(idVis ?? 0);
     const nomeIni = antes.atual ? nomeDe(antes.atual.especie) : "";
     let hpMeu = antes.time[antes.ativo]?.hp ?? 0;
-    const evos: { de: number; para: number }[] = [];
+    const uidAtivo = antes.time[antes.ativo]?.uid;
+    const ehAtivo = (uid: string) => uid === uidAtivo;
+    const nomeUid = (uid: string) => (ehAtivo(uid) ? nomeMeu() : nomeDe(doMeu(uid)?.id ?? 0));
+    const evos: { de: number; para: number; uid: string }[] = [];
+    let mostrouShare = false;
     for (const ev of eventos) {
       if (!ok()) return;
       switch (ev.tipo) {
@@ -624,6 +614,14 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           await esperar(1000);
           break;
         case "xp": {
+          if (ev.compartilhado) {
+            if (mostrouShare) break;
+            mostrouShare = true;
+            const todos = eventos.filter((x): x is Extract<Evento, { tipo: "xp" }> => x.tipo === "xp" && !!x.compartilhado);
+            setMensagem(`${depois.expAll ? "Exp. All" : "Exp. Share"}: ${todos.map((x) => `${nomeUid(x.uid)} +${x.valor}`).join(", ")} de XP.`);
+            await esperar(1100);
+            break;
+          }
           const l = doMeu(ev.uid);
           setMensagem(`${nomeMeu()} ganhou ${ev.valor} pontos de XP!`);
           texto("meu", `+${ev.valor} XP`, "#8EC5FF");
@@ -632,29 +630,72 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           break;
         }
         case "cap":
+          if (!ehAtivo(ev.uid)) break;
           setMensagem(`${nomeMeu()} está no level cap (Nv${ev.nivel}): o XP volta a entrar depois do próximo líder.`);
           texto("meu", `Nv${ev.nivel} máx.`, "#FFE066");
           await esperar(1300);
           break;
         case "nivel":
-          setMensagem(`${nomeMeu()} subiu para o nível ${ev.nivel}!`);
-          texto("meu", `Nv ${ev.nivel}!`, "#FFE066");
+          setMensagem(`${nomeUid(ev.uid)} subiu para o nível ${ev.nivel}!`);
+          if (ehAtivo(ev.uid)) texto("meu", `Nv ${ev.nivel}!`, "#FFE066");
           await esperar(1000);
           break;
         case "aprendeu":
           setMensagem(
             ev.esqueceu !== null
-              ? `${nomeMeu()} esqueceu ${nomeGolpe(ev.esqueceu)} e aprendeu ${nomeGolpe(ev.golpe)}!`
-              : `${nomeMeu()} aprendeu ${nomeGolpe(ev.golpe)}!`
+              ? `${nomeUid(ev.uid)} esqueceu ${nomeGolpe(ev.esqueceu)} e aprendeu ${nomeGolpe(ev.golpe)}!`
+              : `${nomeUid(ev.uid)} aprendeu ${nomeGolpe(ev.golpe)}!`
           );
           await esperar(1300);
           break;
         case "querAprender":
-          setMensagem(`${nomeMeu()} quer aprender ${nomeGolpe(ev.golpe)}, mas já sabe ${MAX_GOLPES} golpes...`);
+          setMensagem(`${nomeUid(ev.uid)} quer aprender ${nomeGolpe(ev.golpe)}, mas já sabe ${MAX_GOLPES} golpes...`);
           await esperar(1300);
           break;
         case "evolui":
-          evos.push({ de: ev.de, para: ev.para });
+          evos.push({ de: ev.de, para: ev.para, uid: ev.uid });
+          break;
+        case "item": {
+          const nomeIt = nomeItem(ev.item);
+          const fruta = categoriaDe(ev.item) === "fruta";
+          mostrarItem(ev.item);
+          if (ev.efeito === "cura" || ev.efeito === "recuo") {
+            const delta = ev.efeito === "cura" ? (ev.valor ?? 0) : -(ev.valor ?? 0);
+            hpMeu = Math.max(0, hpMeu + delta);
+            if (ev.efeito === "cura") setMeuVis((v) => (v ? { ...v, hp: Math.min(v.hpMax, v.hp + delta) } : v));
+            else anim("meu", "dano", { hp: hpMeu });
+            texto("meu", `${delta > 0 ? "+" : "−"}${Math.abs(delta)} HP`, delta > 0 ? "#3BC46B" : "#FF5A5F");
+          }
+          setMensagem(
+            ev.efeito === "cura"
+              ? fruta
+                ? `${nomeUid(ev.uid)} comeu a ${nomeIt} e recuperou ${ev.valor} HP!`
+                : `${nomeUid(ev.uid)} recuperou ${ev.valor} HP com ${nomeIt}.`
+              : ev.efeito === "status"
+                ? `${nomeUid(ev.uid)} comeu a ${nomeIt}!`
+                : ev.efeito === "segurou"
+                  ? `${nomeUid(ev.uid)} aguentou firme com a ${nomeIt}!`
+                  : ev.efeito === "resistiu"
+                    ? `A ${nomeIt} enfraqueceu o golpe!`
+                    : ev.efeito === "esquivou"
+                      ? `O ${nomeIt} ofuscou ${nomeIni}: o golpe errou!`
+                      : ev.efeito === "recuou"
+                        ? `${nomeIni} recuou com a ${nomeIt} e não revidou!`
+                        : `${nomeUid(ev.uid)} perdeu ${ev.valor} HP pelo ${nomeIt}.`
+          );
+          await esperar(ev.efeito === "cura" && !fruta ? 750 : 1100);
+          break;
+        }
+        case "premio":
+          mostrarItem(ev.item, true);
+          setMensagem(
+            ev.item === "exp-share"
+              ? "Você recebeu o Exp. Share! No lobby, dê para um Pokémon segurar: ele ganha metade do XP sem lutar."
+              : ev.item === "exp-all"
+                ? "Você recebeu o Exp. All! Agora o time todo ganha metade do XP de cada luta."
+                : `O líder te deu ${nomeItem(ev.item)}!`
+          );
+          await esperar(ev.item.startsWith("exp-") ? 2600 : 1600);
           break;
         case "cura": {
           hpMeu = Math.min(hpMeu + ev.valor, 9999);
@@ -764,7 +805,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
       setMensagem(`O quê? ${nomeDe(e.de)} está evoluindo!`);
       await esperar(900);
       await mostrarEvolucao(e.de, e.para);
-      idVis = e.para;
+      if (ehAtivo(e.uid)) idVis = e.para;
       setMensagem(`Parabéns! ${nomeDe(e.de)} evoluiu para ${nomeDe(e.para)}!`);
     }
     // estado final dos dois lados
@@ -904,7 +945,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     setMensagem(
       ev
         ? `Parabéns! ${nomeDe(ev.de)} evoluiu para ${nomeDe(ev.para)}!`
-        : item === "revive"
+        : item in REVIVER
           ? `${nomeDe(l.id)} voltou com ${l.hp} HP!`
           : `${nomeDe(l.id)}: ${l.hp}/${hpMax(dex, l)} HP · Nv${nivelDe(l)}`
     );
@@ -1046,7 +1087,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   const selvagem = encontro?.tipo === "selvagem";
   const inimigoEsp = encontro ? dex.especies[encontro.especie] : null;
   const bolasTenho = BOLAS.filter((b) => (partida.mochila[b] ?? 0) > 0);
-  const itensUsaveis = Object.entries(partida.mochila).filter(([i, q]) => q > 0 && !BOLAS.includes(i as Bola));
+  const itensUsaveis = Object.entries(partida.mochila).filter(([i, q]) => q > 0 && categoriaDe(i) === "cura");
   const licaoAnterior = desfecho ? partida.licoes[desfecho.questaoId] : undefined;
   const respondida = (fase === "golpe" || fase === "resultado") && desfecho ? getQuestao(desfecho.questaoId) : undefined;
   const questaoVista = respondida ?? questao;
@@ -1105,6 +1146,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           cor={corBioma}
           fundo={fundo}
           aguardando={fase === "pergunta" || fase === "resultado"}
+          item={itemVis}
           topo={
             <div className="flex items-start justify-between gap-2">
               <div className="flex flex-wrap gap-1.5">
@@ -1145,25 +1187,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
       </div>
 
       <div ref={painelRef} className="jg__painel">
-        {fase === "recompensa" && partida.oferta && (
-          <div className="space-y-3 p-4 sm:p-6">
-            <p className="font-display text-xl font-bold text-brand-ink">Escolha uma recompensa</p>
-            <p className="text-sm text-muted">Vai para a mochila e fica com você nas próximas partidas.</p>
-            <div className="grid gap-3">
-              {partida.oferta.map((id, i) => (
-                <button key={id} className="bt-item flex-row items-center" style={{ animationDelay: `${i * 90}ms` }} onClick={() => escolherRecompensa(id)}>
-                  <img src={spriteItem(id)} alt="" className="pk-mini h-10 w-10 shrink-0" />
-                  <span>
-                    <span className="block font-bold">
-                      {nomeItem(id)} <span className="text-xs font-normal opacity-70">(tem {partida.mochila[id] ?? 0})</span>
-                    </span>
-                    <span className="block text-sm leading-snug opacity-80">{ITENS[id]?.texto}</span>
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        {fase === "recompensa" && partida.oferta && <Recompensa key={partida.oferta.join()} oferta={partida.oferta} mochila={partida.mochila} onEscolher={escolherRecompensa} />}
 
         {fase === "troca" && (
           <div className="space-y-3 p-4 sm:p-6">
@@ -1290,9 +1314,10 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
                 {painel === "bolas" && (
                   <Gaveta titulo="Qual bola? (só é lançada se a resposta estiver certa)" onFechar={() => setPainel(null)}>
                     <div className="grid grid-cols-3 gap-2">
-                      {BOLAS.map((b) => (
+                      {bolasTenho.map((b) => (
                         <button
                           key={b}
+                          title={ITENS[b]?.texto}
                           disabled={!selecionada || (partida.mochila[b] ?? 0) <= 0}
                           onClick={() => void atacar({ bola: b })}
                           className="flex flex-col items-center gap-1 rounded-xl border border-hair bg-surface p-2 text-xs font-bold text-brand-ink transition hover:border-brand-500 disabled:opacity-40"
@@ -1303,7 +1328,11 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
                             <span className="font-normal text-faint">
                               ~
                               {Math.round(
-                                chanceCaptura(inimigoEsp, b, certeza ? "certeza" : "duvida", encontro.hp / atributos(inimigoEsp, encontro.nivel).hp, encontro.status !== "" || encontro.semente) * 100
+                                chanceCaptura(inimigoEsp, b, certeza ? "certeza" : "duvida", encontro.hp / atributos(inimigoEsp, encontro.nivel).hp, encontro.status !== "" || encontro.semente, {
+                                  nivel: encontro.nivel,
+                                  turnos: encontro.turnos ?? 0,
+                                  jaTem: (partida.tem ?? []).includes(encontro.especie),
+                                }) * 100
                               )}
                               %
                             </span>
@@ -1537,6 +1566,192 @@ function EditorGolpes({ dex, m, onSalvar, onFechar }: { dex: Dex; m: Mon; onSalv
   );
 }
 
+// ---------- itens: recompensa e item segurado ----------
+
+const NOME_CAT: Record<CategoriaItem, string> = { bola: "Bola", cura: "Mochila", segurar: "Segurar", fruta: "Fruta", chave: "Item-chave" };
+// Raridade pela chance de sair no sorteio (itens.ts).
+function raridade(i: string): "comum" | "incomum" | "raro" {
+  const p = ITENS[i]?.peso ?? 1;
+  return p >= 2 ? "comum" : p >= 0.6 ? "incomum" : "raro";
+}
+const NOME_RARIDADE = { comum: "Comum", incomum: "Incomum", raro: "Raro" };
+
+// Recompensa depois de vencer um treinador: as Poké Bolas caem, tremem e abrem uma a uma
+// mostrando o item; o escolhido cresce e voa para a mochila, os outros somem.
+function Recompensa({ oferta, mochila, onEscolher }: { oferta: string[]; mochila: Record<string, number>; onEscolher: (item: string) => void }) {
+  const [abertas, setAbertas] = useState(0);
+  const [escolhido, setEscolhido] = useState<string | null>(null);
+  useEffect(() => {
+    if (abertas >= oferta.length) return;
+    const t = setTimeout(() => setAbertas((a) => a + 1), abertas === 0 ? 650 : 380);
+    return () => clearTimeout(t);
+  }, [abertas, oferta.length]);
+  const escolher = (id: string) => {
+    if (escolhido) return;
+    setEscolhido(id);
+    setTimeout(() => onEscolher(id), 900);
+  };
+  return (
+    <div className="space-y-3 p-4 sm:p-6">
+      <p className="font-display text-xl font-bold text-brand-ink">Escolha uma recompensa</p>
+      <p className="text-sm text-muted">{abertas < oferta.length ? "Abrindo..." : "Vai para a mochila e fica com você nas próximas partidas."}</p>
+      <div className={`grid gap-3 ${oferta.length > 3 ? "sm:grid-cols-2" : ""}`}>
+        {oferta.map((id, i) => {
+          const aberta = i < abertas;
+          const rar = raridade(id);
+          const estado = escolhido ? (escolhido === id ? "pk-rc--escolhido" : "pk-rc--some") : "";
+          return (
+            <button
+              key={id}
+              disabled={!aberta || !!escolhido}
+              onClick={() => escolher(id)}
+              className={`pk-rc pk-rc--${rar} ${aberta ? "pk-rc--aberta" : ""} ${estado}`}
+              style={{ "--i": i } as CSSProperties}
+            >
+              <span className="pk-rc__bola" aria-hidden>
+                <img src={spriteItem("poke-ball")} alt="" />
+              </span>
+              <span className="pk-rc__conteudo">
+                <span className="pk-rc__icone">
+                  <span className="pk-rc__brilho" aria-hidden />
+                  <img src={spriteItem(id)} alt="" />
+                </span>
+                <span className="min-w-0 flex-1 text-left">
+                  <span className="flex flex-wrap items-center gap-1.5">
+                    <b className="text-brand-ink">{nomeItem(id)}</b>
+                    <span className={`pk-rc__selo pk-rc__selo--${rar}`}>{NOME_RARIDADE[rar]}</span>
+                    <span className="text-[11px] text-faint">{NOME_CAT[categoriaDe(id) ?? "cura"]} · tem {mochila[id] ?? 0}</span>
+                  </span>
+                  <span className="block text-sm leading-snug text-muted">{ITENS[id]?.texto}</span>
+                </span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// Dar item para segurar (lobby): os itens entram em cascata; o escolhido voa até o Pokémon,
+// que pula de alegria. O item que ele segurava volta para a mochila.
+function EditorItem({
+  dex,
+  m,
+  mochila,
+  onDar,
+  onFechar,
+}: {
+  dex: Dex;
+  m: Mon;
+  mochila: Record<string, number>;
+  onDar: (item: string | null) => void;
+  onFechar: () => void;
+}) {
+  const [aba, setAba] = useState<"segurar" | "fruta">(() => (m.item && categoriaDe(m.item) === "fruta" ? "fruta" : "segurar"));
+  const [voando, setVoando] = useState<{ item: string; x: number; y: number; dx: number; dy: number } | null>(null);
+  const [feliz, setFeliz] = useState(0);
+  const alvo = useRef<HTMLDivElement>(null);
+  const lista = Object.entries(mochila)
+    .filter(([i, q]) => q > 0 && categoriaDe(i) === aba)
+    .sort(([a], [b]) => nomeItem(a).localeCompare(nomeItem(b)));
+  const nFrutas = Object.entries(mochila).filter(([i, q]) => q > 0 && categoriaDe(i) === "fruta").length;
+  const nSegurar = Object.entries(mochila).filter(([i, q]) => q > 0 && categoriaDe(i) === "segurar").length;
+  const dar = (item: string, de: HTMLElement) => {
+    if (voando) return;
+    const r = de.getBoundingClientRect();
+    const t = alvo.current?.getBoundingClientRect();
+    const x = r.left + r.width / 2;
+    const y = r.top + r.height / 2;
+    setVoando({ item, x, y, dx: t ? t.left + t.width / 2 - x : 0, dy: t ? t.top + t.height / 2 - y : -200 });
+    setTimeout(() => {
+      onDar(item);
+      setVoando(null);
+      setFeliz((f) => f + 1);
+    }, 620);
+  };
+  return createPortal(
+    <div className="pk-modal fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-4" onClick={onFechar}>
+      <div className="pk-modal__caixa flex max-h-[88vh] w-[min(560px,100%)] flex-col rounded-2xl border border-hair p-5 shadow-2xl" style={{ background: "rgb(var(--surface))" }} onClick={(e) => e.stopPropagation()}>
+        <div className="mb-3 flex items-center gap-3">
+          <div ref={alvo} className="relative shrink-0">
+            <img key={feliz} src={spriteFrente(m.id)} alt="" className={`pk-mini h-16 w-16 ${feliz ? "pk-feliz" : ""}`} />
+            <span className={`pk-slot ${m.item ? "pk-slot--cheio" : ""}`}>
+              {m.item ? <img key={m.item + feliz} src={spriteItem(m.item)} alt="" className="pk-mini pk-slot__item" /> : <span className="text-[10px] text-faint">vazio</span>}
+            </span>
+            {feliz > 0 && (
+              <span key={`f${feliz}`} className="pk-slot__faiscas" aria-hidden>
+                {Array.from({ length: 6 }, (_, i) => (
+                  <i key={i} style={{ "--ang": `${i * 60}deg` } as CSSProperties} />
+                ))}
+              </span>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-lg font-bold text-brand-ink">Item de {dex.especies[m.id]?.n}</p>
+            <p className="text-xs text-faint">{m.item ? <><b className="text-brand-ink">{nomeItem(m.item)}</b> · {(ITENS[m.item]?.texto ?? "").replace(/^Segurando[,:]\s*/, "")}</> : "Não está segurando nada."}</p>
+          </div>
+          <button onClick={onFechar} className="rounded-lg p-1 text-muted hover:text-brand-500" aria-label="Fechar">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="mb-3 flex gap-1.5" role="tablist">
+          <Pilula ativa={aba === "segurar"} onClick={() => setAba("segurar")}>
+            Segurar ({nSegurar})
+          </Pilula>
+          <Pilula ativa={aba === "fruta"} onClick={() => setAba("fruta")}>
+            Frutas ({nFrutas})
+          </Pilula>
+        </div>
+        <div key={aba} className="grid flex-1 content-start gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
+          {lista.length ? (
+            lista.map(([i, q], k) => (
+              <button
+                key={i}
+                onClick={(ev) => dar(i, ev.currentTarget.querySelector("img") ?? ev.currentTarget)}
+                disabled={!!voando}
+                className={`pk-escolha flex items-center gap-2 rounded-xl border p-2.5 text-left transition ${voando?.item === i ? "pk-escolha--indo" : ""} border-hair bg-surface2 hover:border-brand-500`}
+                style={{ "--i": k } as CSSProperties}
+              >
+                <img src={spriteItem(i)} alt="" className="pk-mini h-9 w-9 shrink-0" />
+                <span className="min-w-0">
+                  <b className="text-sm text-brand-ink">
+                    {nomeItem(i)} ×{q}
+                  </b>
+                  <span className="block text-[11px] leading-snug text-faint">{ITENS[i]?.texto}</span>
+                </span>
+              </button>
+            ))
+          ) : (
+            <p className="text-sm text-muted sm:col-span-2">
+              {aba === "fruta" ? "Nenhuma fruta na mochila. Elas aparecem como recompensa de treinador." : "Nenhum item de segurar na mochila. Vencer treinadores e líderes rende."}
+            </p>
+          )}
+        </div>
+        <div className="mt-3 flex gap-2">
+          {m.item && (
+            <button onClick={() => onDar(null)} className="flex-1 rounded-2xl border border-hair px-4 py-2.5 text-sm font-semibold text-muted hover:border-danger-from hover:text-danger-from">
+              Tirar {nomeItem(m.item)}
+            </button>
+          )}
+          <button onClick={onFechar} className="btn-primary flex-1">
+            Pronto
+          </button>
+        </div>
+      </div>
+      {voando && (
+        <img
+          src={spriteItem(voando.item)}
+          alt=""
+          className="pk-mini pk-voa"
+          style={{ left: voando.x, top: voando.y, "--dx": `${voando.dx}px`, "--dy": `${voando.dy}px` } as CSSProperties}
+        />
+      )}
+    </div>,
+    document.body
+  );
+}
+
 function EvolucaoPoke({ de, para, nome, onFim }: { de: number; para: number; nome: (id: number) => string; onFim: () => void }) {
   const [pronto, setPronto] = useState(false);
   useEffect(() => {
@@ -1565,8 +1780,9 @@ function MonCard({ dex, m, onClick, marcado, rodape }: { dex: Dex; m: Mon; onCli
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center rounded-2xl border p-2 text-center transition ${marcado ? "border-brand-500 bg-surface" : "border-hair bg-surface2 hover:border-brand-500"}`}
+      className={`relative flex flex-col items-center rounded-2xl border p-2 text-center transition ${marcado ? "border-brand-500 bg-surface" : "border-hair bg-surface2 hover:border-brand-500"}`}
     >
+      {m.item && <img key={m.item} src={spriteItem(m.item)} alt={nomeItem(m.item)} title={`Segurando ${nomeItem(m.item)}`} className="pk-mini pk-segura absolute right-1 top-1 h-6 w-6" />}
       <img src={spriteFrente(m.id)} onError={(ev) => (ev.currentTarget.src = spriteEstatico(m.id))} alt="" className="pk-mini h-16 w-16" />
       <span className="mt-1 w-full truncate text-sm font-bold text-brand-ink">{e.n}</span>
       <span className="text-[11px] text-faint">Nv{nivelDe(m)}</span>
@@ -1698,7 +1914,10 @@ function Lobby({
   const terrenoSel = TERRENOS[terreno];
   const revisoes = pendentes ? Math.min(pendentes.length, 12) : 0;
   const completa = pendentes ? Math.min(novas, Math.max(0, 11 - revisoes)) : 0;
-  const mochila = Object.entries(perfil.mochila).filter(([, q]) => q > 0);
+  const ORDEM_CAT: CategoriaItem[] = ["chave", "segurar", "fruta", "cura", "bola"];
+  const mochila = Object.entries(perfil.mochila)
+    .filter(([, q]) => q > 0)
+    .sort(([a], [b]) => ORDEM_CAT.indexOf(categoriaDe(a) ?? "cura") - ORDEM_CAT.indexOf(categoriaDe(b) ?? "cura") || nomeItem(a).localeCompare(nomeItem(b)));
   const podeMexer = !emAndamento;
   const [editando, setEditando] = useState<string | null>(null);
   const monEditando = editando ? perfil.colecao.find((m) => m.uid === editando) : undefined;
@@ -1710,14 +1929,27 @@ function Lobby({
   const historia = historiaDe(perfil);
   const exigidos = proximo ? treinadoresParaGinasio(insignias) : 0;
   const [confirmarReset, setConfirmarReset] = useState(false);
+  const [dandoItem, setDandoItem] = useState<string | null>(null);
+  const monDandoItem = dandoItem ? perfil.colecao.find((m) => m.uid === dandoItem) : undefined;
+  const temSeguravel = Object.entries(perfil.mochila).some(([i, q]) => q > 0 && seguravel(i));
   const botaoGolpes = (m: Mon) => (
-    <button
-      onClick={() => setEditando(m.uid)}
-      disabled={!podeMexer}
-      className="w-full rounded-lg border border-hair px-2 py-1 text-[11px] font-semibold text-muted transition hover:border-brand-500 hover:text-brand-500 disabled:opacity-40"
-    >
-      Golpes
-    </button>
+    <div className="grid grid-cols-2 gap-1">
+      <button
+        onClick={() => setEditando(m.uid)}
+        disabled={!podeMexer}
+        className="w-full rounded-lg border border-hair px-1 py-1 text-[11px] font-semibold text-muted transition hover:border-brand-500 hover:text-brand-500 disabled:opacity-40"
+      >
+        Golpes
+      </button>
+      <button
+        onClick={() => setDandoItem(m.uid)}
+        disabled={!podeMexer || (!m.item && !temSeguravel)}
+        title={m.item ? `Segurando ${nomeItem(m.item)}` : "Dar um item para segurar"}
+        className="w-full rounded-lg border border-hair px-1 py-1 text-[11px] font-semibold text-muted transition hover:border-brand-500 hover:text-brand-500 disabled:opacity-40"
+      >
+        Item
+      </button>
+    </div>
   );
   const alternarTime = (uid: string) => {
     if (!podeMexer) return;
@@ -1750,6 +1982,15 @@ function Lobby({
                 </div>
               ))}
             </div>
+            {monDandoItem && (
+              <EditorItem
+                dex={dex}
+                m={monDandoItem}
+                mochila={perfil.mochila}
+                onFechar={() => setDandoItem(null)}
+                onDar={(item) => setPerfil(darItem(perfil, monDandoItem.uid, item))}
+              />
+            )}
             {monEditando && (
               <EditorGolpes
                 dex={dex}
@@ -1976,6 +2217,21 @@ function Lobby({
             ) : (
               <p className="mt-1 text-sm text-muted">Vazia.</p>
             )}
+            {(perfil.mochila["exp-all"] ?? 0) > 0 && (
+              <label className="mt-3 flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-hair bg-surface2 px-3 py-2 text-sm">
+                <span>
+                  <b className="text-brand-ink">Exp. All</b> <span className="text-xs text-muted">· o time todo ganha metade do XP</span>
+                </span>
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-[rgb(var(--brand-500))]"
+                  checked={expAllLigado(perfil)}
+                  disabled={!podeMexer}
+                  onChange={(ev) => setPerfil({ ...perfil, expAllDesligado: !ev.target.checked })}
+                />
+              </label>
+            )}
+            {temSeguravel && <p className="mt-2 text-[11px] text-faint">Itens de segurar e frutas: toque em "Item" embaixo de um Pokémon.</p>}
           </div>
 
           <div className="card p-5">
@@ -2013,6 +2269,15 @@ function Lobby({
             <p>
               <b className="text-brand-ink">Errou? Contra-ataque</b> (com veneno, sono, paralisia...). Acertou e o inimigo aguentou? Ele revida, mais fraco. A questão volta logo depois, com as alternativas em outra ordem (no caminho e
               na Safári, como selvagem: acerte e lance uma bola para capturar; HP baixo ajuda). Escrever por que o gabarito está certo cura 25% do HP.
+            </p>
+            <p>
+              <b className="text-brand-ink">XP como nos jogos:</b> a fórmula da 5ª geração, com o XP base e a curva de crescimento de cada espécie (tem Pokémon que sobe
+              devagar). Quem lutou leva o XP; o <b className="text-brand-ink">Exp. Share</b> (prêmio do 3º ginásio) dá metade a quem o segura, e o{" "}
+              <b className="text-brand-ink">Exp. All</b> (6º ginásio) dá metade ao time todo. O level cap vale para todos.
+            </p>
+            <p>
+              <b className="text-brand-ink">Itens e frutas:</b> vencer treinadores rende itens (os melhores aparecem com mais insígnias). No lobby, o botão "Item" dá
+              um para o Pokémon segurar: reforço de tipo, Restos, Faixa do Foco, Ovo da Sorte... Frutas são comidas sozinhas na hora certa (HP baixo, veneno, sono).
             </p>
             <p>
               <b className="text-brand-ink">Evolução</b> por nível como nos jogos, por pedra na mochila, e as de troca ou amizade no nível {NIVEL_TROCA_AMIZADE}. Com 4 golpes, você
@@ -2153,6 +2418,15 @@ function Fim({
           <div className="mt-3 flex flex-col items-center gap-1">
             <img src={insigniaImg(ganhouInsignia, partida.regiao ?? 0)} alt="" className="pk-mini h-16 w-16 object-contain" />
             <p className="font-bold text-brand-ink">{regiao.ginasios[ganhouInsignia].insignia}</p>
+            {!!partida.premios?.length && (
+              <div className="flex flex-wrap justify-center gap-1.5">
+                {partida.premios.map((i) => (
+                  <span key={i} className="pk-premio inline-flex items-center gap-1 rounded-full border border-brand-500 bg-surface px-2 py-0.5 text-xs font-bold text-brand-ink">
+                    <img src={spriteItem(i)} alt="" className="pk-mini h-5 w-5" /> {nomeItem(i)}
+                  </span>
+                ))}
+              </div>
+            )}
             <p className="text-xs text-muted">
               {ganhouInsignia + 1 < regiao.ginasios.length
                 ? `Próximo: Ginásio de ${regiao.ginasios[ganhouInsignia + 1].cidade} (${regiao.ginasios[ganhouInsignia + 1].lider}).`
