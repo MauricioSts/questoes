@@ -88,6 +88,32 @@ export const spriteEstatico = (id: number) => `${SPR}/pokemon/${id}.png`;
 export const spriteItem = (nome: string) => `${SPR}/items/${nome}.png`;
 export const spriteTreinador = (nome: string) => `https://play.pokemonshowdown.com/sprites/trainers/${nome}.png`;
 
+// Quem o jogador pode ser na arena (sprites de treinador do Showdown), por geração.
+export const TREINADORES_JOGADOR: { sprite: string; nome: string }[] = [
+  { sprite: "red", nome: "Red" },
+  { sprite: "blue", nome: "Blue" },
+  { sprite: "ash", nome: "Ash" },
+  { sprite: "ethan", nome: "Ethan" },
+  { sprite: "lyra", nome: "Lyra" },
+  { sprite: "kris", nome: "Kris" },
+  { sprite: "brendan", nome: "Brendan" },
+  { sprite: "may", nome: "May" },
+  { sprite: "lucas", nome: "Lucas" },
+  { sprite: "dawn", nome: "Dawn" },
+  { sprite: "hilbert", nome: "Hilbert" },
+  { sprite: "hilda", nome: "Hilda" },
+  { sprite: "nate", nome: "Nate" },
+  { sprite: "rosa", nome: "Rosa" },
+  { sprite: "calem", nome: "Calem" },
+  { sprite: "serena", nome: "Serena" },
+  { sprite: "elio", nome: "Elio" },
+  { sprite: "selene", nome: "Selene" },
+  { sprite: "chase", nome: "Chase" },
+  { sprite: "elaine", nome: "Elaine" },
+  { sprite: "victor", nome: "Victor" },
+  { sprite: "gloria", nome: "Gloria" },
+];
+
 // Cenário de batalha (fundos da 6ª geração do Showdown) pelo tipo do lugar.
 const CENARIO_TIPO = [
   "meadow", "earthycave", "orassea", "city", "forest", "icecave", "aquacordetown", "darkmeadow", "orasdesert",

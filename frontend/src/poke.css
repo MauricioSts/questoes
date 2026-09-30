@@ -69,6 +69,21 @@
 .pk-treinador--sai { animation: pk-treinador-sai .45s ease-in both; }
 @keyframes pk-treinador-entra { from { transform: translate(60%, -100%); opacity: 0; } }
 @keyframes pk-treinador-sai { from { transform: translate(-50%, -100%); } to { transform: translate(90%, -100%); opacity: 0; } }
+/* o jogador: entra pela esquerda, arremessa (a bola sai da mão por volta de .15s) e sai */
+.pk-jogador {
+  position: absolute; left: 11%; top: 93%; z-index: 2; pointer-events: none;
+  width: calc(80 * 100cqw / 230); image-rendering: pixelated;
+  transform-origin: 50% 100%; transform: translate(-50%, -100%) scaleX(-1);
+  animation: pk-jogador 1.1s cubic-bezier(.3,.7,.4,1) both;
+}
+@keyframes pk-jogador {
+  0% { transform: translate(-150%, -100%) scaleX(-1); opacity: 0; }
+  10% { transform: translate(-50%, -100%) scaleX(-1); opacity: 1; }
+  16% { transform: translate(-54%, -100%) scaleX(-1) rotate(6deg); }
+  26% { transform: translate(-42%, -100%) scaleX(-1) rotate(-9deg); }
+  40%, 55% { transform: translate(-50%, -100%) scaleX(-1); opacity: 1; }
+  100% { transform: translate(-190%, -100%) scaleX(-1); opacity: 0; }
+}
 
 /* caixas de HP */
 .pk-caixa {
@@ -99,6 +114,8 @@
 @keyframes pk-lanca-meu { from { left: -6%; top: 95%; rotate: -720deg; } 55% { top: 50%; } to { left: 24%; top: 70%; rotate: 0deg; } }
 @keyframes pk-lanca-inimigo { from { left: 96%; top: 22%; rotate: 720deg; } 50% { top: 12%; } to { left: 71%; top: 30%; rotate: 0deg; } }
 @keyframes pk-lanca-some { to { transform: scale(1.4); opacity: 0; } }
+.pk-lanca--mao { animation-name: pk-lanca-mao; }
+@keyframes pk-lanca-mao { from { left: 15%; top: 64%; rotate: -720deg; } 55% { top: 52%; } to { left: 24%; top: 70%; rotate: 0deg; } }
 .pk-lanca__abre { position: absolute; left: 50%; top: 50%; width: 30cqw; height: 30cqw; border-radius: 50%; transform: translate(-50%, -50%) scale(0);
   background: radial-gradient(circle, #fff 0 18%, rgba(255,255,255,.85) 30%, rgba(255,236,160,.35) 52%, transparent 70%),
     repeating-conic-gradient(rgba(255,255,255,.9) 0 6deg, transparent 6deg 30deg);
@@ -107,11 +124,13 @@
 @keyframes pk-abre { 0% { transform: translate(-50%, -50%) scale(0); opacity: 1; } 60% { opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.1) rotate(25deg); opacity: 0; } }
 
 /* ---------- Pokébola: captura ---------- */
-.pk-bola { position: absolute; left: 71%; top: 38%; z-index: 3; width: 8cqw; height: 8cqw; transform: translate(-50%, -50%); animation: pk-arremesso .55s cubic-bezier(.3,.7,.4,1) both, pk-cai .35s cubic-bezier(.5,0,.7,1.6) .95s both; pointer-events: none; }
+.pk-bola { position: absolute; left: 71%; top: 38%; z-index: 3; width: 8cqw; height: 8cqw; transform: translate(-50%, -50%); animation: pk-arremesso .55s cubic-bezier(.3,.7,.4,1) both, pk-cai .35s cubic-bezier(.5,0,.7,1.6) .95s forwards; pointer-events: none; }
 .pk-bola__corpo { width: 100%; height: 100%; transform-origin: 50% 90%; animation: pk-balanca .5s ease-in-out 1.3s var(--balancos) both; }
 .pk-bola__corpo img { width: 100%; image-rendering: pixelated; }
 .pk-bola--pegou .pk-bola__corpo { animation: pk-balanca .5s ease-in-out 1.3s 3 both, pk-pegou .5s ease 2.85s both; }
 @keyframes pk-arremesso { from { transform: translate(-280%, 260%) rotate(-540deg) scale(1.4); } 70% { transform: translate(-50%, -140%) rotate(0); } to { transform: translate(-50%, -100%); } }
+.pk-bola--mao { animation-name: pk-arremesso-mao, pk-cai; }
+@keyframes pk-arremesso-mao { from { transform: translate(calc(-50% - 56cqw), calc(-50% + 17cqw)) rotate(-540deg) scale(1.3); } 70% { transform: translate(-50%, -140%) rotate(0); } to { transform: translate(-50%, -100%); } }
 @keyframes pk-cai { from { transform: translate(-50%, -100%); } to { transform: translate(-50%, -50%); } }
 @keyframes pk-balanca { 25% { rotate: -24deg; } 75% { rotate: 20deg; } }
 @keyframes pk-pegou { 40% { filter: brightness(.5); scale: .92; } to { filter: brightness(.7) drop-shadow(0 0 1.5cqw #FFE066); scale: 1; } }

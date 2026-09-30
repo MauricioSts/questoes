@@ -38,6 +38,7 @@ export interface LancaVis {
   n: number;
   lado: "meu" | "inimigo";
   bola: string;
+  mao?: boolean; // sai da mão do jogador
 }
 
 export interface TextoVis {
@@ -52,6 +53,7 @@ export interface BolaVis {
   bola: string;
   balancos: number;
   sucesso: boolean;
+  mao?: boolean; // sai da mão do jogador
 }
 
 export const SIGLA_STATUS: Record<Exclude<Status, "">, [string, string]> = {
@@ -222,6 +224,7 @@ export function Arena({
   inimigo,
   meu,
   treinador,
+  jogador,
   mensagem,
   fx,
   textos,
@@ -235,6 +238,7 @@ export function Arena({
   inimigo: LadoVis | null;
   meu: LadoVis | null;
   treinador: { sprite: string; chave: number; sai: boolean } | null;
+  jogador?: { sprite: string; chave: number } | null; // o jogador aparece para lançar a bola
   mensagem: string;
   fx: FxVis | null;
   textos: TextoVis[];
@@ -263,18 +267,19 @@ export function Arena({
           draggable={false}
         />
       )}
+      {jogador && <img key={jogador.chave} className="pk-jogador" src={spriteTreinador(jogador.sprite)} alt="" draggable={false} />}
       {inimigo && <Sprite lado={inimigo} meu={false} />}
       {meu && <Sprite lado={meu} meu />}
 
       {lancamentos.map((l) => (
-        <div key={l.n} className={`pk-lanca pk-lanca--${l.lado}`} aria-hidden>
+        <div key={l.n} className={`pk-lanca pk-lanca--${l.lado} ${l.mao ? "pk-lanca--mao" : ""}`} aria-hidden>
           <img src={spriteItem(l.bola)} alt="" draggable={false} />
           <span className="pk-lanca__abre" />
         </div>
       ))}
 
       {bola && (
-        <div key={bola.n} className={`pk-bola ${bola.sucesso ? "pk-bola--pegou" : "pk-bola--escapou"}`} style={{ "--balancos": bola.balancos } as CSSProperties} aria-hidden>
+        <div key={bola.n} className={`pk-bola ${bola.sucesso ? "pk-bola--pegou" : "pk-bola--escapou"} ${bola.mao ? "pk-bola--mao" : ""}`} style={{ "--balancos": bola.balancos } as CSSProperties} aria-hidden>
           <span className="pk-bola__flash" />
           <div className="pk-bola__corpo">
             <img src={spriteItem(bola.bola)} alt="" draggable={false} />

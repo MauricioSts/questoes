@@ -31,6 +31,7 @@ import {
   spriteFrente,
   spriteItem,
   spriteTreinador,
+  TREINADORES_JOGADOR,
   cenario,
   xpDoNivel,
   MAX_GOLPES,
@@ -102,6 +103,7 @@ import { CHEGADA, efeitoDoGolpe, efeitoDoStatus } from "../components/poke/fx";
 
 const CHAVE_PARTIDA = "q_poke_partida";
 const CHAVE_PERFIL = "q_poke_perfil";
+const CHAVE_JOGADOR = "q_poke_jogador"; // sprite do jogador; fora do perfil para sobreviver ao recomeço
 
 function ler<T>(chave: string): T | null {
   try {
@@ -264,6 +266,15 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   const [fx, setFx] = useState<FxVis | null>(null);
   const [textos, setTextos] = useState<TextoVis[]>([]);
   const [bolaVis, setBolaVis] = useState<BolaVis | null>(null);
+  const [jogador, setJogadorEstado] = useState(() => {
+    const j = ler<string>(CHAVE_JOGADOR);
+    return TREINADORES_JOGADOR.some((t) => t.sprite === j) ? j! : TREINADORES_JOGADOR[0].sprite;
+  });
+  const setJogador = (j: string) => {
+    setJogadorEstado(j);
+    gravar(CHAVE_JOGADOR, j);
+  };
+  const [jogadorVis, setJogadorVis] = useState<{ sprite: string; chave: number } | null>(null);
   const [lancamentos, setLancamentos] = useState<LancaVis[]>([]);
   const [evolucao, setEvolucao] = useState<{ de: number; para: number; fim: () => void } | null>(null);
   const contador = useRef(1);
@@ -306,9 +317,16 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     return { id: e.especie, nome: nomeDe(e.especie), nivel: e.nivel, hp: e.hp, hpMax: max, status: e.status, semente: e.semente, anim, chave: n(), selvagem: e.tipo === "selvagem", capturavel };
   };
   // Pokébola voando até o lado e abrindo; o Pokémon sai dela (anim "saiBola").
+  // O jogador entra, arremessa e sai (a animação dura 1,1s).
+  const mostrarJogador = () => {
+    const k = n();
+    setJogadorVis({ sprite: jogador, chave: k });
+    setTimeout(() => setJogadorVis((v) => (v?.chave === k ? null : v)), 1150);
+  };
   const lancar = (lado: "meu" | "inimigo") => {
     const k = n();
-    setLancamentos((xs) => [...xs.slice(-1), { n: k, lado, bola: "poke-ball" }]);
+    if (lado === "meu") mostrarJogador();
+    setLancamentos((xs) => [...xs.slice(-1), { n: k, lado, bola: "poke-ball", mao: lado === "meu" }]);
     setTimeout(() => setLancamentos((xs) => xs.filter((x) => x.n !== k)), 1100);
   };
   const golpeFx = (de: "meu" | "inimigo", g: number, forte = false) => {
@@ -547,7 +565,8 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           break;
         case "bola": {
           setMensagem(`Você lançou uma ${nomeItem(ev.bola)}!`);
-          setBolaVis({ n: n(), bola: ev.bola, balancos: ev.balancos, sucesso: ev.sucesso });
+          mostrarJogador();
+          setBolaVis({ n: n(), bola: ev.bola, balancos: ev.balancos, sucesso: ev.sucesso, mao: true });
           await esperar(500);
           anim("inimigo", "bola");
           await esperar(850 + ev.balancos * 500);
@@ -937,6 +956,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
       <EscolhaInicial
         dex={dex}
         alternar={alternar}
+        extra={<EscolherJogador atual={jogador} onEscolher={setJogador} />}
         onEscolher={(id) => {
           setPerfil(perfilInicial(dex, id));
         }}
@@ -978,6 +998,8 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
         onRetomar={() => partida && entrarNaLuta(partida)}
         onViajar={() => setViagem(true)}
         onRecomecar={recomecar}
+        jogador={jogador}
+        onJogador={setJogador}
         alternar={alternar}
       />
     );
@@ -1041,6 +1063,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           inimigo={fase === "recompensa" || fase === "troca" ? null : inimigoVis}
           meu={meuVis}
           treinador={treinadorVis}
+          jogador={jogadorVis}
           mensagem={mensagem}
           fx={fx}
           textos={textos}
@@ -1534,8 +1557,10 @@ function EscolhaInicial({
   titulo = "Escolha seu primeiro Pokémon",
   subtitulo = "Ele começa no nível 5 e cresce com cada questão que você acertar.",
   onVoltar,
+  extra,
 }: {
   dex: Dex;
+  extra?: ReactNode;
   onEscolher: (id: number) => void;
   alternar?: ReactNode;
   iniciais?: number[];
@@ -1553,6 +1578,7 @@ function EscolhaInicial({
           <MonCard key={i} dex={dex} m={{ uid: String(i), id: i, xp: xpDoNivel(5), golpes: [] }} marcado={id === i} onClick={() => setId(i)} />
         ))}
       </div>
+      {extra && <div className="mx-auto mt-5 max-w-[640px]">{extra}</div>}
       <div className="sticky bottom-20 mt-4 flex justify-center">
         {onVoltar && (
           <button onClick={onVoltar} className="mr-2 rounded-2xl border border-hair bg-surface px-5 py-3 font-display font-bold text-muted transition hover:text-brand-500">
@@ -1562,6 +1588,33 @@ function EscolhaInicial({
         <button disabled={!id} onClick={() => id && onEscolher(id)} className="btn-primary disabled:opacity-40">
           {id ? `Escolher ${dex.especies[id].n}` : "Toque em um Pokémon"}
         </button>
+      </div>
+    </div>
+  );
+}
+
+// Qual treinador aparece na arena lançando a Pokébola.
+function EscolherJogador({ atual, onEscolher }: { atual: string; onEscolher: (sprite: string) => void }) {
+  const nome = TREINADORES_JOGADOR.find((t) => t.sprite === atual)?.nome;
+  return (
+    <div>
+      <div className="mb-2 flex items-baseline justify-between gap-2">
+        <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Seu treinador</p>
+        <p className="text-xs text-muted">{nome}</p>
+      </div>
+      <div className="grid grid-cols-6 gap-1.5 sm:grid-cols-8 lg:grid-cols-6">
+        {TREINADORES_JOGADOR.map((t) => (
+          <button
+            key={t.sprite}
+            onClick={() => onEscolher(t.sprite)}
+            title={t.nome}
+            aria-label={t.nome}
+            aria-pressed={t.sprite === atual}
+            className={`aspect-square overflow-hidden rounded-lg border transition ${t.sprite === atual ? "border-brand-500 bg-brand-500/10" : "border-hair hover:border-brand-500"}`}
+          >
+            <img src={spriteTreinador(t.sprite)} alt="" draggable={false} loading="lazy" className="h-full w-full object-contain [image-rendering:pixelated]" />
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -1582,6 +1635,8 @@ function Lobby({
   onRetomar,
   onViajar,
   onRecomecar,
+  jogador,
+  onJogador,
   alternar,
 }: {
   dex: Dex;
@@ -1596,6 +1651,8 @@ function Lobby({
   onRetomar: () => void;
   onViajar: () => void;
   onRecomecar: () => void;
+  jogador: string;
+  onJogador: (sprite: string) => void;
   alternar?: ReactNode;
 }) {
   const time = perfil.time.map((u) => perfil.colecao.find((m) => m.uid === u)).filter((m): m is Mon => !!m);
@@ -1871,6 +1928,10 @@ function Lobby({
             ) : (
               <p className="mt-1 text-sm text-muted">Vazia.</p>
             )}
+          </div>
+
+          <div className="card p-5">
+            <EscolherJogador atual={jogador} onEscolher={onJogador} />
           </div>
 
           <div className="card space-y-2 p-5">
