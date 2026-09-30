@@ -1,6 +1,7 @@
-// Batalha Pokémon: o jogo roda no aparelho (localStorage); aqui só chega o resumo que
-// aparece no perfil público do ranking.
+// Batalha Pokémon: as regras rodam no aparelho, mas o jogo (perfil, partida e treinador)
+// fica salvo aqui (/poke/save), e o resumo público do ranking vai em /poke/vitrine.
 import { Router } from "express";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
@@ -35,6 +36,39 @@ pokeRouter.put(
       create: { userId: req.userId!, dados },
       update: { dados },
     });
+    res.status(204).end();
+  })
+);
+
+// Estado do jogo, no formato do frontend. Só confere a forma de fora: quem joga é o dono.
+const ObjetoJogo = z.record(z.unknown()).nullable();
+const SaveSchema = z.object({
+  perfil: ObjetoJogo.optional(),
+  partida: ObjetoJogo.optional(),
+  jogador: z.string().regex(/^[a-z0-9-]{1,30}$/).optional(),
+});
+const json = (v: Record<string, unknown> | null) => (v === null ? Prisma.DbNull : (v as Prisma.InputJsonObject));
+
+// GET /poke/save: o jogo salvo (tudo null se ainda não jogou).
+pokeRouter.get(
+  "/save",
+  asyncHandler(async (req, res) => {
+    const s = await prisma.pokeSave.findUnique({ where: { userId: req.userId! } });
+    res.json({ perfil: s?.perfil ?? null, partida: s?.partida ?? null, jogador: s?.jogador ?? null, atualizadoEm: s?.updatedAt ?? null });
+  })
+);
+
+// PUT /poke/save: grava só os campos enviados (null apaga).
+pokeRouter.put(
+  "/save",
+  asyncHandler(async (req, res) => {
+    const b = SaveSchema.parse(req.body);
+    const dados = {
+      ...(b.perfil !== undefined ? { perfil: json(b.perfil) } : {}),
+      ...(b.partida !== undefined ? { partida: json(b.partida) } : {}),
+      ...(b.jogador !== undefined ? { jogador: b.jogador } : {}),
+    };
+    await prisma.pokeSave.upsert({ where: { userId: req.userId! }, create: { userId: req.userId!, ...dados }, update: dados });
     res.status(204).end();
   })
 );

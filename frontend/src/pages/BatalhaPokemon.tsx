@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
-import { Backpack, Crown, Flag, Flame, Lock, Map as MapaIcone, NotebookPen, Pause, Plane, RotateCcw, Shuffle, Swords, Trees, Trophy, Users, X } from "lucide-react";
+import { Backpack, Cloud, CloudOff, CloudUpload, Crown, Flag, Flame, HelpCircle, Lock, Map as MapaIcone, NotebookPen, Pause, Plane, RotateCcw, Shuffle, Swords, Trees, Trophy, UserRound, Users, X } from "lucide-react";
 import type { Alternativa } from "../types/questao";
 import { getQuestao } from "../lib/questoesRepo";
 import { carregarFilaBatalha, novasPorFraqueza, type HistoricoQ } from "../lib/filaBatalha";
@@ -23,6 +23,7 @@ import { tipoDaMateria } from "../components/batalha/tipos";
 import {
   COR_TIPO,
   INICIAIS_POR_REGIAO,
+  ULTIMO_DA_JORNADA,
   NOME_TIPO,
   NIVEL_TROCA_AMIZADE,
   atributos,
@@ -105,29 +106,10 @@ import { PageHeader } from "../components/PageHeader";
 import { Carregando } from "../components/Spinner";
 import { Arena, TipoChip, type BolaVis, type FxVis, type ItemVis, type LadoVis, type LancaVis, type TextoVis } from "../components/poke/Arena";
 import { CHEGADA, efeitoDoGolpe, efeitoDoStatus } from "../components/poke/fx";
+import { carregarSave, criarSalvador, type EstadoSave, type SavePoke } from "../lib/poke/save";
 
-// ---------- persistência ----------
-
-const CHAVE_PARTIDA = "q_poke_partida";
-const CHAVE_PERFIL = "q_poke_perfil";
-const CHAVE_JOGADOR = "q_poke_jogador"; // sprite do jogador; fora do perfil para sobreviver ao recomeço
-
-function ler<T>(chave: string): T | null {
-  try {
-    const s = localStorage.getItem(chave);
-    return s ? (JSON.parse(s) as T) : null;
-  } catch {
-    return null;
-  }
-}
-function gravar(chave: string, valor: unknown) {
-  try {
-    if (valor === null) localStorage.removeItem(chave);
-    else localStorage.setItem(chave, JSON.stringify(valor));
-  } catch {
-    /* sem armazenamento: vale só enquanto a aba estiver aberta */
-  }
-}
+// Persistência: o jogo fica no servidor (lib/poke/save.ts). O sprite do jogador fica fora
+// do perfil para sobreviver ao recomeço.
 
 // ---------- textos ----------
 
@@ -176,44 +158,78 @@ const NOME_MODO: Record<ModoJornada, string> = { rota: "Caminho", ginasio: "Gin�
 export function BatalhaPokemon({ alternar }: { alternar?: ReactNode }) {
   const [dex, setDex] = useState<Dex | null>(null);
   const [erroDex, setErroDex] = useState(false);
+  const [save, setSave] = useState<SavePoke | null>(null);
+  const [erroSave, setErroSave] = useState(false);
+  const buscarSave = useCallback(() => {
+    setErroSave(false);
+    carregarSave()
+      .then(setSave)
+      .catch(() => setErroSave(true));
+  }, []);
   useEffect(() => {
     carregarDex()
       .then(setDex)
       .catch(() => setErroDex(true));
-  }, []);
+    buscarSave();
+  }, [buscarSave]);
   if (erroDex) return <p className="p-6 text-sm text-muted">Não consegui carregar a Pokédex. Recarregue a página.</p>;
-  if (!dex) return <Carregando texto="Abrindo a Pokédex…" />;
-  return <Jogo dex={dex} alternar={alternar} />;
+  if (erroSave)
+    return (
+      <div className="space-y-3 p-6 text-sm text-muted">
+        <p>Não consegui buscar o seu jogo salvo no servidor.</p>
+        <button onClick={buscarSave} className="btn-primary text-sm">
+          Tentar de novo
+        </button>
+      </div>
+    );
+  if (!dex || !save) return <Carregando texto={dex ? "Buscando seu jogo salvo…" : "Abrindo a Pokédex…"} />;
+  return <Jogo dex={dex} save={save} alternar={alternar} />;
 }
 
-function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
+function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: ReactNode }) {
   usePausarFundo();
   const { activeId } = useConcurso();
   const { goal } = useMeta();
 
   const { usuario } = useAuth();
 
+  const [estadoSave, setEstadoSave] = useState<EstadoSave>("salvo");
+  const salvador = useMemo(() => criarSalvador(setEstadoSave), []);
+  useEffect(() => {
+    const sair = () => salvador.enviarAgora(true);
+    const esconder = () => document.visibilityState === "hidden" && sair();
+    window.addEventListener("pagehide", sair);
+    document.addEventListener("visibilitychange", esconder);
+    return () => {
+      window.removeEventListener("pagehide", sair);
+      document.removeEventListener("visibilitychange", esconder);
+      salvador.enviarAgora();
+    };
+  }, [salvador]);
+
   const [perfil, setPerfilEstado] = useState<PerfilPoke | null>(() => {
-    const p = ler<PerfilPoke>(CHAVE_PERFIL);
+    const p = save.perfil;
     if (!p || p.versao !== 1 || !p.colecao.length) return null;
-    // Reset feito pelo servidor: perfil deste aparelho anterior a ele recomeça do zero.
+    // Reset feito pelo servidor (User.pokeResetAt): perfil anterior a ele recomeça do zero.
     const reset = usuario?.pokeResetAt;
     if (reset && (!p.criadoEm || p.criadoEm < reset)) {
-      gravar(CHAVE_PERFIL, null);
-      gravar(CHAVE_PARTIDA, null);
+      salvador.salvar({ perfil: null, partida: null });
       return null;
     }
     return p;
   });
-  const setPerfil = useCallback((p: PerfilPoke) => {
-    setPerfilEstado(p);
-    gravar(CHAVE_PERFIL, p);
-  }, []);
+  const setPerfil = useCallback(
+    (p: PerfilPoke) => {
+      setPerfilEstado(p);
+      salvador.salvar({ perfil: p });
+    },
+    [salvador]
+  );
   const perfilRef = useRef(perfil);
   perfilRef.current = perfil;
 
   const [partida, setPartidaEstado] = useState<PartidaPoke | null>(() => {
-    const p = ler<PartidaPoke>(CHAVE_PARTIDA);
+    const p = perfil ? save.partida : null;
     return p && p.versao === 3 && p.concursoId === (activeId ?? null) ? p : null;
   });
   // Toda mudança da partida vai para o perfil na hora (níveis, capturas, mochila): fechar a
@@ -221,10 +237,10 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   const setPartida = useCallback(
     (p: PartidaPoke | null) => {
       setPartidaEstado(p);
-      gravar(CHAVE_PARTIDA, p);
+      salvador.salvar({ partida: p });
       if (p && perfilRef.current) setPerfil(sincronizarPerfil(perfilRef.current, p));
     },
-    [setPerfil]
+    [setPerfil, salvador]
   );
 
   const [viagem, setViagem] = useState(false);
@@ -251,12 +267,12 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   const [textos, setTextos] = useState<TextoVis[]>([]);
   const [bolaVis, setBolaVis] = useState<BolaVis | null>(null);
   const [jogador, setJogadorEstado] = useState(() => {
-    const j = ler<string>(CHAVE_JOGADOR);
+    const j = save.jogador;
     return TREINADORES_JOGADOR.some((t) => t.sprite === j) ? j! : TREINADORES_JOGADOR[0].sprite;
   });
   const setJogador = (j: string) => {
     setJogadorEstado(j);
-    gravar(CHAVE_JOGADOR, j);
+    salvador.salvar({ jogador: j });
   };
   const [jogadorVis, setJogadorVis] = useState<{ sprite: string; chave: number } | null>(null);
   // Resumo público (perfil do ranking): publica quando muda, com folga para não mandar
@@ -999,10 +1015,10 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     setFase("entrada");
   }
 
-  // Recomeçar a jornada do zero: apaga coleção, insígnias e a partida deste aparelho.
+  // Recomeçar a jornada do zero: apaga coleção, insígnias e a partida salva no servidor.
   function recomecar() {
-    gravar(CHAVE_PARTIDA, null);
-    gravar(CHAVE_PERFIL, null);
+    salvador.salvar({ perfil: null, partida: null });
+    salvador.enviarAgora();
     setPartidaEstado(null);
     setPerfilEstado(null);
     setDesfecho(null);
@@ -1074,6 +1090,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
         onRecomecar={recomecar}
         jogador={jogador}
         onJogador={setJogador}
+        estadoSave={estadoSave}
         alternar={alternar}
       />
     );
@@ -1798,6 +1815,97 @@ function MonCard({ dex, m, onClick, marcado, rodape }: { dex: Dex; m: Mon; onCli
 
 // ---------- escolha do inicial ----------
 
+const ROTULO_ATRIBUTO = ["HP", "Ataque", "Defesa", "At. Esp.", "Def. Esp.", "Veloc."];
+
+// Linha evolutiva a partir do inicial (primeiro ramo), com o que faz evoluir.
+function linhaEvolutiva(dex: Dex, id: number): { id: number; como?: string }[] {
+  const linha: { id: number; como?: string }[] = [{ id }];
+  let atual = dex.especies[id];
+  for (let passo = 0; passo < 2 && atual?.e?.length; passo++) {
+    const [para, tipo, valor] = atual.e[0];
+    if (!dex.especies[para]) break;
+    linha.push({
+      id: para,
+      como: tipo === "l" ? `Nv${valor}` : tipo === "i" ? nomeItem(String(valor)) : `Nv${NIVEL_TROCA_AMIZADE}`,
+    });
+    atual = dex.especies[para];
+  }
+  return linha;
+}
+
+function CartaoInicial({ dex, id, marcado, onClick }: { dex: Dex; id: number; marcado: boolean; onClick: () => void }) {
+  const e = dex.especies[id];
+  return (
+    <button
+      onClick={onClick}
+      aria-pressed={marcado}
+      className={`group relative flex flex-col items-center overflow-hidden rounded-2xl border-2 px-2 pb-3 pt-2 text-center transition ${marcado ? "border-brand-500 bg-surface shadow-lg" : "border-hair bg-surface2 hover:-translate-y-0.5 hover:border-brand-500"}`}
+      style={{
+        backgroundImage: `radial-gradient(circle at 50% 38%, ${COR_TIPO[e.t[0]]}33, transparent 62%)`,
+      }}
+    >
+      <span className="absolute left-2 top-1.5 z-10 text-[10px] font-bold text-faint">#{String(id).padStart(3, "0")}</span>
+      <img src={spriteFrente(id)} onError={(ev) => (ev.currentTarget.src = spriteEstatico(id))} alt="" className="pk-mini h-20 w-20 object-contain transition group-hover:scale-110 sm:h-24 sm:w-24" />
+      <span className="mt-1 w-full truncate font-display text-base font-bold text-brand-ink">{e.n}</span>
+      <span className="mt-1 flex flex-wrap justify-center gap-1">
+        {e.t.map((t) => (
+          <TipoChip key={t} tipo={t} nome={NOME_TIPO[t]} />
+        ))}
+      </span>
+    </button>
+  );
+}
+
+function DetalheInicial({ dex, id }: { dex: Dex; id: number }) {
+  const e = dex.especies[id];
+  const total = e.s.reduce((a, b) => a + b, 0);
+  return (
+    <div className="card p-4">
+      <div className="flex items-center gap-3">
+        <img src={spriteFrente(id)} onError={(ev) => (ev.currentTarget.src = spriteEstatico(id))} alt="" className="pk-mini h-20 w-20 shrink-0 object-contain" />
+        <div className="min-w-0">
+          <p className="truncate font-display text-xl font-bold text-brand-ink">{e.n}</p>
+          <span className="mt-1 flex flex-wrap gap-1">
+            {e.t.map((t) => (
+              <TipoChip key={t} tipo={t} nome={NOME_TIPO[t]} />
+            ))}
+          </span>
+        </div>
+      </div>
+      <div className="mt-3 space-y-1">
+        {e.s.map((v, i) => (
+          <div key={i} className="grid grid-cols-[64px_28px_1fr] items-center gap-2 text-[11px]">
+            <span className="text-faint">{ROTULO_ATRIBUTO[i]}</span>
+            <span className="text-right font-bold text-brand-ink">{v}</span>
+            <span className="h-1.5 overflow-hidden rounded-full bg-surface2">
+              <span
+                className="block h-full rounded-full"
+                style={{
+                  width: `${Math.min(100, (v / 150) * 100)}%`,
+                  background: COR_TIPO[e.t[0]],
+                }}
+              />
+            </span>
+          </div>
+        ))}
+        <p className="pt-0.5 text-right text-[11px] text-faint">total {total}</p>
+      </div>
+      <p className="mt-2 text-[11px] font-bold uppercase tracking-[.16em] text-faint">Evolui para</p>
+      <div className="mt-1 flex items-center justify-center gap-1">
+        {linhaEvolutiva(dex, id).map((x, i) => (
+          <div key={x.id} className="flex items-center gap-1">
+            {x.como && <span className="px-0.5 text-[10px] text-faint">→ {x.como}</span>}
+            <div className="flex flex-col items-center">
+              <img src={spriteEstatico(x.id)} alt="" className={`pk-mini object-contain ${i === 0 ? "h-10 w-10" : "h-12 w-12"}`} />
+              <span className="text-[10px] text-muted">{dex.especies[x.id].n}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function EscolhaInicial({
   dex,
   onEscolher,
@@ -1817,69 +1925,109 @@ function EscolhaInicial({
   subtitulo?: string;
   onVoltar?: () => void;
 }) {
+  const grupos = iniciais ? [{ regiao: "", ids: iniciais }] : INICIAIS_POR_REGIAO;
+  const [aba, setAba] = useState(0);
   const [id, setId] = useState<number | null>(null);
+  const ids = grupos[aba].ids.filter((i) => dex.especies[i]);
   return (
-    <div className="fadeup mx-auto max-w-[900px] pt-2 pb-24">
+    <div className="fadeup mx-auto max-w-[1000px] pt-2 pb-24">
       <PageHeader rotulo="Batalha" titulo={titulo} subtitulo={subtitulo} />
       {alternar}
-      {iniciais ? (
-        <div className="mx-auto grid max-w-[480px] grid-cols-3 gap-2">
-          {iniciais.map((i) => (
-            <MonCard key={i} dex={dex} m={{ uid: String(i), id: i, xp: xpDoNivel(5), golpes: [] }} marcado={id === i} onClick={() => setId(i)} />
-          ))}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="card min-w-0 p-4 sm:p-5">
+          {grupos.length > 1 && (
+            <div className="-mx-1 mb-4 flex gap-1.5 overflow-x-auto px-1 pb-1 sm:flex-wrap" role="radiogroup" aria-label="Região">
+              {grupos.map((g, i) => (
+                <button
+                  key={g.regiao}
+                  role="radio"
+                  aria-checked={i === aba}
+                  onClick={() => setAba(i)}
+                  className={`relative shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition ${i === aba ? "border-brand-500 bg-brand-500 text-white" : "border-hair text-muted hover:border-brand-500 hover:text-brand-500"}`}
+                >
+                  {g.regiao}
+                  {id !== null && g.ids.includes(id) && i !== aba && <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-brand-500" />}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className={`grid gap-3 ${ids.length > 3 ? "grid-cols-3 sm:grid-cols-5" : "mx-auto max-w-[560px] grid-cols-3"}`}>
+            {ids.map((i) => (
+              <CartaoInicial key={i} dex={dex} id={i} marcado={id === i} onClick={() => setId(i)} />
+            ))}
+          </div>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {INICIAIS_POR_REGIAO.map((g) => (
-            <section key={g.regiao}>
-              <p className="mb-1.5 text-xs font-bold uppercase tracking-[.16em] text-faint">{g.regiao}</p>
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
-                {g.ids.filter((i) => dex.especies[i]).map((i) => (
-                  <MonCard key={i} dex={dex} m={{ uid: String(i), id: i, xp: xpDoNivel(5), golpes: [] }} marcado={id === i} onClick={() => setId(i)} />
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
-      )}
-      {extra && <div className="mx-auto mt-5 max-w-[640px]">{extra}</div>}
-      <div className="sticky bottom-20 mt-4 flex justify-center">
-        {onVoltar && (
-          <button onClick={onVoltar} className="mr-2 rounded-2xl border border-hair bg-surface px-5 py-3 font-display font-bold text-muted transition hover:text-brand-500">
-            Agora não
-          </button>
-        )}
-        <button disabled={!id} onClick={() => id && onEscolher(id)} className="btn-primary disabled:opacity-40">
-          {id ? `Escolher ${dex.especies[id].n}` : "Toque em um Pokémon"}
-        </button>
+        <aside className="min-w-0 space-y-4 lg:sticky lg:top-4 lg:self-start">
+          {id ? (
+            <DetalheInicial dex={dex} id={id} />
+          ) : (
+            <div className="card flex min-h-[140px] items-center justify-center p-4 text-center text-sm text-muted">Toque em um Pokémon para ver atributos e evoluções.</div>
+          )}
+          {extra && <div className="card p-4">{extra}</div>}
+          <div className="flex gap-2">
+            {onVoltar && (
+              <button onClick={onVoltar} className="rounded-2xl border border-hair bg-surface px-4 py-3 font-display font-bold text-muted transition hover:text-brand-500">
+                Agora não
+              </button>
+            )}
+            <button disabled={!id} onClick={() => id && onEscolher(id)} className="btn-primary flex-1 disabled:opacity-40">
+              {id ? `Escolher ${dex.especies[id].n}` : "Escolha um Pokémon"}
+            </button>
+          </div>
+        </aside>
       </div>
     </div>
   );
 }
 
-// Qual treinador aparece na arena lançando a Pokébola.
-function EscolherJogador({ atual, onEscolher }: { atual: string; onEscolher: (sprite: string) => void }) {
-  const nome = TREINADORES_JOGADOR.find((t) => t.sprite === atual)?.nome;
+// Qual treinador aparece na arena lançando a Pokébola. Fechado, mostra só o atual e um
+// botão para trocar; `aberto` deixa a grade sempre à mostra (aba Treinador do lobby).
+function EscolherJogador({ atual, onEscolher, aberto = false }: { atual: string; onEscolher: (sprite: string) => void; aberto?: boolean }) {
+  const [abrir, setAbrir] = useState(aberto);
+  const eu = TREINADORES_JOGADOR.find((t) => t.sprite === atual) ?? TREINADORES_JOGADOR[0];
+  const regioes = [...new Set(TREINADORES_JOGADOR.map((t) => t.regiao))];
   return (
     <div>
-      <div className="mb-2 flex items-baseline justify-between gap-2">
-        <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Seu treinador</p>
-        <p className="text-xs text-muted">{nome}</p>
-      </div>
-      <div className="grid grid-cols-6 gap-1.5 sm:grid-cols-8 lg:grid-cols-6">
-        {TREINADORES_JOGADOR.map((t) => (
-          <button
-            key={t.sprite}
-            onClick={() => onEscolher(t.sprite)}
-            title={t.nome}
-            aria-label={t.nome}
-            aria-pressed={t.sprite === atual}
-            className={`aspect-square overflow-hidden rounded-lg border transition ${t.sprite === atual ? "border-brand-500 bg-brand-500/10" : "border-hair hover:border-brand-500"}`}
-          >
-            <img src={spriteTreinador(t.sprite)} alt="" draggable={false} loading="lazy" className="h-full w-full object-contain [image-rendering:pixelated]" />
+      <div className="flex items-center gap-3">
+        <img src={spriteTreinador(eu.sprite)} alt="" draggable={false} className="h-16 w-16 shrink-0 rounded-xl bg-surface2 object-contain [image-rendering:pixelated]" />
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-bold uppercase tracking-[.16em] text-faint">Seu treinador</p>
+          <p className="font-display text-lg font-bold text-brand-ink">{eu.nome}</p>
+          <p className="text-xs text-muted">{eu.regiao}</p>
+        </div>
+        {!aberto && (
+          <button onClick={() => setAbrir(!abrir)} className="rounded-xl border border-hair px-3 py-1.5 text-sm font-semibold text-muted transition hover:border-brand-500 hover:text-brand-500">
+            {abrir ? "Fechar" : "Trocar"}
           </button>
-        ))}
+        )}
       </div>
+      {abrir && (
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2.5">
+          {regioes.map((r) => (
+            <div key={r}>
+              <p className="mb-1 text-[10px] font-bold uppercase tracking-[.16em] text-faint">{r}</p>
+              <div className="flex gap-1">
+                {TREINADORES_JOGADOR.filter((t) => t.regiao === r).map((t) => (
+                  <button
+                    key={t.sprite}
+                    onClick={() => {
+                      onEscolher(t.sprite);
+                      if (!aberto) setAbrir(false);
+                    }}
+                    title={t.nome}
+                    aria-label={t.nome}
+                    aria-pressed={t.sprite === atual}
+                    className={`flex w-[58px] flex-col items-center rounded-xl border px-0.5 pb-1 pt-0.5 transition ${t.sprite === atual ? "border-brand-500 bg-brand-500/10" : "border-hair hover:border-brand-500"}`}
+                  >
+                    <img src={spriteTreinador(t.sprite)} alt="" draggable={false} loading="lazy" className="h-12 w-12 object-contain [image-rendering:pixelated]" />
+                    <span className="w-full truncate text-[10px] font-semibold text-muted">{t.nome}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -1901,16 +2049,26 @@ function Lobby({
   onRecomecar,
   jogador,
   onJogador,
+  estadoSave,
   alternar,
 }: {
   dex: Dex;
+  estadoSave: EstadoSave;
   perfil: PerfilPoke;
   setPerfil: (p: PerfilPoke) => void;
   pendentes: Candidata[] | null;
   novas: number;
   erro: boolean;
   onTentar: () => void;
-  onComecar: (modo: ModoJornada, opts?: { ginasio?: number; habitat?: number; terreno?: number; rumo?: number }) => void;
+  onComecar: (
+    modo: ModoJornada,
+    opts?: {
+      ginasio?: number;
+      habitat?: number;
+      terreno?: number;
+      rumo?: number;
+    },
+  ) => void;
   emAndamento: PartidaPoke | null;
   onRetomar: () => void;
   onViajar: () => void;
@@ -1944,6 +2102,7 @@ function Lobby({
   const historia = historiaDe(perfil);
   const exigidos = proximo ? treinadoresParaGinasio(insignias) : 0;
   const [confirmarReset, setConfirmarReset] = useState(false);
+  const [aba, setAba] = useState<AbaLobby>("jornada");
   const [dandoItem, setDandoItem] = useState<string | null>(null);
   const monDandoItem = dandoItem ? perfil.colecao.find((m) => m.uid === dandoItem) : undefined;
   const temSeguravel = Object.entries(perfil.mochila).some(([i, q]) => q > 0 && seguravel(i));
@@ -1977,16 +2136,239 @@ function Lobby({
     }
   };
 
+  const abas: { id: AbaLobby; nome: string; icone: ReactNode }[] = [
+    { id: "jornada", nome: "Jornada", icone: <MapaIcone size={15} /> },
+    { id: "time", nome: `Time e PC`, icone: <Users size={15} /> },
+    { id: "mochila", nome: "Mochila", icone: <Backpack size={15} /> },
+    { id: "treinador", nome: "Treinador", icone: <UserRound size={15} /> },
+    { id: "ajuda", nome: "Como jogar", icone: <HelpCircle size={15} /> },
+  ];
+  const editores = (
+    <>
+      {monDandoItem && <EditorItem dex={dex} m={monDandoItem} mochila={perfil.mochila} onFechar={() => setDandoItem(null)} onDar={(item) => setPerfil(darItem(perfil, monDandoItem.uid, item))} />}
+      {monEditando && (
+        <EditorGolpes
+          dex={dex}
+          m={monEditando}
+          onFechar={() => setEditando(null)}
+          onSalvar={(golpes) => {
+            setPerfil(definirGolpes(dex, perfil, monEditando.uid, golpes));
+            setEditando(null);
+          }}
+        />
+      )}
+    </>
+  );
+
   return (
-    <div className="fadeup mx-auto max-w-[980px] pt-2 pb-24">
+    <div className="fadeup mx-auto max-w-[1040px] pt-2 pb-24">
       <PageHeader rotulo="Batalha" titulo={`Jornada Pokémon · ${regiao.nome}`} subtitulo="Cada turno é uma questão. Acertar faz o golpe sair; errar leva contra-ataque." />
       {alternar}
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
-        <div className="space-y-4">
-          <div className="card p-5">
-            <div className="mb-3 flex items-baseline justify-between gap-2">
-              <p className="font-display text-lg font-bold text-brand-ink">Seu time ({time.length}/{MAX_TIME})</p>
+      {/* resumo: treinador, insígnias, números e o time de relance */}
+      <div className="card mb-3 flex flex-wrap items-center gap-x-5 gap-y-3 p-4">
+        <div className="flex min-w-[240px] flex-1 items-center gap-3">
+          <button onClick={() => setAba("treinador")} title="Trocar treinador" className="shrink-0 rounded-xl bg-surface2 transition hover:ring-2 hover:ring-brand-500">
+            <img src={spriteTreinador(jogador)} alt="" draggable={false} className="h-16 w-16 object-contain [image-rendering:pixelated]" />
+          </button>
+          <div className="min-w-0 flex-1">
+            <p className="flex flex-wrap items-baseline gap-x-2 font-display text-lg font-bold text-brand-ink">
+              {regiao.nome}
+              <span className="whitespace-nowrap text-sm font-semibold text-muted">{insignias}/8 insígnias</span>
+              {REGIOES.map((x, i) =>
+                campeaoDe(perfil, i) > 0 ? (
+                  <span key={x.nome} title={`Campeão de ${x.nome}`} className="inline-flex items-center gap-0.5 text-xs font-bold text-amber-500">
+                    <Crown size={13} /> {x.nome}
+                    {campeaoDe(perfil, i) > 1 ? ` ×${campeaoDe(perfil, i)}` : ""}
+                  </span>
+                ) : null,
+              )}
+            </p>
+            <div className="mt-1 flex gap-0.5">
+              {regiao.ginasios.map((g, i) => (
+                <img
+                  key={g.sprite}
+                  src={insigniaImg(i, r)}
+                  alt={g.insignia}
+                  title={`${g.insignia} (${g.lider})${i < insignias ? "" : " · ainda não"}`}
+                  className="pk-mini h-6 w-6 object-contain"
+                  style={i < insignias ? undefined : { filter: "grayscale(1) brightness(.6)", opacity: 0.35 }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-5 text-center">
+          <Numero valor={perfil.vitorias} rotulo="vitórias" />
+          <Numero valor={perfil.colecao.length} rotulo="capturados" />
+          <Numero valor={perfil.vistos.length} rotulo="vistos" />
+        </div>
+        <div className="flex w-full items-center gap-1 border-t border-hair pt-3 sm:w-auto sm:border-0 sm:pt-0">
+          {time.map((m) => (
+            <img key={m.uid} src={spriteEstatico(m.id)} alt={dex.especies[m.id].n} title={`${dex.especies[m.id].n} Nv${nivelDe(m)}`} className="pk-mini h-10 w-10 object-contain" />
+          ))}
+          <IndicadorSave estado={estadoSave} />
+        </div>
+      </div>
+
+      {(emAndamento || destino !== null) && (
+        <div className="mb-3 grid gap-3 sm:grid-cols-2">
+          {emAndamento && (
+            <div className="card bt-painel-resultado--acerto flex items-center gap-3 p-4">
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-bold uppercase tracking-[.16em] text-faint">Partida pausada</p>
+                <p className="font-display text-base font-bold text-brand-ink">
+                  {NOME_MODO[emAndamento.modo ?? "rota"]} · {emAndamento.vencidos.length}/{emAndamento.treinadores.length} treinadores
+                </p>
+              </div>
+              <button onClick={onRetomar} className="btn-primary shrink-0">
+                ▶ Continuar
+              </button>
+            </div>
+          )}
+          {destino !== null && (
+            <div className="card flex items-center gap-3 border-brand-500 p-4">
+              <div className="flex shrink-0 -space-x-3">
+                {REGIOES[destino].iniciais.map((i) => (
+                  <img key={i} src={spriteFrente(i)} onError={(ev) => (ev.currentTarget.src = spriteEstatico(i))} alt="" className="pk-mini h-11 w-11" />
+                ))}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-bold uppercase tracking-[.16em] text-faint">Campeão de {regiao.nome}!</p>
+                <p className="text-xs text-muted">{REGIOES[destino].nome} te espera: novo inicial no Nv5, time atual no PC.</p>
+              </div>
+              <button onClick={onViajar} disabled={!!emAndamento} className="btn-primary shrink-0 disabled:opacity-40">
+                <Plane size={16} className="mr-1.5 inline" /> Viajar
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="-mx-1 mb-3 flex gap-1 overflow-x-auto px-1 pb-1" role="tablist" aria-label="Seções do lobby">
+        {abas.map((x) => (
+          <button
+            key={x.id}
+            role="tab"
+            aria-selected={aba === x.id}
+            onClick={() => setAba(x.id)}
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition ${aba === x.id ? "border-brand-500 bg-brand-500 text-white" : "border-hair bg-surface text-muted hover:border-brand-500 hover:text-brand-500"}`}
+          >
+            {x.icone}
+            {x.nome}
+          </button>
+        ))}
+      </div>
+
+      {aba === "jornada" && (
+        <div className="card p-4 sm:p-5">
+          {erro ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted">Não consegui carregar a sua fila de revisão.</p>
+              <button onClick={onTentar} className="btn-primary text-sm">
+                Tentar de novo
+              </button>
+            </div>
+          ) : !pendentes ? (
+            <Carregando texto="Montando a rota…" />
+          ) : revisoes + completa === 0 ? (
+            <p className="text-sm text-muted">Nenhuma questão disponível neste concurso ainda.</p>
+          ) : (
+            <>
+              <div className="grid items-start gap-2 md:grid-cols-2">
+                {proximo ? (
+                  <Destino
+                    titulo={`Ginásio de ${proximo.cidade}`}
+                    texto={
+                      liberado
+                        ? `${proximo.lider} · ${NOME_TIPO[proximo.tipo]} · vale a ${proximo.insignia}`
+                        : `${proximo.lider} aceita o desafio depois de ${exigidos} treinadores no caminho (${historia}/${exigidos})`
+                    }
+                    imagem={spriteTreinador(proximo.sprite)}
+                    selo={insigniaImg(insignias, r)}
+                    icone={liberado ? undefined : <Lock size={16} />}
+                    destaque={liberado}
+                    disabled={!!emAndamento || !liberado}
+                    onClick={() => onComecar("ginasio", { ginasio: insignias })}
+                  />
+                ) : null}
+                <Destino
+                  titulo={proximo ? `Caminho para ${proximo.cidade}` : "Estrada Vitória"}
+                  texto={
+                    proximo
+                      ? liberado
+                        ? `Caminho feito (${historia}/${exigidos}): o ginásio te espera. Dá para seguir treinando.`
+                        : `Vença ${exigidos} treinadores para enfrentar ${proximo.lider} (${historia}/${exigidos}). Selvagens no mato e um Treinador Ás no fim.`
+                      : "Treinadores e selvagens rumo à Liga Pokémon, com um Treinador Ás no fim"
+                  }
+                  imagem={spriteItem("poke-ball")}
+                  icone={<MapaIcone size={16} />}
+                  destaque={!!proximo && !liberado}
+                  disabled={!!emAndamento}
+                  onClick={() => onComecar("rota", proximo ? { rumo: insignias } : {})}
+                />
+                <Destino
+                  titulo={`Liga Pokémon de ${regiao.nome}`}
+                  texto={liga ? `Elite dos 4 (${regiao.elite.map((e) => e.nome).join(", ")}) e o Campeão ${regiao.campeao.nome}` : `Precisa das 8 insígnias (${insignias}/8)`}
+                  imagem={spriteTreinador(liga ? regiao.elite[0].sprite : regiao.campeao.sprite)}
+                  icone={liga ? <Crown size={16} /> : <Lock size={16} />}
+                  destaque={liga}
+                  disabled={!!emAndamento || !liga}
+                  onClick={() => onComecar("liga")}
+                />
+                <div className="rounded-2xl border border-hair bg-surface2">
+                  <Destino
+                    titulo={`Zona Safári · ${REGIOES[habitat].nome}${terrenoSel ? ` · ${terrenoSel.nome}` : ""}`}
+                    texto={`${terrenoSel ? `Só ${terrenoSel.tipos.map((t) => NOME_TIPO[t]).join(" e ")}` : "Todos os tipos"} · ${BOLAS_SAFARI} Safari Balls · troca o selvagem até ${MAX_TROCAS}×`}
+                    imagem={spriteItem("safari-ball")}
+                    icone={<Trees size={16} />}
+                    disabled={!!emAndamento}
+                    onClick={() => onComecar("safari", { habitat, terreno })}
+                  />
+                  <div className="flex flex-wrap gap-1 px-2.5 pb-1.5" role="radiogroup" aria-label="Região da Zona Safári">
+                    {REGIOES.map((x, i) => (
+                      <Pilula key={x.nome} ativa={habitat === i} disabled={i > r} titulo={i > r ? "Chega lá viajando: vire Campeão da região atual" : undefined} onClick={() => setHabitat(i)}>
+                        {i > r && <Lock size={10} className="mr-0.5 inline" />}
+                        {x.nome}
+                      </Pilula>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap gap-1 px-2.5 pb-2.5" role="radiogroup" aria-label="Terreno da Zona Safári">
+                    <Pilula ativa={terreno === -1} onClick={() => setTerreno(-1)}>
+                      Todos
+                    </Pilula>
+                    {TERRENOS.map((x, i) => (
+                      <Pilula key={x.nome} ativa={terreno === i} titulo={x.tipos.map((t) => NOME_TIPO[t]).join(", ")} onClick={() => setTerreno(i)}>
+                        {x.nome}
+                        {x.tipos.map((t) => (
+                          <span key={t} className="ml-1 inline-block h-2 w-2 rounded-full align-middle" style={{ background: COR_TIPO[t] }} />
+                        ))}
+                      </Pilula>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
+                <Chip title="As questões de todo destino">{revisoes > 0 ? `${revisoes} de revisão${completa > 0 ? " + novas" : ""}` : "novas das matérias em que você mais erra"}</Chip>
+                <Chip title="Nível médio do time">time Nv{nivelMedio(time)}</Chip>
+                <Chip title={cap < 100 ? (proximo ? `o nível do ás de ${proximo.lider}; acima dele o XP não entra` : `o nível do Campeão ${regiao.campeao.nome}`) : "você já é o Campeão daqui"}>
+                  {cap < 100 ? `level cap Nv${cap}` : "sem level cap"}
+                </Chip>
+                <Chip title="Treinadores dão o dobro do XP de selvagens">treinador = 2× XP</Chip>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {aba === "time" && (
+        <div className="space-y-3">
+          {editores}
+          <div className="card p-4 sm:p-5">
+            <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+              <p className="font-display text-lg font-bold text-brand-ink">
+                Seu time ({time.length}/{MAX_TIME})
+              </p>
               <p className="text-xs text-faint">{podeMexer ? "toque para mandar ao PC" : "termine a partida para mexer no time"}</p>
             </div>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
@@ -1997,37 +2379,16 @@ function Lobby({
                 </div>
               ))}
             </div>
-            {monDandoItem && (
-              <EditorItem
-                dex={dex}
-                m={monDandoItem}
-                mochila={perfil.mochila}
-                onFechar={() => setDandoItem(null)}
-                onDar={(item) => setPerfil(darItem(perfil, monDandoItem.uid, item))}
-              />
-            )}
-            {monEditando && (
-              <EditorGolpes
-                dex={dex}
-                m={monEditando}
-                onFechar={() => setEditando(null)}
-                onSalvar={(golpes) => {
-                  setPerfil(definirGolpes(dex, perfil, monEditando.uid, golpes));
-                  setEditando(null);
-                }}
-              />
-            )}
           </div>
-
-          <div className="card p-5">
-            <div className="mb-3 flex items-baseline justify-between gap-2">
+          <div className="card p-4 sm:p-5">
+            <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
               <p className="font-display text-lg font-bold text-brand-ink">PC ({pc.length})</p>
               <p className="text-xs text-faint">
-                {campeaoDe(perfil) > 0 || r === 0 ? "capture Pokémon selvagens para escolher quem vai na jornada" : `só luta aqui quem veio de ${regiao.nome}; os outros voltam quando você for Campeão`}
+                {campeaoDe(perfil) > 0 || r === 0 ? "toque para levar ao time" : `só luta aqui quem veio de ${regiao.nome}; os outros voltam quando você for Campeão`}
               </p>
             </div>
             {pc.length ? (
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-6 lg:grid-cols-8">
                 {pc.map((m) => (
                   <div key={m.uid} className={`flex flex-col gap-1 ${podeLutar(perfil, m) ? "" : "opacity-45"}`}>
                     <MonCard
@@ -2036,7 +2397,17 @@ function Lobby({
                       onClick={() => alternarTime(m.uid)}
                       rodape={
                         <span className="text-[10px] text-faint">
-                          {podeLutar(perfil, m) ? (m.questaoId ? `questão #${m.questaoId}` : "") : <><Lock size={9} className="inline" /> de {regiaoDe(m.regiao).nome}</>}
+                          {podeLutar(perfil, m) ? (
+                            m.questaoId ? (
+                              `questão #${m.questaoId}`
+                            ) : (
+                              ""
+                            )
+                          ) : (
+                            <>
+                              <Lock size={9} className="inline" /> de {regiaoDe(m.regiao).nome}
+                            </>
+                          )}
                         </span>
                       }
                     />
@@ -2049,213 +2420,51 @@ function Lobby({
             )}
           </div>
         </div>
+      )}
 
-        <div className="space-y-4">
-          {destino !== null && (
-            <div className="card space-y-3 border-brand-500 p-5">
-              <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Nova região</p>
-              <p className="font-display text-lg font-bold text-brand-ink">Campeão de {regiao.nome}! {REGIOES[destino].nome} te espera.</p>
-              <div className="flex justify-center gap-2">
-                {REGIOES[destino].iniciais.map((i) => (
-                  <img key={i} src={spriteFrente(i)} onError={(ev) => (ev.currentTarget.src = spriteEstatico(i))} alt="" className="pk-mini h-14 w-14" />
-                ))}
-              </div>
-              <p className="text-xs text-muted">Escolha um destes para começar do nível 5. Seu time atual vai para o PC.</p>
-              <button onClick={onViajar} disabled={!!emAndamento} className="btn-primary w-full disabled:opacity-40">
-                <Plane size={16} className="mr-2 inline" /> Viajar para {REGIOES[destino].nome}
-              </button>
-            </div>
-          )}
-          {emAndamento && (
-            <div className="card bt-painel-resultado--acerto space-y-3 p-5">
-              <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Partida pausada</p>
-              <p className="font-display text-lg font-bold text-brand-ink">
-                {emAndamento.vencidos.length}/{emAndamento.treinadores.length} treinadores
-              </p>
-              <button onClick={onRetomar} className="btn-primary w-full">
-                ▶ Continuar partida
-              </button>
-            </div>
-          )}
-          <div className="card p-5">
-            {erro ? (
-              <div className="space-y-3">
-                <p className="text-sm text-muted">Não consegui carregar a sua fila de revisão.</p>
-                <button onClick={onTentar} className="btn-primary text-sm">
-                  Tentar de novo
-                </button>
-              </div>
-            ) : !pendentes ? (
-              <Carregando texto="Montando a rota…" />
-            ) : revisoes + completa === 0 ? (
-              <p className="text-sm text-muted">Nenhuma questão disponível neste concurso ainda.</p>
-            ) : (
-              <>
-                <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Para onde?</p>
-                <p className="mt-1 text-sm text-muted">
-                  Todo destino usa as mesmas questões: {revisoes > 0 ? <><b className="text-brand-ink">{revisoes}</b> da revisão espaçada{completa > 0 ? " e novas das matérias em que você mais erra" : ""}</> : "sem revisão pendente, novas das matérias em que você mais erra"}. O chefe de cada luta é a questão que mais te derrubou.
-                </p>
-                <div className="mt-3 space-y-2">
-                  {proximo ? (
-                    <Destino
-                      titulo={`Ginásio de ${proximo.cidade}`}
-                      texto={
-                        liberado
-                          ? `${proximo.lider} · ${NOME_TIPO[proximo.tipo]} · vale a ${proximo.insignia}`
-                          : `${proximo.lider} só aceita o desafio depois de ${exigidos} treinadores vencidos no caminho (${historia}/${exigidos})`
-                      }
-                      imagem={spriteTreinador(proximo.sprite)}
-                      selo={insigniaImg(insignias, r)}
-                      icone={liberado ? undefined : <Lock size={16} />}
-                      destaque={liberado}
-                      disabled={!!emAndamento || !liberado}
-                      onClick={() => onComecar("ginasio", { ginasio: insignias })}
-                    />
-                  ) : null}
-                  <Destino
-                    titulo={proximo ? `Caminho para ${proximo.cidade}` : "Estrada Vitória"}
-                    texto={
-                      proximo
-                        ? liberado
-                          ? `Caminho feito (${historia}/${exigidos}): o ginásio te espera. Dá para seguir treinando por aqui.`
-                          : `Modo história: vença ${exigidos} treinadores para enfrentar ${proximo.lider} (${historia}/${exigidos}). Selvagens no mato e um Treinador Ás no fim.`
-                        : "Treinadores e selvagens rumo à Liga Pokémon, com um Treinador Ás no fim"
-                    }
-                    imagem={spriteItem("poke-ball")}
-                    icone={<MapaIcone size={16} />}
-                    destaque={!!proximo && !liberado}
-                    disabled={!!emAndamento}
-                    onClick={() => onComecar("rota", proximo ? { rumo: insignias } : {})}
-                  />
-                  <Destino
-                    titulo={`Liga Pokémon de ${regiao.nome}`}
-                    texto={liga ? `Elite dos 4 (${regiao.elite.map((e) => e.nome).join(", ")}) e o Campeão ${regiao.campeao.nome}` : `Precisa das 8 insígnias (${insignias}/8)`}
-                    imagem={spriteTreinador(liga ? regiao.elite[0].sprite : regiao.campeao.sprite)}
-                    icone={liga ? <Crown size={16} /> : <Lock size={16} />}
-                    destaque={liga}
-                    disabled={!!emAndamento || !liga}
-                    onClick={() => onComecar("liga")}
-                  />
-                  <div className="rounded-2xl border border-hair bg-surface2">
-                    <Destino
-                      titulo={`Zona Safári · ${REGIOES[habitat].nome}${terrenoSel ? ` · ${terrenoSel.nome}` : ""}`}
-                      texto={`${terrenoSel ? `Só ${terrenoSel.tipos.map((t) => NOME_TIPO[t]).join(" e ")}` : "Todos os tipos"} de ${REGIOES[habitat].nome} · ${BOLAS_SAFARI} Safari Balls grátis · troque o selvagem até ${MAX_TROCAS}× por questão`}
-                      imagem={spriteItem("safari-ball")}
-                      icone={<Trees size={16} />}
-                      disabled={!!emAndamento}
-                      onClick={() => onComecar("safari", { habitat, terreno })}
-                    />
-                    <p className="px-2.5 text-[11px] font-bold uppercase tracking-wider text-faint">Região</p>
-                    <div className="flex flex-wrap gap-1 px-2.5 pb-2 pt-1" role="radiogroup" aria-label="Região da Zona Safári">
-                      {REGIOES.map((x, i) => (
-                        <Pilula key={x.nome} ativa={habitat === i} disabled={i > r} titulo={i > r ? "Chega lá viajando: vire Campeão da região atual" : undefined} onClick={() => setHabitat(i)}>
-                          {i > r && <Lock size={10} className="mr-0.5 inline" />}
-                          {x.nome}
-                        </Pilula>
-                      ))}
-                    </div>
-                    <p className="px-2.5 text-[11px] font-bold uppercase tracking-wider text-faint">Terreno</p>
-                    <div className="flex flex-wrap gap-1 px-2.5 pb-2.5 pt-1" role="radiogroup" aria-label="Terreno da Zona Safári">
-                      <Pilula ativa={terreno === -1} onClick={() => setTerreno(-1)}>
-                        Todos
-                      </Pilula>
-                      {TERRENOS.map((x, i) => (
-                        <Pilula key={x.nome} ativa={terreno === i} titulo={x.tipos.map((t) => NOME_TIPO[t]).join(", ")} onClick={() => setTerreno(i)}>
-                          {x.nome}
-                          {x.tipos.map((t) => (
-                            <span key={t} className="ml-1 inline-block h-2 w-2 rounded-full align-middle" style={{ background: COR_TIPO[t] }} />
-                          ))}
-                        </Pilula>
-                      ))}
-                    </div>
-                  </div>
+      {aba === "mochila" && (
+        <div className="card p-4 sm:p-5">
+          {mochila.length ? (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-1.5">
+              {mochila.map(([i, q]) => (
+                <div key={i} title={ITENS[i]?.texto} className="flex items-center gap-2 rounded-xl border border-hair bg-surface2 px-2 py-1.5 text-sm">
+                  <img src={spriteItem(i)} alt="" className="pk-mini h-7 w-7 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate font-semibold text-brand-ink">{nomeItem(i)}</span>
+                  <span className="text-xs font-bold text-muted">×{q}</span>
                 </div>
-                <p className="mt-2 text-xs text-faint">
-                  Seu time está no nível {nivelMedio(time)} em média.{" "}
-                  {cap < 100 ? (
-                    <>
-                      <b className="text-brand-ink">Level cap: Nv{cap}</b> ({proximo ? `o nível do ás de ${proximo.lider}` : `o nível do Campeão ${regiao.campeao.nome}`}); acima dele o XP não entra.
-                    </>
-                  ) : (
-                    "Sem level cap: você já é o Campeão daqui."
-                  )}{" "}
-                  Treinadores dão o dobro do XP de selvagens.
-                </p>
-              </>
-            )}
-          </div>
-
-          <div className="card p-5">
-            <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">
-              Insígnias de {regiao.nome} ({insignias}/8)
-            </p>
-            <div className="mt-2 grid grid-cols-8 gap-1">
-              {regiao.ginasios.map((g, i) => (
-                <img
-                  key={g.sprite}
-                  src={insigniaImg(i, r)}
-                  alt={g.insignia}
-                  title={`${g.insignia} (${g.lider})${i < insignias ? "" : " · ainda não"}`}
-                  className="pk-mini mx-auto h-8 w-8 object-contain"
-                  style={i < insignias ? undefined : { filter: "grayscale(1) brightness(.6)", opacity: 0.35 }}
-                />
               ))}
             </div>
-            {REGIOES.some((_, i) => campeaoDe(perfil, i) > 0) && (
-              <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1">
-                {REGIOES.map((x, i) =>
-                  campeaoDe(perfil, i) > 0 ? (
-                    <p key={x.nome} className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-ink">
-                      <Crown size={15} className="text-amber-500" /> {x.nome} ×{campeaoDe(perfil, i)}
-                    </p>
-                  ) : null
-                )}
-              </div>
-            )}
-          </div>
+          ) : (
+            <p className="text-sm text-muted">Vazia. Vencer treinadores rende itens.</p>
+          )}
+          {(perfil.mochila["exp-all"] ?? 0) > 0 && (
+            <label className="mt-3 flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-hair bg-surface2 px-3 py-2 text-sm">
+              <span>
+                <b className="text-brand-ink">Exp. All</b> <span className="text-xs text-muted">· o time todo ganha metade do XP</span>
+              </span>
+              <input
+                type="checkbox"
+                className="h-4 w-4 accent-[rgb(var(--brand-500))]"
+                checked={expAllLigado(perfil)}
+                disabled={!podeMexer}
+                onChange={(ev) => setPerfil({ ...perfil, expAllDesligado: !ev.target.checked })}
+              />
+            </label>
+          )}
+          {temSeguravel && <p className="mt-2 text-[11px] text-faint">Itens de segurar e frutas: na aba "Time e PC", toque em "Item" embaixo de um Pokémon.</p>}
+        </div>
+      )}
 
-          <div className="card p-5">
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <Numero valor={perfil.vitorias} rotulo="vitórias" />
-              <Numero valor={perfil.colecao.length} rotulo="capturados" />
-              <Numero valor={perfil.vistos.length} rotulo="vistos" />
-            </div>
-            <p className="mt-4 text-xs font-bold uppercase tracking-[.16em] text-faint">Mochila</p>
-            {mochila.length ? (
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {mochila.map(([i, q]) => (
-                  <span key={i} title={ITENS[i]?.texto} className="inline-flex items-center gap-1 rounded-full border border-hair bg-surface px-2 py-0.5 text-xs font-semibold text-brand-ink">
-                    <img src={spriteItem(i)} alt="" className="pk-mini h-5 w-5" /> {nomeItem(i)} ×{q}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="mt-1 text-sm text-muted">Vazia.</p>
-            )}
-            {(perfil.mochila["exp-all"] ?? 0) > 0 && (
-              <label className="mt-3 flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-hair bg-surface2 px-3 py-2 text-sm">
-                <span>
-                  <b className="text-brand-ink">Exp. All</b> <span className="text-xs text-muted">· o time todo ganha metade do XP</span>
-                </span>
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 accent-[rgb(var(--brand-500))]"
-                  checked={expAllLigado(perfil)}
-                  disabled={!podeMexer}
-                  onChange={(ev) => setPerfil({ ...perfil, expAllDesligado: !ev.target.checked })}
-                />
-              </label>
-            )}
-            {temSeguravel && <p className="mt-2 text-[11px] text-faint">Itens de segurar e frutas: toque em "Item" embaixo de um Pokémon.</p>}
+      {aba === "treinador" && (
+        <div className="grid gap-3 lg:grid-cols-[1fr_300px]">
+          <div className="card p-4 sm:p-5">
+            <EscolherJogador atual={jogador} onEscolher={onJogador} aberto />
           </div>
-
-          <div className="card p-5">
-            <EscolherJogador atual={jogador} onEscolher={onJogador} />
-          </div>
-
-          <div className="card space-y-2 p-5">
+          <div className="card space-y-2 self-start p-4 sm:p-5">
             <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Recomeçar do zero</p>
-            <p className="text-xs text-muted">Apaga todos os seus Pokémon, insígnias, títulos e a mochila deste aparelho. Você escolhe um inicial de novo. As respostas já dadas continuam valendo no estudo.</p>
+            <p className="text-xs text-muted">
+              Apaga todos os seus Pokémon, insígnias, títulos e a mochila (em todos os aparelhos). Você escolhe um inicial de novo. As respostas já dadas continuam valendo no estudo.
+            </p>
             {confirmarReset ? (
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-muted">Apagar tudo mesmo?</span>
@@ -2267,48 +2476,63 @@ function Lobby({
                 </button>
               </div>
             ) : (
-              <button onClick={() => setConfirmarReset(true)} disabled={!!emAndamento} className="rounded-xl border border-hair px-3 py-1.5 text-sm font-semibold text-muted transition hover:border-danger-from hover:text-danger-from disabled:opacity-40">
+              <button
+                onClick={() => setConfirmarReset(true)}
+                disabled={!!emAndamento}
+                className="rounded-xl border border-hair px-3 py-1.5 text-sm font-semibold text-muted transition hover:border-danger-from hover:text-danger-from disabled:opacity-40"
+              >
                 <RotateCcw size={14} className="mr-1.5 inline" /> Recomeçar jornada
               </button>
             )}
             {emAndamento && <p className="text-[11px] text-faint">Termine ou abandone a partida pausada antes.</p>}
           </div>
-
-          <div className="card space-y-2.5 p-5 text-sm text-muted">
-            <p className="font-display text-base font-bold text-brand-ink">Como se joga (e por que ajuda)</p>
-            <p>
-              <b className="text-brand-ink">Escolha a alternativa e o golpe.</b> Acertou, o golpe sai e tira HP: tipo conta (fogo em planta é super efetivo), um Pokémon
-              aguenta uns 2 acertos. Golpes de status envenenam, queimam, paralisam ou fazem dormir, e Pokémon dormindo não contra-ataca. Marcar "tenho certeza" vira
-              crítico, mas o erro dói 1,5×: treina saber o que você sabe.
-            </p>
-            <p>
-              <b className="text-brand-ink">Errou? Contra-ataque</b> (com veneno, sono, paralisia...). Acertou e o inimigo aguentou? Ele revida, mais fraco. A questão volta logo depois, com as alternativas em outra ordem (no caminho e
-              na Safári, como selvagem: acerte e lance uma bola para capturar; HP baixo ajuda). Escrever por que o gabarito está certo cura 25% do HP.
-            </p>
-            <p>
-              <b className="text-brand-ink">XP como nos jogos:</b> a fórmula da 5ª geração, com o XP base e a curva de crescimento de cada espécie (tem Pokémon que sobe
-              devagar). Quem lutou leva o XP; o <b className="text-brand-ink">Exp. Share</b> (prêmio do 3º ginásio) dá metade a quem o segura, e o{" "}
-              <b className="text-brand-ink">Exp. All</b> (6º ginásio) dá metade ao time todo. O level cap vale para todos.
-            </p>
-            <p>
-              <b className="text-brand-ink">Itens e frutas:</b> vencer treinadores rende itens (os melhores aparecem com mais insígnias). No lobby, o botão "Item" dá
-              um para o Pokémon segurar: reforço de tipo, Restos, Faixa do Foco, Ovo da Sorte... Frutas são comidas sozinhas na hora certa (HP baixo, veneno, sono).
-            </p>
-            <p>
-              <b className="text-brand-ink">Evolução</b> por nível como nos jogos, por pedra na mochila, e as de troca ou amizade no nível {NIVEL_TROCA_AMIZADE}. Com 4 golpes, você
-              escolhe qual esquecer para aprender o novo; no botão "Golpes" dá para trocar por qualquer golpe que ele já aprendeu.
-            </p>
-            <p>
-              <b className="text-brand-ink">Jornada:</b> 5 regiões (Kanto, Johto, Hoenn, Sinnoh, Unova). Em cada uma, 8 ginásios em ordem (cada líder vale uma insígnia), depois
-              a Liga: Elite dos 4 e o Campeão. Sendo Campeão, você viaja para a próxima região e escolhe um inicial de lá; o time antigo fica no PC. Na Zona Safári você
-              escolhe a região e só aparecem selvagens; antes de responder, dá para trocar o selvagem por outro até {MAX_TROCAS} vezes (a questão é a mesma). Cada treinador
-              vencido dá um item.
-            </p>
-            <p className="text-faint">Cada resposta conta na meta do dia, na ofensiva e reagenda a revisão espaçada.</p>
-          </div>
         </div>
-      </div>
+      )}
+
+      {aba === "ajuda" && (
+        <div className="card space-y-2.5 p-4 text-sm text-muted sm:p-5">
+          <p>
+            <b className="text-brand-ink">Escolha a alternativa e o golpe.</b> Acertou, o golpe sai e tira HP: tipo conta (fogo em planta é super efetivo), um Pokémon aguenta uns 2 acertos. Golpes de
+            status envenenam, queimam, paralisam ou fazem dormir, e Pokémon dormindo não contra-ataca. Marcar "tenho certeza" vira crítico, mas o erro dói 1,5×: treina saber o que você sabe.
+          </p>
+          <p>
+            <b className="text-brand-ink">Errou? Contra-ataque</b> (com veneno, sono, paralisia...). Acertou e o inimigo aguentou? Ele revida, mais fraco. A questão volta logo depois, com as
+            alternativas em outra ordem (no caminho e na Safári, como selvagem: acerte e lance uma bola para capturar; HP baixo ajuda). Escrever por que o gabarito está certo cura 25% do HP.
+          </p>
+          <p>
+            <b className="text-brand-ink">XP como nos jogos:</b> a fórmula da 5ª geração, com o XP base e a curva de crescimento de cada espécie (tem Pokémon que sobe devagar). Quem lutou leva o XP; o{" "}
+            <b className="text-brand-ink">Exp. Share</b> (prêmio do 3º ginásio) dá metade a quem o segura, e o <b className="text-brand-ink">Exp. All</b> (6º ginásio) dá metade ao time todo. O level
+            cap vale para todos.
+          </p>
+          <p>
+            <b className="text-brand-ink">Itens e frutas:</b> vencer treinadores rende itens (os melhores aparecem com mais insígnias). No lobby, o botão "Item" dá um para o Pokémon segurar: reforço
+            de tipo, Restos, Faixa do Foco, Ovo da Sorte... Frutas são comidas sozinhas na hora certa (HP baixo, veneno, sono).
+          </p>
+          <p>
+            <b className="text-brand-ink">Evolução</b> por nível como nos jogos, por pedra na mochila, e as de troca ou amizade no nível {NIVEL_TROCA_AMIZADE}. Com 4 golpes, você escolhe qual esquecer
+            para aprender o novo; no botão "Golpes" dá para trocar por qualquer golpe que ele já aprendeu.
+          </p>
+          <p>
+            <b className="text-brand-ink">Jornada:</b> 5 regiões (Kanto, Johto, Hoenn, Sinnoh, Unova). Em cada uma, 8 ginásios em ordem (cada líder vale uma insígnia), depois a Liga: Elite dos 4 e o
+            Campeão. Sendo Campeão, você viaja para a próxima região e escolhe um inicial de lá; o time antigo fica no PC. Na Zona Safári você escolhe a região e só aparecem selvagens; antes de
+            responder, dá para trocar o selvagem por outro até {MAX_TROCAS} vezes (a questão é a mesma). Cada treinador vencido dá um item.
+          </p>
+          <p className="text-faint">Cada resposta conta na meta do dia, na ofensiva e reagenda a revisão espaçada.</p>
+        </div>
+      )}
     </div>
+  );
+}
+
+type AbaLobby = "jornada" | "time" | "mochila" | "treinador" | "ajuda";
+
+// Onde está o jogo: no servidor. Mostra quando ainda falta gravar.
+function IndicadorSave({ estado }: { estado: EstadoSave }) {
+  const txt = estado === "salvo" ? "salvo" : estado === "salvando" ? "salvando…" : "sem conexão, tentando de novo";
+  return (
+    <span className={`ml-auto inline-flex items-center gap-1 pl-2 text-[11px] ${estado === "erro" ? "text-danger-from" : "text-faint"}`} title="O jogo fica salvo na sua conta">
+      {estado === "salvando" ? <CloudUpload size={13} /> : estado === "erro" ? <CloudOff size={13} /> : <Cloud size={13} />} {txt}
+    </span>
   );
 }
 
@@ -2366,7 +2590,7 @@ function Destino({
 }
 
 function Evolui({ dex, m, ate }: { dex: Dex; m: Mon; ate: number }) {
-  const evo = dex.especies[m.id].e?.find(([para]) => para <= ate);
+  const evo = dex.especies[m.id].e?.find(([para]) => para <= ate || para > ULTIMO_DA_JORNADA);
   if (!evo) return null;
   const [, tipo, valor] = evo;
   const txt = tipo === "l" ? `evolui no Nv${valor}` : tipo === "i" ? `evolui com ${nomeItem(String(valor))}` : `evolui no Nv${NIVEL_TROCA_AMIZADE}`;

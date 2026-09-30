@@ -94,10 +94,11 @@ export interface ApiOptions {
   method?: string;
   body?: unknown;
   auth?: boolean; // default true
+  keepalive?: boolean; // continua depois que a página fecha (corpo até 64 KB)
 }
 
 export async function api<T = unknown>(path: string, opts: ApiOptions = {}): Promise<T> {
-  const { method = "GET", body, auth = true } = opts;
+  const { method = "GET", body, auth = true, keepalive } = opts;
 
   const scopedPath = scopePath(path, method);
   const scopedBody = scopeBody(path, method, body);
@@ -110,6 +111,7 @@ export async function api<T = unknown>(path: string, opts: ApiOptions = {}): Pro
       method,
       headers,
       body: scopedBody !== undefined ? JSON.stringify(scopedBody) : undefined,
+      keepalive,
     });
   };
 

@@ -99,30 +99,33 @@ const SPRITE_ITEM: Record<string, string> = { "exp-all": "exp-share" }; // sem s
 export const spriteItem = (nome: string) => `${SPR}/items/${SPRITE_ITEM[nome] ?? nome}.png`;
 export const spriteTreinador = (nome: string) => `https://play.pokemonshowdown.com/sprites/trainers/${nome}.png`;
 
-// Quem o jogador pode ser na arena (sprites de treinador do Showdown), por geração.
-export const TREINADORES_JOGADOR: { sprite: string; nome: string }[] = [
-  { sprite: "red", nome: "Red" },
-  { sprite: "blue", nome: "Blue" },
-  { sprite: "ash", nome: "Ash" },
-  { sprite: "ethan", nome: "Ethan" },
-  { sprite: "lyra", nome: "Lyra" },
-  { sprite: "kris", nome: "Kris" },
-  { sprite: "brendan", nome: "Brendan" },
-  { sprite: "may", nome: "May" },
-  { sprite: "lucas", nome: "Lucas" },
-  { sprite: "dawn", nome: "Dawn" },
-  { sprite: "hilbert", nome: "Hilbert" },
-  { sprite: "hilda", nome: "Hilda" },
-  { sprite: "nate", nome: "Nate" },
-  { sprite: "rosa", nome: "Rosa" },
-  { sprite: "calem", nome: "Calem" },
-  { sprite: "serena", nome: "Serena" },
-  { sprite: "elio", nome: "Elio" },
-  { sprite: "selene", nome: "Selene" },
-  { sprite: "chase", nome: "Chase" },
-  { sprite: "elaine", nome: "Elaine" },
-  { sprite: "victor", nome: "Victor" },
-  { sprite: "gloria", nome: "Gloria" },
+// Quem o jogador pode ser na arena (sprites de treinador do Showdown), agrupados por região
+// na tela de escolha (a ordem aqui é a ordem dos grupos).
+export const TREINADORES_JOGADOR: { sprite: string; nome: string; regiao: string }[] = [
+  { sprite: "red", nome: "Red", regiao: "Kanto" },
+  { sprite: "blue", nome: "Blue", regiao: "Kanto" },
+  { sprite: "ash", nome: "Ash", regiao: "Kanto" },
+  { sprite: "chase", nome: "Chase", regiao: "Kanto" },
+  { sprite: "elaine", nome: "Elaine", regiao: "Kanto" },
+  { sprite: "ethan", nome: "Ethan", regiao: "Johto" },
+  { sprite: "lyra", nome: "Lyra", regiao: "Johto" },
+  { sprite: "kris", nome: "Kris", regiao: "Johto" },
+  { sprite: "brendan", nome: "Brendan", regiao: "Hoenn" },
+  { sprite: "may", nome: "May", regiao: "Hoenn" },
+  { sprite: "lucas", nome: "Lucas", regiao: "Sinnoh" },
+  { sprite: "dawn", nome: "Dawn", regiao: "Sinnoh" },
+  { sprite: "hilbert", nome: "Hilbert", regiao: "Unova" },
+  { sprite: "hilda", nome: "Hilda", regiao: "Unova" },
+  { sprite: "nate", nome: "Nate", regiao: "Unova" },
+  { sprite: "rosa", nome: "Rosa", regiao: "Unova" },
+  { sprite: "calem", nome: "Calem", regiao: "Kalos" },
+  { sprite: "serena", nome: "Serena", regiao: "Kalos" },
+  { sprite: "elio", nome: "Elio", regiao: "Alola" },
+  { sprite: "selene", nome: "Selene", regiao: "Alola" },
+  { sprite: "victor", nome: "Victor", regiao: "Galar" },
+  { sprite: "gloria", nome: "Gloria", regiao: "Galar" },
+  { sprite: "florian-s", nome: "Florian", regiao: "Paldea" },
+  { sprite: "juliana-s", nome: "Juliana", regiao: "Paldea" },
 ];
 
 // Cenário de batalha (fundos da 6ª geração do Showdown) pelo tipo do lugar.

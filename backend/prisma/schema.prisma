@@ -211,6 +211,7 @@ model User {
   sessaoAtiva    SessaoAtiva?
   metasMateria   MetaMateriaDia[]
   pokeVitrine    PokeVitrine?
+  pokeSave       PokeSave?
 }
 
 // Períodos de modo férias (histórico). Cada viagem é uma linha; `fim` null = férias
@@ -327,5 +328,16 @@ model PokeVitrine {
   userId    String   @id
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   dados     Json // ver VitrineSchema em src/modules/poke/poke.routes.ts
+  updatedAt DateTime @updatedAt
+}
+
+// Jogo inteiro da Batalha Pokémon (perfil, partida em andamento e sprite do treinador),
+// no formato do frontend (lib/poke/motor.ts). O servidor só guarda e devolve.
+model PokeSave {
+  userId    String   @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  perfil    Json?
+  partida   Json?
+  jogador   String?
   updatedAt DateTime @updatedAt
 }
