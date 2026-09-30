@@ -1,0 +1,1 @@
+ALTER TABLE "User" ADD COLUMN "pokeResetAt" TIMESTAMP(3);

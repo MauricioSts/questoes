@@ -11,6 +11,8 @@ export interface Usuario {
   // Vem do servidor (não é comparação de e-mail no cliente): governa o que aparece
   // de administração. O bloqueio de verdade é o requireAdmin da API.
   admin: boolean;
+  // Batalha Pokémon: perfil local criado antes desta data é descartado (reset pedido pelo dono).
+  pokeResetAt?: string | null;
 }
 
 interface AuthContextValue {

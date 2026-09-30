@@ -88,6 +88,7 @@ import {
   type Status,
   type StatusGolpe,
 } from "../lib/poke/motor";
+import { useAuth } from "../store/auth";
 import { useConcurso } from "../store/concurso";
 import { useMeta } from "../store/meta";
 import { usePausarFundo } from "../store/fundo";
@@ -204,9 +205,19 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   const { activeId } = useConcurso();
   const { goal } = useMeta();
 
+  const { usuario } = useAuth();
+
   const [perfil, setPerfilEstado] = useState<PerfilPoke | null>(() => {
     const p = ler<PerfilPoke>(CHAVE_PERFIL);
-    return p && p.versao === 1 && p.colecao.length ? p : null;
+    if (!p || p.versao !== 1 || !p.colecao.length) return null;
+    // Reset feito pelo servidor: perfil deste aparelho anterior a ele recomeça do zero.
+    const reset = usuario?.pokeResetAt;
+    if (reset && (!p.criadoEm || p.criadoEm < reset)) {
+      gravar(CHAVE_PERFIL, null);
+      gravar(CHAVE_PARTIDA, null);
+      return null;
+    }
+    return p;
   });
   const setPerfil = useCallback((p: PerfilPoke) => {
     setPerfilEstado(p);

@@ -42,10 +42,10 @@ const refreshSchema = z.object({
   refreshToken: z.string().min(1),
 });
 
-function publicUser(u: { id: string; email: string; nome: string; metaDiaria: number }) {
+function publicUser(u: { id: string; email: string; nome: string; metaDiaria: number; pokeResetAt?: Date | null }) {
   // `admin` decide o que o cliente mostra (botão de importar). Quem manda de verdade
   // é o requireAdmin no servidor: esconder o botão é conveniência, não segurança.
-  return { id: u.id, email: u.email, nome: u.nome, metaDiaria: u.metaDiaria, admin: ehAdmin(u.email) };
+  return { id: u.id, email: u.email, nome: u.nome, metaDiaria: u.metaDiaria, admin: ehAdmin(u.email), pokeResetAt: u.pokeResetAt?.toISOString() ?? null };
 }
 
 // Emite um par access+refresh e persiste o hash do refresh.

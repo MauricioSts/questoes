@@ -1382,6 +1382,7 @@ export interface PerfilPoke {
   regiao?: number; // região da jornada atual (ausente = Kanto)
   insigniasPorRegiao?: number[]; // insígnias (0–8) em cada região
   campeaoPorRegiao?: number[]; // vezes que venceu a Liga de cada região
+  criadoEm?: string; // ISO; comparado com Usuario.pokeResetAt
 }
 
 export const regiaoAtual = (perfil: PerfilPoke) => (REGIOES[perfil.regiao ?? 0] ? (perfil.regiao ?? 0) : 0);
@@ -1425,7 +1426,7 @@ export const MOCHILA_INICIAL: Record<string, number> = { "poke-ball": 5, potion:
 
 export function perfilInicial(dex: Dex, inicial: number, uid = `m${Date.now().toString(36)}`): PerfilPoke {
   const m = criarMon(dex, inicial, 5, uid);
-  return { versao: 1, colecao: [m], time: [m.uid], mochila: { ...MOCHILA_INICIAL }, insignias: 0, partidas: 0, vitorias: 0, vistos: [inicial], capturadasQuestoes: [] };
+  return { versao: 1, colecao: [m], time: [m.uid], mochila: { ...MOCHILA_INICIAL }, insignias: 0, partidas: 0, vitorias: 0, vistos: [inicial], capturadasQuestoes: [], criadoEm: new Date().toISOString() };
 }
 
 const soMon = ({ uid, id, xp, golpes, questaoId, capturadoEm, regiao }: Mon): Mon => ({
