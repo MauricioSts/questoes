@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
-import { Backpack, Cloud, CloudOff, CloudUpload, Crown, Flag, Flame, HelpCircle, Lock, Map as MapaIcone, NotebookPen, Pause, Plane, RotateCcw, Shuffle, Swords, Trees, Trophy, UserRound, Users, X } from "lucide-react";
+import { Backpack, Cloud, CloudOff, CloudUpload, Crown, Flag, Flame, HelpCircle, Lock, Map as MapaIcone, NotebookPen, Pause, Plane, RotateCcw, Shuffle, Swords, Trees, Trophy, Settings, Users, X } from "lucide-react";
 import type { Alternativa } from "../types/questao";
 import { getQuestao } from "../lib/questoesRepo";
 import { carregarFilaBatalha, novasPorFraqueza, type HistoricoQ } from "../lib/filaBatalha";
@@ -1933,7 +1933,7 @@ function EscolhaInicial({
     <div className="fadeup mx-auto max-w-[1000px] pt-2 pb-24">
       <PageHeader rotulo="Batalha" titulo={titulo} subtitulo={subtitulo} />
       {alternar}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="card min-w-0 p-4 sm:p-5">
           {grupos.length > 1 && (
             <div className="-mx-1 mb-4 flex gap-1.5 overflow-x-auto px-1 pb-1 sm:flex-wrap" role="radiogroup" aria-label="Região">
@@ -1981,11 +1981,45 @@ function EscolhaInicial({
 }
 
 // Qual treinador aparece na arena lançando a Pokébola. Fechado, mostra só o atual e um
-// botão para trocar; `aberto` deixa a grade sempre à mostra (aba Treinador do lobby).
+// botão que abre a grade numa janela por cima (não empurra o resto da tela); `aberto` deixa a
+// grade sempre à mostra (aba Ajustes do lobby).
 function EscolherJogador({ atual, onEscolher, aberto = false }: { atual: string; onEscolher: (sprite: string) => void; aberto?: boolean }) {
-  const [abrir, setAbrir] = useState(aberto);
+  const [abrir, setAbrir] = useState(false);
   const eu = TREINADORES_JOGADOR.find((t) => t.sprite === atual) ?? TREINADORES_JOGADOR[0];
   const regioes = [...new Set(TREINADORES_JOGADOR.map((t) => t.regiao))];
+  useEffect(() => {
+    if (!abrir) return;
+    const esc = (ev: KeyboardEvent) => ev.key === "Escape" && setAbrir(false);
+    window.addEventListener("keydown", esc);
+    return () => window.removeEventListener("keydown", esc);
+  }, [abrir]);
+  const grade = (
+    <div className="flex flex-wrap gap-x-4 gap-y-2.5">
+      {regioes.map((r) => (
+        <div key={r}>
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-[.16em] text-faint">{r}</p>
+          <div className="flex gap-1">
+            {TREINADORES_JOGADOR.filter((t) => t.regiao === r).map((t) => (
+              <button
+                key={t.sprite}
+                onClick={() => {
+                  onEscolher(t.sprite);
+                  setAbrir(false);
+                }}
+                title={t.nome}
+                aria-label={t.nome}
+                aria-pressed={t.sprite === atual}
+                className={`flex w-[58px] flex-col items-center rounded-xl border px-0.5 pb-1 pt-0.5 transition ${t.sprite === atual ? "border-brand-500 bg-brand-500/10" : "border-hair hover:border-brand-500"}`}
+              >
+                <img src={spriteTreinador(t.sprite)} alt="" draggable={false} loading="lazy" className="h-12 w-12 object-contain [image-rendering:pixelated]" />
+                <span className="w-full truncate text-[10px] font-semibold text-muted">{t.nome}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
   return (
     <div>
       <div className="flex items-center gap-3">
@@ -1996,38 +2030,27 @@ function EscolherJogador({ atual, onEscolher, aberto = false }: { atual: string;
           <p className="text-xs text-muted">{eu.regiao}</p>
         </div>
         {!aberto && (
-          <button onClick={() => setAbrir(!abrir)} className="rounded-xl border border-hair px-3 py-1.5 text-sm font-semibold text-muted transition hover:border-brand-500 hover:text-brand-500">
-            {abrir ? "Fechar" : "Trocar"}
+          <button onClick={() => setAbrir(true)} className="rounded-xl border border-hair px-3 py-1.5 text-sm font-semibold text-muted transition hover:border-brand-500 hover:text-brand-500">
+            Trocar
           </button>
         )}
       </div>
-      {abrir && (
-        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2.5">
-          {regioes.map((r) => (
-            <div key={r}>
-              <p className="mb-1 text-[10px] font-bold uppercase tracking-[.16em] text-faint">{r}</p>
-              <div className="flex gap-1">
-                {TREINADORES_JOGADOR.filter((t) => t.regiao === r).map((t) => (
-                  <button
-                    key={t.sprite}
-                    onClick={() => {
-                      onEscolher(t.sprite);
-                      if (!aberto) setAbrir(false);
-                    }}
-                    title={t.nome}
-                    aria-label={t.nome}
-                    aria-pressed={t.sprite === atual}
-                    className={`flex w-[58px] flex-col items-center rounded-xl border px-0.5 pb-1 pt-0.5 transition ${t.sprite === atual ? "border-brand-500 bg-brand-500/10" : "border-hair hover:border-brand-500"}`}
-                  >
-                    <img src={spriteTreinador(t.sprite)} alt="" draggable={false} loading="lazy" className="h-12 w-12 object-contain [image-rendering:pixelated]" />
-                    <span className="w-full truncate text-[10px] font-semibold text-muted">{t.nome}</span>
-                  </button>
-                ))}
+      {aberto && <div className="mt-3">{grade}</div>}
+      {abrir &&
+        createPortal(
+          <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/75 p-3 backdrop-blur-sm sm:items-center" onClick={() => setAbrir(false)}>
+            <div role="dialog" aria-modal="true" aria-label="Escolher treinador" className="max-h-[85vh] w-full max-w-[600px] overflow-y-auto rounded-3xl border border-hair bg-surface p-4 shadow-2xl sm:p-5" onClick={(ev) => ev.stopPropagation()}>
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <p className="font-display text-lg font-bold text-brand-ink">Escolha seu treinador</p>
+                <button onClick={() => setAbrir(false)} className="rounded-lg p-1 text-muted hover:text-brand-500" aria-label="Fechar">
+                  <X size={18} />
+                </button>
               </div>
+              {grade}
             </div>
-          ))}
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
@@ -2140,7 +2163,7 @@ function Lobby({
     { id: "jornada", nome: "Jornada", icone: <MapaIcone size={15} /> },
     { id: "time", nome: `Time e PC`, icone: <Users size={15} /> },
     { id: "mochila", nome: "Mochila", icone: <Backpack size={15} /> },
-    { id: "treinador", nome: "Treinador", icone: <UserRound size={15} /> },
+    { id: "ajustes", nome: "Treinador e ajustes", icone: <Settings size={15} /> },
     { id: "ajuda", nome: "Como jogar", icone: <HelpCircle size={15} /> },
   ];
   const editores = (
@@ -2168,7 +2191,7 @@ function Lobby({
       {/* resumo: treinador, insígnias, números e o time de relance */}
       <div className="card mb-3 flex flex-wrap items-center gap-x-5 gap-y-3 p-4">
         <div className="flex min-w-[240px] flex-1 items-center gap-3">
-          <button onClick={() => setAba("treinador")} title="Trocar treinador" className="shrink-0 rounded-xl bg-surface2 transition hover:ring-2 hover:ring-brand-500">
+          <button onClick={() => setAba("ajustes")} title="Trocar treinador e ajustes" className="shrink-0 rounded-xl bg-surface2 transition hover:ring-2 hover:ring-brand-500">
             <img src={spriteTreinador(jogador)} alt="" draggable={false} className="h-16 w-16 object-contain [image-rendering:pixelated]" />
           </button>
           <div className="min-w-0 flex-1">
@@ -2455,7 +2478,7 @@ function Lobby({
         </div>
       )}
 
-      {aba === "treinador" && (
+      {aba === "ajustes" && (
         <div className="grid gap-3 lg:grid-cols-[1fr_300px]">
           <div className="card p-4 sm:p-5">
             <EscolherJogador atual={jogador} onEscolher={onJogador} aberto />
@@ -2524,7 +2547,7 @@ function Lobby({
   );
 }
 
-type AbaLobby = "jornada" | "time" | "mochila" | "treinador" | "ajuda";
+type AbaLobby = "jornada" | "time" | "mochila" | "ajustes" | "ajuda";
 
 // Onde está o jogo: no servidor. Mostra quando ainda falta gravar.
 function IndicadorSave({ estado }: { estado: EstadoSave }) {
