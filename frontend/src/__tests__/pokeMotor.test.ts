@@ -34,6 +34,9 @@ import {
   registrarLicaoPoke,
   responderPoke,
   sincronizarPerfil,
+  historiaDe,
+  liderLiberado,
+  treinadoresParaGinasio,
   trocar,
   usarItem,
   type PartidaPoke,
@@ -359,6 +362,30 @@ describe("modos da jornada", () => {
     const perfil = sincronizarPerfil({ ...perfilInicial(dex, 4, "a"), ginasios: 8 }, fim);
     expect(perfil.campeao).toBe(1);
     expect(perfil.hallDaFama).toHaveLength(1);
+  });
+
+  it("modo história: treinadores do caminho liberam o líder; a insígnia zera o caminho", () => {
+    const base = perfilInicial(dex, 4, "a");
+    expect(treinadoresParaGinasio(0)).toBe(3);
+    expect(treinadoresParaGinasio(7)).toBe(6);
+    expect(liderLiberado(base)).toBe(false);
+    const rota = montarPartidaPoke({ dex, time: [criarMon(dex, 4, 10, "a")], mochila: {}, pendentes: pend(14), novas: [], concursoId: null, modo: "rota", rumo: 0, semente: 5 })!;
+    expect(rota.rumo).toBe(0);
+    expect(rota.treinadores[0].fala).toContain("Pewter");
+    const doisVencidos = sincronizarPerfil(base, { ...rota, fim: "fuga", vencidos: [0, 1] });
+    expect(historiaDe(doisVencidos)).toBe(2);
+    expect(liderLiberado(doisVencidos)).toBe(false);
+    // a mesma partida não conta duas vezes
+    expect(historiaDe(sincronizarPerfil(doisVencidos, { ...rota, fim: "fuga", vencidos: [0, 1] }))).toBe(2);
+    const outra = { ...rota, iniciadaEm: "2026-01-02T00:00:00.000Z", fim: "derrota" as const, vencidos: [0] };
+    const liberado = sincronizarPerfil(doisVencidos, outra);
+    expect(liderLiberado(liberado)).toBe(true);
+    // ginásio vencido: insígnia e o caminho até o próximo recomeça
+    const fim = jogarAteOFim(montar("ginasio", 0));
+    const comInsignia = sincronizarPerfil(liberado, fim);
+    expect(insigniasDe(comInsignia)).toBe(1);
+    expect(historiaDe(comInsignia)).toBe(0);
+    expect(liderLiberado(comInsignia)).toBe(false);
   });
 
   it("Zona Safári: só selvagens, Safari Balls da partida que não vão para o perfil", () => {

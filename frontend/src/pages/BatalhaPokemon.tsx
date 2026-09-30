@@ -47,6 +47,9 @@ import {
   TERRENOS,
   campeaoDe,
   levelCap,
+  liderLiberado,
+  historiaDe,
+  treinadoresParaGinasio,
   limiteDaRegiao,
   podeLutar,
   podeTrocarSelvagem,
@@ -186,7 +189,7 @@ interface Desfecho {
 
 // Insígnias da PokéAPI em sequência: Kanto 1–8, Johto 9–16, Hoenn 17–24, Sinnoh 25–32, Unova 33–40.
 export const insigniaImg = (i: number, regiao = 0) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/${8 * regiao + i + 1}.png`;
-const NOME_MODO: Record<ModoJornada, string> = { rota: "Rota", ginasio: "Ginásio", safari: "Zona Safári", liga: "Liga Pokémon" };
+const NOME_MODO: Record<ModoJornada, string> = { rota: "Caminho", ginasio: "Ginásio", safari: "Zona Safári", liga: "Liga Pokémon" };
 
 // ---------- página ----------
 
@@ -398,7 +401,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   }, [fase, hist]);
   const novas = useMemo(() => (hist ? novasPorFraqueza(hist) : []), [hist]);
 
-  function comecar(modo: ModoJornada, opts: { ginasio?: number; habitat?: number; terreno?: number } = {}) {
+  function comecar(modo: ModoJornada, opts: { ginasio?: number; habitat?: number; terreno?: number; rumo?: number } = {}) {
     if (!pendentes || !perfil) return;
     const time = perfil.time.map((uid) => perfil.colecao.find((m) => m.uid === uid)).filter((m): m is Mon => !!m && podeLutar(perfil, m));
     const p = montarPartidaPoke({ dex, time, mochila: perfil.mochila, pendentes, novas, concursoId: activeId ?? null, modo, regiao: regiaoAtual(perfil), cap: levelCap(perfil), ...opts });
@@ -465,7 +468,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
       setInimigoVis(null);
       if (t && ultimoTreinador.current !== encontro.treinador) {
         setTreinadorVis({ sprite: t.sprite, chave: n(), sai: false });
-        setMensagem(t.fala ? `${t.fala} O ás dele é a questão que mais te derrubou.` : t.lider ? `${t.nome} te desafia! É a questão que mais te derrubou.` : `${t.nome} quer batalhar!`);
+        setMensagem(t.fala ? (t.lider ? `${t.fala} O ás dele é a questão que mais te derrubou.` : t.fala) : t.lider ? `${t.nome} te desafia! É a questão que mais te derrubou.` : `${t.nome} quer batalhar!`);
         if (!(await passo(t.fala ? 2600 : 1500))) return;
         setTreinadorVis((v) => (v ? { ...v, sai: true } : v));
         if (!(await passo(350))) return;
@@ -1676,7 +1679,7 @@ function Lobby({
   novas: number;
   erro: boolean;
   onTentar: () => void;
-  onComecar: (modo: ModoJornada, opts?: { ginasio?: number; habitat?: number; terreno?: number }) => void;
+  onComecar: (modo: ModoJornada, opts?: { ginasio?: number; habitat?: number; terreno?: number; rumo?: number }) => void;
   emAndamento: PartidaPoke | null;
   onRetomar: () => void;
   onViajar: () => void;
@@ -1703,6 +1706,9 @@ function Lobby({
   const proximo = regiao.ginasios[insignias];
   const liga = ligaLiberada(perfil);
   const cap = levelCap(perfil);
+  const liberado = liderLiberado(perfil);
+  const historia = historiaDe(perfil);
+  const exigidos = proximo ? treinadoresParaGinasio(insignias) : 0;
   const [confirmarReset, setConfirmarReset] = useState(false);
   const botaoGolpes = (m: Mon) => (
     <button
@@ -1783,7 +1789,7 @@ function Lobby({
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted">Vazio. Vá à Zona Safári (ou ache selvagens na Rota): acerte a questão e lance uma bola.</p>
+              <p className="text-sm text-muted">Vazio. Vá à Zona Safári (ou ache selvagens no caminho): acerte a questão e lance uma bola.</p>
             )}
           </div>
         </div>
@@ -1837,14 +1843,34 @@ function Lobby({
                   {proximo ? (
                     <Destino
                       titulo={`Ginásio de ${proximo.cidade}`}
-                      texto={`${proximo.lider} · ${NOME_TIPO[proximo.tipo]} · vale a ${proximo.insignia}`}
+                      texto={
+                        liberado
+                          ? `${proximo.lider} · ${NOME_TIPO[proximo.tipo]} · vale a ${proximo.insignia}`
+                          : `${proximo.lider} só aceita o desafio depois de ${exigidos} treinadores vencidos no caminho (${historia}/${exigidos})`
+                      }
                       imagem={spriteTreinador(proximo.sprite)}
                       selo={insigniaImg(insignias, r)}
-                      destaque
-                      disabled={!!emAndamento}
+                      icone={liberado ? undefined : <Lock size={16} />}
+                      destaque={liberado}
+                      disabled={!!emAndamento || !liberado}
                       onClick={() => onComecar("ginasio", { ginasio: insignias })}
                     />
                   ) : null}
+                  <Destino
+                    titulo={proximo ? `Caminho para ${proximo.cidade}` : "Estrada Vitória"}
+                    texto={
+                      proximo
+                        ? liberado
+                          ? `Caminho feito (${historia}/${exigidos}): o ginásio te espera. Dá para seguir treinando por aqui.`
+                          : `Modo história: vença ${exigidos} treinadores para enfrentar ${proximo.lider} (${historia}/${exigidos}). Selvagens no mato e um Treinador Ás no fim.`
+                        : "Treinadores e selvagens rumo à Liga Pokémon, com um Treinador Ás no fim"
+                    }
+                    imagem={spriteItem("poke-ball")}
+                    icone={<MapaIcone size={16} />}
+                    destaque={!!proximo && !liberado}
+                    disabled={!!emAndamento}
+                    onClick={() => onComecar("rota", proximo ? { rumo: insignias } : {})}
+                  />
                   <Destino
                     titulo={`Liga Pokémon de ${regiao.nome}`}
                     texto={liga ? `Elite dos 4 (${regiao.elite.map((e) => e.nome).join(", ")}) e o Campeão ${regiao.campeao.nome}` : `Precisa das 8 insígnias (${insignias}/8)`}
@@ -1887,14 +1913,6 @@ function Lobby({
                       ))}
                     </div>
                   </div>
-                  <Destino
-                    titulo="Rota (treino)"
-                    texto="Treinadores, selvagens no mato e um Treinador Ás no fim"
-                    imagem={spriteItem("poke-ball")}
-                    icone={<MapaIcone size={16} />}
-                    disabled={!!emAndamento}
-                    onClick={() => onComecar("rota")}
-                  />
                 </div>
                 <p className="mt-2 text-xs text-faint">
                   Seu time está no nível {nivelMedio(time)} em média.{" "}
@@ -1993,7 +2011,7 @@ function Lobby({
               crítico, mas o erro dói 1,5×: treina saber o que você sabe.
             </p>
             <p>
-              <b className="text-brand-ink">Errou? Contra-ataque</b> (com veneno, sono, paralisia...). Acertou e o inimigo aguentou? Ele revida, mais fraco. A questão volta logo depois, com as alternativas em outra ordem (na Rota e
+              <b className="text-brand-ink">Errou? Contra-ataque</b> (com veneno, sono, paralisia...). Acertou e o inimigo aguentou? Ele revida, mais fraco. A questão volta logo depois, com as alternativas em outra ordem (no caminho e
               na Safári, como selvagem: acerte e lance uma bola para capturar; HP baixo ajuda). Escrever por que o gabarito está certo cura 25% do HP.
             </p>
             <p>
@@ -2106,7 +2124,7 @@ function Fim({
   const r = resumir(partida);
   const [salvando, setSalvando] = useState<"nao" | "salvando" | "salvo" | "erro">("nao");
   const licoes = Object.entries(partida.licoes);
-  const titulo = partida.fim === "vitoria" ? "Vitória!" : partida.fim === "derrota" ? "Seu time desmaiou" : "Você fugiu da rota";
+  const titulo = partida.fim === "vitoria" ? "Vitória!" : partida.fim === "derrota" ? "Seu time desmaiou" : partida.modo === "rota" || !partida.modo ? "Você saiu do caminho" : "Você fugiu";
   const capturados = [...partida.time, ...partida.novos].filter((m) => m.capturadoEm === partida.iniciadaEm);
   const ganhouInsignia = partida.fim === "vitoria" && partida.modo === "ginasio" && partida.ginasio !== undefined ? partida.ginasio : null;
   const campeao = partida.fim === "vitoria" && partida.modo === "liga";
@@ -2154,6 +2172,13 @@ function Fim({
         <p className="mt-1 text-xs text-faint">
           {r.respondidas} respostas contaram na meta do dia e na ofensiva. Insígnias de {regiaoDe(perfil.regiao).nome}: {insigniasDe(perfil)}/8.
         </p>
+        {(partida.modo ?? "rota") === "rota" && regiaoDe(perfil.regiao).ginasios[insigniasDe(perfil)] && (
+          <p className="mt-1 text-sm font-semibold text-brand-ink">
+            {liderLiberado(perfil)
+              ? `${regiaoDe(perfil.regiao).ginasios[insigniasDe(perfil)].lider} aceita o seu desafio: o Ginásio de ${regiaoDe(perfil.regiao).ginasios[insigniasDe(perfil)].cidade} está aberto!`
+              : `Caminho para ${regiaoDe(perfil.regiao).ginasios[insigniasDe(perfil)].cidade}: ${historiaDe(perfil)}/${treinadoresParaGinasio(insigniasDe(perfil))} treinadores vencidos.`}
+          </p>
+        )}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">

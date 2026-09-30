@@ -286,6 +286,7 @@ export interface PartidaPoke {
   terreno?: number; // Zona Safári: índice em TERRENOS (ausente = todos os tipos)
   cap?: number; // level cap da partida: acima dele o XP não entra
   ginasio?: number; // modo ginasio: índice nos ginásios da região
+  rumo?: number; // modo rota (história): ginásio para onde o caminho leva (ausente = Estrada Vitória)
   aprender?: { uid: string; golpe: number }[]; // golpes novos esperando a escolha de qual esquecer
   concursoId: string | null;
   iniciadaEm: string;
@@ -475,6 +476,7 @@ export function montarPartidaPoke(opts: {
   habitat?: number;
   terreno?: number;
   ginasio?: number;
+  rumo?: number;
   cap?: number;
   semente?: number;
   agora?: Date;
@@ -550,7 +552,7 @@ export function montarPartidaPoke(opts: {
     });
     reserva = comuns.slice(k).map((c) => ({ questaoId: c.questaoId, retorno: false }));
   } else {
-    // ROTA: treinadores de 2–3 Pokémon, selvagens entre eles (primeiro as questões que já
+    // ROTA (modo história): treinadores de 2–3 Pokémon, selvagens entre eles (primeiro as questões que já
     // me derrubaram, que dá para capturar) e o Treinador Ás no fim.
     const ehRevisao = new Set(revisoes.map((r) => r.questaoId));
     const orcamento = Math.max(2, Math.round(pool.length / QUESTOES_POR_POKEMON) - (chefe ? 1 : 0));
@@ -569,7 +571,8 @@ export function montarPartidaPoke(opts: {
       const { treinadores: classes } = tiposDaMateria(grupo[0].materia);
       const sprite = classes[Math.floor(rolar() * classes.length)];
       const idx = treinadores.length;
-      treinadores.push({ nome: NOMES_TREINADOR[sprite] ?? "Treinador", sprite, lider: false });
+      const nome = NOMES_TREINADOR[sprite] ?? "Treinador";
+      treinadores.push({ nome, sprite, lider: false, fala: `${nome} barra o caminho ${destinoHistoria(regiao, opts.rumo)}!` });
       for (const c of grupo) {
         const nivel = nivelEntre(-1, 1);
         fila.push(inimigo(c, "treinador", idx, especieDaQuestao(dex, c.questaoId, c.materia, nivel, ate), nivel));
@@ -588,7 +591,7 @@ export function montarPartidaPoke(opts: {
     if (chefe) {
       const idx = treinadores.length;
       const [sprite, nome] = CHEFES_ROTA[Math.floor(rolar() * CHEFES_ROTA.length)];
-      treinadores.push({ nome, sprite, lider: true });
+      treinadores.push({ nome, sprite, lider: true, fala: `${nome} guarda o fim do trecho ${destinoHistoria(regiao, opts.rumo)}.` });
       const nivel = Math.min(MAX_NIVEL, base + 3);
       fila.push(inimigo(chefe, "lider", idx, especieDoLider(dex, chefe.questaoId, chefe.materia, nivel, ate), nivel));
     }
@@ -604,6 +607,7 @@ export function montarPartidaPoke(opts: {
     ...(opts.cap ? { cap: opts.cap } : {}),
     ...(modo === "safari" ? { habitat, ...(terreno !== undefined ? { terreno } : {}) } : {}),
     ...(modo === "ginasio" ? { ginasio: opts.ginasio } : {}),
+    ...(modo === "rota" && REGIOES[regiao].ginasios[opts.rumo ?? -1] ? { rumo: opts.rumo } : {}),
     aprender: [],
     concursoId: opts.concursoId,
     iniciadaEm: (opts.agora ?? new Date()).toISOString(),
@@ -628,6 +632,12 @@ export function montarPartidaPoke(opts: {
     rng,
   };
   return avancarPoke(p, dex);
+}
+
+// Modo história: o caminho até o próximo ginásio (ou a Estrada Vitória, rumo à Liga).
+export function destinoHistoria(r: number, rumo: number | undefined): string {
+  const g = REGIOES[r]?.ginasios[rumo ?? -1];
+  return g ? `para ${g.cidade}` : "da Estrada Vitória";
 }
 
 // ---------- planos dos modos ----------
@@ -1382,6 +1392,7 @@ export interface PerfilPoke {
   regiao?: number; // região da jornada atual (ausente = Kanto)
   insigniasPorRegiao?: number[]; // insígnias (0–8) em cada região
   campeaoPorRegiao?: number[]; // vezes que venceu a Liga de cada região
+  historiaPorRegiao?: number[]; // treinadores vencidos no caminho desde a última insígnia da região
   criadoEm?: string; // ISO; comparado com Usuario.pokeResetAt
 }
 
@@ -1397,6 +1408,16 @@ export const proximaRegiao = (perfil: PerfilPoke): number | null => {
   const r = regiaoAtual(perfil);
   return campeaoDe(perfil, r) > 0 && REGIOES[r + 1] ? r + 1 : null;
 };
+
+// Modo história: o líder do ginásio só aceita o desafio depois de X treinadores vencidos no
+// caminho até a cidade (3 nos dois primeiros, crescendo até 6 nos dois últimos). Os
+// treinadores do caminho contam em qualquer desfecho (fugir depois de vencer dois vale dois).
+export const treinadoresParaGinasio = (i: number) => 3 + Math.floor(i / 2);
+export const historiaDe = (perfil: PerfilPoke, r = regiaoAtual(perfil)) => perfil.historiaPorRegiao?.[r] ?? 0;
+export function liderLiberado(perfil: PerfilPoke, r = regiaoAtual(perfil)): boolean {
+  const i = insigniasDe(perfil, r);
+  return !!REGIOES[r].ginasios[i] && historiaDe(perfil, r) >= treinadoresParaGinasio(i);
+}
 
 // Level cap: o nível do próximo líder de ginásio da região (o ás dele chega nesse nível);
 // com as 8 insígnias, o do Campeão; sendo Campeão da região, sem cap.
@@ -1460,6 +1481,12 @@ export function sincronizarPerfil(perfil: PerfilPoke, p: PartidaPoke): PerfilPok
   };
   if (p.fim && perfil.ultimaContada !== p.iniciadaEm) {
     novo.partidas += 1;
+    const rp = REGIOES[p.regiao ?? 0] ? (p.regiao ?? 0) : 0;
+    if ((p.modo ?? "rota") === "rota" && p.vencidos.length && rp === regiaoAtual(novo)) {
+      const lista = REGIOES.map((_, i) => historiaDe(novo, i));
+      lista[rp] += p.vencidos.length;
+      novo.historiaPorRegiao = lista;
+    }
     if (p.fim === "vitoria") {
       novo.vitorias += 1;
       const venceu = (f: (t: Treinador) => boolean) => p.treinadores.some((t, i) => f(t) && p.vencidos.includes(i));
@@ -1469,6 +1496,9 @@ export function sincronizarPerfil(perfil: PerfilPoke, p: PartidaPoke): PerfilPok
         lista[r] = Math.max(lista[r], p.ginasio + 1);
         novo.insigniasPorRegiao = lista;
         if (r === 0) novo.ginasios = lista[0];
+        const historia = REGIOES.map((_, i) => historiaDe(novo, i));
+        historia[r] = 0; // o caminho até o próximo ginásio começa do zero
+        novo.historiaPorRegiao = historia;
       }
       if (p.modo === "liga" && venceu((t) => !!t.campeao)) {
         const lista = REGIOES.map((_, i) => campeaoDe(novo, i));
