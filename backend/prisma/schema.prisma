@@ -210,6 +210,7 @@ model User {
   refreshTokens  RefreshToken[]
   sessaoAtiva    SessaoAtiva?
   metasMateria   MetaMateriaDia[]
+  pokeVitrine    PokeVitrine?
 }
 
 // Períodos de modo férias (histórico). Cada viagem é uma linha; `fim` null = férias
@@ -317,4 +318,14 @@ model RefreshToken {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+// Resumo público da Batalha Pokémon (time, insígnias, capturas) para o perfil do ranking.
+// O jogo em si vive no localStorage do aparelho; o cliente publica este resumo quando o
+// perfil muda. Sem linha = a pessoa nunca abriu a batalha.
+model PokeVitrine {
+  userId    String   @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dados     Json // ver VitrineSchema em src/modules/poke/poke.routes.ts
+  updatedAt DateTime @updatedAt
 }

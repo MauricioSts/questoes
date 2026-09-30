@@ -2,11 +2,14 @@
 // agora se vê num placar. A leitura principal é ACERTOS (quantas questões a pessoa já
 // acertou na trilha); a taxa fica ao lado para dizer a que custo — e tem ranking próprio,
 // com volume mínimo, para não premiar quem acertou 3 de 3.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
-import { Crown, Flame, Target, Trophy, Users } from "lucide-react";
+import { CalendarDays, Crown, Flame, Swords, Target, Trophy, Users, X } from "lucide-react";
 import {
+  carregarPerfilRanking,
   carregarRanking,
+  type PerfilRanking,
   listarTrilhas,
   type LinhaRanking,
   type RankingTrilha,
@@ -26,6 +29,42 @@ const METAL = [
   { anel: "#A8B2C4", brilho: "rgba(168,178,196,.18)", rotulo: "Prata" },
   { anel: "#B0764A", brilho: "rgba(176,118,74,.18)", rotulo: "Bronze" },
 ];
+
+// URLs repetidas aqui (e não importadas de lib/poke) para o ranking não puxar o motor
+// da batalha para o bundle principal.
+const spriteTreinador = (nome: string) => `https://play.pokemonshowdown.com/sprites/trainers/${nome}.png`;
+const spritePokemon = (id: number) =>
+  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`;
+const REGIAO = ["Kanto", "Johto", "Hoenn", "Sinnoh", "Unova"];
+
+// Linha/cartão clicável sem virar <button> (o conteúdo tem blocos e títulos).
+const clicavel = (abrir: () => void) => ({
+  role: "button" as const,
+  tabIndex: 0,
+  onClick: abrir,
+  onKeyDown: (e: KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      abrir();
+    }
+  },
+});
+
+// Avatar: o treinador da Batalha Pokémon, ou as iniciais para quem nunca jogou.
+function Avatar({ linha, tamanho, cor, fundo }: { linha: LinhaRanking; tamanho: number; cor: string; fundo?: string }) {
+  return (
+    <span
+      className="grid flex-shrink-0 place-items-center overflow-hidden rounded-full border-2 font-display font-bold tabular-nums"
+      style={{ height: tamanho, width: tamanho, fontSize: tamanho * 0.38, borderColor: cor, color: cor, background: fundo ?? "var(--surface2)" }}
+    >
+      {linha.treinador ? (
+        <img src={spriteTreinador(linha.treinador)} alt="" className="h-[118%] w-[118%] max-w-none translate-y-[6%] object-contain [image-rendering:pixelated]" />
+      ) : (
+        linha.iniciais
+      )}
+    </span>
+  );
+}
 
 const pct = (t: number) => Math.round(t * 100);
 const num = (n: number) => n.toLocaleString("pt-BR");
@@ -50,6 +89,7 @@ export function Ranking() {
   const [erro, setErro] = useState(false);
   // As barras só crescem depois da primeira pintura: largura 0 → largura real.
   const [montado, setMontado] = useState(false);
+  const [aberto, setAberto] = useState<LinhaRanking | null>(null);
 
   useEffect(() => {
     listarTrilhas()
@@ -149,7 +189,7 @@ export function Ranking() {
             <VazioRanking criterio={criterio} minimo={dados.volumeMinimoTaxa} />
           ) : (
             <div className="space-y-6">
-              <Podio linhas={linhas.slice(0, 3)} criterio={criterio} voceId={dados.voceId} />
+              <Podio linhas={linhas.slice(0, 3)} criterio={criterio} voceId={dados.voceId} onAbrir={setAberto} />
 
               {linhas.length > 3 && (
                 <ol className="space-y-2">
@@ -162,6 +202,7 @@ export function Ranking() {
                       cheia={montado}
                       voce={l.userId === dados.voceId}
                       atraso={i * 45}
+                      onAbrir={() => setAberto(l)}
                     />
                   ))}
                 </ol>
@@ -178,6 +219,8 @@ export function Ranking() {
           )}
 
           <SeuLugar voce={voce} naLista={voceNaLista} criterio={criterio} minimo={dados.volumeMinimoTaxa} />
+          <p className="mt-4 text-center text-xs text-faint">Toque em alguém do placar para ver o perfil e o time Pokémon.</p>
+          {aberto && trilhaId && <PerfilJogador trilhaId={trilhaId} linha={aberto} onFechar={() => setAberto(null)} />}
         </>
       )}
     </div>
@@ -234,7 +277,17 @@ function Resumo({ icone: Icone, valor, rotulo }: { icone: typeof Users; valor: s
 
 // Pódio: os três primeiros saem da lista e viram cartões, com o primeiro colocado
 // levantado meio degrau no desktop. É o único lugar da tela com cor de medalha.
-function Podio({ linhas, criterio, voceId }: { linhas: LinhaRanking[]; criterio: Criterio; voceId: string }) {
+function Podio({
+  linhas,
+  criterio,
+  voceId,
+  onAbrir,
+}: {
+  linhas: LinhaRanking[];
+  criterio: Criterio;
+  voceId: string;
+  onAbrir: (l: LinhaRanking) => void;
+}) {
   // Ordem visual clássica: 2º, 1º, 3º. No celular vira coluna na ordem real.
   const ordem = linhas.length >= 3 ? [1, 0, 2] : linhas.map((_, i) => i);
 
@@ -247,7 +300,9 @@ function Podio({ linhas, criterio, voceId }: { linhas: LinhaRanking[]; criterio:
         return (
           <article
             key={l.userId}
-            className={`card fadeup relative overflow-hidden p-5 text-center ${idx === 0 ? "sm:pb-7" : ""}`}
+            {...clicavel(() => onAbrir(l))}
+            aria-label={`Ver perfil de ${l.userId === voceId ? "você" : l.nome}`}
+            className={`card fadeup relative cursor-pointer overflow-hidden p-5 text-center transition hover:-translate-y-0.5 ${idx === 0 ? "sm:pb-7" : ""}`}
             style={{
               animationDelay: `${visual * 90}ms`,
               borderColor: l.userId === voceId ? "var(--accent)" : metal.anel,
@@ -262,18 +317,8 @@ function Podio({ linhas, criterio, voceId }: { linhas: LinhaRanking[]; criterio:
             />
 
             <div className="relative">
-              <span
-                className="mx-auto grid place-items-center rounded-full border-2 font-display font-bold tabular-nums"
-                style={{
-                  height: idx === 0 ? 68 : 56,
-                  width: idx === 0 ? 68 : 56,
-                  fontSize: idx === 0 ? 26 : 22,
-                  borderColor: metal.anel,
-                  color: metal.anel,
-                  background: "var(--surface2)",
-                }}
-              >
-                {l.iniciais}
+              <span className="mx-auto block w-fit">
+                <Avatar linha={l} tamanho={idx === 0 ? 68 : 56} cor={metal.anel} />
               </span>
               {idx === 0 && (
                 <Crown
@@ -323,6 +368,7 @@ function LinhaPlacar({
   cheia,
   voce,
   atraso,
+  onAbrir,
 }: {
   linha: LinhaRanking;
   criterio: Criterio;
@@ -330,10 +376,13 @@ function LinhaPlacar({
   cheia: boolean;
   voce: boolean;
   atraso: number;
+  onAbrir: () => void;
 }) {
   return (
     <li
-      className="card fadeup relative overflow-hidden"
+      {...clicavel(onAbrir)}
+      aria-label={`Ver perfil de ${voce ? "você" : linha.nome}`}
+      className="card fadeup relative cursor-pointer overflow-hidden transition hover:brightness-110"
       style={{
         animationDelay: `${180 + atraso}ms`,
         borderColor: voce ? "var(--accent)" : undefined,
@@ -353,16 +402,7 @@ function LinhaPlacar({
           {linha.posicao}
         </span>
 
-        <span
-          className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-full border text-xs font-bold"
-          style={{
-            borderColor: voce ? "var(--accent)" : "rgb(var(--hair))",
-            color: voce ? "var(--accentText)" : "rgb(var(--muted))",
-            background: "var(--surface2)",
-          }}
-        >
-          {linha.iniciais}
-        </span>
+        <Avatar linha={linha} tamanho={40} cor={voce ? "var(--accent)" : "rgb(var(--hair))"} />
 
         <div className="min-w-0 flex-1">
           <p className="truncate font-semibold text-brand-ink">
@@ -497,6 +537,141 @@ function Segmentado({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+// Perfil de quem está no placar: estudo na trilha e o time da Batalha Pokémon.
+function PerfilJogador({ trilhaId, linha, onFechar }: { trilhaId: string; linha: LinhaRanking; onFechar: () => void }) {
+  const [perfil, setPerfil] = useState<PerfilRanking | null>(null);
+  const [erro, setErro] = useState(false);
+
+  useEffect(() => {
+    let vivo = true;
+    carregarPerfilRanking(trilhaId, linha.userId)
+      .then((p) => vivo && setPerfil(p))
+      .catch(() => vivo && setErro(true));
+    const esc = (e: globalThis.KeyboardEvent) => e.key === "Escape" && onFechar();
+    window.addEventListener("keydown", esc);
+    return () => {
+      vivo = false;
+      window.removeEventListener("keydown", esc);
+    };
+  }, [trilhaId, linha.userId, onFechar]);
+
+  const poke = perfil?.poke;
+  return createPortal(
+    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/55 p-0 sm:items-center sm:p-6" onClick={onFechar}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Perfil de ${linha.nome}`}
+        onClick={(e) => e.stopPropagation()}
+        className="fadeup max-h-[92vh] w-full max-w-[560px] overflow-y-auto rounded-t-3xl border border-hair bg-surface p-5 shadow-2xl sm:rounded-3xl sm:p-6"
+      >
+        <div className="flex items-start gap-4">
+          <Avatar linha={linha} tamanho={64} cor="var(--accent)" />
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-display text-xl font-bold text-brand-ink">{perfil?.voce ? "Você" : linha.nome}</p>
+            <p className="text-xs text-faint">
+              {linha.posicao}º no placar
+              {perfil?.desde && ` · estuda desde ${new Date(perfil.desde).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })}`}
+            </p>
+          </div>
+          <button onClick={onFechar} aria-label="Fechar" className="rounded-full p-1.5 text-faint transition hover:text-brand-ink">
+            <X size={18} />
+          </button>
+        </div>
+
+        {erro ? (
+          <p className="mt-6 text-sm text-danger-from">Não foi possível carregar o perfil.</p>
+        ) : !perfil ? (
+          <div className="mt-6 space-y-3">
+            <Skeleton className="h-16" />
+            <Skeleton className="h-28" />
+          </div>
+        ) : (
+          <>
+            <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <Numero icone={Trophy} valor={num(perfil.acertos)} rotulo="acertos" />
+              <Numero icone={Target} valor={`${pct(perfil.taxa)}%`} rotulo="de acerto" />
+              <Numero icone={Swords} valor={num(perfil.batalha.acertos)} rotulo="acertos em batalha" />
+              <Numero icone={CalendarDays} valor={num(perfil.diasEstudados)} rotulo="dias de estudo" />
+            </div>
+            <p className="mt-2 text-xs text-faint">
+              {num(perfil.respondidas)} questões respondidas na trilha
+              {perfil.batalha.respondidas > 0 && `, ${num(perfil.batalha.respondidas)} delas em batalha`} · última {desdeUltima(perfil.ultimaResposta)}.
+            </p>
+
+            {perfil.materias.length > 0 && (
+              <div className="mt-5">
+                <p className="mb-2 text-xs font-bold uppercase tracking-[.16em] text-faint">Pontos fortes</p>
+                <ul className="space-y-1.5">
+                  {perfil.materias.map((m) => (
+                    <li key={m.materia} className="relative overflow-hidden rounded-xl border border-hair px-3 py-2 text-sm">
+                      <div aria-hidden className="absolute inset-y-0 left-0" style={{ width: `${pct(m.taxa)}%`, background: "var(--accentBg)" }} />
+                      <div className="relative flex items-center justify-between gap-3">
+                        <span className="truncate text-brand-ink">{m.materia}</span>
+                        <span className="flex-shrink-0 tabular-nums text-muted">
+                          {num(m.acertos)} · {pct(m.taxa)}%
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="mt-5">
+              <p className="mb-2 text-xs font-bold uppercase tracking-[.16em] text-faint">Batalha Pokémon</p>
+              {!poke ? (
+                <p className="rounded-xl border border-dashed border-hair p-4 text-sm text-muted">
+                  {perfil.voce ? "Abra a Batalha Pokémon para seu time aparecer aqui." : "Ainda não começou a jornada Pokémon."}
+                </p>
+              ) : (
+                <div className="rounded-2xl border border-hair p-4">
+                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                    {poke.time.map((m, i) => (
+                      <div key={i} className="flex flex-col items-center rounded-xl px-1 pb-1.5 pt-2" style={{ background: "var(--surface2)" }}>
+                        <img src={spritePokemon(m.id)} alt={`Pokémon nº ${m.id}`} loading="lazy" className="h-14 w-14 object-contain [image-rendering:pixelated]" />
+                        <span className="text-[11px] font-bold tabular-nums text-muted">Nv{m.nivel}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <dl className="mt-4 grid grid-cols-3 gap-x-3 gap-y-2 text-center">
+                    <MiniNumero valor={REGIAO[poke.regiao] ?? "Kanto"} rotulo="região" />
+                    <MiniNumero valor={num(poke.insignias)} rotulo="insígnias" />
+                    <MiniNumero valor={num(poke.campeao)} rotulo={poke.campeao === 1 ? "título de campeão" : "títulos de campeão"} />
+                    <MiniNumero valor={num(poke.vitorias)} rotulo={`vitórias em ${num(poke.partidas)}`} />
+                    <MiniNumero valor={num(poke.capturados)} rotulo="capturados" />
+                    <MiniNumero valor={num(poke.vistos)} rotulo="na Pokédex" />
+                  </dl>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+function Numero({ icone: Icone, valor, rotulo }: { icone: typeof Users; valor: string; rotulo: string }) {
+  return (
+    <div className="rounded-xl border border-hair p-3">
+      <Icone size={15} strokeWidth={1.9} className="text-faint" />
+      <p className="mt-1.5 font-display text-xl font-bold leading-none tabular-nums text-brand-ink">{valor}</p>
+      <p className="mt-1 text-[10px] uppercase tracking-[.12em] text-faint">{rotulo}</p>
+    </div>
+  );
+}
+
+function MiniNumero({ valor, rotulo }: { valor: string; rotulo: string }) {
+  return (
+    <div>
+      <dd className="font-display text-base font-bold tabular-nums text-brand-ink">{valor}</dd>
+      <dt className="text-[10px] uppercase tracking-[.1em] text-faint">{rotulo}</dt>
     </div>
   );
 }

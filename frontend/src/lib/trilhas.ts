@@ -39,6 +39,7 @@ export interface LinhaRanking {
   ultimaResposta: string | null;
   posicao: number; // posição por acertos, com empate compartilhado
   elegivelTaxa: boolean; // tem volume mínimo para disputar o ranking por taxa
+  treinador?: string | null; // sprite de treinador da Batalha Pokémon (avatar)
 }
 
 export interface RankingTrilha {
@@ -51,6 +52,39 @@ export interface RankingTrilha {
 
 export async function carregarRanking(trilhaId: string): Promise<RankingTrilha> {
   return api<RankingTrilha>(`/trilhas/${trilhaId}/ranking`);
+}
+
+// Perfil público de quem está no placar: estudo na trilha + resumo da Batalha Pokémon.
+export interface PerfilRanking {
+  userId: string;
+  nome: string;
+  voce: boolean;
+  posicao: number | null;
+  participantes: number;
+  acertos: number;
+  respondidas: number;
+  taxa: number;
+  desde: string | null;
+  ultimaResposta: string | null;
+  diasEstudados: number;
+  batalha: { respondidas: number; acertos: number };
+  materias: { materia: string; acertos: number; respondidas: number; taxa: number }[];
+  poke: {
+    treinador: string;
+    regiao: number;
+    insignias: number;
+    campeao: number;
+    capturados: number;
+    vistos: number;
+    partidas: number;
+    vitorias: number;
+    time: { id: number; nivel: number }[];
+    atualizadoEm: string;
+  } | null;
+}
+
+export async function carregarPerfilRanking(trilhaId: string, userId: string): Promise<PerfilRanking> {
+  return api<PerfilRanking>(`/trilhas/${trilhaId}/ranking/${userId}`);
 }
 
 // Só a minha linha do placar, para o painel — o dashboard não baixa a lista inteira.

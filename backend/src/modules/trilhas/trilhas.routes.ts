@@ -6,7 +6,8 @@ import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { HttpError } from "../../middleware/error.js";
-import { montarRanking, VOLUME_MINIMO_TAXA } from "../../lib/ranking.js";
+import { montarRanking, nomeExibicao, VOLUME_MINIMO_TAXA } from "../../lib/ranking.js";
+import type { Vitrine } from "../poke/poke.routes.js";
 
 export const trilhasRouter = Router();
 trilhasRouter.use(requireAuth);
@@ -138,7 +139,7 @@ async function linhasDaTrilha(trilhaId: string) {
   );
 
   // Seguidores inclui quem entrou e ainda não respondeu nada (não aparece nas linhas).
-  return { linhas, seguidores: new Set(concursos.map((c) => c.userId)).size };
+  return { linhas, seguidores: new Set(concursos.map((c) => c.userId)).size, concursoIds, concursos };
 }
 
 async function trilhaPublicada(id: string) {
@@ -153,6 +154,12 @@ trilhasRouter.get(
   asyncHandler(async (req, res) => {
     const trilha = await trilhaPublicada(req.params.id);
     const { linhas, seguidores } = await linhasDaTrilha(trilha.id);
+    // Avatar = treinador escolhido na Batalha Pokémon, quando a pessoa já jogou.
+    const vitrines = await prisma.pokeVitrine.findMany({
+      where: { userId: { in: linhas.map((l) => l.userId) } },
+      select: { userId: true, dados: true },
+    });
+    const treinadorDe = new Map(vitrines.map((v) => [v.userId, (v.dados as unknown as Vitrine).treinador]));
 
     res.json({
       trilha: {
@@ -166,7 +173,7 @@ trilhasRouter.get(
       seguidores,
       volumeMinimoTaxa: VOLUME_MINIMO_TAXA,
       voceId: req.userId!,
-      linhas,
+      linhas: linhas.map((l) => ({ ...l, treinador: treinadorDe.get(l.userId) ?? null })),
     });
   })
 );
@@ -198,6 +205,71 @@ trilhasRouter.get(
       },
       acima: acima && { nome: acima.nome, acertos: acima.acertos },
       lider: linhas[0] ? { nome: linhas[0].nome, acertos: linhas[0].acertos } : null,
+    });
+  })
+);
+
+// GET /trilhas/:id/ranking/:userId: perfil público de quem está no placar — números do
+// estudo NA TRILHA e o resumo da Batalha Pokémon. Só abre para quem segue a trilha,
+// o mesmo universo que o placar já expõe.
+trilhasRouter.get(
+  "/:id/ranking/:userId",
+  asyncHandler(async (req, res) => {
+    const trilha = await trilhaPublicada(req.params.id);
+    const alvo = req.params.userId;
+    const { linhas, concursos } = await linhasDaTrilha(trilha.id);
+    const ids = concursos.filter((c) => c.userId === alvo).map((c) => c.id);
+    if (!ids.length) throw new HttpError(404, "Essa pessoa não segue a trilha.");
+    const nome = concursos.find((c) => c.userId === alvo)!.user.nome;
+    const linha = linhas.find((l) => l.userId === alvo) ?? null;
+    const onde = { userId: alvo, concursoId: { in: ids } };
+
+    const [porContexto, porMateria, extremos, dias, vitrine] = await Promise.all([
+      prisma.answer.groupBy({ by: ["contexto", "acertou"], where: onde, _count: { _all: true } }),
+      prisma.answer.groupBy({ by: ["materiaSnapshot", "acertou"], where: onde, _count: { _all: true } }),
+      prisma.answer.aggregate({ where: onde, _min: { createdAt: true }, _max: { createdAt: true } }),
+      prisma.$queryRaw<{ n: bigint }[]>`
+        SELECT COUNT(DISTINCT ("createdAt" AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')::date) AS n
+        FROM "Answer" WHERE "userId" = ${alvo} AND "concursoId" = ANY(${ids})`,
+      prisma.pokeVitrine.findUnique({ where: { userId: alvo } }),
+    ]);
+
+    const batalha = { respondidas: 0, acertos: 0 };
+    for (const g of porContexto) {
+      if (g.contexto !== "BATALHA") continue;
+      batalha.respondidas += g._count._all;
+      if (g.acertou) batalha.acertos += g._count._all;
+    }
+
+    const materias = new Map<string, { acertos: number; respondidas: number }>();
+    for (const g of porMateria) {
+      const m = materias.get(g.materiaSnapshot) ?? { acertos: 0, respondidas: 0 };
+      m.respondidas += g._count._all;
+      if (g.acertou) m.acertos += g._count._all;
+      materias.set(g.materiaSnapshot, m);
+    }
+    // Pontos fortes: mais acertos, com volume mínimo para a taxa dizer alguma coisa.
+    const fortes = [...materias.entries()]
+      .map(([materia, v]) => ({ materia, ...v, taxa: v.acertos / v.respondidas }))
+      .filter((m) => m.respondidas >= 5)
+      .sort((a, b) => b.acertos - a.acertos)
+      .slice(0, 4);
+
+    res.json({
+      userId: alvo,
+      nome: nomeExibicao(nome),
+      voce: alvo === req.userId,
+      posicao: linha?.posicao ?? null,
+      participantes: linhas.length,
+      acertos: linha?.acertos ?? 0,
+      respondidas: linha?.respondidas ?? 0,
+      taxa: linha?.taxa ?? 0,
+      desde: extremos._min.createdAt?.toISOString() ?? null,
+      ultimaResposta: extremos._max.createdAt?.toISOString() ?? null,
+      diasEstudados: Number(dias[0]?.n ?? 0),
+      batalha,
+      materias: fortes,
+      poke: vitrine ? { ...(vitrine.dados as unknown as Vitrine), atualizadoEm: vitrine.updatedAt.toISOString() } : null,
     });
   })
 );

@@ -14,6 +14,7 @@ import { trilhasRouter } from "./modules/trilhas/trilhas.routes.js";
 import { cadernoRouter } from "./modules/caderno/caderno.routes.js";
 import { postitsRouter } from "./modules/postits/postits.routes.js";
 import { statsRouter } from "./modules/stats/stats.routes.js";
+import { pokeRouter } from "./modules/poke/poke.routes.js";
 
 const app = express();
 // Atrás do Caddy local: req.ip vira o IP real do cliente (usado no limite do registro).
@@ -41,6 +42,7 @@ app.use("/trilhas", trilhasRouter);
 app.use("/caderno", cadernoRouter);
 app.use("/postits", postitsRouter);
 app.use("/stats", statsRouter);
+app.use("/poke", pokeRouter);
 
 app.use(errorHandler);
 

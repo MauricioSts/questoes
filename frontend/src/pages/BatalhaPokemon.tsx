@@ -34,6 +34,7 @@ import {
   TREINADORES_JOGADOR,
   cenario,
   xpDoNivel,
+  nivelDoXpPoke,
   MAX_GOLPES,
   type Dex,
 } from "../lib/poke/dex";
@@ -275,6 +276,35 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     gravar(CHAVE_JOGADOR, j);
   };
   const [jogadorVis, setJogadorVis] = useState<{ sprite: string; chave: number } | null>(null);
+  // Resumo público (perfil do ranking): publica quando muda, com folga para não mandar
+  // um PUT a cada turno da luta.
+  const vitrineEnviada = useRef("");
+  useEffect(() => {
+    if (!perfil) return;
+    const t = setTimeout(() => {
+      const vitrine = {
+        treinador: jogador,
+        regiao: regiaoAtual(perfil),
+        insignias: REGIOES.reduce((s, _, r) => s + insigniasDe(perfil, r), 0),
+        campeao: perfil.campeao ?? 0,
+        capturados: perfil.colecao.length,
+        vistos: perfil.vistos.length,
+        partidas: perfil.partidas,
+        vitorias: perfil.vitorias,
+        time: perfil.time
+          .map((u) => perfil.colecao.find((m) => m.uid === u))
+          .filter((m): m is Mon => !!m)
+          .map((m) => ({ id: m.id, nivel: nivelDoXpPoke(m.xp) })),
+      };
+      const json = JSON.stringify(vitrine);
+      if (json === vitrineEnviada.current) return;
+      api("/poke/vitrine", { method: "PUT", body: vitrine })
+        .then(() => (vitrineEnviada.current = json))
+        .catch(() => {});
+    }, 3000);
+    return () => clearTimeout(t);
+  }, [perfil, jogador]);
+
   const [lancamentos, setLancamentos] = useState<LancaVis[]>([]);
   const [evolucao, setEvolucao] = useState<{ de: number; para: number; fim: () => void } | null>(null);
   const contador = useRef(1);
