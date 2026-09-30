@@ -50,6 +50,7 @@ import {
   type Dex,
   type Especie,
   type Golpe,
+  ULTIMO_DA_JORNADA,
 } from "./dex";
 import { CURA_ITEM, CURA_STATUS, FRUTA_HP, FRUTA_RESISTE, FRUTA_STATUS, ITENS, PREMIO_CHAVE, REFORCO_DO_TIPO, REFORCO_TIPO, REVIVER } from "./itens";
 
@@ -476,7 +477,7 @@ function basesPorTipo(dex: Dex, tipo: number | "todas", faixa?: [number, number]
     const naFaixa = (id: number) => !faixa || (id >= faixa[0] && id <= faixa[1]);
     const linha = (id: number): number[] => [id, ...(dex.especies[id]?.e ?? []).filter(([para]) => para <= ate).flatMap(([para]) => linha(para))];
     lista = Object.entries(dex.especies)
-      .filter(([id, e]) => Number(id) <= ate && !e.l && (!e.p || e.p > ate) && (tipo === "todas" || e.t.includes(tipo)) && linha(Number(id)).some(naFaixa))
+      .filter(([id, e]) => Number(id) <= Math.min(ate, ULTIMO_DA_JORNADA) && !e.l && (!e.p || e.p > ate) && (tipo === "todas" || e.t.includes(tipo)) && linha(Number(id)).some(naFaixa))
       .map(([id]) => Number(id));
     if (faixa && lista.length < 3) lista = basesPorTipo(dex, tipo, undefined, ate);
     if (!lista.length && ate !== Infinity) lista = basesPorTipo(dex, tipo);
@@ -499,7 +500,7 @@ export function especieDaQuestao(dex: Dex, questaoId: number, materia: string, n
 function especieDoLider(dex: Dex, questaoId: number, materia: string, nivel: number, ate = Infinity): number {
   const { tipos } = tiposDaMateria(materia);
   const finais = Object.entries(dex.especies)
-    .filter(([id, e]) => Number(id) <= ate && !e.e?.some(([para]) => para <= ate) && (nivel >= 45 || !e.l) && (!tipos || e.t.some((t) => tipos.includes(t))))
+    .filter(([id, e]) => Number(id) <= Math.min(ate, ULTIMO_DA_JORNADA) && !e.e?.some(([para]) => para <= ate) && (nivel >= 45 || !e.l) && (!tipos || e.t.some((t) => tipos.includes(t))))
     .map(([id, e]) => ({ id: Number(id), soma: e.s.reduce((a, b) => a + b, 0) }))
     .filter((x) => x.soma >= 450)
     .sort((a, b) => a.id - b.id);

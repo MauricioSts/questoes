@@ -757,3 +757,17 @@ describe("golpes", () => {
     expect(novo.colecao[0].golpes).toEqual([scratch]);
   });
 });
+
+describe("iniciais pós-Unova", () => {
+  const dex = dexJson as unknown as Dex;
+  it("existem na dex com a linha evolutiva e evoluem mesmo com o limite de Kanto", () => {
+    for (const id of [650, 653, 656, 722, 725, 728, 810, 813, 816, 906, 909, 912]) expect(dex.especies[id]).toBeTruthy();
+    expect(evolucaoPorNivel(dex.especies[650], 16, 151)).toBe(651);
+    expect(evolucaoPorNivel(dex.especies[912], 16, 151)).toBe(913);
+    expect(evolucaoPorNivel(dex.especies[1], 16, 151)).toBe(2);
+    expect(evolucaoPorNivel(dex.especies[133], 99, 151)).not.toBe(196); // Espeon continua fora de Kanto
+  });
+  it("nunca aparecem como inimigos", () => {
+    for (let q = 1; q < 400; q++) expect(especieDaQuestao(dex, q, "Português", 50)).toBeLessThanOrEqual(649);
+  });
+});

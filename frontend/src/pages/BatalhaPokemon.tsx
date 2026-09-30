@@ -22,7 +22,7 @@ import { resumir, type Candidata, type Confianca } from "../lib/batalha";
 import { tipoDaMateria } from "../components/batalha/tipos";
 import {
   COR_TIPO,
-  INICIAIS,
+  INICIAIS_POR_REGIAO,
   NOME_TIPO,
   NIVEL_TROCA_AMIZADE,
   atributos,
@@ -1802,7 +1802,7 @@ function EscolhaInicial({
   dex,
   onEscolher,
   alternar,
-  iniciais = INICIAIS,
+  iniciais,
   titulo = "Escolha seu primeiro Pokémon",
   subtitulo = "Ele começa no nível 5 e cresce com cada questão que você acertar.",
   onVoltar,
@@ -1822,11 +1822,26 @@ function EscolhaInicial({
     <div className="fadeup mx-auto max-w-[900px] pt-2 pb-24">
       <PageHeader rotulo="Batalha" titulo={titulo} subtitulo={subtitulo} />
       {alternar}
-      <div className={`grid gap-2 ${iniciais.length <= 3 ? "mx-auto max-w-[480px] grid-cols-3" : "grid-cols-3 sm:grid-cols-5 md:grid-cols-6"}`}>
-        {iniciais.map((i) => (
-          <MonCard key={i} dex={dex} m={{ uid: String(i), id: i, xp: xpDoNivel(5), golpes: [] }} marcado={id === i} onClick={() => setId(i)} />
-        ))}
-      </div>
+      {iniciais ? (
+        <div className="mx-auto grid max-w-[480px] grid-cols-3 gap-2">
+          {iniciais.map((i) => (
+            <MonCard key={i} dex={dex} m={{ uid: String(i), id: i, xp: xpDoNivel(5), golpes: [] }} marcado={id === i} onClick={() => setId(i)} />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {INICIAIS_POR_REGIAO.map((g) => (
+            <section key={g.regiao}>
+              <p className="mb-1.5 text-xs font-bold uppercase tracking-[.16em] text-faint">{g.regiao}</p>
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+                {g.ids.filter((i) => dex.especies[i]).map((i) => (
+                  <MonCard key={i} dex={dex} m={{ uid: String(i), id: i, xp: xpDoNivel(5), golpes: [] }} marcado={id === i} onClick={() => setId(i)} />
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      )}
       {extra && <div className="mx-auto mt-5 max-w-[640px]">{extra}</div>}
       <div className="sticky bottom-20 mt-4 flex justify-center">
         {onVoltar && (

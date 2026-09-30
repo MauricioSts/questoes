@@ -33,6 +33,11 @@ export function carregarDex(): Promise<Dex> {
 }
 
 export const MAX_NIVEL = 100;
+// Maior número da Pokédex que aparece na jornada (fim de Unova). Acima disso só existem os
+// iniciais de Kalos, Alola, Galar e Paldea (scripts/adicionar-iniciais.mjs): nunca surgem
+// como inimigos e evoluem sem o limite de geração da região.
+export const ULTIMO_DA_JORNADA = 649;
+const acimaDoLimite = (para: number, ate: number) => para > ate && para <= ULTIMO_DA_JORNADA;
 export const MAX_GOLPES = 4;
 
 // ---------- tipos ----------
@@ -84,8 +89,11 @@ export function efetividade(tipoGolpe: number, defensor: number[]): number {
 // ---------- sprites ----------
 
 const SPR = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites";
-export const spriteFrente = (id: number) => `${SPR}/pokemon/versions/generation-v/black-white/animated/${id}.gif`;
-export const spriteCostas = (id: number) => `${SPR}/pokemon/versions/generation-v/black-white/animated/back/${id}.gif`;
+// Black/White só tem animação até o #649; os iniciais de Kalos em diante usam os do Showdown.
+export const spriteFrente = (id: number) =>
+  id > ULTIMO_DA_JORNADA ? `${SPR}/pokemon/other/showdown/${id}.gif` : `${SPR}/pokemon/versions/generation-v/black-white/animated/${id}.gif`;
+export const spriteCostas = (id: number) =>
+  id > ULTIMO_DA_JORNADA ? `${SPR}/pokemon/other/showdown/back/${id}.gif` : `${SPR}/pokemon/versions/generation-v/black-white/animated/back/${id}.gif`;
 export const spriteEstatico = (id: number) => `${SPR}/pokemon/${id}.png`;
 const SPRITE_ITEM: Record<string, string> = { "exp-all": "exp-share" }; // sem sprite próprio na PokéAPI
 export const spriteItem = (nome: string) => `${SPR}/items/${SPRITE_ITEM[nome] ?? nome}.png`;
@@ -254,7 +262,7 @@ export const NIVEL_TROCA_AMIZADE = 32;
 // seguintes, como Golbat -> Crobat em Kanto, esperam a região chegar).
 export function evolucaoPorNivel(e: Especie, nivel: number, ate = Infinity): number | null {
   for (const [para, tipo, valor] of e.e ?? []) {
-    if (para > ate) continue;
+    if (acimaDoLimite(para, ate)) continue;
     if (tipo === "l" && nivel >= Number(valor)) return para;
     if ((tipo === "t" || tipo === "f") && nivel >= NIVEL_TROCA_AMIZADE) return para;
   }
@@ -262,7 +270,7 @@ export function evolucaoPorNivel(e: Especie, nivel: number, ate = Infinity): num
 }
 
 export function evolucaoPorPedra(e: Especie, pedra: string, ate = Infinity): number | null {
-  return e.e?.find(([para, tipo, valor]) => tipo === "i" && valor === pedra && para <= ate)?.[0] ?? null;
+  return e.e?.find(([para, tipo, valor]) => tipo === "i" && valor === pedra && !acimaDoLimite(para, ate))?.[0] ?? null;
 }
 
 // Forma que um Pokémon "de treinador" teria nesse nível (inimigos evoluem sozinhos; pedra
@@ -280,5 +288,16 @@ export function formaNoNivel(dex: Dex, id: number, nivel: number, ate = Infinity
   return atual;
 }
 
-// Iniciais das gerações 1–5 + Pikachu e Eevee.
-export const INICIAIS = [1, 4, 7, 25, 133, 152, 155, 158, 252, 255, 258, 387, 390, 393, 495, 498, 501];
+// Iniciais de cada região (Kanto com Pikachu e Eevee), na tela do primeiro Pokémon.
+export const INICIAIS_POR_REGIAO: { regiao: string; ids: number[] }[] = [
+  { regiao: "Kanto", ids: [1, 4, 7, 25, 133] },
+  { regiao: "Johto", ids: [152, 155, 158] },
+  { regiao: "Hoenn", ids: [252, 255, 258] },
+  { regiao: "Sinnoh", ids: [387, 390, 393] },
+  { regiao: "Unova", ids: [495, 498, 501] },
+  { regiao: "Kalos", ids: [650, 653, 656] },
+  { regiao: "Alola", ids: [722, 725, 728] },
+  { regiao: "Galar", ids: [810, 813, 816] },
+  { regiao: "Paldea", ids: [906, 909, 912] },
+];
+export const INICIAIS = INICIAIS_POR_REGIAO.flatMap((g) => g.ids);
