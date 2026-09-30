@@ -5,7 +5,16 @@ import { resumir } from "../lib/batalha";
 import { atributos, efetividade, evolucaoPorNivel, formaNoNivel, golpesNoNivel, nivelDoXpPoke, xpDoNivel, xpMinimoPorVitoria, type Dex } from "../lib/poke/dex";
 import {
   GINASIOS,
+  MAX_TROCAS,
+  REGIOES,
   avancarPoke,
+  campeaoDe,
+  ligaLiberada,
+  podeLutar,
+  podeTrocarSelvagem,
+  proximaRegiao,
+  trocarSelvagem,
+  viajar,
   chanceCaptura,
   decidirGolpe,
   definirGolpes,
@@ -286,8 +295,8 @@ describe("ritmo de evolução", () => {
 
 describe("modos da jornada", () => {
   const pend = (n: number) => Array.from({ length: n }, (_, i) => cand(i + 1, i % 2 ? "Banco de Dados" : "Português"));
-  const montar = (modo: "ginasio" | "safari" | "liga", ginasio?: number, nivel = 10) =>
-    montarPartidaPoke({ dex, time: [criarMon(dex, 4, nivel, "a")], mochila: { "poke-ball": 1 }, pendentes: pend(14), novas: pend(40).map((c) => ({ ...c, questaoId: c.questaoId + 100 })), concursoId: null, modo, ginasio, semente: 5 })!;
+  const montar = (modo: "ginasio" | "safari" | "liga", ginasio?: number, nivel = 10, extra: { regiao?: number; habitat?: number } = {}) =>
+    montarPartidaPoke({ dex, time: [criarMon(dex, 4, nivel, "a")], mochila: { "poke-ball": 1 }, pendentes: pend(14), novas: pend(40).map((c) => ({ ...c, questaoId: c.questaoId + 100 })), concursoId: null, modo, ginasio, semente: 5, ...extra })!;
   const jogarAteOFim = (p0: PartidaPoke) => {
     let p = p0;
     for (let g = 0; g < 400 && !p.fim; g++) {
@@ -360,6 +369,117 @@ describe("modos da jornada", () => {
       }
     }
     expect(capturou).toBe(true);
+  });
+});
+
+describe("regiões", () => {
+  const pend = (n: number) => Array.from({ length: n }, (_, i) => cand(i + 1, i % 2 ? "Banco de Dados" : "Português"));
+  const montar = (modo: "ginasio" | "safari" | "liga", extra: { regiao?: number; habitat?: number; ginasio?: number } = {}, nivel = 10) =>
+    montarPartidaPoke({ dex, time: [criarMon(dex, 4, nivel, "a")], mochila: { "poke-ball": 1 }, pendentes: pend(14), novas: pend(40).map((c) => ({ ...c, questaoId: c.questaoId + 100 })), concursoId: null, modo, semente: 5, ...extra })!;
+  const jogarAteOFim = (p0: PartidaPoke) => {
+    let p = p0;
+    for (let g = 0; g < 400 && !p.fim; g++) {
+      if (p.oferta) p = escolherOferta(p, p.oferta[0], dex);
+      else if ((p.aprender ?? []).length) p = decidirGolpe(p, null).partida;
+      else p = avancarPoke(certo(p).partida, dex);
+    }
+    return p;
+  };
+
+  it("cada região tem 8 ginásios, Elite dos 4, Campeão e 3 iniciais que existem na Pokédex", () => {
+    expect(REGIOES.map((r) => r.nome)).toEqual(["Kanto", "Johto", "Hoenn", "Sinnoh", "Unova"]);
+    for (const r of REGIOES) {
+      expect(r.ginasios).toHaveLength(8);
+      expect(r.elite).toHaveLength(4);
+      expect(r.iniciais).toHaveLength(3);
+      for (const id of [...r.iniciais, ...r.campeao.time]) expect(dex.especies[id]).toBeDefined();
+    }
+  });
+
+  it("ginásio e Liga de Johto usam os treinadores de Johto e dão a insígnia de Johto", () => {
+    const g = montar("ginasio", { regiao: 1, ginasio: 0 });
+    expect(g.regiao).toBe(1);
+    expect(g.treinadores.at(-1)).toMatchObject({ nome: "Falkner", insignia: 0 });
+    expect([g.atual!, ...g.fila].every((e) => dex.especies[e.especie].t.includes(9))).toBe(true);
+    const fim = jogarAteOFim(g);
+    const base = { ...perfilInicial(dex, 4, "a"), ginasios: 8, campeao: 1, regiao: 1 };
+    const perfil = sincronizarPerfil(base, fim);
+    expect(insigniasDe(perfil, 1)).toBe(1);
+    expect(insigniasDe(perfil, 0)).toBe(8); // Kanto intacto
+    const liga = montar("liga", { regiao: 1 }, 50);
+    expect(liga.treinadores.map((t) => t.nome)).toEqual(["Will", "Koga", "Bruno", "Karen", "Campeão Lance"]);
+    const campeao = sincronizarPerfil({ ...perfil, insigniasPorRegiao: [8, 8, 0, 0, 0] }, jogarAteOFim(liga));
+    expect(campeaoDe(campeao, 1)).toBe(1);
+    expect(campeaoDe(campeao, 0)).toBe(1);
+    expect(campeao.campeao).toBe(2);
+  });
+
+  it("ser Campeão libera a viagem: escolhe inicial da região nova e o time antigo fica no PC", () => {
+    const kanto = perfilInicial(dex, 4, "a");
+    expect(proximaRegiao(kanto)).toBeNull();
+    expect(viajar(dex, kanto, 152, "b")).toBe(kanto);
+    const campeao = { ...kanto, campeao: 1, ginasios: 8 };
+    expect(proximaRegiao(campeao)).toBe(1);
+    expect(viajar(dex, campeao, 1, "b")).toBe(campeao); // inicial de outra região não vale
+    const johto = viajar(dex, campeao, 155, "b");
+    expect(johto.regiao).toBe(1);
+    expect(johto.time).toEqual(["b"]);
+    expect(johto.colecao.map((m) => m.uid)).toEqual(["a", "b"]);
+    expect(insigniasDe(johto)).toBe(0);
+    expect(ligaLiberada(johto)).toBe(false);
+    const [velho, novo] = johto.colecao;
+    expect(podeLutar(johto, novo)).toBe(true);
+    expect(podeLutar(johto, velho)).toBe(false);
+    // Campeão de Johto: os antigos voltam a lutar
+    expect(podeLutar({ ...johto, campeaoPorRegiao: [1, 1, 0, 0, 0] }, velho)).toBe(true);
+  });
+
+  it("capturas ficam marcadas com a região da jornada", () => {
+    const p = montar("safari", { regiao: 2 });
+    for (let s = 0; s < 30; s++) {
+      const r = responderPoke(dex, { ...p, rng: s * 131 }, { acertou: true, confianca: "duvida", acao: { bola: "safari-ball" } });
+      if (r.eventos.some((e) => e.tipo === "bola" && e.sucesso)) {
+        expect(r.partida.time.at(-1)!.regiao).toBe(2);
+        return;
+      }
+    }
+    throw new Error("não capturou");
+  });
+
+  it("Zona Safári da região escolhida só tem Pokémon daquela região", () => {
+    const naFaixa = (id: number, [a, b]: [number, number]) => {
+      // a linha evolutiva tem alguma forma da região
+      const linha = new Set<number>([id]);
+      for (let k = 0; k < 3; k++) for (const x of [...linha]) { const pre = dex.especies[x]?.p; if (pre) linha.add(pre); for (const [para] of dex.especies[x]?.e ?? []) linha.add(para); }
+      return [...linha].some((x) => x >= a && x <= b);
+    };
+    for (const [h, r] of REGIOES.entries()) {
+      const p = montar("safari", { habitat: h });
+      expect(p.habitat).toBe(h);
+      expect([p.atual!, ...p.fila].every((e) => naFaixa(e.especie, r.faixa))).toBe(true);
+    }
+  });
+
+  it("trocar o selvagem: outro Pokémon, mesma questão, até 3 vezes e só antes de responder", () => {
+    let p = montar("safari", { habitat: 3 });
+    const q = p.atual!.questaoId;
+    for (let i = 0; i < MAX_TROCAS; i++) {
+      expect(podeTrocarSelvagem(p)).toBe(true);
+      const antes = p.atual!;
+      p = trocarSelvagem(dex, p);
+      expect(p.atual!.questaoId).toBe(q);
+      expect(p.atual!.especie).not.toBe(antes.especie);
+      expect(p.atual!.chave).not.toBe(antes.chave);
+      expect(p.atual!.hp).toBe(atributos(dex.especies[p.atual!.especie], p.atual!.nivel).hp);
+    }
+    expect(podeTrocarSelvagem(p)).toBe(false);
+    expect(trocarSelvagem(dex, p)).toBe(p);
+    // depois de responder, não troca mais
+    const outro = montar("safari", { habitat: 3 });
+    const r = errado(outro);
+    if (r.partida.atual && !r.partida.atual.fim) expect(podeTrocarSelvagem(r.partida)).toBe(false);
+    // Pokémon de treinador não troca
+    expect(podeTrocarSelvagem(montar("ginasio", { ginasio: 0 }))).toBe(false);
   });
 });
 

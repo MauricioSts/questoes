@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
-import { Backpack, Crown, Flag, Flame, Lock, Map as MapaIcone, NotebookPen, Pause, RotateCcw, Swords, Trees, Trophy, Users, X } from "lucide-react";
+import { Backpack, Crown, Flag, Flame, Lock, Map as MapaIcone, NotebookPen, Pause, Plane, RotateCcw, Shuffle, Swords, Trees, Trophy, Users, X } from "lucide-react";
 import type { Alternativa } from "../types/questao";
 import { getQuestao } from "../lib/questoesRepo";
 import { carregarFilaBatalha, novasPorFraqueza, type HistoricoQ } from "../lib/filaBatalha";
@@ -38,10 +38,17 @@ import {
 import {
   BOLAS,
   BOLAS_SAFARI,
-  CAMPEAO,
-  ELITE,
-  GINASIOS,
   MAX_TIME,
+  MAX_TROCAS,
+  REGIOES,
+  campeaoDe,
+  podeLutar,
+  podeTrocarSelvagem,
+  proximaRegiao,
+  regiaoAtual,
+  regiaoDe,
+  trocarSelvagem,
+  viajar,
   decidirGolpe,
   definirGolpes,
   golpesDisponiveis,
@@ -169,7 +176,8 @@ interface Desfecho {
   historico?: { tentativas: number; erros: number };
 }
 
-export const insigniaImg = (i: number) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/${i + 1}.png`;
+// Insígnias da PokéAPI em sequência: Kanto 1–8, Johto 9–16, Hoenn 17–24, Sinnoh 25–32, Unova 33–40.
+export const insigniaImg = (i: number, regiao = 0) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/${8 * regiao + i + 1}.png`;
 const NOME_MODO: Record<ModoJornada, string> = { rota: "Rota", ginasio: "Ginásio", safari: "Zona Safári", liga: "Liga Pokémon" };
 
 // ---------- página ----------
@@ -218,6 +226,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     [setPerfil]
   );
 
+  const [viagem, setViagem] = useState(false);
   const [fase, setFase] = useState<Fase>(() => (!partida ? "lobby" : partida.fim ? "fim" : partida.oferta ? "recompensa" : "lobby"));
 
   // lobby
@@ -326,10 +335,10 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   }, [fase, hist]);
   const novas = useMemo(() => (hist ? novasPorFraqueza(hist) : []), [hist]);
 
-  function comecar(modo: ModoJornada, ginasio?: number) {
+  function comecar(modo: ModoJornada, opts: { ginasio?: number; habitat?: number } = {}) {
     if (!pendentes || !perfil) return;
-    const time = perfil.time.map((uid) => perfil.colecao.find((m) => m.uid === uid)).filter((m): m is Mon => !!m);
-    const p = montarPartidaPoke({ dex, time, mochila: perfil.mochila, pendentes, novas, concursoId: activeId ?? null, modo, ginasio });
+    const time = perfil.time.map((uid) => perfil.colecao.find((m) => m.uid === uid)).filter((m): m is Mon => !!m && podeLutar(perfil, m));
+    const p = montarPartidaPoke({ dex, time, mochila: perfil.mochila, pendentes, novas, concursoId: activeId ?? null, modo, regiao: regiaoAtual(perfil), ...opts });
     if (!p) return;
     setPartida(p);
     entrarNaLuta(p);
@@ -652,7 +661,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           setTreinadorVis({ sprite: t.sprite, chave: n(), sai: false });
           setMensagem(
             ev.insignia !== undefined
-              ? `Você venceu ${t.nome}! Ganhou a ${GINASIOS[ev.insignia].insignia}!`
+              ? `Você venceu ${t.nome}! Ganhou a ${regiaoDe(depois.regiao).ginasios[ev.insignia].insignia}!`
               : t.campeao
                 ? `Você venceu o ${t.nome}! Você é o novo Campeão da Liga!`
                 : t.elite
@@ -859,6 +868,14 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     setFase("fim");
   }
 
+  // Troca o selvagem por outro Pokémon da região; a questão continua a mesma.
+  function trocarBicho() {
+    if (!partida || !podeTrocarSelvagem(partida)) return;
+    setPainel(null);
+    setPartida(trocarSelvagem(dex, partida));
+    setFase("entrada");
+  }
+
   function novaPartida() {
     setPartida(null);
     setDesfecho(null);
@@ -886,6 +903,25 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     );
   }
 
+  const destino = proximaRegiao(perfil);
+  if (viagem && destino !== null && (!partida || partida.fim)) {
+    return (
+      <EscolhaInicial
+        dex={dex}
+        iniciais={REGIOES[destino].iniciais}
+        titulo={`Bem-vindo a ${REGIOES[destino].nome}!`}
+        subtitulo="Escolha o inicial desta região. Ele começa no nível 5; o time que você tinha fica no PC e volta a lutar quando você for Campeão aqui."
+        onVoltar={() => setViagem(false)}
+        onEscolher={(id) => {
+          setPerfil(viajar(dex, perfil, id));
+          setViagem(false);
+          if (partida?.fim) setPartida(null);
+          setFase("lobby");
+        }}
+      />
+    );
+  }
+
   if (fase === "lobby" || !partida) {
     return (
       <Lobby
@@ -899,13 +935,14 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
         onComecar={comecar}
         emAndamento={partida && !partida.fim ? partida : null}
         onRetomar={() => partida && entrarNaLuta(partida)}
+        onViajar={() => setViagem(true)}
         alternar={alternar}
       />
     );
   }
 
   if (fase === "fim") {
-    return <Fim dex={dex} partida={partida} perfil={perfil} activeId={activeId ?? null} onNova={novaPartida} />;
+    return <Fim dex={dex} partida={partida} perfil={perfil} activeId={activeId ?? null} onNova={novaPartida} onViajar={() => setViagem(true)} />;
   }
 
   const eu = partida.time[partida.ativo];
@@ -974,7 +1011,11 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
               <div className="flex flex-wrap gap-1.5">
                 <Chip title="Onde você está">
                   {partida.modo === "safari" ? <Trees size={12} /> : partida.modo === "liga" ? <Crown size={12} /> : <MapaIcone size={12} />}
-                  {partida.modo === "ginasio" && partida.ginasio !== undefined ? `Ginásio de ${GINASIOS[partida.ginasio].cidade}` : NOME_MODO[partida.modo ?? "rota"]}
+                  {partida.modo === "ginasio" && partida.ginasio !== undefined
+                    ? `Ginásio de ${regiaoDe(partida.regiao).ginasios[partida.ginasio].cidade}`
+                    : partida.modo === "safari" || partida.modo === "liga"
+                      ? `${NOME_MODO[partida.modo]} · ${regiaoDe(partida.habitat ?? partida.regiao).nome}`
+                      : NOME_MODO[partida.modo ?? "rota"]}
                 </Chip>
                 {partida.modo === "safari" ? (
                   <Chip title="Safari Balls desta visita">
@@ -1205,15 +1246,22 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
                 </div>
                 <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
                   <div className="flex gap-1.5">
-                    <BotaoMini onClick={() => setPainel(painel === "mochila" ? null : "mochila")}>
-                      <Backpack size={14} /> Mochila
+                    <BotaoMini rotulo="Mochila" onClick={() => setPainel(painel === "mochila" ? null : "mochila")}>
+                      <Backpack size={14} /> <span className="max-[430px]:hidden">Mochila</span>
                     </BotaoMini>
-                    <BotaoMini onClick={() => setPainel(painel === "pokemon" ? null : "pokemon")} disabled={partida.time.filter((l) => l.hp > 0).length < 2}>
-                      <Users size={14} /> Pokémon
+                    <BotaoMini rotulo="Trocar de Pokémon" onClick={() => setPainel(painel === "pokemon" ? null : "pokemon")} disabled={partida.time.filter((l) => l.hp > 0).length < 2}>
+                      <Users size={14} /> <span className="max-[430px]:hidden">Pokémon</span>
                     </BotaoMini>
                     {selvagem && (
                       <BotaoMini onClick={() => setPainel(painel === "bolas" ? null : "bolas")} disabled={!bolasTenho.length} destaque>
                         <img src={spriteItem("poke-ball")} alt="" className="pk-mini h-4 w-4" /> Capturar
+                      </BotaoMini>
+                    )}
+                    {selvagem && !encontro?.turnos && (
+                      <BotaoMini onClick={trocarBicho} disabled={!podeTrocarSelvagem(partida)} rotulo="Trocar por outro Pokémon (a questão continua a mesma)">
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                          <Shuffle size={14} /> <span className="hidden sm:inline">Outro</span> {MAX_TROCAS - (encontro?.trocas ?? 0)}×
+                        </span>
                       </BotaoMini>
                     )}
                   </div>
@@ -1228,8 +1276,8 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
                       </button>
                     </span>
                   ) : (
-                    <BotaoMini onClick={() => setConfirmarFuga(true)}>
-                      <Flag size={14} /> Fugir
+                    <BotaoMini rotulo="Fugir" onClick={() => setConfirmarFuga(true)}>
+                      <Flag size={14} /> <span className="max-[430px]:hidden">Fugir</span>
                     </BotaoMini>
                   )}
                 </div>
@@ -1253,11 +1301,13 @@ function Chip({ children, title }: { children: ReactNode; title?: string }) {
   );
 }
 
-function BotaoMini({ children, onClick, disabled, destaque }: { children: ReactNode; onClick: () => void; disabled?: boolean; destaque?: boolean }) {
+function BotaoMini({ children, onClick, disabled, destaque, rotulo }: { children: ReactNode; onClick: () => void; disabled?: boolean; destaque?: boolean; rotulo?: string }) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
+      aria-label={rotulo}
+      title={rotulo}
       className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 font-semibold transition disabled:opacity-40 ${
         destaque ? "border-red-400 bg-red-50 text-red-700 hover:bg-red-100" : "border-hair bg-surface text-muted hover:text-brand-500"
       }`}
@@ -1433,18 +1483,39 @@ function MonCard({ dex, m, onClick, marcado, rodape }: { dex: Dex; m: Mon; onCli
 
 // ---------- escolha do inicial ----------
 
-function EscolhaInicial({ dex, onEscolher, alternar }: { dex: Dex; onEscolher: (id: number) => void; alternar?: ReactNode }) {
+function EscolhaInicial({
+  dex,
+  onEscolher,
+  alternar,
+  iniciais = INICIAIS,
+  titulo = "Escolha seu primeiro Pokémon",
+  subtitulo = "Ele começa no nível 5 e cresce com cada questão que você acertar.",
+  onVoltar,
+}: {
+  dex: Dex;
+  onEscolher: (id: number) => void;
+  alternar?: ReactNode;
+  iniciais?: number[];
+  titulo?: string;
+  subtitulo?: string;
+  onVoltar?: () => void;
+}) {
   const [id, setId] = useState<number | null>(null);
   return (
     <div className="fadeup mx-auto max-w-[900px] pt-2 pb-24">
-      <PageHeader rotulo="Batalha" titulo="Escolha seu primeiro Pokémon" subtitulo="Ele começa no nível 5 e cresce com cada questão que você acertar." />
+      <PageHeader rotulo="Batalha" titulo={titulo} subtitulo={subtitulo} />
       {alternar}
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 md:grid-cols-6">
-        {INICIAIS.map((i) => (
+      <div className={`grid gap-2 ${iniciais.length <= 3 ? "mx-auto max-w-[480px] grid-cols-3" : "grid-cols-3 sm:grid-cols-5 md:grid-cols-6"}`}>
+        {iniciais.map((i) => (
           <MonCard key={i} dex={dex} m={{ uid: String(i), id: i, xp: xpDoNivel(5), golpes: [] }} marcado={id === i} onClick={() => setId(i)} />
         ))}
       </div>
       <div className="sticky bottom-20 mt-4 flex justify-center">
+        {onVoltar && (
+          <button onClick={onVoltar} className="mr-2 rounded-2xl border border-hair bg-surface px-5 py-3 font-display font-bold text-muted transition hover:text-brand-500">
+            Agora não
+          </button>
+        )}
         <button disabled={!id} onClick={() => id && onEscolher(id)} className="btn-primary disabled:opacity-40">
           {id ? `Escolher ${dex.especies[id].n}` : "Toque em um Pokémon"}
         </button>
@@ -1466,6 +1537,7 @@ function Lobby({
   onComecar,
   emAndamento,
   onRetomar,
+  onViajar,
   alternar,
 }: {
   dex: Dex;
@@ -1475,13 +1547,18 @@ function Lobby({
   novas: number;
   erro: boolean;
   onTentar: () => void;
-  onComecar: (modo: ModoJornada, ginasio?: number) => void;
+  onComecar: (modo: ModoJornada, opts?: { ginasio?: number; habitat?: number }) => void;
   emAndamento: PartidaPoke | null;
   onRetomar: () => void;
+  onViajar: () => void;
   alternar?: ReactNode;
 }) {
   const time = perfil.time.map((u) => perfil.colecao.find((m) => m.uid === u)).filter((m): m is Mon => !!m);
-  const pc = perfil.colecao.filter((m) => !perfil.time.includes(m.uid));
+  const pc = perfil.colecao.filter((m) => !perfil.time.includes(m.uid)).sort((a, b) => Number(podeLutar(perfil, b)) - Number(podeLutar(perfil, a)));
+  const r = regiaoAtual(perfil);
+  const regiao = REGIOES[r];
+  const destino = proximaRegiao(perfil);
+  const [habitat, setHabitat] = useState(r);
   const revisoes = pendentes ? Math.min(pendentes.length, 12) : 0;
   const completa = pendentes ? Math.min(novas, Math.max(0, 11 - revisoes)) : 0;
   const mochila = Object.entries(perfil.mochila).filter(([, q]) => q > 0);
@@ -1489,7 +1566,8 @@ function Lobby({
   const [editando, setEditando] = useState<string | null>(null);
   const monEditando = editando ? perfil.colecao.find((m) => m.uid === editando) : undefined;
   const insignias = insigniasDe(perfil);
-  const proximo = GINASIOS[insignias];
+  const proximo = regiao.ginasios[insignias];
+  const liga = ligaLiberada(perfil);
   const botaoGolpes = (m: Mon) => (
     <button
       onClick={() => setEditando(m.uid)}
@@ -1504,12 +1582,15 @@ function Lobby({
     if (perfil.time.includes(uid)) {
       if (perfil.time.length <= 1) return;
       setPerfil({ ...perfil, time: perfil.time.filter((u) => u !== uid) });
-    } else if (perfil.time.length < MAX_TIME) setPerfil({ ...perfil, time: [...perfil.time, uid] });
+    } else {
+      const m = perfil.colecao.find((x) => x.uid === uid);
+      if (m && podeLutar(perfil, m) && perfil.time.length < MAX_TIME) setPerfil({ ...perfil, time: [...perfil.time, uid] });
+    }
   };
 
   return (
     <div className="fadeup mx-auto max-w-[980px] pt-2 pb-24">
-      <PageHeader rotulo="Batalha" titulo="Jornada Pokémon" subtitulo="Cada turno é uma questão. Acertar faz o golpe sair; errar leva contra-ataque." />
+      <PageHeader rotulo="Batalha" titulo={`Jornada Pokémon · ${regiao.nome}`} subtitulo="Cada turno é uma questão. Acertar faz o golpe sair; errar leva contra-ataque." />
       {alternar}
 
       <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
@@ -1543,13 +1624,24 @@ function Lobby({
           <div className="card p-5">
             <div className="mb-3 flex items-baseline justify-between gap-2">
               <p className="font-display text-lg font-bold text-brand-ink">PC ({pc.length})</p>
-              <p className="text-xs text-faint">capture Pokémon selvagens para escolher quem vai na jornada</p>
+              <p className="text-xs text-faint">
+                {campeaoDe(perfil) > 0 || r === 0 ? "capture Pokémon selvagens para escolher quem vai na jornada" : `só luta aqui quem veio de ${regiao.nome}; os outros voltam quando você for Campeão`}
+              </p>
             </div>
             {pc.length ? (
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
                 {pc.map((m) => (
-                  <div key={m.uid} className="flex flex-col gap-1">
-                    <MonCard dex={dex} m={m} onClick={() => alternarTime(m.uid)} rodape={m.questaoId ? <span className="text-[10px] text-faint">questão #{m.questaoId}</span> : null} />
+                  <div key={m.uid} className={`flex flex-col gap-1 ${podeLutar(perfil, m) ? "" : "opacity-45"}`}>
+                    <MonCard
+                      dex={dex}
+                      m={m}
+                      onClick={() => alternarTime(m.uid)}
+                      rodape={
+                        <span className="text-[10px] text-faint">
+                          {podeLutar(perfil, m) ? (m.questaoId ? `questão #${m.questaoId}` : "") : <><Lock size={9} className="inline" /> de {regiaoDe(m.regiao).nome}</>}
+                        </span>
+                      }
+                    />
                     {botaoGolpes(m)}
                   </div>
                 ))}
@@ -1561,6 +1653,21 @@ function Lobby({
         </div>
 
         <div className="space-y-4">
+          {destino !== null && (
+            <div className="card space-y-3 border-brand-500 p-5">
+              <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Nova região</p>
+              <p className="font-display text-lg font-bold text-brand-ink">Campeão de {regiao.nome}! {REGIOES[destino].nome} te espera.</p>
+              <div className="flex justify-center gap-2">
+                {REGIOES[destino].iniciais.map((i) => (
+                  <img key={i} src={spriteFrente(i)} onError={(ev) => (ev.currentTarget.src = spriteEstatico(i))} alt="" className="pk-mini h-14 w-14" />
+                ))}
+              </div>
+              <p className="text-xs text-muted">Escolha um destes para começar do nível 5. Seu time atual vai para o PC.</p>
+              <button onClick={onViajar} disabled={!!emAndamento} className="btn-primary w-full disabled:opacity-40">
+                <Plane size={16} className="mr-2 inline" /> Viajar para {REGIOES[destino].nome}
+              </button>
+            </div>
+          )}
           {emAndamento && (
             <div className="card bt-painel-resultado--acerto space-y-3 p-5">
               <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Partida pausada</p>
@@ -1596,29 +1703,44 @@ function Lobby({
                       titulo={`Ginásio de ${proximo.cidade}`}
                       texto={`${proximo.lider} · ${NOME_TIPO[proximo.tipo]} · vale a ${proximo.insignia}`}
                       imagem={spriteTreinador(proximo.sprite)}
-                      selo={insigniaImg(insignias)}
+                      selo={insigniaImg(insignias, r)}
                       destaque
                       disabled={!!emAndamento}
-                      onClick={() => onComecar("ginasio", insignias)}
+                      onClick={() => onComecar("ginasio", { ginasio: insignias })}
                     />
                   ) : null}
                   <Destino
-                    titulo="Liga Pokémon"
-                    texto={ligaLiberada(perfil) ? `Elite dos 4 (${ELITE.map((e) => e.nome).join(", ")}) e o Campeão ${CAMPEAO.nome}` : `Precisa das 8 insígnias (${insignias}/8)`}
-                    imagem={spriteTreinador(ligaLiberada(perfil) ? ELITE[0].sprite : CAMPEAO.sprite)}
-                    icone={ligaLiberada(perfil) ? <Crown size={16} /> : <Lock size={16} />}
-                    destaque={ligaLiberada(perfil)}
-                    disabled={!!emAndamento || !ligaLiberada(perfil)}
+                    titulo={`Liga Pokémon de ${regiao.nome}`}
+                    texto={liga ? `Elite dos 4 (${regiao.elite.map((e) => e.nome).join(", ")}) e o Campeão ${regiao.campeao.nome}` : `Precisa das 8 insígnias (${insignias}/8)`}
+                    imagem={spriteTreinador(liga ? regiao.elite[0].sprite : regiao.campeao.sprite)}
+                    icone={liga ? <Crown size={16} /> : <Lock size={16} />}
+                    destaque={liga}
+                    disabled={!!emAndamento || !liga}
                     onClick={() => onComecar("liga")}
                   />
-                  <Destino
-                    titulo="Zona Safári"
-                    texto={`Só Pokémon selvagens para capturar · ${BOLAS_SAFARI} Safari Balls grátis`}
-                    imagem={spriteItem("safari-ball")}
-                    icone={<Trees size={16} />}
-                    disabled={!!emAndamento}
-                    onClick={() => onComecar("safari")}
-                  />
+                  <div className="rounded-2xl border border-hair bg-surface2">
+                    <Destino
+                      titulo={`Zona Safári · ${REGIOES[habitat].nome}`}
+                      texto={`Só Pokémon selvagens de ${REGIOES[habitat].nome} · ${BOLAS_SAFARI} Safari Balls grátis · troque o selvagem até ${MAX_TROCAS}× por questão`}
+                      imagem={spriteItem("safari-ball")}
+                      icone={<Trees size={16} />}
+                      disabled={!!emAndamento}
+                      onClick={() => onComecar("safari", { habitat })}
+                    />
+                    <div className="flex flex-wrap gap-1 px-2.5 pb-2.5" role="radiogroup" aria-label="Região da Zona Safári">
+                      {REGIOES.map((x, i) => (
+                        <button
+                          key={x.nome}
+                          role="radio"
+                          aria-checked={habitat === i}
+                          onClick={() => setHabitat(i)}
+                          className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold transition ${habitat === i ? "border-brand-500 bg-brand-500 text-white" : "border-hair text-muted hover:border-brand-500"}`}
+                        >
+                          {x.nome}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <Destino
                     titulo="Rota (treino)"
                     texto="Treinadores, selvagens no mato e um Treinador Ás no fim"
@@ -1634,12 +1756,14 @@ function Lobby({
           </div>
 
           <div className="card p-5">
-            <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Insígnias ({insignias}/8)</p>
+            <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">
+              Insígnias de {regiao.nome} ({insignias}/8)
+            </p>
             <div className="mt-2 grid grid-cols-8 gap-1">
-              {GINASIOS.map((g, i) => (
+              {regiao.ginasios.map((g, i) => (
                 <img
                   key={g.sprite}
-                  src={insigniaImg(i)}
+                  src={insigniaImg(i, r)}
                   alt={g.insignia}
                   title={`${g.insignia} (${g.lider})${i < insignias ? "" : " · ainda não"}`}
                   className="pk-mini mx-auto h-8 w-8 object-contain"
@@ -1647,10 +1771,16 @@ function Lobby({
                 />
               ))}
             </div>
-            {(perfil.campeao ?? 0) > 0 && (
-              <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-brand-ink">
-                <Crown size={15} className="text-amber-500" /> Campeão da Liga ×{perfil.campeao}
-              </p>
+            {REGIOES.some((_, i) => campeaoDe(perfil, i) > 0) && (
+              <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1">
+                {REGIOES.map((x, i) =>
+                  campeaoDe(perfil, i) > 0 ? (
+                    <p key={x.nome} className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-ink">
+                      <Crown size={15} className="text-amber-500" /> {x.nome} ×{campeaoDe(perfil, i)}
+                    </p>
+                  ) : null
+                )}
+              </div>
             )}
           </div>
 
@@ -1690,8 +1820,10 @@ function Lobby({
               escolhe qual esquecer para aprender o novo; no botão "Golpes" dá para trocar por qualquer golpe que ele já aprendeu.
             </p>
             <p>
-              <b className="text-brand-ink">Jornada:</b> 8 ginásios em ordem (cada líder vale uma insígnia), depois a Liga: Elite dos 4 e o Campeão. Na Zona Safári só aparecem
-              selvagens. Cada treinador vencido dá um item.
+              <b className="text-brand-ink">Jornada:</b> 5 regiões (Kanto, Johto, Hoenn, Sinnoh, Unova). Em cada uma, 8 ginásios em ordem (cada líder vale uma insígnia), depois
+              a Liga: Elite dos 4 e o Campeão. Sendo Campeão, você viaja para a próxima região e escolhe um inicial de lá; o time antigo fica no PC. Na Zona Safári você
+              escolhe a região e só aparecem selvagens; antes de responder, dá para trocar o selvagem por outro até {MAX_TROCAS} vezes (a questão é a mesma). Cada treinador
+              vencido dá um item.
             </p>
             <p className="text-faint">Cada resposta conta na meta do dia, na ofensiva e reagenda a revisão espaçada.</p>
           </div>
@@ -1758,7 +1890,23 @@ function Numero({ valor, rotulo }: { valor: number; rotulo: string }) {
 
 // ---------- fim ----------
 
-function Fim({ dex, partida, perfil, activeId, onNova }: { dex: Dex; partida: PartidaPoke; perfil: PerfilPoke; activeId: string | null; onNova: () => void }) {
+function Fim({
+  dex,
+  partida,
+  perfil,
+  activeId,
+  onNova,
+  onViajar,
+}: {
+  dex: Dex;
+  partida: PartidaPoke;
+  perfil: PerfilPoke;
+  activeId: string | null;
+  onNova: () => void;
+  onViajar: () => void;
+}) {
+  const regiao = regiaoDe(partida.regiao);
+  const destino = proximaRegiao(perfil);
   const r = resumir(partida);
   const [salvando, setSalvando] = useState<"nao" | "salvando" | "salvo" | "erro">("nao");
   const licoes = Object.entries(partida.licoes);
@@ -1786,20 +1934,29 @@ function Fim({ dex, partida, perfil, activeId, onNova }: { dex: Dex; partida: Pa
             <img key={l.uid} src={spriteFrente(l.id)} alt="" className="pk-mini h-16 w-16" style={l.hp <= 0 ? { filter: "grayscale(1)", opacity: 0.5 } : undefined} />
           ))}
         </div>
-        <p className="mt-2 font-display text-3xl font-bold text-brand-ink">{campeao ? "Campeão da Liga!" : titulo}</p>
+        <p className="mt-2 font-display text-3xl font-bold text-brand-ink">{campeao ? `Campeão de ${regiao.nome}!` : titulo}</p>
         {ganhouInsignia !== null && (
           <div className="mt-3 flex flex-col items-center gap-1">
-            <img src={insigniaImg(ganhouInsignia)} alt="" className="pk-mini h-16 w-16 object-contain" />
-            <p className="font-bold text-brand-ink">{GINASIOS[ganhouInsignia].insignia}</p>
-            <p className="text-xs text-muted">{ganhouInsignia + 1 < GINASIOS.length ? `Próximo: Ginásio de ${GINASIOS[ganhouInsignia + 1].cidade} (${GINASIOS[ganhouInsignia + 1].lider}).` : "8 insígnias! A Liga Pokémon está aberta."}</p>
+            <img src={insigniaImg(ganhouInsignia, partida.regiao ?? 0)} alt="" className="pk-mini h-16 w-16 object-contain" />
+            <p className="font-bold text-brand-ink">{regiao.ginasios[ganhouInsignia].insignia}</p>
+            <p className="text-xs text-muted">
+              {ganhouInsignia + 1 < regiao.ginasios.length
+                ? `Próximo: Ginásio de ${regiao.ginasios[ganhouInsignia + 1].cidade} (${regiao.ginasios[ganhouInsignia + 1].lider}).`
+                : `8 insígnias! A Liga Pokémon de ${regiao.nome} está aberta.`}
+            </p>
           </div>
         )}
         {campeao && <p className="mt-2 text-sm text-muted">Seu time entrou para o Hall da Fama.</p>}
+        {campeao && destino !== null && (
+          <button onClick={onViajar} className="btn-primary mt-3">
+            <Plane size={16} className="mr-2 inline" /> Viajar para {REGIOES[destino].nome}
+          </button>
+        )}
         <p className="mt-1 text-muted">
           {partida.vencidos.length}/{partida.treinadores.length} treinadores · {r.acertos}/{r.respondidas} acertos · +{partida.xp} XP
         </p>
         <p className="mt-1 text-xs text-faint">
-          {r.respondidas} respostas contaram na meta do dia e na ofensiva. Insígnias: {insigniasDe(perfil)}/8.
+          {r.respondidas} respostas contaram na meta do dia e na ofensiva. Insígnias de {regiaoDe(perfil.regiao).nome}: {insigniasDe(perfil)}/8.
         </p>
       </div>
 

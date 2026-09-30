@@ -66,6 +66,7 @@ export interface Mon {
   golpes: number[];
   questaoId?: number; // capturado vencendo essa questão
   capturadoEm?: string;
+  regiao?: number; // região da jornada em que entrou para a coleção (ausente = Kanto)
 }
 
 export interface Lutador extends Mon {
@@ -91,6 +92,7 @@ export interface Encontro {
   sono: number;
   semente: boolean; // Leech Seed
   turnos?: number; // questões já respondidas contra ele
+  trocas?: number; // selvagem trocado por outro antes do 1º turno (a questão fica)
   fim?: "ko" | "captura" | "fuga";
 }
 
@@ -115,7 +117,7 @@ export const MULT_BOLA: Record<Bola, number> = { "poke-ball": 1, "great-ball": 1
 // Safari Balls só valem dentro da Zona Safári: não vão para a mochila do perfil.
 export const BOLAS_SAFARI = 12;
 
-// ---------- ginásios, Elite dos 4, campeão ----------
+// ---------- regiões: ginásios, Elite dos 4, campeão ----------
 
 export interface Ginasio {
   lider: string;
@@ -123,29 +125,147 @@ export interface Ginasio {
   tipo: number; // tipo Pokémon (índice de NOME_TIPO)
   insignia: string;
   cidade: string;
-  piso: number; // nível de referência do líder (os jogos de Kanto)
+  piso: number; // nível de referência do líder (os jogos da região)
   ajudantes: string[];
 }
 
-// Os 8 de Kanto. Insígnia i = sprites/badges/(i+1).png da PokéAPI.
-export const GINASIOS: Ginasio[] = [
-  { lider: "Brock", sprite: "brock", tipo: 12, insignia: "Insígnia Rocha", cidade: "Pewter", piso: 12, ajudantes: ["hiker", "camper"] },
-  { lider: "Misty", sprite: "misty", tipo: 2, insignia: "Insígnia Cascata", cidade: "Cerulean", piso: 18, ajudantes: ["swimmer", "sailor"] },
-  { lider: "Lt. Surge", sprite: "ltsurge", tipo: 3, insignia: "Insígnia Trovão", cidade: "Vermilion", piso: 24, ajudantes: ["sailor", "guitarist"] },
-  { lider: "Erika", sprite: "erika", tipo: 4, insignia: "Insígnia Arco-Íris", cidade: "Celadon", piso: 29, ajudantes: ["beauty", "lass"] },
-  { lider: "Koga", sprite: "koga", tipo: 7, insignia: "Insígnia Alma", cidade: "Fuchsia", piso: 37, ajudantes: ["juggler", "burglar"] },
-  { lider: "Sabrina", sprite: "sabrina", tipo: 10, insignia: "Insígnia Pântano", cidade: "Saffron", piso: 43, ajudantes: ["psychic", "psychicf"] },
-  { lider: "Blaine", sprite: "blaine", tipo: 1, insignia: "Insígnia Vulcão", cidade: "Cinnabar", piso: 47, ajudantes: ["burglar", "scientist"] },
-  { lider: "Giovanni", sprite: "giovanni", tipo: 8, insignia: "Insígnia Terra", cidade: "Viridian", piso: 50, ajudantes: ["blackbelt", "acetrainer"] },
+export interface MembroElite {
+  nome: string;
+  sprite: string;
+  tipo: number;
+  piso: number;
+}
+
+export interface Regiao {
+  nome: string;
+  faixa: [number, number]; // números da Pokédex nacional nativos da região
+  iniciais: number[];
+  ginasios: Ginasio[];
+  elite: MembroElite[];
+  campeao: { nome: string; sprite: string; piso: number; time: number[] };
+}
+
+// Cinco regiões, na ordem dos jogos (a Pokédex vai até a 5ª geração). Ser Campeão de uma
+// libera a viagem para a próxima: lá o jogador escolhe um inicial da região e recomeça do
+// nível 5, e o time antigo fica no PC. Insígnia i da região r = sprites/badges/(8r+i+1).png.
+export const REGIOES: Regiao[] = [
+  {
+    nome: "Kanto",
+    faixa: [1, 151],
+    iniciais: [1, 4, 7],
+    ginasios: [
+      { lider: "Brock", sprite: "brock", tipo: 12, insignia: "Insígnia Rocha", cidade: "Pewter", piso: 12, ajudantes: ["hiker", "camper"] },
+      { lider: "Misty", sprite: "misty", tipo: 2, insignia: "Insígnia Cascata", cidade: "Cerulean", piso: 18, ajudantes: ["swimmer", "sailor"] },
+      { lider: "Lt. Surge", sprite: "ltsurge", tipo: 3, insignia: "Insígnia Trovão", cidade: "Vermilion", piso: 24, ajudantes: ["sailor", "guitarist"] },
+      { lider: "Erika", sprite: "erika", tipo: 4, insignia: "Insígnia Arco-Íris", cidade: "Celadon", piso: 29, ajudantes: ["beauty", "lass"] },
+      { lider: "Koga", sprite: "koga", tipo: 7, insignia: "Insígnia Alma", cidade: "Fuchsia", piso: 37, ajudantes: ["juggler", "burglar"] },
+      { lider: "Sabrina", sprite: "sabrina", tipo: 10, insignia: "Insígnia Pântano", cidade: "Saffron", piso: 43, ajudantes: ["psychic", "psychicf"] },
+      { lider: "Blaine", sprite: "blaine", tipo: 1, insignia: "Insígnia Vulcão", cidade: "Cinnabar", piso: 47, ajudantes: ["burglar", "scientist"] },
+      { lider: "Giovanni", sprite: "giovanni", tipo: 8, insignia: "Insígnia Terra", cidade: "Viridian", piso: 50, ajudantes: ["blackbelt", "acetrainer"] },
+    ],
+    elite: [
+      { nome: "Lorelei", sprite: "lorelei-gen3", tipo: 5, piso: 54 },
+      { nome: "Bruno", sprite: "bruno", tipo: 6, piso: 56 },
+      { nome: "Agatha", sprite: "agatha-gen3", tipo: 13, piso: 58 },
+      { nome: "Lance", sprite: "lance", tipo: 14, piso: 60 },
+    ],
+    campeao: { nome: "Blue", sprite: "blue", piso: 63, time: [18, 65, 130, 6] },
+  },
+  {
+    nome: "Johto",
+    faixa: [152, 251],
+    iniciais: [152, 155, 158],
+    ginasios: [
+      { lider: "Falkner", sprite: "falkner", tipo: 9, insignia: "Insígnia Zéfiro", cidade: "Violet", piso: 10, ajudantes: ["birdkeeper", "youngster"] },
+      { lider: "Bugsy", sprite: "bugsy", tipo: 11, insignia: "Insígnia Colmeia", cidade: "Azalea", piso: 16, ajudantes: ["bugcatcher", "camper"] },
+      { lider: "Whitney", sprite: "whitney", tipo: 0, insignia: "Insígnia Planície", cidade: "Goldenrod", piso: 20, ajudantes: ["lass", "beauty"] },
+      { lider: "Morty", sprite: "morty", tipo: 13, insignia: "Insígnia Névoa", cidade: "Ecruteak", piso: 25, ajudantes: ["psychic", "psychicf"] },
+      { lider: "Chuck", sprite: "chuck", tipo: 6, insignia: "Insígnia Tempestade", cidade: "Cianwood", piso: 30, ajudantes: ["blackbelt", "veteran"] },
+      { lider: "Jasmine", sprite: "jasmine", tipo: 16, insignia: "Insígnia Mineral", cidade: "Olivine", piso: 35, ajudantes: ["sailor", "gentleman"] },
+      { lider: "Pryce", sprite: "pryce", tipo: 5, insignia: "Insígnia Glacial", cidade: "Mahogany", piso: 34, ajudantes: ["skier", "boarder"] },
+      { lider: "Clair", sprite: "clair", tipo: 14, insignia: "Insígnia Ascensão", cidade: "Blackthorn", piso: 41, ajudantes: ["acetrainer", "acetrainerf"] },
+    ],
+    elite: [
+      { nome: "Will", sprite: "will", tipo: 10, piso: 42 },
+      { nome: "Koga", sprite: "koga", tipo: 7, piso: 44 },
+      { nome: "Bruno", sprite: "bruno", tipo: 6, piso: 46 },
+      { nome: "Karen", sprite: "karen", tipo: 15, piso: 47 },
+    ],
+    campeao: { nome: "Lance", sprite: "lance", piso: 50, time: [130, 142, 6, 149] },
+  },
+  {
+    nome: "Hoenn",
+    faixa: [252, 386],
+    iniciais: [252, 255, 258],
+    ginasios: [
+      { lider: "Roxanne", sprite: "roxanne", tipo: 12, insignia: "Insígnia Pedra", cidade: "Rustboro", piso: 15, ajudantes: ["hiker", "schoolkidf"] },
+      { lider: "Brawly", sprite: "brawly", tipo: 6, insignia: "Insígnia Punho", cidade: "Dewford", piso: 19, ajudantes: ["blackbelt", "swimmer"] },
+      { lider: "Wattson", sprite: "wattson", tipo: 3, insignia: "Insígnia Dínamo", cidade: "Mauville", piso: 24, ajudantes: ["guitarist", "worker"] },
+      { lider: "Flannery", sprite: "flannery", tipo: 1, insignia: "Insígnia Calor", cidade: "Lavaridge", piso: 29, ajudantes: ["hiker", "burglar"] },
+      { lider: "Norman", sprite: "norman", tipo: 0, insignia: "Insígnia Equilíbrio", cidade: "Petalburg", piso: 31, ajudantes: ["acetrainer", "acetrainerf"] },
+      { lider: "Winona", sprite: "winona", tipo: 9, insignia: "Insígnia Pena", cidade: "Fortree", piso: 33, ajudantes: ["birdkeeper", "pilot"] },
+      { lider: "Tate", sprite: "tate", tipo: 10, insignia: "Insígnia Mente", cidade: "Mossdeep", piso: 42, ajudantes: ["psychic", "psychicf"] },
+      { lider: "Juan", sprite: "juan", tipo: 2, insignia: "Insígnia Chuva", cidade: "Sootopolis", piso: 46, ajudantes: ["swimmerf", "sailor"] },
+    ],
+    elite: [
+      { nome: "Sidney", sprite: "sidney", tipo: 15, piso: 49 },
+      { nome: "Phoebe", sprite: "phoebe-gen3", tipo: 13, piso: 51 },
+      { nome: "Glacia", sprite: "glacia", tipo: 5, piso: 53 },
+      { nome: "Drake", sprite: "drake-gen3", tipo: 14, piso: 55 },
+    ],
+    campeao: { nome: "Steven", sprite: "steven", piso: 58, time: [227, 344, 306, 376] },
+  },
+  {
+    nome: "Sinnoh",
+    faixa: [387, 493],
+    iniciais: [387, 390, 393],
+    ginasios: [
+      { lider: "Roark", sprite: "roark", tipo: 12, insignia: "Insígnia Carvão", cidade: "Oreburgh", piso: 14, ajudantes: ["worker", "hiker"] },
+      { lider: "Gardenia", sprite: "gardenia", tipo: 4, insignia: "Insígnia Floresta", cidade: "Eterna", piso: 22, ajudantes: ["lass", "camper"] },
+      { lider: "Maylene", sprite: "maylene", tipo: 6, insignia: "Insígnia Paralelepípedo", cidade: "Veilstone", piso: 30, ajudantes: ["blackbelt", "veteran"] },
+      { lider: "Crasher Wake", sprite: "crasherwake", tipo: 2, insignia: "Insígnia Pântano", cidade: "Pastoria", piso: 32, ajudantes: ["fisherman", "swimmerf"] },
+      { lider: "Fantina", sprite: "fantina", tipo: 13, insignia: "Insígnia Relíquia", cidade: "Hearthome", piso: 36, ajudantes: ["psychicf", "beauty"] },
+      { lider: "Byron", sprite: "byron", tipo: 16, insignia: "Insígnia Mina", cidade: "Canalave", piso: 39, ajudantes: ["worker", "gentleman"] },
+      { lider: "Candice", sprite: "candice", tipo: 5, insignia: "Insígnia Pingente", cidade: "Snowpoint", piso: 42, ajudantes: ["skier", "acetrainerf"] },
+      { lider: "Volkner", sprite: "volkner", tipo: 3, insignia: "Insígnia Farol", cidade: "Sunyshore", piso: 49, ajudantes: ["guitarist", "scientist"] },
+    ],
+    elite: [
+      { nome: "Aaron", sprite: "aaron", tipo: 11, piso: 53 },
+      { nome: "Bertha", sprite: "bertha", tipo: 8, piso: 55 },
+      { nome: "Flint", sprite: "flint", tipo: 1, piso: 57 },
+      { nome: "Lucian", sprite: "lucian", tipo: 10, piso: 59 },
+    ],
+    campeao: { nome: "Cynthia", sprite: "cynthia", piso: 62, time: [442, 350, 448, 445] },
+  },
+  {
+    nome: "Unova",
+    faixa: [494, 649],
+    iniciais: [495, 498, 501],
+    ginasios: [
+      { lider: "Cilan", sprite: "cilan", tipo: 4, insignia: "Insígnia Trio", cidade: "Striaton", piso: 14, ajudantes: ["waitress", "youngster"] },
+      { lider: "Lenora", sprite: "lenora", tipo: 0, insignia: "Insígnia Básica", cidade: "Nacrene", piso: 20, ajudantes: ["schoolkidf", "teacher"] },
+      { lider: "Burgh", sprite: "burgh", tipo: 11, insignia: "Insígnia Inseto", cidade: "Castelia", piso: 23, ajudantes: ["bugcatcher", "artist"] },
+      { lider: "Elesa", sprite: "elesa", tipo: 3, insignia: "Insígnia Raio", cidade: "Nimbasa", piso: 27, ajudantes: ["beauty", "guitarist"] },
+      { lider: "Clay", sprite: "clay", tipo: 8, insignia: "Insígnia Tremor", cidade: "Driftveil", piso: 31, ajudantes: ["worker", "hiker"] },
+      { lider: "Skyla", sprite: "skyla", tipo: 9, insignia: "Insígnia Jato", cidade: "Mistralton", piso: 35, ajudantes: ["pilot", "birdkeeper"] },
+      { lider: "Brycen", sprite: "brycen", tipo: 5, insignia: "Insígnia Congelada", cidade: "Icirrus", piso: 39, ajudantes: ["skier", "blackbelt"] },
+      { lider: "Drayden", sprite: "drayden", tipo: 14, insignia: "Insígnia Lenda", cidade: "Opelucid", piso: 43, ajudantes: ["acetrainer", "veteran"] },
+    ],
+    elite: [
+      { nome: "Shauntal", sprite: "shauntal", tipo: 13, piso: 48 },
+      { nome: "Grimsley", sprite: "grimsley", tipo: 15, piso: 49 },
+      { nome: "Caitlin", sprite: "caitlin", tipo: 10, piso: 50 },
+      { nome: "Marshal", sprite: "marshal", tipo: 6, piso: 51 },
+    ],
+    campeao: { nome: "Alder", sprite: "alder", piso: 54, time: [626, 617, 621, 637] },
+  },
 ];
 
-export const ELITE: { nome: string; sprite: string; tipo: number; piso: number }[] = [
-  { nome: "Lorelei", sprite: "lorelei-gen3", tipo: 5, piso: 54 },
-  { nome: "Bruno", sprite: "bruno", tipo: 6, piso: 56 },
-  { nome: "Agatha", sprite: "agatha-gen3", tipo: 13, piso: 58 },
-  { nome: "Lance", sprite: "lance", tipo: 14, piso: 60 },
-];
-export const CAMPEAO = { nome: "Blue", sprite: "blue", piso: 63 };
+export const regiaoDe = (i: number | undefined) => REGIOES[i ?? 0] ?? REGIOES[0];
+// Kanto (compatibilidade com partidas, perfis e testes de antes das regiões).
+export const GINASIOS = REGIOES[0].ginasios;
+export const ELITE = REGIOES[0].elite;
+export const CAMPEAO = REGIOES[0].campeao;
 
 // Nível dos inimigos: metade do caminho entre o time e o nível dos jogos (nunca abaixo do
 // time + delta). O ginásio puxa o time para cima sem virar um muro.
@@ -159,7 +279,9 @@ export type Item = Bola | "potion" | "super-potion" | "hyper-potion" | "revive" 
 export interface PartidaPoke {
   versao: 3;
   modo?: ModoJornada; // ausente = rota (partidas salvas antes dos modos)
-  ginasio?: number; // modo ginasio: índice em GINASIOS
+  regiao?: number; // região da jornada (ausente = Kanto): ginásios, Liga e capturas
+  habitat?: number; // Zona Safári: de que região são os selvagens
+  ginasio?: number; // modo ginasio: índice nos ginásios da região
   aprender?: { uid: string; golpe: number }[]; // golpes novos esperando a escolha de qual esquecer
   concursoId: string | null;
   iniciadaEm: string;
@@ -270,6 +392,7 @@ const NOMES_TREINADOR: Record<string, string> = {
   guitarist: "Guitarrista", clerkf: "Analista", burglar: "Hacker", youngster: "Garoto", acetrainer: "Treinador Ás",
   acetrainerf: "Treinadora Ás", bugcatcher: "Caçador de Insetos", fisherman: "Pescador", birdkeeper: "Criador de Aves",
   waitress: "Garçonete", camper: "Campista", swimmer: "Nadador", beauty: "Beldade", juggler: "Malabarista",
+  skier: "Esquiadora", boarder: "Snowboarder",
 };
 
 const semAcento = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -280,21 +403,27 @@ function tiposDaMateria(materia: string): { tipos: number[] | null; treinadores:
   return achou ? { tipos: achou[1], treinadores: achou[2] } : { tipos: null, treinadores: TREINADORES_GERAIS };
 }
 
-// Espécies "de base" (sem pré-evolução, não lendárias), por tipo. Memorizado por dex.
-const bases = new WeakMap<Dex, Map<number | "todas", number[]>>();
-function basesPorTipo(dex: Dex, tipo: number | "todas"): number[] {
+// Espécies "de base" (sem pré-evolução, não lendárias), por tipo. Com `faixa`, só as linhas
+// com alguma forma nativa da região (Pichu é de Johto, mas a linha dele também aparece em
+// Kanto por causa de Pikachu). Região com menos de 3 do tipo cai para a Pokédex toda.
+// Memorizado por dex.
+const bases = new WeakMap<Dex, Map<string, number[]>>();
+function basesPorTipo(dex: Dex, tipo: number | "todas", faixa?: [number, number]): number[] {
   let mapa = bases.get(dex);
   if (!mapa) bases.set(dex, (mapa = new Map()));
-  let lista = mapa.get(tipo);
+  const chave = `${tipo}:${faixa?.join("-") ?? ""}`;
+  let lista = mapa.get(chave);
   if (!lista) {
+    const naFaixa = (id: number) => !faixa || (id >= faixa[0] && id <= faixa[1]);
+    const linhaNaFaixa = (id: number) => naFaixa(id) || (dex.especies[id]?.e ?? []).some(([para]) => naFaixa(para) || (dex.especies[para]?.e ?? []).some(([p2]) => naFaixa(p2)));
     lista = Object.entries(dex.especies)
-      .filter(([, e]) => !e.p && !e.l && (tipo === "todas" || e.t.includes(tipo)))
+      .filter(([id, e]) => !e.p && !e.l && (tipo === "todas" || e.t.includes(tipo)) && linhaNaFaixa(Number(id)))
       .map(([id]) => Number(id));
-    mapa.set(tipo, lista);
+    if (faixa && lista.length < 3) lista = basesPorTipo(dex, tipo);
+    mapa.set(chave, lista);
   }
   return lista;
 }
-
 // A mesma questão é sempre o mesmo Pokémon (na forma do nível em que aparece): a questão
 // #123 "é um Gengar" e o aluno reconhece a velha conhecida.
 export function especieDaQuestao(dex: Dex, questaoId: number, materia: string, nivel: number): number {
@@ -332,14 +461,18 @@ export function montarPartidaPoke(opts: {
   novas: Candidata[];
   concursoId: string | null;
   modo?: ModoJornada;
+  regiao?: number;
+  habitat?: number;
   ginasio?: number;
   semente?: number;
   agora?: Date;
 }): PartidaPoke | null {
   const { dex } = opts;
   const modo = opts.modo ?? "rota";
+  const regiao = REGIOES[opts.regiao ?? 0] ? (opts.regiao ?? 0) : 0;
+  const habitat = REGIOES[opts.habitat ?? -1] ? opts.habitat! : regiao;
   if (!opts.time.length) return null;
-  if (modo === "ginasio" && !GINASIOS[opts.ginasio ?? -1]) return null;
+  if (modo === "ginasio" && !REGIOES[regiao].ginasios[opts.ginasio ?? -1]) return null;
   let rng = opts.semente ?? Date.now() >>> 0;
   const rolar = () => {
     const [r, n] = sortear(rng);
@@ -350,7 +483,7 @@ export function montarPartidaPoke(opts: {
   const nivelEntre = (d0: number, d1: number) => Math.max(2, Math.min(MAX_NIVEL, base + d0 + Math.floor(rolar() * (d1 - d0 + 1))));
 
   // Quantos Pokémon inimigos o modo pede; a partida puxa ~2,2 questões por Pokémon.
-  const planos = modo === "rota" ? null : modo === "safari" ? planoSafari(dex, nivelEntre, rolar) : modo === "liga" ? planoLiga(dex, base) : planoGinasio(dex, opts.ginasio!, base, rolar);
+  const planos = modo === "rota" ? null : modo === "safari" ? planoSafari(dex, REGIOES[habitat].faixa, nivelEntre, rolar) : modo === "liga" ? planoLiga(dex, regiao, base) : planoGinasio(dex, regiao, opts.ginasio!, base, rolar);
   const nMons = planos ? planos.reduce((a, x) => a + x.mons.length, 0) : 0;
   const alvo = planos ? Math.max(4, Math.round(nMons * (modo === "safari" ? 3 : QUESTOES_POR_POKEMON)) + 1) : ALVO_QUESTOES;
   const revisoes = opts.pendentes.slice(0, Math.min(MAX_REVISOES, alvo));
@@ -452,6 +585,8 @@ export function montarPartidaPoke(opts: {
   const p: PartidaPoke = {
     versao: 3,
     modo,
+    regiao,
+    ...(modo === "safari" ? { habitat } : {}),
     ...(modo === "ginasio" ? { ginasio: opts.ginasio } : {}),
     aprender: [],
     concursoId: opts.concursoId,
@@ -488,25 +623,27 @@ interface Plano {
 
 // Pokémon de um tipo, sempre o mesmo para a mesma semente (o time do Brock não muda a cada
 // tentativa), na forma do nível.
-function especieDoTipo(dex: Dex, tipo: number, nivel: number, semente: number): number {
-  const pool = basesPorTipo(dex, tipo);
+function especieDoTipo(dex: Dex, tipo: number, nivel: number, semente: number, faixa?: [number, number]): number {
+  const pool = basesPorTipo(dex, tipo, faixa);
   const base = pool[Math.floor(hash(semente) * pool.length)] ?? 1;
   return formaNoNivel(dex, base, nivel);
 }
 
 // O "ás" do chefe: uma das linhas evolutivas mais fortes do tipo, na forma do nível (Onix no
 // Brock do começo, Golem/Steelix se o time já estiver alto).
-function aceDoTipo(dex: Dex, tipo: number, nivel: number, semente: number): number {
-  const fortes = basesPorTipo(dex, tipo)
+function aceDoTipo(dex: Dex, tipo: number, nivel: number, semente: number, faixa?: [number, number]): number {
+  const fortes = basesPorTipo(dex, tipo, faixa)
     .map((id) => ({ id, soma: dex.especies[formaNoNivel(dex, id, 100)].s.reduce((a, b) => a + b, 0) }))
     .sort((a, b) => b.soma - a.soma || a.id - b.id)
     .slice(0, 6);
-  if (!fortes.length) return especieDoTipo(dex, tipo, nivel, semente);
+  if (!fortes.length) return especieDoTipo(dex, tipo, nivel, semente, faixa);
   return formaNoNivel(dex, fortes[Math.floor(hash(semente) * fortes.length)].id, nivel);
 }
 
-function planoGinasio(dex: Dex, i: number, base: number, rolar: () => number): Plano[] {
-  const g = GINASIOS[i];
+function planoGinasio(dex: Dex, r: number, i: number, base: number, rolar: () => number): Plano[] {
+  const { faixa } = REGIOES[r];
+  const g = REGIOES[r].ginasios[i];
+  const s = 100000 * r; // Kanto (r = 0) mantém as sementes de antes
   const nvLider = nivelDoDesafio(base, g.piso, 1);
   const nAjud = i < 4 ? 1 : 2;
   const nLider = i < 2 ? 2 : i < 5 ? 3 : 4;
@@ -514,7 +651,7 @@ function planoGinasio(dex: Dex, i: number, base: number, rolar: () => number): P
     t: { nome: NOMES_TREINADOR[sprite] ?? "Treinador", sprite, lider: false },
     mons: Array.from({ length: nAjud }, (_, j) => {
       const nivel = Math.max(2, nvLider - 4 + Math.floor(rolar() * 2));
-      return { especie: especieDoTipo(dex, g.tipo, nivel, 1000 * (i + 1) + 10 * k + j), nivel, tipo: "treinador" as const };
+      return { especie: especieDoTipo(dex, g.tipo, nivel, s + 1000 * (i + 1) + 10 * k + j, faixa), nivel, tipo: "treinador" as const };
     }),
   }));
   planos.push({
@@ -522,46 +659,74 @@ function planoGinasio(dex: Dex, i: number, base: number, rolar: () => number): P
     mons: Array.from({ length: nLider }, (_, j) => {
       const ace = j === nLider - 1;
       const nivel = ace ? nvLider : Math.max(2, nvLider - 2);
-      return { especie: ace ? aceDoTipo(dex, g.tipo, nivel, 77 * (i + 1)) : especieDoTipo(dex, g.tipo, nivel, 1000 * (i + 1) + 500 + j), nivel, tipo: "lider" as const };
+      return { especie: ace ? aceDoTipo(dex, g.tipo, nivel, s + 77 * (i + 1), faixa) : especieDoTipo(dex, g.tipo, nivel, s + 1000 * (i + 1) + 500 + j, faixa), nivel, tipo: "lider" as const };
     }),
   });
   return planos;
 }
 
 // Elite dos 4 (2 Pokémon cada, o ás é chefe) e o Campeão (4 Pokémon, todos chefes).
-const TIME_CAMPEAO = [18, 65, 130, 6];
-function planoLiga(dex: Dex, base: number): Plano[] {
-  const planos: Plano[] = ELITE.map((m, i) => ({
+function planoLiga(dex: Dex, r: number, base: number): Plano[] {
+  const { elite, campeao, faixa } = REGIOES[r];
+  const s = 100000 * r;
+  const planos: Plano[] = elite.map((m, i) => ({
     t: { nome: m.nome, sprite: m.sprite, lider: true, elite: true, fala: `${m.nome}, da Elite dos 4, especialista em ${NOME_TIPO[m.tipo]}.` },
     mons: [0, 1].map((j) => {
       const nivel = nivelDoDesafio(base, m.piso, j ? 1 : -1);
-      return { especie: j ? aceDoTipo(dex, m.tipo, nivel, 313 * (i + 1)) : especieDoTipo(dex, m.tipo, nivel, 9000 + 10 * i), nivel, tipo: (j ? "lider" : "treinador") as TipoEncontro };
+      return { especie: j ? aceDoTipo(dex, m.tipo, nivel, s + 313 * (i + 1), faixa) : especieDoTipo(dex, m.tipo, nivel, s + 9000 + 10 * i, faixa), nivel, tipo: (j ? "lider" : "treinador") as TipoEncontro };
     }),
   }));
   planos.push({
-    t: { nome: `Campeão ${CAMPEAO.nome}`, sprite: CAMPEAO.sprite, lider: true, campeao: true, fala: `${CAMPEAO.nome} é o Campeão da Liga. Vença e entre para o Hall da Fama!` },
-    mons: TIME_CAMPEAO.filter((id) => dex.especies[id]).map((id, j, xs) => ({ especie: id, nivel: nivelDoDesafio(base, CAMPEAO.piso, j === xs.length - 1 ? 2 : 0), tipo: "lider" as const })),
+    t: { nome: `Campeão ${campeao.nome}`, sprite: campeao.sprite, lider: true, campeao: true, fala: `${campeao.nome} é o Campeão da Liga de ${REGIOES[r].nome}. Vença e entre para o Hall da Fama!` },
+    mons: campeao.time.filter((id) => dex.especies[id]).map((id, j, xs) => ({ especie: id, nivel: nivelDoDesafio(base, campeao.piso, j === xs.length - 1 ? 2 : 0), tipo: "lider" as const })),
   });
   return planos;
 }
 
-// Zona Safári: 6 selvagens de qualquer tipo (os comuns aparecem mais), um pouco abaixo do time.
+// Zona Safári: 6 selvagens da região escolhida (os comuns aparecem mais), um pouco abaixo do time.
 const SELVAGENS_SAFARI = 6;
-function planoSafari(dex: Dex, nivelEntre: (a: number, b: number) => number, rolar: () => number): Plano[] {
-  const todas = basesPorTipo(dex, "todas");
-  const pesoTotal = todas.reduce((a, id) => a + 30 + dex.especies[id].c, 0);
+function planoSafari(dex: Dex, faixa: [number, number], nivelEntre: (a: number, b: number) => number, rolar: () => number): Plano[] {
   const mons: Plano["mons"] = [];
   for (let i = 0; i < SELVAGENS_SAFARI; i++) {
-    let r = rolar() * pesoTotal;
-    let id = todas[0];
-    for (const x of todas) if ((r -= 30 + dex.especies[x].c) < 0) {
-      id = x;
-      break;
-    }
     const nivel = nivelEntre(-3, 0);
-    mons.push({ especie: formaNoNivel(dex, id, nivel), nivel, tipo: "selvagem" });
+    mons.push({ especie: selvagemDaRegiao(dex, faixa, nivel, rolar()), nivel, tipo: "selvagem" });
   }
   return [{ t: { nome: "", sprite: "", lider: false }, mons }];
+}
+
+// Sorteio de selvagem da região, ponderado pela taxa de captura (comum aparece mais).
+function selvagemDaRegiao(dex: Dex, faixa: [number, number], nivel: number, r01: number, evitar?: number): number {
+  const todas = basesPorTipo(dex, "todas", faixa).filter((id) => evitar === undefined || formaNoNivel(dex, id, nivel) !== evitar);
+  const pesoTotal = todas.reduce((a, id) => a + 30 + dex.especies[id].c, 0);
+  let r = r01 * pesoTotal;
+  let id = todas[0] ?? 1;
+  for (const x of todas) if ((r -= 30 + dex.especies[x].c) < 0) {
+    id = x;
+    break;
+  }
+  return formaNoNivel(dex, id, nivel);
+}
+
+// ---------- trocar o selvagem ----------
+
+// Antes do primeiro turno, o selvagem pode ser trocado por outro Pokémon da região, até 3
+// vezes. A questão é a mesma: muda o bicho (para capturar outro), nunca o que se estuda.
+export const MAX_TROCAS = 3;
+export const podeTrocarSelvagem = (p: PartidaPoke) =>
+  !p.fim && !p.oferta && !!p.atual && !p.atual.fim && p.atual.tipo === "selvagem" && !p.atual.turnos && (p.atual.trocas ?? 0) < MAX_TROCAS;
+
+export function trocarSelvagem(dex: Dex, p: PartidaPoke): PartidaPoke {
+  if (!podeTrocarSelvagem(p)) return p;
+  const e = p.atual!;
+  const [r, rng] = sortear(p.rng);
+  const especie = selvagemDaRegiao(dex, regiaoDe(p.habitat ?? p.regiao).faixa, e.nivel, r, e.especie);
+  const chaves = p.chaves + 1;
+  return {
+    ...p,
+    rng,
+    chaves,
+    atual: { ...e, especie, chave: chaves, hp: atributos(dex.especies[especie], e.nivel).hp, status: "", sono: 0, semente: false, trocas: (e.trocas ?? 0) + 1 },
+  };
 }
 
 // ---------- XP, nível, golpes, evolução ----------
@@ -810,6 +975,7 @@ export function responderPoke(dex: Dex, p: PartidaPoke, o: OpcoesResposta): { pa
         const novo = criarMon(dex, e.especie, e.nivel, `m${Date.parse(q.iniciadaEm).toString(36)}${q.registros.length}${Math.floor(rolar() * 1e6).toString(36)}`, {
           questaoId: questaoDaVez,
           capturadoEm: q.iniciadaEm,
+          ...(q.regiao ? { regiao: q.regiao } : {}),
         });
         const paraPc = q.time.length >= MAX_TIME;
         if (paraPc) q.novos.push(novo);
@@ -1158,13 +1324,40 @@ export interface PerfilPoke {
   vistos: number[];
   capturadasQuestoes: number[];
   ultimaContada?: string;
-  ginasios?: number; // insígnias dos ginásios (0–8): o próximo desafio é GINASIOS[ginasios]
-  campeao?: number; // vezes que venceu a Liga
-  hallDaFama?: { data: string; time: { id: number; nivel: number }[] }[];
+  ginasios?: number; // insígnias de Kanto (0–8), de antes das regiões; vale se `insigniasPorRegiao` não tiver
+  campeao?: number; // vezes que venceu uma Liga (qualquer região)
+  hallDaFama?: { data: string; regiao?: number; time: { id: number; nivel: number }[] }[];
+  regiao?: number; // região da jornada atual (ausente = Kanto)
+  insigniasPorRegiao?: number[]; // insígnias (0–8) em cada região
+  campeaoPorRegiao?: number[]; // vezes que venceu a Liga de cada região
 }
 
-export const insigniasDe = (perfil: PerfilPoke) => Math.min(GINASIOS.length, perfil.ginasios ?? 0);
-export const ligaLiberada = (perfil: PerfilPoke) => insigniasDe(perfil) >= GINASIOS.length;
+export const regiaoAtual = (perfil: PerfilPoke) => (REGIOES[perfil.regiao ?? 0] ? (perfil.regiao ?? 0) : 0);
+export function insigniasDe(perfil: PerfilPoke, r = regiaoAtual(perfil)): number {
+  const n = perfil.insigniasPorRegiao?.[r] ?? (r === 0 ? (perfil.ginasios ?? 0) : 0);
+  return Math.min(REGIOES[r].ginasios.length, n);
+}
+export const ligaLiberada = (perfil: PerfilPoke, r = regiaoAtual(perfil)) => insigniasDe(perfil, r) >= REGIOES[r].ginasios.length;
+// Antes das regiões, toda Liga vencida era a de Kanto.
+export const campeaoDe = (perfil: PerfilPoke, r = regiaoAtual(perfil)) => perfil.campeaoPorRegiao?.[r] ?? (r === 0 ? (perfil.campeao ?? 0) : 0);
+export const proximaRegiao = (perfil: PerfilPoke): number | null => {
+  const r = regiaoAtual(perfil);
+  return campeaoDe(perfil, r) > 0 && REGIOES[r + 1] ? r + 1 : null;
+};
+
+// Numa região nova só luta quem entrou para a coleção nela (o inicial escolhido e as capturas);
+// o time das regiões anteriores fica no PC. Sendo Campeão da região, todos voltam a lutar.
+export const podeLutar = (perfil: PerfilPoke, m: Mon) => (m.regiao ?? 0) === regiaoAtual(perfil) || campeaoDe(perfil) > 0;
+
+// Viagem para a próxima região: o inicial escolhido (nível 5) vira o time inteiro; todo o
+// resto vai para o PC. Mochila, Pokédex e Hall da Fama seguem junto.
+export function viajar(dex: Dex, perfil: PerfilPoke, inicial: number, uid = `m${Date.now().toString(36)}`): PerfilPoke {
+  const r = proximaRegiao(perfil);
+  if (r === null || !REGIOES[r].iniciais.includes(inicial) || !dex.especies[inicial]) return perfil;
+  const m = criarMon(dex, inicial, 5, uid, { regiao: r });
+  const vistos = new Set(perfil.vistos).add(inicial);
+  return { ...perfil, regiao: r, colecao: [...perfil.colecao, m], time: [m.uid], vistos: [...vistos] };
+}
 const semSafari = (m: Record<string, number>) => Object.fromEntries(Object.entries(m).filter(([k]) => k !== "safari-ball"));
 
 export const MOCHILA_INICIAL: Record<string, number> = { "poke-ball": 5, potion: 3 };
@@ -1174,7 +1367,15 @@ export function perfilInicial(dex: Dex, inicial: number, uid = `m${Date.now().to
   return { versao: 1, colecao: [m], time: [m.uid], mochila: { ...MOCHILA_INICIAL }, insignias: 0, partidas: 0, vitorias: 0, vistos: [inicial], capturadasQuestoes: [] };
 }
 
-const soMon = ({ uid, id, xp, golpes, questaoId, capturadoEm }: Mon): Mon => ({ uid, id, xp, golpes, ...(questaoId ? { questaoId } : {}), ...(capturadoEm ? { capturadoEm } : {}) });
+const soMon = ({ uid, id, xp, golpes, questaoId, capturadoEm, regiao }: Mon): Mon => ({
+  uid,
+  id,
+  xp,
+  golpes,
+  ...(questaoId ? { questaoId } : {}),
+  ...(capturadoEm ? { capturadoEm } : {}),
+  ...(regiao ? { regiao } : {}),
+});
 
 // Leva o que aconteceu na partida para o perfil: níveis, golpes, evoluções, capturas e a
 // mochila. Idempotente (pode rodar a cada turno). Estatísticas só somam uma vez, no fim.
@@ -1200,10 +1401,19 @@ export function sincronizarPerfil(perfil: PerfilPoke, p: PartidaPoke): PerfilPok
     if (p.fim === "vitoria") {
       novo.vitorias += 1;
       const venceu = (f: (t: Treinador) => boolean) => p.treinadores.some((t, i) => f(t) && p.vencidos.includes(i));
-      if (p.modo === "ginasio" && p.ginasio !== undefined && venceu((t) => t.insignia === p.ginasio)) novo.ginasios = Math.max(novo.ginasios ?? 0, p.ginasio + 1);
+      const r = REGIOES[p.regiao ?? 0] ? (p.regiao ?? 0) : 0;
+      if (p.modo === "ginasio" && p.ginasio !== undefined && venceu((t) => t.insignia === p.ginasio)) {
+        const lista = REGIOES.map((_, i) => insigniasDe(novo, i));
+        lista[r] = Math.max(lista[r], p.ginasio + 1);
+        novo.insigniasPorRegiao = lista;
+        if (r === 0) novo.ginasios = lista[0];
+      }
       if (p.modo === "liga" && venceu((t) => !!t.campeao)) {
+        const lista = REGIOES.map((_, i) => campeaoDe(novo, i));
+        lista[r] += 1;
+        novo.campeaoPorRegiao = lista;
         novo.campeao = (novo.campeao ?? 0) + 1;
-        novo.hallDaFama = [...(novo.hallDaFama ?? []), { data: p.iniciadaEm, time: p.time.map((l) => ({ id: l.id, nivel: nivelDe(l) })) }].slice(-20);
+        novo.hallDaFama = [...(novo.hallDaFama ?? []), { data: p.iniciadaEm, regiao: r, time: p.time.map((l) => ({ id: l.id, nivel: nivelDe(l) })) }].slice(-20);
       }
     }
     novo.ultimaContada = p.iniciadaEm;
