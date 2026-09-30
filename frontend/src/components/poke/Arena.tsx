@@ -230,6 +230,7 @@ export function Arena({
   cor,
   topo,
   aguardando,
+  fundo,
 }: {
   inimigo: LadoVis | null;
   meu: LadoVis | null;
@@ -240,12 +241,16 @@ export function Arena({
   bola: BolaVis | null;
   lancamentos?: LancaVis[];
   cor: string; // cor do "bioma" (tipo da matéria)
+  fundo?: string; // imagem do cenário; sem ela, céu e chão desenhados
   topo?: ReactNode;
   aguardando?: boolean;
 }) {
+  const [fundoOk, setFundoOk] = useState<string | null>(null);
+  const comFundo = !!fundo && fundoOk === fundo;
   return (
-    <div className="pk-arena" style={{ "--bioma": cor } as CSSProperties}>
+    <div className={`pk-arena ${comFundo ? "pk-arena--fundo" : ""}`} style={{ "--bioma": cor } as CSSProperties}>
       <div className="pk-ceu" />
+      {fundo && <img key={fundo} className="pk-fundo" src={fundo} alt="" draggable={false} onLoad={() => setFundoOk(fundo)} onError={() => setFundoOk(null)} />}
       <div className="pk-plataforma pk-plataforma--inimigo" />
       <div className="pk-plataforma pk-plataforma--meu" />
 

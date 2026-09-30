@@ -25,7 +25,10 @@ import {
   escolherOferta,
   especieDaQuestao,
   hpMax,
+  levelCap,
+  lutador,
   montarPartidaPoke,
+  XP_SELVAGEM,
   perfilInicial,
   precisaTrocar,
   registrarLicaoPoke,
@@ -52,6 +55,9 @@ function partida(n = 8, extras: Partial<Candidata>[] = [], nivel = 10): PartidaP
   const pendentes = Array.from({ length: n }, (_, i) => cand(i + 1, i % 2 ? "Banco de Dados" : "Português", extras[i]));
   return montarPartidaPoke({ dex, time, mochila: { "poke-ball": 3, potion: 1 }, pendentes, novas: [], concursoId: null, semente: 11 })!;
 }
+
+// seis Pokémon de pé (Liga inteira só com acertos ainda leva revides)
+const timeCheio = (nivel: number) => [6, 9, 3, 26, 134, 143].map((id, i) => lutador(dex, criarMon(dex, id, nivel, `t${i}`)));
 
 const certo = (p: PartidaPoke) => responderPoke(dex, p, { acertou: true, confianca: "duvida", acao: { golpe: p.time[p.ativo].golpes[0] } });
 const errado = (p: PartidaPoke, confianca: "certeza" | "duvida" = "duvida") =>
@@ -301,6 +307,7 @@ describe("modos da jornada", () => {
     let p = p0;
     for (let g = 0; g < 400 && !p.fim; g++) {
       if (p.oferta) p = escolherOferta(p, p.oferta[0], dex);
+      else if (precisaTrocar(p)) p = trocar(p, p.time.findIndex((l) => l.hp > 0));
       else if ((p.aprender ?? []).length) p = decidirGolpe(p, null).partida;
       else p = avancarPoke(certo(p).partida, dex);
     }
@@ -344,7 +351,8 @@ describe("modos da jornada", () => {
   });
 
   it("Liga: Elite dos 4 e Campeão; vencer entra no Hall da Fama", () => {
-    const p = montar("liga", undefined, 50);
+    const p = { ...montar("liga", undefined, 50) };
+    p.time = timeCheio(50);
     expect(p.treinadores.map((t) => t.nome)).toEqual(["Lorelei", "Bruno", "Agatha", "Lance", "Campeão Blue"]);
     const fim = jogarAteOFim(p);
     expect(fim.fim).toBe("vitoria");
@@ -380,6 +388,7 @@ describe("regiões", () => {
     let p = p0;
     for (let g = 0; g < 400 && !p.fim; g++) {
       if (p.oferta) p = escolherOferta(p, p.oferta[0], dex);
+      else if (precisaTrocar(p)) p = trocar(p, p.time.findIndex((l) => l.hp > 0));
       else if ((p.aprender ?? []).length) p = decidirGolpe(p, null).partida;
       else p = avancarPoke(certo(p).partida, dex);
     }
@@ -406,7 +415,7 @@ describe("regiões", () => {
     const perfil = sincronizarPerfil(base, fim);
     expect(insigniasDe(perfil, 1)).toBe(1);
     expect(insigniasDe(perfil, 0)).toBe(8); // Kanto intacto
-    const liga = montar("liga", { regiao: 1 }, 50);
+    const liga = { ...montar("liga", { regiao: 1 }, 50), time: timeCheio(50) };
     expect(liga.treinadores.map((t) => t.nome)).toEqual(["Will", "Koga", "Bruno", "Karen", "Campeão Lance"]);
     const campeao = sincronizarPerfil({ ...perfil, insigniasPorRegiao: [8, 8, 0, 0, 0] }, jogarAteOFim(liga));
     expect(campeaoDe(campeao, 1)).toBe(1);
@@ -532,6 +541,58 @@ describe("regiões", () => {
     if (r.partida.atual && !r.partida.atual.fim) expect(podeTrocarSelvagem(r.partida)).toBe(false);
     // Pokémon de treinador não troca
     expect(podeTrocarSelvagem(montar("ginasio", { ginasio: 0 }))).toBe(false);
+  });
+});
+
+describe("level cap, XP e revide", () => {
+  const pend = (n: number) => Array.from({ length: n }, (_, i) => cand(i + 1, i % 2 ? "Banco de Dados" : "Português"));
+  it("level cap = nível do próximo líder; Campeão da região não tem cap", () => {
+    const p0 = perfilInicial(dex, 4, "a");
+    expect(levelCap(p0)).toBe(GINASIOS[0].piso);
+    expect(levelCap({ ...p0, ginasios: 3 })).toBe(GINASIOS[3].piso);
+    expect(levelCap({ ...p0, ginasios: 8 })).toBe(REGIOES[0].campeao.piso);
+    expect(levelCap({ ...p0, ginasios: 8, campeao: 1 })).toBe(100);
+    expect(levelCap({ ...p0, regiao: 1, campeaoPorRegiao: [1, 0, 0, 0, 0] })).toBe(REGIOES[1].ginasios[0].piso);
+  });
+
+  it("no cap o XP não entra e o Doce Raro não sobe", () => {
+    const eu = criarMon(dex, 4, 12, "a");
+    const p = montarPartidaPoke({ dex, time: [eu], mochila: { "rare-candy": 1 }, pendentes: pend(8), novas: [], concursoId: null, cap: 12, semente: 3 })!;
+    const r = certo({ ...p, atual: { ...p.atual!, hp: 1 } });
+    expect(r.eventos.some((e) => e.tipo === "cap")).toBe(true);
+    expect(r.partida.time[0].xp).toBe(eu.xp);
+    expect(usarItem(dex, p, "rare-candy", 0).eventos).toHaveLength(0);
+    // perto do cap, entra só até o cap
+    const quase = { ...criarMon(dex, 4, 11, "b"), xp: xpDoNivel(12) - 5 };
+    const p2 = montarPartidaPoke({ dex, time: [quase], mochila: {}, pendentes: pend(8), novas: [], concursoId: null, cap: 12, semente: 3 })!;
+    const r2 = certo({ ...p2, atual: { ...p2.atual!, hp: 1 } });
+    expect(r2.partida.time[0].xp).toBe(xpDoNivel(12));
+  });
+
+  it("selvagem vale metade do XP de treinador", () => {
+    const p = montarPartidaPoke({ dex, time: [criarMon(dex, 4, 20, "a")], mochila: {}, pendentes: pend(8), novas: [], concursoId: null, semente: 3 })!;
+    const e = { ...p.atual!, hp: 1, especie: 19, nivel: 18 };
+    const xpDe = (tipo: "treinador" | "selvagem") => {
+      const r = certo({ ...p, atual: { ...e, tipo, treinador: tipo === "selvagem" ? -1 : 0 } });
+      return (r.eventos.find((x) => x.tipo === "xp") as { valor: number }).valor;
+    };
+    expect(xpDe("selvagem")).toBeLessThanOrEqual(Math.ceil(xpDe("treinador") * XP_SELVAGEM) + 1);
+  });
+
+  it("acertou e o inimigo ficou de pé: ele revida mais fraco que no erro", () => {
+    const p = montarPartidaPoke({ dex, time: [criarMon(dex, 4, 10, "a")], mochila: {}, pendentes: pend(8), novas: [], concursoId: null, semente: 3 })!;
+    const forte = { ...p, atual: { ...p.atual!, hp: 9999, status: "" as const } };
+    let revide = 0, contra = 0;
+    for (let s = 1; s < 20; s++) {
+      const a = certo({ ...forte, rng: s }).eventos.find((e) => e.tipo === "contra") as { dano: number; revide?: boolean } | undefined;
+      const b = errado({ ...forte, rng: s }).eventos.find((e) => e.tipo === "contra") as { dano: number } | undefined;
+      expect(a?.revide).toBe(true);
+      revide += a!.dano;
+      contra += b!.dano;
+    }
+    expect(revide).toBeLessThan(contra);
+    // KO no acerto: sem revide
+    expect(certo({ ...p, atual: { ...p.atual!, hp: 1 } }).eventos.some((e) => e.tipo === "contra")).toBe(false);
   });
 });
 

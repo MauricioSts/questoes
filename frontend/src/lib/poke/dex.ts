@@ -88,6 +88,14 @@ export const spriteEstatico = (id: number) => `${SPR}/pokemon/${id}.png`;
 export const spriteItem = (nome: string) => `${SPR}/items/${nome}.png`;
 export const spriteTreinador = (nome: string) => `https://play.pokemonshowdown.com/sprites/trainers/${nome}.png`;
 
+// Cenário de batalha (fundos da 6ª geração do Showdown) pelo tipo do lugar.
+const CENARIO_TIPO = [
+  "meadow", "earthycave", "orassea", "city", "forest", "icecave", "aquacordetown", "darkmeadow", "orasdesert",
+  "skypillar", "library", "forest", "earthycave", "dampcave", "elite4drake", "darkcity", "city", "meadow",
+];
+export const cenario = (tipo: number | "campeao" | null) =>
+  `https://play.pokemonshowdown.com/sprites/gen6bgs/bg-${tipo === "campeao" ? "elite4drake" : tipo === null ? "meadow" : (CENARIO_TIPO[tipo] ?? "meadow")}.jpg`;
+
 // ---------- atributos ----------
 
 export interface Atributos {

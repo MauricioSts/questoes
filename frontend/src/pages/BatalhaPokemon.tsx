@@ -31,6 +31,7 @@ import {
   spriteFrente,
   spriteItem,
   spriteTreinador,
+  cenario,
   xpDoNivel,
   MAX_GOLPES,
   type Dex,
@@ -43,6 +44,7 @@ import {
   REGIOES,
   TERRENOS,
   campeaoDe,
+  levelCap,
   limiteDaRegiao,
   podeLutar,
   podeTrocarSelvagem,
@@ -340,7 +342,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   function comecar(modo: ModoJornada, opts: { ginasio?: number; habitat?: number; terreno?: number } = {}) {
     if (!pendentes || !perfil) return;
     const time = perfil.time.map((uid) => perfil.colecao.find((m) => m.uid === uid)).filter((m): m is Mon => !!m && podeLutar(perfil, m));
-    const p = montarPartidaPoke({ dex, time, mochila: perfil.mochila, pendentes, novas, concursoId: activeId ?? null, modo, regiao: regiaoAtual(perfil), ...opts });
+    const p = montarPartidaPoke({ dex, time, mochila: perfil.mochila, pendentes, novas, concursoId: activeId ?? null, modo, regiao: regiaoAtual(perfil), cap: levelCap(perfil), ...opts });
     if (!p) return;
     setPartida(p);
     entrarNaLuta(p);
@@ -359,6 +361,16 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
   const encontro = partida?.atual ?? null;
   const questao = encontro ? getQuestao(encontro.questaoId) : undefined;
   const corBioma = questao ? tipoDaMateria(questao.materia).cor : "#7AC74C";
+  // Cenário: tipo do ginásio / do membro da Elite / do terreno da Safári; na Rota, o do inimigo.
+  const fundo = useMemo(() => {
+    if (!partida) return cenario(null);
+    const reg = regiaoDe(partida.regiao);
+    if (partida.modo === "ginasio" && partida.ginasio !== undefined) return cenario(reg.ginasios[partida.ginasio]?.tipo ?? null);
+    if (partida.modo === "safari") return cenario(TERRENOS[partida.terreno ?? -1]?.tipos[0] ?? null);
+    const t = encontro && encontro.treinador >= 0 ? partida.treinadores[encontro.treinador] : null;
+    if (partida.modo === "liga") return cenario(t?.campeao ? "campeao" : (reg.elite.find((m) => m.nome === t?.nome)?.tipo ?? "campeao"));
+    return cenario(encontro ? (dex.especies[encontro.especie]?.t[0] ?? null) : null);
+  }, [partida, encontro, dex]);
 
   useEffect(() => {
     if (fase !== "entrada" || !partida || !encontro) return;
@@ -556,6 +568,11 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           await esperar(1000);
           break;
         }
+        case "cap":
+          setMensagem(`${nomeMeu()} está no level cap (Nv${ev.nivel}): o XP volta a entrar depois do próximo líder.`);
+          texto("meu", `Nv${ev.nivel} máx.`, "#FFE066");
+          await esperar(1300);
+          break;
         case "nivel":
           setMensagem(`${nomeMeu()} subiu para o nível ${ev.nivel}!`);
           texto("meu", `Nv ${ev.nivel}!`, "#FFE066");
@@ -608,7 +625,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           break;
         case "contra": {
           const g = ev.golpe >= 0 ? dex.golpes[ev.golpe] : null;
-          setMensagem(`${nomeIni} contra-atacou com ${g?.[0] ?? "Tackle"}!`);
+          setMensagem(ev.revide ? `${nomeIni} aguentou e atacou com ${g?.[0] ?? "Tackle"}!` : `${nomeIni} contra-atacou com ${g?.[0] ?? "Tackle"}!`);
           anim("inimigo", "ataca");
           await esperar(120);
           await esperar(golpeFx("inimigo", ev.golpe >= 0 ? ev.golpe : 0, ev.critico));
@@ -878,6 +895,17 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
     setFase("entrada");
   }
 
+  // Recomeçar a jornada do zero: apaga coleção, insígnias e a partida deste aparelho.
+  function recomecar() {
+    gravar(CHAVE_PARTIDA, null);
+    gravar(CHAVE_PERFIL, null);
+    setPartidaEstado(null);
+    setPerfilEstado(null);
+    setDesfecho(null);
+    setViagem(false);
+    setFase("lobby");
+  }
+
   function novaPartida() {
     setPartida(null);
     setDesfecho(null);
@@ -938,6 +966,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
         emAndamento={partida && !partida.fim ? partida : null}
         onRetomar={() => partida && entrarNaLuta(partida)}
         onViajar={() => setViagem(true)}
+        onRecomecar={recomecar}
         alternar={alternar}
       />
     );
@@ -1007,6 +1036,7 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
           bola={bolaVis}
           lancamentos={lancamentos}
           cor={corBioma}
+          fundo={fundo}
           aguardando={fase === "pergunta" || fase === "resultado"}
           topo={
             <div className="flex items-start justify-between gap-2">
@@ -1159,14 +1189,14 @@ function Jogo({ dex, alternar }: { dex: Dex; alternar?: ReactNode }) {
                 {painel === "mochila" && (
                   <Gaveta titulo={alvoItem ? `${nomeItem(alvoItem)}: em quem?` : "Mochila"} onFechar={() => (alvoItem ? setAlvoItem(null) : setPainel(null))}>
                     {alvoItem ? (
-                      listaTime((i) => void aplicarItem(alvoItem, i), (l) => !podeUsar(dex, l, alvoItem, limiteDaRegiao(partida.regiao)))
+                      listaTime((i) => void aplicarItem(alvoItem, i), (l) => !podeUsar(dex, l, alvoItem, limiteDaRegiao(partida.regiao), partida.cap))
                     ) : itensUsaveis.length ? (
                       <div className="grid gap-1.5 sm:grid-cols-2">
                         {itensUsaveis.map(([i, q]) => (
                           <button
                             key={i}
                             onClick={() => setAlvoItem(i)}
-                            disabled={!partida.time.some((l) => podeUsar(dex, l, i, limiteDaRegiao(partida.regiao)))}
+                            disabled={!partida.time.some((l) => podeUsar(dex, l, i, limiteDaRegiao(partida.regiao), partida.cap))}
                             className="flex items-center gap-2 rounded-xl border border-hair bg-surface p-2 text-left text-sm transition hover:border-brand-500 disabled:opacity-40"
                           >
                             <img src={spriteItem(i)} alt="" className="pk-mini h-8 w-8" />
@@ -1540,6 +1570,7 @@ function Lobby({
   emAndamento,
   onRetomar,
   onViajar,
+  onRecomecar,
   alternar,
 }: {
   dex: Dex;
@@ -1553,6 +1584,7 @@ function Lobby({
   emAndamento: PartidaPoke | null;
   onRetomar: () => void;
   onViajar: () => void;
+  onRecomecar: () => void;
   alternar?: ReactNode;
 }) {
   const time = perfil.time.map((u) => perfil.colecao.find((m) => m.uid === u)).filter((m): m is Mon => !!m);
@@ -1572,6 +1604,8 @@ function Lobby({
   const insignias = insigniasDe(perfil);
   const proximo = regiao.ginasios[insignias];
   const liga = ligaLiberada(perfil);
+  const cap = levelCap(perfil);
+  const [confirmarReset, setConfirmarReset] = useState(false);
   const botaoGolpes = (m: Mon) => (
     <button
       onClick={() => setEditando(m.uid)}
@@ -1764,7 +1798,17 @@ function Lobby({
                     onClick={() => onComecar("rota")}
                   />
                 </div>
-                <p className="mt-2 text-xs text-faint">Seu time está no nível {nivelMedio(time)} em média. Ginásios e Liga puxam os inimigos para cima.</p>
+                <p className="mt-2 text-xs text-faint">
+                  Seu time está no nível {nivelMedio(time)} em média.{" "}
+                  {cap < 100 ? (
+                    <>
+                      <b className="text-brand-ink">Level cap: Nv{cap}</b> ({proximo ? `o nível do ás de ${proximo.lider}` : `o nível do Campeão ${regiao.campeao.nome}`}); acima dele o XP não entra.
+                    </>
+                  ) : (
+                    "Sem level cap: você já é o Campeão daqui."
+                  )}{" "}
+                  Treinadores dão o dobro do XP de selvagens.
+                </p>
               </>
             )}
           </div>
@@ -1818,6 +1862,27 @@ function Lobby({
             )}
           </div>
 
+          <div className="card space-y-2 p-5">
+            <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Recomeçar do zero</p>
+            <p className="text-xs text-muted">Apaga todos os seus Pokémon, insígnias, títulos e a mochila deste aparelho. Você escolhe um inicial de novo. As respostas já dadas continuam valendo no estudo.</p>
+            {confirmarReset ? (
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-muted">Apagar tudo mesmo?</span>
+                <button onClick={onRecomecar} disabled={!!emAndamento} className="font-bold text-danger-from disabled:opacity-40">
+                  Sim, recomeçar
+                </button>
+                <button onClick={() => setConfirmarReset(false)} className="font-semibold text-muted">
+                  Não
+                </button>
+              </div>
+            ) : (
+              <button onClick={() => setConfirmarReset(true)} disabled={!!emAndamento} className="rounded-xl border border-hair px-3 py-1.5 text-sm font-semibold text-muted transition hover:border-danger-from hover:text-danger-from disabled:opacity-40">
+                <RotateCcw size={14} className="mr-1.5 inline" /> Recomeçar jornada
+              </button>
+            )}
+            {emAndamento && <p className="text-[11px] text-faint">Termine ou abandone a partida pausada antes.</p>}
+          </div>
+
           <div className="card space-y-2.5 p-5 text-sm text-muted">
             <p className="font-display text-base font-bold text-brand-ink">Como se joga (e por que ajuda)</p>
             <p>
@@ -1826,7 +1891,7 @@ function Lobby({
               crítico, mas o erro dói 1,5×: treina saber o que você sabe.
             </p>
             <p>
-              <b className="text-brand-ink">Errou? Contra-ataque</b> (com veneno, sono, paralisia...). A questão volta logo depois, com as alternativas em outra ordem (na Rota e
+              <b className="text-brand-ink">Errou? Contra-ataque</b> (com veneno, sono, paralisia...). Acertou e o inimigo aguentou? Ele revida, mais fraco. A questão volta logo depois, com as alternativas em outra ordem (na Rota e
               na Safári, como selvagem: acerte e lance uma bola para capturar; HP baixo ajuda). Escrever por que o gabarito está certo cura 25% do HP.
             </p>
             <p>
