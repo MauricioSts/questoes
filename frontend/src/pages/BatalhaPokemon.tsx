@@ -297,7 +297,9 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
     });
   const setMeu = (k: Slot, f: Vis) => setSlot(setMeus, k, f);
   const setIni = (k: Slot, f: Vis) => setSlot(setInimigos, k, f);
-  const [treinadorVis, setTreinadorVis] = useState<{ sprite: string; chave: number; sai: boolean } | null>(null);
+  const [treinadorVis, setTreinadorVis] = useState<{ sprite: string; chave: number; sai: boolean; lider?: boolean } | null>(null);
+  const [transicao, setTransicao] = useState<number | null>(null);
+  const [insigniaVis, setInsigniaVis] = useState<{ src: string; nome: string; n: number } | null>(null);
   const [fx, setFx] = useState<FxVis | null>(null);
   const [textos, setTextos] = useState<TextoVis[]>([]);
   const [bolaVis, setBolaVis] = useState<BolaVis | null>(null);
@@ -545,6 +547,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
     setTextos([]);
     setBolaVis(null);
     setFx(null);
+    setInsigniaVis(null);
     let cancelado = false;
     const t = daVez.treinador >= 0 ? p.treinadores[daVez.treinador] : null;
     const emCampo = inimigosEmCampo(p);
@@ -577,12 +580,20 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
       if (!p.dupla) setIni(1, null);
       if (t && ultimoTreinador.current !== daVez.treinador) {
         setInimigos([null, null]);
-        setTreinadorVis({ sprite: t.sprite, chave: n(), sai: false });
+        if (t.lider) {
+          // chegada de líder: a tela se fecha em pixels e o líder aparece quando ela reabre
+          setTreinadorVis(null);
+          setMensagem("");
+          setTransicao(n());
+          if (!(await passo(1150))) return;
+        }
+        setTreinadorVis({ sprite: t.sprite, chave: n(), sai: false, lider: t.lider });
         setMensagem(t.fala ? (t.lider ? `${t.fala} O ás dele é a questão que mais te derrubou.` : t.fala) : t.lider ? `${t.nome} te desafia! É a questão que mais te derrubou.` : `${t.nome} quer batalhar!`);
         if (!(await passo(t.fala ? 2600 : 1500))) return;
         setTreinadorVis((v) => (v ? { ...v, sai: true } : v));
         if (!(await passo(350))) return;
         setTreinadorVis(null);
+        setTransicao(null);
       } else setTreinadorVis(null);
       if (t) {
         const enviados = novos.length ? novos : [[daVez, slotDaVez(p)] as [Encontro, Slot]];
@@ -979,6 +990,10 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
         case "treinadorVencido": {
           const t = depois.treinadores[ev.treinador];
           setTreinadorVis({ sprite: t.sprite, chave: n(), sai: false });
+          if (ev.insignia !== undefined) {
+            const g = regiaoDe(depois.regiao).ginasios[ev.insignia];
+            setInsigniaVis({ src: insigniaImg(ev.insignia, depois.regiao ?? 0), nome: g.insignia, n: n() });
+          }
           setMensagem(
             ev.insignia !== undefined
               ? `Você venceu ${t.nome}! Ganhou a ${regiaoDe(depois.regiao).ginasios[ev.insignia].insignia}!`
@@ -988,7 +1003,8 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
                   ? `Você venceu ${t.nome}, da Elite dos 4!`
                   : `Você venceu ${t.nome}!`
           );
-          await esperar(ev.insignia !== undefined || t.campeao ? 2400 : 1600);
+          await esperar(ev.insignia !== undefined ? 3200 : t.campeao ? 2400 : 1600);
+          setInsigniaVis(null);
           break;
         }
         case "dinheiro": {
@@ -1542,6 +1558,8 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
           bolasMeu={bolasMeu}
           bolasInimigo={fase === "parada" ? null : bolasInimigo}
           centroCura={centroCura}
+          transicao={transicao}
+          insignia={insigniaVis}
           previa={
             fase === "parada" && proximo
               ? proximoTreinador
@@ -1979,6 +1997,69 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
 const dinheiroTxt = (v: number) => `₽${Math.max(0, Math.round(v)).toLocaleString("pt-BR")}`;
 
 // Poké Mart: a loja da cidade (preços dos jogos; melhora com as insígnias).
+// Lobby: insígnia ganha desde a última visita (por região, guardada neste aparelho) surge no
+// meio da tela e voa até o lugar dela. Na primeira visita só grava o que já existe.
+function useInsigniaNova(regiao: number, insignias: number) {
+  const [voando, setVoando] = useState<number | null>(null);
+  const [encaixou, setEncaixou] = useState<number | null>(null);
+  useEffect(() => {
+    const chave = `q_poke_insignias_vistas_${regiao}`;
+    let vistas: number | null = null;
+    try {
+      const v = localStorage.getItem(chave);
+      vistas = v === null ? null : Number(v);
+      localStorage.setItem(chave, String(insignias));
+    } catch {
+      /* sem armazenamento: sem animação */
+    }
+    if (vistas !== null && insignias > vistas && insignias > 0) setVoando(insignias - 1);
+  }, [regiao, insignias]);
+  const pousou = () => {
+    setEncaixou(voando);
+    setVoando(null);
+  };
+  return { voando, encaixou, pousou };
+}
+
+function InsigniaVoando({ src, alvo, onFim }: { src: string; alvo: () => HTMLElement | null; onFim: () => void }) {
+  const img = useRef<HTMLImageElement>(null);
+  const fim = useRef(onFim);
+  fim.current = onFim;
+  useEffect(() => {
+    const el = img.current;
+    const destino = alvo();
+    if (!el || !destino || window.matchMedia("(prefers-reduced-motion: reduce)").matches || !el.animate) {
+      fim.current();
+      return;
+    }
+    const tam = 128;
+    const meio = `translate(${window.innerWidth / 2 - tam / 2}px, ${window.innerHeight / 2 - tam / 2}px)`;
+    const r = destino.getBoundingClientRect();
+    const escala = r.width / tam;
+    const la = `translate(${r.left + r.width / 2 - tam / 2}px, ${r.top + r.height / 2 - tam / 2}px)`;
+    const a = el.animate(
+      [
+        { transform: `${meio} scale(0) rotateY(900deg)`, opacity: 0, offset: 0 },
+        { transform: `${meio} scale(1.25) rotateY(0deg)`, opacity: 1, offset: 0.3 },
+        { transform: `${meio} scale(1)`, opacity: 1, offset: 0.4 },
+        { transform: `${meio} scale(1)`, opacity: 1, offset: 0.62, easing: "cubic-bezier(.5,0,.2,1)" },
+        { transform: `${la} scale(${escala})`, opacity: 1, offset: 1 },
+      ],
+      { duration: 2300, fill: "forwards" },
+    );
+    a.onfinish = () => fim.current();
+    return () => a.cancel();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [src]);
+  return createPortal(
+    <>
+      <div className="pk-ins-voa-fundo" />
+      <img ref={img} src={src} alt="" className="pk-ins-voa" style={{ opacity: 0 }} />
+    </>,
+    document.body,
+  );
+}
+
 function PokeMart({ dinheiro, insignias, mochila, onComprar }: { dinheiro: number; insignias: number; mochila: Record<string, number>; onComprar: (item: string, qtd: number) => void }) {
   const [qtd, setQtd] = useState<Record<string, number>>({});
   return (
@@ -2710,6 +2791,8 @@ function Lobby({
   const liberado = liderLiberado(perfil);
   const historia = historiaDe(perfil);
   const exigidos = proximo ? treinadoresParaGinasio(insignias) : 0;
+  const slotsInsignia = useRef<(HTMLImageElement | null)[]>([]);
+  const voando = useInsigniaNova(r, insignias);
   const concluido = !!proximo && caminhoConcluido(perfil);
   const ajud = proximo ? ajudantesVencidos(perfil) : 0;
   const naCidade = concluido || (!proximo && liga);
@@ -2800,14 +2883,19 @@ function Lobby({
               {regiao.ginasios.map((g, i) => (
                 <img
                   key={g.sprite}
+                  ref={(el) => {
+                    slotsInsignia.current[i] = el;
+                  }}
                   src={insigniaImg(i, r)}
                   alt={g.insignia}
                   title={`${g.insignia} (${g.lider})${i < insignias ? "" : " · ainda não"}`}
-                  className="pk-mini h-6 w-6 object-contain"
-                  style={i < insignias ? undefined : { filter: "grayscale(1) brightness(.6)", opacity: 0.35 }}
+                  className={`pk-mini h-6 w-6 object-contain ${voando.encaixou === i ? "pk-ins-encaixa" : ""}`}
+                  // a insígnia que está voando só "acende" no lugar quando encaixa
+                  style={i < insignias && voando.voando !== i ? undefined : { filter: "grayscale(1) brightness(.6)", opacity: 0.35 }}
                 />
               ))}
             </div>
+            {voando.voando !== null && <InsigniaVoando src={insigniaImg(voando.voando, r)} alvo={() => slotsInsignia.current[voando.voando!] ?? null} onFim={voando.pousou} />}
           </div>
         </div>
         <div className="flex gap-5 text-center">

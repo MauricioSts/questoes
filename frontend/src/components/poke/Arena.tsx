@@ -332,11 +332,13 @@ export function Arena({
   bolasMeu,
   previa,
   centroCura,
+  transicao,
+  insignia,
 }: {
   inimigos: (LadoVis | null)[]; // [slot 0, slot 1]
   meus: (LadoVis | null)[];
   dupla?: boolean;
-  treinador: { sprite: string; chave: number; sai: boolean } | null;
+  treinador: { sprite: string; chave: number; sai: boolean; lider?: boolean } | null;
   jogador?: { sprite: string; chave: number } | null; // o jogador aparece para lançar a bola
   mensagem: string;
   fx: FxVis | null;
@@ -352,6 +354,8 @@ export function Arena({
   bolasMeu?: EstadoBola[] | null;
   previa?: PreviaVis | null;
   centroCura?: number | null; // Centro Pokémon curando o time (chave da animação)
+  transicao?: number | null; // chegada de líder: a tela vira blocos de pixel (chave da animação)
+  insignia?: { src: string; nome: string; n: number } | null; // insígnia ganha, no meio da arena
 }) {
   const [fundoOk, setFundoOk] = useState<string | null>(null);
   const comFundo = !!fundo && fundoOk === fundo;
@@ -371,7 +375,7 @@ export function Arena({
       {treinador && (
         <img
           key={treinador.chave}
-          className={`pk-treinador ${treinador.sai ? "pk-treinador--sai" : ""}`}
+          className={`pk-treinador ${treinador.sai ? "pk-treinador--sai" : treinador.lider ? "pk-treinador--lider" : ""}`}
           src={spriteTreinador(treinador.sprite)}
           alt=""
           draggable={false}
@@ -383,6 +387,18 @@ export function Arena({
         <HabitatFx habitat={inimigos[0].habitat} chave={inimigos[0].enc ?? 0} />
       )}
       {slots(meus).map(([v, k]) => v && <Sprite key={`m${k}`} lado={v} meu slot={k} dupla={dupla} />)}
+
+      {transicao != null && <TransicaoPixel key={transicao} />}
+      {insignia && (
+        <div key={insignia.n} className="pk-insignia-ganha" aria-hidden>
+          <div className="pk-insignia-ganha__raios" />
+          <img src={insignia.src} alt="" draggable={false} />
+          {Array.from({ length: 8 }, (_, i) => (
+            <i key={i} style={{ "--a": `${i * 45}deg`, "--d": `${700 + (i % 2) * 120}ms` } as CSSProperties} />
+          ))}
+          <p>{insignia.nome}</p>
+        </div>
+      )}
 
       {centroCura != null && (
         <div key={centroCura} className="pk-centro" aria-hidden>
@@ -459,6 +475,24 @@ export function Arena({
         <span>{mensagem}</span>
         {aguardando && <span className="pk-mensagem__seta">▼</span>}
       </div>
+    </div>
+  );
+}
+
+// Chegada de líder, como nos jogos: dois clarões e a tela se fecha em blocos de pixel
+// (do centro para fora), que depois se abrem revelando o líder.
+const COLS = 16;
+const LINS = 9;
+function TransicaoPixel() {
+  const blocos = [];
+  for (let y = 0; y < LINS; y++)
+    for (let x = 0; x < COLS; x++) {
+      const d = Math.hypot((x + 0.5 - COLS / 2) / COLS, (y + 0.5 - LINS / 2) / LINS);
+      blocos.push(<i key={`${x}-${y}`} style={{ "--d": `${Math.round(d * 700)}ms` } as CSSProperties} />);
+    }
+  return (
+    <div className="pk-pixelada" style={{ "--cols": COLS, "--lins": LINS } as CSSProperties} aria-hidden>
+      {blocos}
     </div>
   );
 }

@@ -439,6 +439,8 @@ describe("modos da jornada", () => {
     const todos = [p.atual!, ...p.fila];
     expect(todos.every((e) => dex.especies[e.especie].t.includes(GINASIOS[0].tipo))).toBe(true);
     expect(todos.at(-1)!.tipo).toBe("lider");
+    // o time do Brock dos jogos: Geodude e Onix (o ás), nunca um sorteio do tipo Pedra
+    expect(todos.filter((e) => e.tipo === "lider").map((e) => e.especie)).toEqual([74, 95]);
     const fim = jogarAteOFim(p);
     expect(fim.fim).toBe("vitoria");
     const perfil = sincronizarPerfil(perfilInicial(dex, 4, "a"), fim);

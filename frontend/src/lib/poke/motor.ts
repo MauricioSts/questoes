@@ -175,6 +175,7 @@ export interface Ginasio {
   cidade: string;
   piso: number; // nível de referência do líder (os jogos da região)
   ajudantes: string[];
+  time: number[]; // o time do líder nos jogos (o último é o ás)
 }
 
 export interface MembroElite {
@@ -202,14 +203,14 @@ export const REGIOES: Regiao[] = [
     faixa: [1, 151],
     iniciais: [1, 4, 7],
     ginasios: [
-      { lider: "Brock", sprite: "brock", tipo: 12, insignia: "Insígnia Rocha", cidade: "Pewter", piso: 12, ajudantes: ["hiker", "camper"] },
-      { lider: "Misty", sprite: "misty", tipo: 2, insignia: "Insígnia Cascata", cidade: "Cerulean", piso: 18, ajudantes: ["swimmer", "sailor"] },
-      { lider: "Lt. Surge", sprite: "ltsurge", tipo: 3, insignia: "Insígnia Trovão", cidade: "Vermilion", piso: 24, ajudantes: ["sailor", "guitarist"] },
-      { lider: "Erika", sprite: "erika", tipo: 4, insignia: "Insígnia Arco-Íris", cidade: "Celadon", piso: 29, ajudantes: ["beauty", "lass"] },
-      { lider: "Koga", sprite: "koga", tipo: 7, insignia: "Insígnia Alma", cidade: "Fuchsia", piso: 37, ajudantes: ["juggler", "burglar"] },
-      { lider: "Sabrina", sprite: "sabrina", tipo: 10, insignia: "Insígnia Pântano", cidade: "Saffron", piso: 43, ajudantes: ["psychic", "psychicf"] },
-      { lider: "Blaine", sprite: "blaine", tipo: 1, insignia: "Insígnia Vulcão", cidade: "Cinnabar", piso: 47, ajudantes: ["burglar", "scientist"] },
-      { lider: "Giovanni", sprite: "giovanni", tipo: 8, insignia: "Insígnia Terra", cidade: "Viridian", piso: 50, ajudantes: ["blackbelt", "acetrainer"] },
+      { lider: "Brock", sprite: "brock", tipo: 12, insignia: "Insígnia Rocha", cidade: "Pewter", piso: 12, ajudantes: ["hiker", "camper"], time: [74, 95] },
+      { lider: "Misty", sprite: "misty", tipo: 2, insignia: "Insígnia Cascata", cidade: "Cerulean", piso: 18, ajudantes: ["swimmer", "sailor"], time: [120, 121] },
+      { lider: "Lt. Surge", sprite: "ltsurge", tipo: 3, insignia: "Insígnia Trovão", cidade: "Vermilion", piso: 24, ajudantes: ["sailor", "guitarist"], time: [100, 25, 26] },
+      { lider: "Erika", sprite: "erika", tipo: 4, insignia: "Insígnia Arco-Íris", cidade: "Celadon", piso: 29, ajudantes: ["beauty", "lass"], time: [71, 114, 45] },
+      { lider: "Koga", sprite: "koga", tipo: 7, insignia: "Insígnia Alma", cidade: "Fuchsia", piso: 37, ajudantes: ["juggler", "burglar"], time: [109, 89, 109, 110] },
+      { lider: "Sabrina", sprite: "sabrina", tipo: 10, insignia: "Insígnia Pântano", cidade: "Saffron", piso: 43, ajudantes: ["psychic", "psychicf"], time: [64, 122, 49, 65] },
+      { lider: "Blaine", sprite: "blaine", tipo: 1, insignia: "Insígnia Vulcão", cidade: "Cinnabar", piso: 47, ajudantes: ["burglar", "scientist"], time: [58, 77, 78, 59] },
+      { lider: "Giovanni", sprite: "giovanni", tipo: 8, insignia: "Insígnia Terra", cidade: "Viridian", piso: 50, ajudantes: ["blackbelt", "acetrainer"], time: [111, 51, 31, 34, 112] },
     ],
     elite: [
       { nome: "Lorelei", sprite: "lorelei-gen3", tipo: 5, piso: 54 },
@@ -224,14 +225,14 @@ export const REGIOES: Regiao[] = [
     faixa: [152, 251],
     iniciais: [152, 155, 158],
     ginasios: [
-      { lider: "Falkner", sprite: "falkner", tipo: 9, insignia: "Insígnia Zéfiro", cidade: "Violet", piso: 10, ajudantes: ["birdkeeper", "youngster"] },
-      { lider: "Bugsy", sprite: "bugsy", tipo: 11, insignia: "Insígnia Colmeia", cidade: "Azalea", piso: 16, ajudantes: ["bugcatcher", "camper"] },
-      { lider: "Whitney", sprite: "whitney", tipo: 0, insignia: "Insígnia Planície", cidade: "Goldenrod", piso: 20, ajudantes: ["lass", "beauty"] },
-      { lider: "Morty", sprite: "morty", tipo: 13, insignia: "Insígnia Névoa", cidade: "Ecruteak", piso: 25, ajudantes: ["psychic", "psychicf"] },
-      { lider: "Chuck", sprite: "chuck", tipo: 6, insignia: "Insígnia Tempestade", cidade: "Cianwood", piso: 30, ajudantes: ["blackbelt", "veteran"] },
-      { lider: "Jasmine", sprite: "jasmine", tipo: 16, insignia: "Insígnia Mineral", cidade: "Olivine", piso: 35, ajudantes: ["sailor", "gentleman"] },
-      { lider: "Pryce", sprite: "pryce", tipo: 5, insignia: "Insígnia Glacial", cidade: "Mahogany", piso: 34, ajudantes: ["skier", "boarder"] },
-      { lider: "Clair", sprite: "clair", tipo: 14, insignia: "Insígnia Ascensão", cidade: "Blackthorn", piso: 41, ajudantes: ["acetrainer", "acetrainerf"] },
+      { lider: "Falkner", sprite: "falkner", tipo: 9, insignia: "Insígnia Zéfiro", cidade: "Violet", piso: 10, ajudantes: ["birdkeeper", "youngster"], time: [16, 17] },
+      { lider: "Bugsy", sprite: "bugsy", tipo: 11, insignia: "Insígnia Colmeia", cidade: "Azalea", piso: 16, ajudantes: ["bugcatcher", "camper"], time: [11, 14, 123] },
+      { lider: "Whitney", sprite: "whitney", tipo: 0, insignia: "Insígnia Planície", cidade: "Goldenrod", piso: 20, ajudantes: ["lass", "beauty"], time: [35, 241] },
+      { lider: "Morty", sprite: "morty", tipo: 13, insignia: "Insígnia Névoa", cidade: "Ecruteak", piso: 25, ajudantes: ["psychic", "psychicf"], time: [92, 93, 93, 94] },
+      { lider: "Chuck", sprite: "chuck", tipo: 6, insignia: "Insígnia Tempestade", cidade: "Cianwood", piso: 30, ajudantes: ["blackbelt", "veteran"], time: [57, 62] },
+      { lider: "Jasmine", sprite: "jasmine", tipo: 16, insignia: "Insígnia Mineral", cidade: "Olivine", piso: 35, ajudantes: ["sailor", "gentleman"], time: [81, 81, 208] },
+      { lider: "Pryce", sprite: "pryce", tipo: 5, insignia: "Insígnia Glacial", cidade: "Mahogany", piso: 34, ajudantes: ["skier", "boarder"], time: [86, 87, 221] },
+      { lider: "Clair", sprite: "clair", tipo: 14, insignia: "Insígnia Ascensão", cidade: "Blackthorn", piso: 41, ajudantes: ["acetrainer", "acetrainerf"], time: [148, 148, 148, 230] },
     ],
     elite: [
       { nome: "Will", sprite: "will", tipo: 10, piso: 42 },
@@ -246,14 +247,14 @@ export const REGIOES: Regiao[] = [
     faixa: [252, 386],
     iniciais: [252, 255, 258],
     ginasios: [
-      { lider: "Roxanne", sprite: "roxanne", tipo: 12, insignia: "Insígnia Pedra", cidade: "Rustboro", piso: 15, ajudantes: ["hiker", "schoolkidf"] },
-      { lider: "Brawly", sprite: "brawly", tipo: 6, insignia: "Insígnia Punho", cidade: "Dewford", piso: 19, ajudantes: ["blackbelt", "swimmer"] },
-      { lider: "Wattson", sprite: "wattson", tipo: 3, insignia: "Insígnia Dínamo", cidade: "Mauville", piso: 24, ajudantes: ["guitarist", "worker"] },
-      { lider: "Flannery", sprite: "flannery", tipo: 1, insignia: "Insígnia Calor", cidade: "Lavaridge", piso: 29, ajudantes: ["hiker", "burglar"] },
-      { lider: "Norman", sprite: "norman", tipo: 0, insignia: "Insígnia Equilíbrio", cidade: "Petalburg", piso: 31, ajudantes: ["acetrainer", "acetrainerf"] },
-      { lider: "Winona", sprite: "winona", tipo: 9, insignia: "Insígnia Pena", cidade: "Fortree", piso: 33, ajudantes: ["birdkeeper", "pilot"] },
-      { lider: "Tate", sprite: "tate", tipo: 10, insignia: "Insígnia Mente", cidade: "Mossdeep", piso: 42, ajudantes: ["psychic", "psychicf"] },
-      { lider: "Juan", sprite: "juan", tipo: 2, insignia: "Insígnia Chuva", cidade: "Sootopolis", piso: 46, ajudantes: ["swimmerf", "sailor"] },
+      { lider: "Roxanne", sprite: "roxanne", tipo: 12, insignia: "Insígnia Pedra", cidade: "Rustboro", piso: 15, ajudantes: ["hiker", "schoolkidf"], time: [74, 74, 299] },
+      { lider: "Brawly", sprite: "brawly", tipo: 6, insignia: "Insígnia Punho", cidade: "Dewford", piso: 19, ajudantes: ["blackbelt", "swimmer"], time: [66, 307, 296] },
+      { lider: "Wattson", sprite: "wattson", tipo: 3, insignia: "Insígnia Dínamo", cidade: "Mauville", piso: 24, ajudantes: ["guitarist", "worker"], time: [100, 309, 82, 310] },
+      { lider: "Flannery", sprite: "flannery", tipo: 1, insignia: "Insígnia Calor", cidade: "Lavaridge", piso: 29, ajudantes: ["hiker", "burglar"], time: [218, 218, 324] },
+      { lider: "Norman", sprite: "norman", tipo: 0, insignia: "Insígnia Equilíbrio", cidade: "Petalburg", piso: 31, ajudantes: ["acetrainer", "acetrainerf"], time: [327, 288, 264, 289] },
+      { lider: "Winona", sprite: "winona", tipo: 9, insignia: "Insígnia Pena", cidade: "Fortree", piso: 33, ajudantes: ["birdkeeper", "pilot"], time: [277, 279, 227, 334] },
+      { lider: "Tate", sprite: "tate", tipo: 10, insignia: "Insígnia Mente", cidade: "Mossdeep", piso: 42, ajudantes: ["psychic", "psychicf"], time: [344, 178, 337, 338] },
+      { lider: "Juan", sprite: "juan", tipo: 2, insignia: "Insígnia Chuva", cidade: "Sootopolis", piso: 46, ajudantes: ["swimmerf", "sailor"], time: [370, 340, 364, 342, 230] },
     ],
     elite: [
       { nome: "Sidney", sprite: "sidney", tipo: 15, piso: 49 },
@@ -268,14 +269,14 @@ export const REGIOES: Regiao[] = [
     faixa: [387, 493],
     iniciais: [387, 390, 393],
     ginasios: [
-      { lider: "Roark", sprite: "roark", tipo: 12, insignia: "Insígnia Carvão", cidade: "Oreburgh", piso: 14, ajudantes: ["worker", "hiker"] },
-      { lider: "Gardenia", sprite: "gardenia", tipo: 4, insignia: "Insígnia Floresta", cidade: "Eterna", piso: 22, ajudantes: ["lass", "camper"] },
-      { lider: "Maylene", sprite: "maylene", tipo: 6, insignia: "Insígnia Paralelepípedo", cidade: "Veilstone", piso: 30, ajudantes: ["blackbelt", "veteran"] },
-      { lider: "Crasher Wake", sprite: "crasherwake", tipo: 2, insignia: "Insígnia Pântano", cidade: "Pastoria", piso: 32, ajudantes: ["fisherman", "swimmerf"] },
-      { lider: "Fantina", sprite: "fantina", tipo: 13, insignia: "Insígnia Relíquia", cidade: "Hearthome", piso: 36, ajudantes: ["psychicf", "beauty"] },
-      { lider: "Byron", sprite: "byron", tipo: 16, insignia: "Insígnia Mina", cidade: "Canalave", piso: 39, ajudantes: ["worker", "gentleman"] },
-      { lider: "Candice", sprite: "candice", tipo: 5, insignia: "Insígnia Pingente", cidade: "Snowpoint", piso: 42, ajudantes: ["skier", "acetrainerf"] },
-      { lider: "Volkner", sprite: "volkner", tipo: 3, insignia: "Insígnia Farol", cidade: "Sunyshore", piso: 49, ajudantes: ["guitarist", "scientist"] },
+      { lider: "Roark", sprite: "roark", tipo: 12, insignia: "Insígnia Carvão", cidade: "Oreburgh", piso: 14, ajudantes: ["worker", "hiker"], time: [74, 95, 408] },
+      { lider: "Gardenia", sprite: "gardenia", tipo: 4, insignia: "Insígnia Floresta", cidade: "Eterna", piso: 22, ajudantes: ["lass", "camper"], time: [420, 387, 407] },
+      { lider: "Maylene", sprite: "maylene", tipo: 6, insignia: "Insígnia Paralelepípedo", cidade: "Veilstone", piso: 30, ajudantes: ["blackbelt", "veteran"], time: [307, 67, 448] },
+      { lider: "Crasher Wake", sprite: "crasherwake", tipo: 2, insignia: "Insígnia Pântano", cidade: "Pastoria", piso: 32, ajudantes: ["fisherman", "swimmerf"], time: [130, 195, 419] },
+      { lider: "Fantina", sprite: "fantina", tipo: 13, insignia: "Insígnia Relíquia", cidade: "Hearthome", piso: 36, ajudantes: ["psychicf", "beauty"], time: [426, 94, 429] },
+      { lider: "Byron", sprite: "byron", tipo: 16, insignia: "Insígnia Mina", cidade: "Canalave", piso: 39, ajudantes: ["worker", "gentleman"], time: [436, 208, 411] },
+      { lider: "Candice", sprite: "candice", tipo: 5, insignia: "Insígnia Pingente", cidade: "Snowpoint", piso: 42, ajudantes: ["skier", "acetrainerf"], time: [215, 221, 308, 460] },
+      { lider: "Volkner", sprite: "volkner", tipo: 3, insignia: "Insígnia Farol", cidade: "Sunyshore", piso: 49, ajudantes: ["guitarist", "scientist"], time: [135, 26, 405, 466] },
     ],
     elite: [
       { nome: "Aaron", sprite: "aaron", tipo: 11, piso: 53 },
@@ -290,14 +291,14 @@ export const REGIOES: Regiao[] = [
     faixa: [494, 649],
     iniciais: [495, 498, 501],
     ginasios: [
-      { lider: "Cilan", sprite: "cilan", tipo: 4, insignia: "Insígnia Trio", cidade: "Striaton", piso: 14, ajudantes: ["waitress", "youngster"] },
-      { lider: "Lenora", sprite: "lenora", tipo: 0, insignia: "Insígnia Básica", cidade: "Nacrene", piso: 20, ajudantes: ["schoolkidf", "teacher"] },
-      { lider: "Burgh", sprite: "burgh", tipo: 11, insignia: "Insígnia Inseto", cidade: "Castelia", piso: 23, ajudantes: ["bugcatcher", "artist"] },
-      { lider: "Elesa", sprite: "elesa", tipo: 3, insignia: "Insígnia Raio", cidade: "Nimbasa", piso: 27, ajudantes: ["beauty", "guitarist"] },
-      { lider: "Clay", sprite: "clay", tipo: 8, insignia: "Insígnia Tremor", cidade: "Driftveil", piso: 31, ajudantes: ["worker", "hiker"] },
-      { lider: "Skyla", sprite: "skyla", tipo: 9, insignia: "Insígnia Jato", cidade: "Mistralton", piso: 35, ajudantes: ["pilot", "birdkeeper"] },
-      { lider: "Brycen", sprite: "brycen", tipo: 5, insignia: "Insígnia Congelada", cidade: "Icirrus", piso: 39, ajudantes: ["skier", "blackbelt"] },
-      { lider: "Drayden", sprite: "drayden", tipo: 14, insignia: "Insígnia Lenda", cidade: "Opelucid", piso: 43, ajudantes: ["acetrainer", "veteran"] },
+      { lider: "Cilan", sprite: "cilan", tipo: 4, insignia: "Insígnia Trio", cidade: "Striaton", piso: 14, ajudantes: ["waitress", "youngster"], time: [506, 511] },
+      { lider: "Lenora", sprite: "lenora", tipo: 0, insignia: "Insígnia Básica", cidade: "Nacrene", piso: 20, ajudantes: ["schoolkidf", "teacher"], time: [507, 505] },
+      { lider: "Burgh", sprite: "burgh", tipo: 11, insignia: "Insígnia Inseto", cidade: "Castelia", piso: 23, ajudantes: ["bugcatcher", "artist"], time: [544, 557, 542] },
+      { lider: "Elesa", sprite: "elesa", tipo: 3, insignia: "Insígnia Raio", cidade: "Nimbasa", piso: 27, ajudantes: ["beauty", "guitarist"], time: [587, 587, 523] },
+      { lider: "Clay", sprite: "clay", tipo: 8, insignia: "Insígnia Tremor", cidade: "Driftveil", piso: 31, ajudantes: ["worker", "hiker"], time: [552, 536, 530] },
+      { lider: "Skyla", sprite: "skyla", tipo: 9, insignia: "Insígnia Jato", cidade: "Mistralton", piso: 35, ajudantes: ["pilot", "birdkeeper"], time: [528, 521, 581] },
+      { lider: "Brycen", sprite: "brycen", tipo: 5, insignia: "Insígnia Congelada", cidade: "Icirrus", piso: 39, ajudantes: ["skier", "blackbelt"], time: [583, 615, 614] },
+      { lider: "Drayden", sprite: "drayden", tipo: 14, insignia: "Insígnia Lenda", cidade: "Opelucid", piso: 43, ajudantes: ["acetrainer", "veteran"], time: [611, 621, 612] },
     ],
     elite: [
       { nome: "Shauntal", sprite: "shauntal", tipo: 13, piso: 48 },
@@ -798,7 +799,6 @@ function planoGinasio(dex: Dex, r: number, i: number, base: number, rolar: () =>
   const s = 100000 * r; // Kanto (r = 0) mantém as sementes de antes
   const nvLider = nivelDoDesafio(base, g.piso, 1);
   const nAjud = i < 4 ? 1 : 2;
-  const nLider = i < 2 ? 2 : i < 5 ? 3 : 4;
   const planos: Plano[] = g.ajudantes.map((sprite, k) => ({
     t: { nome: NOMES_TREINADOR[sprite] ?? "Treinador", sprite, lider: false },
     mons: Array.from({ length: nAjud }, (_, j) => {
@@ -808,10 +808,10 @@ function planoGinasio(dex: Dex, r: number, i: number, base: number, rolar: () =>
   })).slice(Math.max(0, pular)); // ajudantes já vencidos não lutam de novo (os níveis ficam iguais)
   planos.push({
     t: { nome: g.lider, sprite: g.sprite, lider: true, insignia: i, fala: `${g.lider}, líder do Ginásio de ${g.cidade}, aceita o desafio pela ${g.insignia}!` },
-    mons: Array.from({ length: nLider }, (_, j) => {
-      const ace = j === nLider - 1;
-      const nivel = ace ? nvLider : Math.max(2, nvLider - 2);
-      return { especie: ace ? aceDoTipo(dex, g.tipo, nivel, s + 77 * (i + 1), faixa) : especieDoTipo(dex, g.tipo, nivel, s + 1000 * (i + 1) + 500 + j, faixa), nivel, tipo: "lider" as const };
+    // O time dos jogos, sem evoluir: o Brock é Geodude e Onix em qualquer nível.
+    mons: g.time.filter((id) => dex.especies[id]).map((especie, j, xs) => {
+      const nivel = j === xs.length - 1 ? nvLider : Math.max(2, nvLider - 2);
+      return { especie, nivel, tipo: "lider" as const };
     }),
   });
   return planos;
