@@ -111,11 +111,11 @@
 .pk-lanca img { width: 100%; image-rendering: pixelated; animation: pk-lanca-some .12s ease-in .4s both; }
 .pk-lanca--meu { animation: pk-lanca-meu .42s cubic-bezier(.3,.6,.5,1) both; }
 .pk-lanca--inimigo { animation: pk-lanca-inimigo .42s cubic-bezier(.3,.6,.5,1) both; }
-@keyframes pk-lanca-meu { from { left: -6%; top: 95%; rotate: -720deg; } 55% { top: 50%; } to { left: 24%; top: 70%; rotate: 0deg; } }
-@keyframes pk-lanca-inimigo { from { left: 96%; top: 22%; rotate: 720deg; } 50% { top: 12%; } to { left: 71%; top: 30%; rotate: 0deg; } }
+@keyframes pk-lanca-meu { from { left: -6%; top: 95%; rotate: -720deg; } 55% { top: 50%; } to { left: var(--tx, 24%); top: var(--ty, 70%); rotate: 0deg; } }
+@keyframes pk-lanca-inimigo { from { left: 96%; top: 22%; rotate: 720deg; } 50% { top: 12%; } to { left: var(--tx, 71%); top: var(--ty, 30%); rotate: 0deg; } }
 @keyframes pk-lanca-some { to { transform: scale(1.4); opacity: 0; } }
 .pk-lanca--mao { animation-name: pk-lanca-mao; }
-@keyframes pk-lanca-mao { from { left: 15%; top: 64%; rotate: -720deg; } 55% { top: 52%; } to { left: 24%; top: 70%; rotate: 0deg; } }
+@keyframes pk-lanca-mao { from { left: 15%; top: 64%; rotate: -720deg; } 55% { top: 52%; } to { left: var(--tx, 24%); top: var(--ty, 70%); rotate: 0deg; } }
 .pk-lanca__abre { position: absolute; left: 50%; top: 50%; width: 30cqw; height: 30cqw; border-radius: 50%; transform: translate(-50%, -50%) scale(0);
   background: radial-gradient(circle, #fff 0 18%, rgba(255,255,255,.85) 30%, rgba(255,236,160,.35) 52%, transparent 70%),
     repeating-conic-gradient(rgba(255,255,255,.9) 0 6deg, transparent 6deg 30deg);
@@ -296,6 +296,117 @@
 @keyframes pk-feliz { 0%, 100% { transform: none; } 30% { transform: translateY(-14px) scale(1.08); } 55% { transform: translateY(0) scale(.96, 1.04); } 75% { transform: translateY(-5px); } }
 .pk-premio { animation: pk-segura-entra .6s .3s cubic-bezier(.2,1.6,.4,1) both; }
 
+/* ---------- batalha dupla: dois slots de cada lado ---------- */
+.pk-arena--dupla .pk-plataforma--inimigo { left: 46%; top: 36%; width: 50%; }
+.pk-arena--dupla .pk-plataforma--meu { width: 56%; }
+.pk-arena--dupla .pk-sprite--inimigo.pk-s0 { left: 61%; top: 43%; z-index: 3; }
+.pk-arena--dupla .pk-sprite--inimigo.pk-s1 { left: 84%; top: 39%; }
+.pk-arena--dupla .pk-sprite--meu.pk-s0 { left: 17%; top: 91%; z-index: 3; }
+.pk-arena--dupla .pk-sprite--meu.pk-s1 { left: 39%; top: 87%; }
+.pk-arena--dupla .pk-sprite img { scale: .84; }
+.pk-arena--dupla .pk-treinador { left: 72%; }
+.pk-caixa--dupla { width: 38%; padding: .3em .6em .35em; font-size: .86em; }
+.pk-caixa--inimigo.pk-caixa--dupla.pk-s0 { top: 15%; }
+.pk-caixa--inimigo.pk-caixa--dupla.pk-s1 { top: 30%; left: 5%; }
+.pk-caixa--meu.pk-caixa--dupla.pk-s0 { bottom: 34%; right: 5%; }
+.pk-caixa--meu.pk-caixa--dupla.pk-s1 { bottom: 17%; }
+.pk-caixa--dupla .pk-hp { height: .42em; }
+
+/* ---------- Pokébolas do time, sobre a caixa de HP ---------- */
+.pk-party { display: inline-flex; gap: .22em; padding: .18em .4em; border-radius: .6em; background: rgba(29,29,36,.82); box-shadow: 0 .1em 0 rgba(0,0,0,.25); }
+.pk-caixa__party { position: absolute; bottom: calc(100% + .15em); right: .5em; font-size: .9em; }
+.pk-caixa--inimigo .pk-caixa__party { right: auto; left: .5em; }
+.pk-party--solta { position: absolute; z-index: 4; right: 3%; bottom: 22%; }
+.pk-party__b { position: relative; display: block; width: .78em; height: .78em; border-radius: 50%; overflow: hidden;
+  background: linear-gradient(180deg, #E8474C 0 44%, #1d1d24 44% 56%, #F4F4F0 56%); box-shadow: inset 0 0 0 .08em #1d1d24; }
+.pk-party__b::after { content: ""; position: absolute; left: 50%; top: 50%; width: .3em; height: .3em; border-radius: 50%; transform: translate(-50%, -50%); background: #F4F4F0; box-shadow: 0 0 0 .07em #1d1d24; }
+.pk-party__b--status { background: linear-gradient(180deg, #E8A23A 0 44%, #1d1d24 44% 56%, #F4F4F0 56%); }
+.pk-party__b--ko { background: linear-gradient(180deg, #6b6b74 0 44%, #1d1d24 44% 56%, #9a9aa2 56%); opacity: .75; }
+.pk-party__b--ko::after { background: #9a9aa2; }
+.pk-party__b--vazio { background: transparent; box-shadow: inset 0 0 0 .08em rgba(255,255,255,.35); }
+.pk-party__b--vazio::after { display: none; }
+
+/* ---------- selvagem: selo na caixa e partículas do lugar de onde saiu ---------- */
+.pk-selvagem { display: inline-block; margin-top: .1em; padding: 0 .45em; border-radius: .4em; font-size: .62em; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: #3E8E2F; }
+.pk-caixa--selvagem { border-color: #2f6b25; }
+.pk-hab { position: absolute; z-index: 2; left: 71%; top: 42%; width: 34cqw; height: 28cqw; transform: translate(-50%, -82%); pointer-events: none; --c1: #8BD45A; --c2: #3E8E2F; }
+.pk-hab i { position: absolute; display: block; }
+/* explosão na chegada: sai do pé do Pokémon em leque */
+.pk-hab__burst i { left: 50%; bottom: 12%; width: 1.7cqw; height: 1cqw; opacity: 0; animation: pk-hab-burst .9s cubic-bezier(.2,.8,.4,1) var(--d) both; }
+@keyframes pk-hab-burst {
+  0% { opacity: 0; transform: translate(-50%, 0) rotate(var(--a)) translateY(0) rotate(0deg) scale(.4); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, 0) rotate(var(--a)) translateY(calc(-1 * var(--r))) rotate(var(--g)) scale(1.1); }
+}
+/* ambiente: sobe devagar balançando (a direção e o jeito mudam por habitat) */
+.pk-hab__amb i { left: var(--x); bottom: 10%; width: calc(1.4cqw * var(--s)); height: calc(.8cqw * var(--s)); opacity: 0; animation: pk-hab-sobe var(--t) ease-in-out var(--d) infinite; }
+@keyframes pk-hab-sobe { 0% { opacity: 0; transform: translate(0, 0) rotate(0deg); } 20% { opacity: .95; } 50% { transform: translate(2cqw, -9cqw) rotate(calc(var(--g) * .5)); } 80% { opacity: .8; } 100% { opacity: 0; transform: translate(-1.5cqw, -18cqw) rotate(var(--g)); } }
+.pk-hab__chao { position: absolute; left: 4%; right: 4%; bottom: 4%; height: 22%; }
+.pk-hab__chao svg { width: 100%; height: 100%; display: block; transform-origin: 50% 100%; animation: pk-mato 2.6s ease-in-out infinite, pk-mato-abre .7s ease-out both; filter: drop-shadow(0 .2cqw 0 rgba(0,0,0,.25)); }
+@keyframes pk-mato { 50% { transform: skewX(-6deg); } }
+@keyframes pk-mato-abre { 0% { transform: scaleY(1.6) skewX(18deg); } 40% { transform: scaleY(.85) skewX(-10deg); } }
+
+/* folhas */
+.pk-hab--mato i { border-radius: 0 100% 0 100%; background: linear-gradient(135deg, var(--c1), var(--c2)); }
+/* água: bolhas que sobem, gotas que espirram na chegada, ondas no chão */
+.pk-hab--agua i, .pk-hab--veneno i { border-radius: 50%; width: calc(1.2cqw * var(--s, 1)); height: calc(1.2cqw * var(--s, 1)); background: radial-gradient(circle at 35% 30%, #fff 0 18%, rgba(160,215,255,.35) 22%, rgba(90,160,240,.2) 70%); box-shadow: inset 0 0 0 .18cqw rgba(255,255,255,.85); }
+.pk-hab--agua .pk-hab__burst i { width: 1.1cqw; height: 1.6cqw; border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%; background: linear-gradient(#bfe6ff, #3D8BE8); box-shadow: none; }
+.pk-hab--agua .pk-hab__amb i, .pk-hab--veneno .pk-hab__amb i { animation-name: pk-hab-bolha; }
+@keyframes pk-hab-bolha { 0% { opacity: 0; transform: translate(0, 0) scale(.5); } 20% { opacity: .9; } 40% { transform: translate(1cqw, -6cqw) scale(.9); } 60% { transform: translate(-1cqw, -11cqw); } 85% { opacity: .85; } 100% { opacity: 0; transform: translate(.5cqw, -17cqw) scale(1.15); } }
+.pk-hab--agua .pk-hab__chao, .pk-hab--veneno .pk-hab__chao { left: 12%; right: 12%; height: 16%; border-radius: 50%; border: .35cqw solid rgba(255,255,255,.7); animation: pk-onda 1.8s ease-out infinite; }
+.pk-hab--agua .pk-hab__chao::after, .pk-hab--veneno .pk-hab__chao::after { content: ""; position: absolute; inset: -18%; border-radius: 50%; border: .25cqw solid rgba(255,255,255,.45); animation: pk-onda 1.8s ease-out .9s infinite; }
+@keyframes pk-onda { from { transform: scale(.55); opacity: .95; } to { transform: scale(1.25); opacity: 0; } }
+.pk-hab--veneno i { background: radial-gradient(circle at 35% 30%, #f3d6ff 0 18%, rgba(181,101,217,.55) 24%, rgba(120,40,160,.35) 70%); box-shadow: inset 0 0 0 .18cqw rgba(230,190,255,.85); }
+.pk-hab--veneno .pk-hab__chao { border-color: rgba(181,101,217,.8); }
+.pk-hab--veneno .pk-hab__chao::after { border-color: rgba(181,101,217,.5); }
+/* fogo: brasas que piscam subindo */
+.pk-hab--fogo i { width: calc(.8cqw * var(--s, 1)); height: calc(.8cqw * var(--s, 1)); border-radius: 50%; background: #FFD27A; box-shadow: 0 0 .9cqw .3cqw #FF7A1A; }
+.pk-hab--fogo .pk-hab__amb i { animation-name: pk-hab-brasa; }
+@keyframes pk-hab-brasa { 0% { opacity: 0; transform: translate(0, 0) scale(1); } 15% { opacity: 1; } 30% { opacity: .5; } 45% { opacity: 1; transform: translate(-1cqw, -7cqw) scale(.85); } 100% { opacity: 0; transform: translate(1.5cqw, -19cqw) scale(.3); } }
+.pk-hab--fogo .pk-hab__chao { left: 15%; right: 15%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,140,40,.55), transparent); animation: pk-brilho 1.2s ease-in-out infinite; }
+@keyframes pk-brilho { 50% { opacity: .5; transform: scaleX(.92); } }
+/* elétrico (e aço): faíscas em zigue-zague, piscando no lugar */
+.pk-hab--eletrico i { width: calc(1.8cqw * var(--s, 1)); height: .35cqw; border-radius: 1cqw; background: #FFF59A; box-shadow: 0 0 .7cqw #FFE14D; }
+.pk-hab--eletrico .pk-hab__amb i { bottom: auto; top: calc(15% + var(--x) * .5); animation: pk-hab-faisca var(--t) steps(1) var(--d) infinite; }
+@keyframes pk-hab-faisca { 0%, 100% { opacity: 0; } 8% { opacity: 1; transform: rotate(var(--g)); } 14% { opacity: 0; } 20% { opacity: 1; transform: rotate(calc(var(--g) + 70deg)) translateX(.8cqw); } 26% { opacity: 0; } }
+.pk-hab--eletrico .pk-hab__chao { left: 15%; right: 15%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,230,80,.45), transparent); animation: pk-brilho .5s steps(2) infinite; }
+/* pedra, terra, lutador: poeira de lado e pedrinhas */
+.pk-hab--pedra i { width: calc(1.5cqw * var(--s, 1)); height: calc(1.5cqw * var(--s, 1)); border-radius: 50%; background: rgba(170,140,100,.55); filter: blur(.25cqw); }
+.pk-hab--pedra .pk-hab__burst i { width: 1.1cqw; height: .9cqw; border-radius: 30% 45% 35% 50%; background: #8A7356; filter: none; box-shadow: inset -.2cqw -.2cqw 0 rgba(0,0,0,.3); }
+.pk-hab--pedra .pk-hab__amb i { bottom: 6%; animation-name: pk-hab-poeira; }
+@keyframes pk-hab-poeira { 0% { opacity: 0; transform: translate(0, 0) scale(.6); } 25% { opacity: .8; } 100% { opacity: 0; transform: translate(calc((var(--x) - 50%) * .3), -4cqw) scale(2.4); } }
+/* gelo: flocos que caem girando */
+.pk-hab--gelo i { width: calc(.8cqw * var(--s, 1)); height: calc(.8cqw * var(--s, 1)); border-radius: 50%; background: #fff; box-shadow: 0 0 .6cqw #bfeaff; }
+.pk-hab--gelo .pk-hab__amb i { bottom: auto; top: 0; animation-name: pk-hab-neve; }
+@keyframes pk-hab-neve { 0% { opacity: 0; transform: translate(0, 0); } 20% { opacity: 1; } 50% { transform: translate(2cqw, 10cqw); } 90% { opacity: .9; } 100% { opacity: 0; transform: translate(-1cqw, 22cqw); } }
+/* fantasma, psíquico, sombrio: névoa roxa flutuando */
+.pk-hab--espirito i { width: calc(2.6cqw * var(--s, 1)); height: calc(2.6cqw * var(--s, 1)); border-radius: 50%; background: radial-gradient(circle, rgba(200,150,255,.8), rgba(120,60,200,0) 70%); }
+.pk-hab--espirito .pk-hab__amb i { animation-name: pk-hab-nevoa; animation-duration: calc(var(--t) * 1.6); }
+@keyframes pk-hab-nevoa { 0% { opacity: 0; transform: translate(0, 0) scale(.6); } 30% { opacity: .9; } 70% { opacity: .7; transform: translate(-3cqw, -9cqw) scale(1.3); } 100% { opacity: 0; transform: translate(2cqw, -14cqw) scale(1.6); } }
+.pk-hab--espirito .pk-hab__chao { left: 5%; right: 5%; height: 26%; border-radius: 50%; background: radial-gradient(closest-side, rgba(140,80,220,.45), transparent); animation: pk-brilho 2.4s ease-in-out infinite; }
+/* voador, dragão: riscos de vento */
+.pk-hab--vento i { width: calc(4cqw * var(--s, 1)); height: .3cqw; border-radius: 1cqw; background: linear-gradient(90deg, transparent, rgba(255,255,255,.95), transparent); }
+.pk-hab--vento .pk-hab__amb i { bottom: auto; top: calc(10% + var(--x) * .6); left: 0; animation-name: pk-hab-vento; animation-duration: calc(var(--t) * .6); }
+@keyframes pk-hab-vento { 0% { opacity: 0; transform: translateX(-4cqw); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateX(32cqw); } }
+/* fada: brilhos cor-de-rosa */
+.pk-hab--fada i { width: calc(1.4cqw * var(--s, 1)); height: calc(1.4cqw * var(--s, 1)); background: #FFB7E3; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); filter: drop-shadow(0 0 .5cqw #ff8fd0); }
+.pk-hab--fada .pk-hab__amb i { animation-name: pk-hab-brilha; }
+@keyframes pk-hab-brilha { 0%, 100% { opacity: 0; transform: translateY(0) scale(.3) rotate(0deg); } 30% { opacity: 1; transform: translateY(-5cqw) scale(1) rotate(45deg); } 60% { opacity: .2; transform: translateY(-9cqw) scale(.5) rotate(90deg); } 80% { opacity: 1; transform: translateY(-12cqw) scale(.9); } }
+/* só o ambiente (parada: o mato balança e não dá para ver quem está ali) */
+.pk-hab--so { top: 44%; }
+
+/* ---------- parada: o próximo treinador lá no fundo, Centro Pokémon ---------- */
+.pk-previa-treinador { position: absolute; left: 76%; top: 40%; z-index: 2; width: calc(80 * 100cqw / 360); image-rendering: pixelated; transform: translate(-50%, -100%); filter: brightness(.35) saturate(.4); opacity: .8; animation: pk-previa 1s ease-out both; }
+@keyframes pk-previa { from { opacity: 0; transform: translate(-10%, -100%); } }
+.pk-centro { position: absolute; inset: 0; z-index: 5; pointer-events: none; background: radial-gradient(60% 50% at 28% 72%, rgba(255,180,210,.55), transparent 70%); animation: pk-centro-fundo 1.8s ease-out both; }
+.pk-centro i { position: absolute; left: var(--x); bottom: 18%; font-style: normal; font-weight: 900; font-size: 1.4em; color: #FF6FA5; text-shadow: 0 0 .4em #fff, 0 .08em 0 #fff; opacity: 0; animation: pk-centro-cruz 1.4s ease-out var(--d) both; }
+@keyframes pk-centro-fundo { 0% { opacity: 0; } 20% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes pk-centro-cruz { 0% { opacity: 0; transform: translateY(0) scale(.5); } 25% { opacity: 1; transform: translateY(-2em) scale(1.1); } 100% { opacity: 0; transform: translateY(-6em) scale(.8); } }
+.pk-maquina { display: inline-grid; grid-template-columns: repeat(3, 14px); gap: 4px; padding: 6px; border-radius: 10px; background: #2b2b33; }
+.pk-maquina i { width: 14px; height: 14px; border-radius: 50%; background: #555; }
+.pk-maquina--on i { animation: pk-maquina-luz .5s ease-in-out calc(var(--i) * 140ms) both; background: linear-gradient(180deg, #E8474C 0 44%, #1d1d24 44% 56%, #F4F4F0 56%); }
+@keyframes pk-maquina-luz { 0% { filter: brightness(.4); transform: scale(.6); } 60% { filter: brightness(1.8) drop-shadow(0 0 4px #ffe066); transform: scale(1.15); } 100% { filter: none; transform: none; } }
+
 @media (prefers-reduced-motion: reduce) {
-  .pk-arena *, .pk-evo *, .pk-rc, .pk-rc *, .pk-modal, .pk-modal *, .pk-voa, .pk-segura, .pk-premio { animation-duration: .01ms !important; animation-delay: 0s !important; }
+  .pk-arena *, .pk-evo *, .pk-maquina *, .pk-rc, .pk-rc *, .pk-modal, .pk-modal *, .pk-voa, .pk-segura, .pk-premio { animation-duration: .01ms !important; animation-delay: 0s !important; }
 }

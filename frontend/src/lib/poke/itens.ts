@@ -123,6 +123,34 @@ export const REVIVER: Record<string, number> = { revive: 0.5, "max-revive": 1, "
 export const PREMIO_CHAVE: Record<number, string> = { 2: "exp-share", 5: "exp-all" };
 export const REFORCO_DO_TIPO = (tipo: number) => Object.keys(REFORCO_TIPO).find((k) => REFORCO_TIPO[k] === tipo) ?? null;
 
+// Poké Mart (preços da 5ª geração): [item, preço, insígnias da região para a loja vender].
+// Como nos jogos, a loja melhora a cada insígnia; 10 Poké Balls de uma vez rendem 1 Premier Ball.
+export const MART: [string, number, number][] = [
+  ["poke-ball", 200, 0],
+  ["great-ball", 600, 1],
+  ["ultra-ball", 1200, 4],
+  ["nest-ball", 1000, 2],
+  ["net-ball", 1000, 3],
+  ["repeat-ball", 1000, 3],
+  ["dusk-ball", 1000, 4],
+  ["quick-ball", 1000, 4],
+  ["timer-ball", 1000, 5],
+  ["potion", 300, 0],
+  ["super-potion", 700, 1],
+  ["hyper-potion", 1200, 3],
+  ["max-potion", 2500, 6],
+  ["full-restore", 3000, 7],
+  ["revive", 1500, 2],
+  ["antidote", 100, 0],
+  ["paralyze-heal", 200, 0],
+  ["awakening", 250, 1],
+  ["burn-heal", 250, 1],
+  ["ice-heal", 250, 2],
+  ["full-heal", 600, 4],
+];
+export const lojaDe = (insignias: number) => MART.filter(([, , min]) => min <= insignias);
+export const precoDe = (item: string) => MART.find(([i]) => i === item)?.[1] ?? null;
+
 // ---------- catálogo ----------
 
 const it = (nome: string, texto: string, cat: CategoriaItem, peso: number, min = 0): InfoItem => ({ nome, texto, cat, peso, min });

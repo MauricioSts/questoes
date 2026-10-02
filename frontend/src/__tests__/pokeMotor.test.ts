@@ -42,6 +42,19 @@ import {
   treinadoresParaGinasio,
   trocar,
   usarItem,
+  turnoSemQuestao,
+  seguirViagem,
+  centroPokemon,
+  moverNoTime,
+  meusEmCampo,
+  lutaAtiva,
+  slotDaVez,
+  encontroDaVez,
+  comprarNaPartida,
+  comprarNoPerfil,
+  ajudantesVencidos,
+  caminhoConcluido,
+  faltamNoCaminho,
   type PartidaPoke,
 } from "../lib/poke/motor";
 
@@ -770,4 +783,165 @@ describe("iniciais pós-Unova", () => {
   it("nunca aparecem como inimigos", () => {
     for (let q = 1; q < 400; q++) expect(especieDaQuestao(dex, q, "Português", 50)).toBeLessThanOrEqual(649);
   });
+});
+
+describe("turnos como nos jogos, batalha dupla e parada", () => {
+  const dex = dexJson as unknown as Dex;
+  const montar = (n: number, time: number, semente = 11) =>
+    montarPartidaPoke({
+      dex,
+      time: [4, 7, 1, 25].slice(0, time).map((id, i) => criarMon(dex, id, 14, `u${i}`)),
+      mochila: { potion: 3 },
+      pendentes: Array.from({ length: n }, (_, i) => ({ questaoId: i + 1, materia: "Português", nivel: 0, erros: 0, dificuldade: "media" as const })),
+      novas: [],
+      concursoId: null,
+      semente,
+    })!;
+  // avança até a próxima batalha dupla (acertando tudo)
+  function ateDupla(p: PartidaPoke): PartidaPoke {
+    for (let g = 0; g < 200 && !p.fim && !(p.dupla && p.atual && !p.atual.fim); g++) {
+      if (p.oferta) p = escolherOferta(p, p.oferta[0], dex);
+      else if (p.parada) p = seguirViagem(p);
+      else if (precisaTrocar(p)) p = trocar(p, p.time.findIndex((l, i) => l.hp > 0 && !meusEmCampo(p).includes(i)));
+      else if (!lutaAtiva(p)) p = avancarPoke(p, dex);
+      else p = avancarPoke(responderPoke(dex, { ...p, time: p.time.map((l) => ({ ...l, hp: hpMax(dex, l) })) }, { acertou: true, confianca: "duvida", acao: { golpe: p.time[p.ativo].golpes[0] } }).partida, dex);
+    }
+    return p;
+  }
+
+  it("poção no meio da luta gasta a vez: o inimigo ataca e a questão continua a mesma", () => {
+    let p = montar(10, 1);
+    p = { ...p, time: [{ ...p.time[0], hp: 10 }] };
+    const q = p.atual!.questaoId;
+    const r = turnoSemQuestao(dex, p, { item: "potion", alvo: 0 });
+    expect(r.eventos[0]).toMatchObject({ tipo: "usouItem", item: "potion" });
+    expect(r.eventos.some((e) => e.tipo === "cura")).toBe(true);
+    const contra = r.eventos.find((e) => e.tipo === "contra") as { livre?: boolean } | undefined;
+    const impedido = r.eventos.some((e) => e.tipo === "inimigoImpedido" || e.tipo === "item");
+    expect(contra?.livre || impedido).toBe(true);
+    expect(r.partida.mochila.potion).toBe(2);
+    expect(r.partida.atual!.questaoId).toBe(q);
+    expect(r.partida.registros).toHaveLength(0);
+    // fora da luta (parada), o item é de graça
+    expect(usarItem(dex, p, "potion", 0).eventos.some((e) => e.tipo === "contra")).toBe(false);
+  });
+
+  it("trocar de Pokémon no meio da luta também gasta a vez", () => {
+    const p = montar(10, 2);
+    const r = turnoSemQuestao(dex, p, { troca: 1 });
+    expect(r.partida.ativo).toBe(1);
+    expect(r.eventos[0]).toMatchObject({ tipo: "trocou", para: p.time[1].uid });
+    const atingido = r.eventos.find((e) => e.tipo === "contra") as { uid?: string } | undefined;
+    if (atingido) expect(atingido.uid).toBe(p.time[1].uid);
+    expect(turnoSemQuestao(dex, p, { troca: 0 }).partida).toBe(p); // já está em campo
+  });
+
+  it("caminho tem batalha dupla: dois inimigos e dois meus em campo, questão alterna", () => {
+    let achou: PartidaPoke | null = null;
+    for (let s = 1; s < 40 && !achou; s++) {
+      const p = ateDupla(montar(26, 3, s));
+      if (p.dupla) achou = p;
+    }
+    expect(achou).not.toBeNull();
+    const p = achou!;
+    expect(p.treinadores[p.atual!.treinador].dupla).toBe(true);
+    expect(p.par!.treinador).toBe(p.atual!.treinador);
+    expect(meusEmCampo(p)).toHaveLength(2);
+    expect(slotDaVez(p)).toBe(0);
+    const cheio = { ...p, time: p.time.map((l) => ({ ...l, hp: hpMax(dex, l) })) };
+    const r = responderPoke(dex, cheio, { acertou: true, confianca: "duvida", acao: { golpe: cheio.time[cheio.ativo].golpes[0], alvo: 0 }, acao2: { golpe: cheio.time[cheio.ativo2!].golpes[0], alvo: 1 } });
+    const ataques = r.eventos.filter((e) => e.tipo === "ataque") as { uid?: string; alvo?: number }[];
+    expect(ataques.map((a) => a.uid)).toEqual([cheio.time[cheio.ativo].uid, cheio.time[cheio.ativo2!].uid]);
+    if (r.partida.atual!.hp > 0 && r.partida.par!.hp > 0) expect(ataques.map((a) => a.alvo)).toEqual([0, 1]);
+    if (!r.partida.par!.fim) expect(slotDaVez(r.partida)).toBe(1);
+    // erro: os dois inimigos atacam
+    const e = responderPoke(dex, cheio, { acertou: false, confianca: "duvida", acao: { golpe: 0 } });
+    const contras = e.eventos.filter((x) => x.tipo === "contra" || x.tipo === "inimigoImpedido");
+    expect(contras.length).toBe(2);
+  });
+
+  // joga a partida inteira acertando tudo (HP cheio a cada turno), passando pelas paradas
+  function jogar(p: PartidaPoke, naParada?: (p: PartidaPoke) => PartidaPoke) {
+    const paradas: NonNullable<PartidaPoke["parada"]>[] = [];
+    for (let g = 0; g < 300 && !p.fim; g++) {
+      if (p.oferta) p = escolherOferta(p, p.oferta[0], dex);
+      else if (p.parada) {
+        paradas.push(p.parada);
+        expect(lutaAtiva(p)).toBe(true);
+        p = seguirViagem(naParada ? naParada(p) : p);
+      } else if (precisaTrocar(p)) p = trocar(p, p.time.findIndex((l, i) => l.hp > 0 && !meusEmCampo(p).includes(i)));
+      else if (!lutaAtiva(p)) p = avancarPoke(p, dex);
+      else p = avancarPoke(responderPoke(dex, { ...p, time: p.time.map((l) => ({ ...l, hp: hpMax(dex, l) })) }, { acertou: true, confianca: "duvida", acao: { golpe: p.time[p.ativo].golpes[0] } }).partida, dex);
+    }
+    return { p, paradas };
+  }
+
+  it("parada antes de cada batalha nova (no caminho, sem Centro); ordem do time; dinheiro dos treinadores", () => {
+    const ini = montar(26, 2, 5);
+    expect(ini.dinheiro).toBe(3000);
+    const { p, paradas } = jogar(ini, (q) => {
+      const m = moverNoTime(q, 1, 0);
+      expect(m.time[0].uid).toBe(q.time[1].uid);
+      expect(m.ativo).toBe(0);
+      return m;
+    });
+    expect(p.fim).toBe("vitoria");
+    expect(paradas.length).toBeGreaterThan(2);
+    expect(paradas.every((x) => !x.centro && !x.loja)).toBe(true);
+    expect(p.dinheiro!).toBeGreaterThan(3000);
+    expect(sincronizarPerfil(perfilInicial(dex, 4, "u0"), p).dinheiro).toBe(p.dinheiro);
+  });
+
+  it("ginásio: começa na cidade (Centro + Poké Mart), cura sozinho antes do líder; ajudantes vencidos ficam de fora", () => {
+    const base = { dex, mochila: { potion: 1 }, novas: [], concursoId: null, semente: 3, modo: "ginasio" as const, ginasio: 0, dinheiro: 1000 };
+    const pend = Array.from({ length: 20 }, (_, i) => ({ questaoId: i + 1, materia: "Português", nivel: 0, erros: 0, dificuldade: "media" as const }));
+    const g = montarPartidaPoke({ ...base, time: [criarMon(dex, 7, 14, "u0")], pendentes: pend })!;
+    expect(g.parada).toMatchObject({ centro: true, loja: true });
+    const ferido = { ...g, time: g.time.map((l) => ({ ...l, hp: 1, status: "poison" as const })) };
+    const curado = centroPokemon(dex, ferido);
+    expect(curado.time.every((l) => l.hp === hpMax(dex, l) && !l.status)).toBe(true);
+    expect(centroPokemon(dex, curado)).toBe(curado); // uma vez por parada
+    // Poké Mart: compra com o dinheiro da carteira; 10 Poké Balls dão 1 Premier Ball
+    const c = comprarNaPartida(g, "potion", 2);
+    expect(c.dinheiro).toBe(400);
+    expect(c.mochila.potion).toBe(3);
+    expect(comprarNaPartida(c, "potion", 2)).toBe(c); // sem dinheiro
+    expect(comprarNaPartida(c, "ultra-ball", 1)).toBe(c); // a loja ainda não vende
+    const perfil = { ...perfilInicial(dex, 7, "u0"), dinheiro: 2000 };
+    expect(comprarNoPerfil(perfil, "poke-ball", 10).mochila["premier-ball"]).toBe(1);
+    // o líder: time curado antes
+    let antesDoLider = false;
+    const { p } = jogar(seguirViagem(g), (q) => {
+      if (q.parada?.curadoAuto) {
+        antesDoLider = true;
+        expect(encontroDaVez(q)!.tipo).toBe("lider");
+        expect(q.time.every((l) => l.hp === hpMax(dex, l))).toBe(true);
+      }
+      return q;
+    });
+    expect(antesDoLider).toBe(true);
+    expect(p.fim).toBe("vitoria");
+    // perdeu no líder depois de vencer os ajudantes: na próxima, só o líder
+    const ajud = g.treinadores.filter((t) => !t.lider).length;
+    const meio = { ...g, vencidos: g.treinadores.map((t, i) => (t.lider ? -1 : i)).filter((i) => i >= 0), fim: "derrota" as const };
+    const pf = sincronizarPerfil(perfilInicial(dex, 7, "u0"), meio);
+    expect(ajudantesVencidos(pf, 0, 0)).toBe(ajud);
+    const g2 = montarPartidaPoke({ ...base, time: [criarMon(dex, 7, 14, "u0")], pendentes: pend, ajudantesVencidos: ajudantesVencidos(pf, 0, 0) })!;
+    expect(g2.treinadores.every((t) => t.lider)).toBe(true);
+    // ganhou a insígnia: os ajudantes voltam a contar do zero para a próxima vez (não importa mais)
+    expect(ajudantesVencidos(sincronizarPerfil(pf, { ...p, ajudantesAntes: ajud, iniciadaEm: "2030-01-01T00:00:00.000Z" }), 0, 0)).toBe(0);
+  });
+
+  it("caminho acaba nos treinadores que faltam: concluído, fecha", () => {
+    const pend = Array.from({ length: 26 }, (_, i) => ({ questaoId: i + 1, materia: "Português", nivel: 0, erros: 0, dificuldade: "media" as const }));
+    const p = montarPartidaPoke({ dex, time: [criarMon(dex, 4, 10, "a")], mochila: {}, pendentes: pend, novas: [], concursoId: null, semente: 9, rumo: 0, restantes: 2 })!;
+    expect(p.treinadores).toHaveLength(2);
+    let perfil = perfilInicial(dex, 4, "a");
+    expect(caminhoConcluido(perfil)).toBe(false);
+    expect(faltamNoCaminho(perfil)).toBe(treinadoresParaGinasio(0));
+    perfil = { ...perfil, historiaPorRegiao: [treinadoresParaGinasio(0)] };
+    expect(caminhoConcluido(perfil)).toBe(true);
+    expect(faltamNoCaminho(perfil)).toBe(0);
+  });
+
 });

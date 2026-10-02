@@ -2,6 +2,8 @@
 // Pokémon de costas embaixo à esquerda, as caixas de HP e a faixa de mensagem. É só
 // apresentação: a página (pages/BatalhaPokemon.tsx) decide o que cada lado está fazendo
 // (`anim`) e reinicia a animação trocando a `chave`.
+// Na batalha dupla cada lado tem dois slots (0 na frente, 1 atrás); as posições saem de
+// `pk-arena--dupla` + `pk-s0`/`pk-s1` no CSS e de CENTRO aqui (golpes, textos, bolas).
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { COR_TIPO, spriteCostas, spriteEstatico, spriteFrente, spriteItem, spriteTreinador } from "../../lib/poke/dex";
 import type { Status } from "../../lib/poke/motor";
@@ -9,6 +11,24 @@ import { fxSprite, type EfeitoGolpe } from "./fx";
 
 // entra: surge com brilho; saiBola: o mesmo, depois da bola abrir; surge: selvagem chegando
 export type AnimLado = "" | "entra" | "saiBola" | "surge" | "ataca" | "dano" | "desmaia" | "some" | "bola" | "foge" | "status";
+export type Slot = 0 | 1;
+
+// De onde o selvagem saiu: as partículas em volta dele (folhas, bolhas, brasas...).
+export type Habitat = "mato" | "agua" | "fogo" | "eletrico" | "pedra" | "gelo" | "espirito" | "vento" | "veneno" | "fada";
+const HABITAT_DO_TIPO: Habitat[] = ["mato", "fogo", "agua", "eletrico", "mato", "gelo", "pedra", "veneno", "pedra", "vento", "espirito", "mato", "pedra", "espirito", "vento", "espirito", "eletrico", "fada"];
+export const habitatDoTipo = (t: number | undefined): Habitat => HABITAT_DO_TIPO[t ?? 0] ?? "mato";
+export const TEXTO_HABITAT: Record<Habitat, string> = {
+  mato: "O mato alto está balançando...",
+  agua: "Bolhas sobem da água...",
+  fogo: "Brasas estalam no caminho...",
+  eletrico: "Faíscas estalam no ar...",
+  pedra: "Pedrinhas rolam e a poeira sobe...",
+  gelo: "Flocos de neve rodopiam...",
+  espirito: "Uma névoa estranha paira no ar...",
+  vento: "Uma rajada de vento passa...",
+  veneno: "Bolhas roxas borbulham no pântano...",
+  fada: "Brilhos cor-de-rosa piscam no ar...",
+};
 
 export interface LadoVis {
   id: number;
@@ -21,8 +41,11 @@ export interface LadoVis {
   chave: number; // muda para reiniciar a animação
   xp?: number; // 0–1, só o seu
   selvagem?: boolean;
+  habitat?: Habitat; // selvagem: partículas do lugar de onde saiu
   capturavel?: boolean; // selo de "já te derrubou"
   semente?: boolean; // Leech Seed
+  enc?: number; // inimigo: chave do encontro que este desenho mostra
+  uid?: string; // meu: o Pokémon que este desenho mostra
 }
 
 export interface FxVis {
@@ -31,6 +54,8 @@ export interface FxVis {
   alvo: "meu" | "inimigo";
   efeito: EfeitoGolpe;
   forte?: boolean;
+  deSlot?: Slot;
+  alvoSlot?: Slot;
 }
 
 // Pokébola lançada para mandar um Pokémon a campo
@@ -39,6 +64,7 @@ export interface LancaVis {
   lado: "meu" | "inimigo";
   bola: string;
   mao?: boolean; // sai da mão do jogador
+  slot?: Slot;
 }
 
 export interface TextoVis {
@@ -46,6 +72,7 @@ export interface TextoVis {
   lado: "meu" | "inimigo";
   texto: string;
   cor: string;
+  slot?: Slot;
 }
 
 export interface BolaVis {
@@ -55,6 +82,9 @@ export interface BolaVis {
   sucesso: boolean;
   mao?: boolean; // sai da mão do jogador
 }
+
+// Pokébolas do time (como nos jogos): de pé, com status, desmaiado ou vaga vazia.
+export type EstadoBola = "ok" | "status" | "ko" | "vazio";
 
 export const SIGLA_STATUS: Record<Exclude<Status, "">, [string, string]> = {
   poison: ["VEN", "#A33EA1"],
@@ -68,11 +98,22 @@ function corHp(f: number) {
   return f > 0.5 ? "#3BC46B" : f > 0.2 ? "#F2C33A" : "#E8474C";
 }
 
-function Caixa({ lado, meu }: { lado: LadoVis; meu: boolean }) {
+export function Pokebolas({ bolas, className = "" }: { bolas: EstadoBola[]; className?: string }) {
+  return (
+    <span className={`pk-party ${className}`} aria-label={`${bolas.filter((b) => b === "ok" || b === "status").length} de ${bolas.filter((b) => b !== "vazio").length} Pokémon de pé`}>
+      {bolas.map((b, i) => (
+        <i key={i} className={`pk-party__b pk-party__b--${b}`} />
+      ))}
+    </span>
+  );
+}
+
+function Caixa({ lado, meu, slot, dupla, bolas }: { lado: LadoVis; meu: boolean; slot: Slot; dupla: boolean; bolas?: EstadoBola[] }) {
   const f = lado.hpMax ? Math.max(0, lado.hp) / lado.hpMax : 0;
   const st = lado.status ? SIGLA_STATUS[lado.status] : null;
   return (
-    <div className={`pk-caixa ${meu ? "pk-caixa--meu" : "pk-caixa--inimigo"}`}>
+    <div className={`pk-caixa ${meu ? "pk-caixa--meu" : "pk-caixa--inimigo"} ${dupla ? `pk-caixa--dupla pk-s${slot}` : ""} ${lado.selvagem ? "pk-caixa--selvagem" : ""}`}>
+      {bolas && <Pokebolas bolas={bolas} className="pk-caixa__party" />}
       <div className="flex items-baseline justify-between gap-2">
         <span className="truncate font-bold">
           {lado.nome}
@@ -80,6 +121,7 @@ function Caixa({ lado, meu }: { lado: LadoVis; meu: boolean }) {
         </span>
         <span className="shrink-0 text-[0.8em] font-bold">Nv{lado.nivel}</span>
       </div>
+      {lado.selvagem && <span className="pk-selvagem">Selvagem</span>}
       <div className="mt-0.5 flex items-center gap-1.5">
         {st ? (
           <span className="pk-status" style={{ background: st[1] }}>
@@ -102,9 +144,11 @@ function Caixa({ lado, meu }: { lado: LadoVis; meu: boolean }) {
           <p className="text-right text-[0.8em] font-bold tabular-nums">
             {Math.max(0, lado.hp)}/{lado.hpMax}
           </p>
-          <div className="pk-xp">
-            <div className="pk-xp__barra" style={{ width: `${(lado.xp ?? 0) * 100}%` }} />
-          </div>
+          {!dupla && (
+            <div className="pk-xp">
+              <div className="pk-xp__barra" style={{ width: `${(lado.xp ?? 0) * 100}%` }} />
+            </div>
+          )}
         </>
       )}
     </div>
@@ -114,12 +158,12 @@ function Caixa({ lado, meu }: { lado: LadoVis; meu: boolean }) {
 // Largura natural de cada GIF: o sprite remonta a cada animação e não pode piscar.
 const larguras = new Map<string, number>();
 
-function Sprite({ lado, meu }: { lado: LadoVis; meu: boolean }) {
+function Sprite({ lado, meu, slot, dupla }: { lado: LadoVis; meu: boolean; slot: Slot; dupla: boolean }) {
   const [falhou, setFalhou] = useState(false);
   const src = falhou ? spriteEstatico(lado.id) : meu ? spriteCostas(lado.id) : spriteFrente(lado.id);
   const [largura, setLargura] = useState<number | null>(larguras.get(src) ?? null);
   return (
-    <div key={`${lado.id}-${lado.chave}`} className={`pk-sprite ${meu ? "pk-sprite--meu" : "pk-sprite--inimigo"} ${lado.anim ? `pk-anim-${lado.anim}` : ""}`}>
+    <div key={`${lado.id}-${lado.chave}`} className={`pk-sprite ${meu ? "pk-sprite--meu" : "pk-sprite--inimigo"} ${dupla ? `pk-s${slot}` : ""} ${lado.anim ? `pk-anim-${lado.anim}` : ""}`}>
       <img
         src={src}
         alt={lado.nome}
@@ -135,13 +179,51 @@ function Sprite({ lado, meu }: { lado: LadoVis; meu: boolean }) {
   );
 }
 
-// Centro de cada lado, em % da arena (o golpe sai de um e chega no outro).
-const CENTRO = { meu: ["24%", "68%"], inimigo: ["71%", "29%"] } as const;
+// Folhas, bolhas, brasas... em volta do selvagem: uma explosão quando ele surge (o mato abre,
+// a água espirra) e partículas que continuam enquanto ele estiver em campo. `so` = só o
+// ambiente, sem Pokémon (a prévia do mato balançando na parada).
+function HabitatFx({ habitat, chave, so }: { habitat: Habitat; chave: number; so?: boolean }) {
+  return (
+    <div className={`pk-hab pk-hab--${habitat} ${so ? "pk-hab--so" : ""}`} aria-hidden>
+      {!so && (
+        <div key={chave} className="pk-hab__burst">
+          {Array.from({ length: 16 }, (_, i) => (
+            <i key={i} style={{ "--a": `${-80 + ((i * 160) / 15)}deg`, "--d": `${(i % 4) * 45}ms`, "--r": `${9 + ((i * 53) % 9)}cqw`, "--g": `${(i * 137) % 360}deg` } as CSSProperties} />
+          ))}
+        </div>
+      )}
+      <div className="pk-hab__amb">
+        {Array.from({ length: 9 }, (_, i) => (
+          <i key={i} style={{ "--x": `${8 + ((i * 41) % 86)}%`, "--d": `${-(i * 0.63).toFixed(2)}s`, "--t": `${2.4 + (i % 3) * 0.8}s`, "--s": 0.75 + (i % 3) * 0.25, "--g": `${(i * 97) % 360}deg` } as CSSProperties} />
+        ))}
+      </div>
+      <div key={`c${chave}`} className="pk-hab__chao">
+        {habitat === "mato" && (
+          <svg viewBox="0 0 120 30" preserveAspectRatio="none">
+            {Array.from({ length: 13 }, (_, i) => {
+              const x = 4 + i * 9.2;
+              const h = 14 + ((i * 7) % 12);
+              const torto = ((i * 5) % 9) - 4;
+              return <path key={i} d={`M${x - 4} 30 Q${x + torto / 2} ${30 - h / 2} ${x + torto} ${30 - h} Q${x + 1} ${30 - h / 2} ${x + 4} 30Z`} fill={i % 2 ? "#3E8E2F" : "#5DB83F"} />;
+            })}
+          </svg>
+        )}
+      </div>
+    </div>
+  );
+}
 
-function GolpeFx({ fx }: { fx: FxVis }) {
+// Centro de cada lado, em % da arena (o golpe sai de um e chega no outro).
+function centro(lado: "meu" | "inimigo", slot: Slot | undefined, dupla: boolean): [string, string] {
+  if (!dupla) return lado === "meu" ? ["24%", "68%"] : ["71%", "29%"];
+  if (lado === "meu") return slot === 1 ? ["39%", "66%"] : ["17%", "70%"];
+  return slot === 1 ? ["84%", "26%"] : ["61%", "30%"];
+}
+
+function GolpeFx({ fx, dupla }: { fx: FxVis; dupla: boolean }) {
   const { estilo, sprites, cor } = fx.efeito;
-  const [x0, y0] = CENTRO[fx.de];
-  const [x1, y1] = CENTRO[fx.alvo];
+  const [x0, y0] = centro(fx.de, fx.deSlot, dupla);
+  const [x1, y1] = centro(fx.alvo, fx.alvoSlot, dupla);
   const vars = { "--x0": x0, "--y0": y0, "--x1": x1, "--y1": y1, "--cor": cor } as CSSProperties;
   const img = (i: number) => fxSprite(sprites[i % sprites.length]);
   const pecas: ReactNode[] = [];
@@ -224,11 +306,16 @@ export interface ItemVis {
   n: number;
   item: string;
   grande?: boolean;
+  slot?: Slot;
 }
 
+// O que espera depois da parada: o próximo treinador lá no fundo, ou o mato balançando.
+export type PreviaVis = { tipo: "treinador"; sprite: string; n: number } | { tipo: "mato"; habitat: Habitat; n: number };
+
 export function Arena({
-  inimigo,
-  meu,
+  inimigos,
+  meus,
+  dupla = false,
   treinador,
   jogador,
   mensagem,
@@ -241,9 +328,14 @@ export function Arena({
   aguardando,
   fundo,
   item,
+  bolasInimigo,
+  bolasMeu,
+  previa,
+  centroCura,
 }: {
-  inimigo: LadoVis | null;
-  meu: LadoVis | null;
+  inimigos: (LadoVis | null)[]; // [slot 0, slot 1]
+  meus: (LadoVis | null)[];
+  dupla?: boolean;
   treinador: { sprite: string; chave: number; sai: boolean } | null;
   jogador?: { sprite: string; chave: number } | null; // o jogador aparece para lançar a bola
   mensagem: string;
@@ -256,15 +348,25 @@ export function Arena({
   topo?: ReactNode;
   aguardando?: boolean;
   item?: ItemVis | null; // item segurado agindo (pequeno, sobre o meu Pokémon) ou prêmio (grande, no centro)
+  bolasInimigo?: EstadoBola[] | null; // time do treinador inimigo (selvagem não tem)
+  bolasMeu?: EstadoBola[] | null;
+  previa?: PreviaVis | null;
+  centroCura?: number | null; // Centro Pokémon curando o time (chave da animação)
 }) {
   const [fundoOk, setFundoOk] = useState<string | null>(null);
   const comFundo = !!fundo && fundoOk === fundo;
+  const slots = (xs: (LadoVis | null)[]) => (dupla ? xs.slice(0, 2) : xs.slice(0, 1)).map((v, k) => [v, k as Slot] as const);
+  const primeiroIni = slots(inimigos).find(([v]) => v && v.anim !== "some")?.[1] ?? 0;
+  const primeiroMeu = slots(meus).find(([v]) => v && v.anim !== "some")?.[1] ?? 0;
   return (
-    <div className={`pk-arena ${comFundo ? "pk-arena--fundo" : ""}`} style={{ "--bioma": cor } as CSSProperties}>
+    <div className={`pk-arena ${comFundo ? "pk-arena--fundo" : ""} ${dupla ? "pk-arena--dupla" : ""}`} style={{ "--bioma": cor } as CSSProperties}>
       <div className="pk-ceu" />
       {fundo && <img key={fundo} className="pk-fundo" src={fundo} alt="" draggable={false} onLoad={() => setFundoOk(fundo)} onError={() => setFundoOk(null)} />}
       <div className="pk-plataforma pk-plataforma--inimigo" />
       <div className="pk-plataforma pk-plataforma--meu" />
+
+      {previa?.tipo === "treinador" && <img key={previa.n} className="pk-previa-treinador" src={spriteTreinador(previa.sprite)} alt="" draggable={false} />}
+      {previa?.tipo === "mato" && <HabitatFx key={previa.n} habitat={previa.habitat} chave={previa.n} so />}
 
       {treinador && (
         <img
@@ -276,15 +378,31 @@ export function Arena({
         />
       )}
       {jogador && <img key={jogador.chave} className="pk-jogador" src={spriteTreinador(jogador.sprite)} alt="" draggable={false} />}
-      {inimigo && <Sprite lado={inimigo} meu={false} />}
-      {meu && <Sprite lado={meu} meu />}
+      {slots(inimigos).map(([v, k]) => v && <Sprite key={`i${k}`} lado={v} meu={false} slot={k} dupla={dupla} />)}
+      {!dupla && inimigos[0]?.selvagem && inimigos[0].habitat && inimigos[0].anim !== "some" && inimigos[0].anim !== "bola" && inimigos[0].anim !== "foge" && inimigos[0].anim !== "desmaia" && (
+        <HabitatFx habitat={inimigos[0].habitat} chave={inimigos[0].enc ?? 0} />
+      )}
+      {slots(meus).map(([v, k]) => v && <Sprite key={`m${k}`} lado={v} meu slot={k} dupla={dupla} />)}
 
-      {lancamentos.map((l) => (
-        <div key={l.n} className={`pk-lanca pk-lanca--${l.lado} ${l.mao ? "pk-lanca--mao" : ""}`} aria-hidden>
-          <img src={spriteItem(l.bola)} alt="" draggable={false} />
-          <span className="pk-lanca__abre" />
+      {centroCura != null && (
+        <div key={centroCura} className="pk-centro" aria-hidden>
+          {Array.from({ length: 10 }, (_, i) => (
+            <i key={i} style={{ "--x": `${8 + ((i * 37) % 40)}%`, "--d": `${i * 90}ms` } as CSSProperties}>
+              ✚
+            </i>
+          ))}
         </div>
-      ))}
+      )}
+
+      {lancamentos.map((l) => {
+        const [tx, ty] = centro(l.lado, l.slot, dupla);
+        return (
+          <div key={l.n} className={`pk-lanca pk-lanca--${l.lado} ${l.mao ? "pk-lanca--mao" : ""}`} style={{ "--tx": tx, "--ty": `calc(${ty} + 2%)` } as CSSProperties} aria-hidden>
+            <img src={spriteItem(l.bola)} alt="" draggable={false} />
+            <span className="pk-lanca__abre" />
+          </div>
+        );
+      })}
 
       {bola && (
         <div key={bola.n} className={`pk-bola ${bola.sucesso ? "pk-bola--pegou" : "pk-bola--escapou"} ${bola.mao ? "pk-bola--mao" : ""}`} style={{ "--balancos": bola.balancos } as CSSProperties} aria-hidden>
@@ -304,10 +422,15 @@ export function Arena({
         </div>
       )}
 
-      {fx && <GolpeFx key={fx.n} fx={fx} />}
+      {fx && <GolpeFx key={fx.n} fx={fx} dupla={dupla} />}
 
       {item && (
-        <div key={item.n} className={`pk-itempop ${item.grande ? "pk-itempop--grande" : ""}`} aria-hidden>
+        <div
+          key={item.n}
+          className={`pk-itempop ${item.grande ? "pk-itempop--grande" : ""}`}
+          style={!item.grande && dupla ? ({ left: centro("meu", item.slot, true)[0] } as CSSProperties) : undefined}
+          aria-hidden
+        >
           <span className="pk-itempop__raios" />
           <img src={spriteItem(item.item)} alt="" draggable={false} />
           {item.grande && (
@@ -321,13 +444,15 @@ export function Arena({
       )}
 
       {textos.map((t) => (
-        <span key={t.n} className={`pk-texto pk-texto--${t.lado}`} style={{ color: t.cor }}>
+        <span key={t.n} className={`pk-texto pk-texto--${t.lado}`} style={{ color: t.cor, ...(dupla ? { left: centro(t.lado, t.slot, true)[0] } : {}) }}>
           {t.texto}
         </span>
       ))}
 
-      {inimigo && inimigo.anim !== "some" && <Caixa lado={inimigo} meu={false} />}
-      {meu && meu.anim !== "some" && <Caixa lado={meu} meu />}
+      {slots(inimigos).map(([v, k]) => v && v.anim !== "some" && <Caixa key={`ci${k}`} lado={v} meu={false} slot={k} dupla={dupla} bolas={k === primeiroIni ? (bolasInimigo ?? undefined) : undefined} />)}
+      {slots(meus).map(([v, k]) => v && v.anim !== "some" && <Caixa key={`cm${k}`} lado={v} meu slot={k} dupla={dupla} bolas={k === primeiroMeu ? (bolasMeu ?? undefined) : undefined} />)}
+      {/* sem Pokémon meu em campo (troca, parada sem ninguém de pé): o time continua visível */}
+      {!slots(meus).some(([v]) => v && v.anim !== "some") && bolasMeu && <Pokebolas bolas={bolasMeu} className="pk-party--solta" />}
 
       {topo && <div className="pk-topo">{topo}</div>}
       <div className="pk-mensagem" aria-live="polite">
