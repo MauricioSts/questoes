@@ -101,6 +101,7 @@ export interface Encontro {
   semente: boolean; // Leech Seed
   turnos?: number; // questões já respondidas contra ele
   trocas?: number; // selvagem trocado por outro antes do 1º turno (a questão fica)
+  participantes?: string[]; // uids dos meus que estiveram em campo contra ele (dividem o XP)
   fim?: "ko" | "captura" | "fuga";
 }
 
@@ -1179,20 +1180,38 @@ function statusDoGolpe(dex: Dex, g: Golpe, e: Encontro): { status: StatusGolpe; 
 
 const comSlot = (c: Ctx, slot: Slot) => (c.q.dupla ? { slot } : {});
 
-// XP como nos jogos, no KO (e na captura, como da 6ª geração em diante): quem lutou leva tudo;
-// com Exp. Share segurado ou Exp. All ligado, os outros de pé levam metade. Cada um pela
-// fórmula com o próprio nível; Ovo da Sorte ×1,5. Na dupla, os dois em campo lutaram.
+// Anota no inimigo quem dos meus está em campo contra ele: quem entrou e saiu no meio da
+// luta continua dividindo o XP quando ele cair (como nos jogos).
+function marcarParticipantes(q: PartidaPoke) {
+  const uids = meusEmCampo(q).map((i) => q.time[i]).filter((l) => l && l.hp > 0).map((l) => l.uid);
+  for (const e of inimigosEmCampo(q)) {
+    if (!dePe(e)) continue;
+    const ja = e.participantes ?? [];
+    const novos = uids.filter((u) => !ja.includes(u));
+    if (novos.length) e.participantes = [...ja, ...novos];
+  }
+}
+
+// XP como nos jogos, no KO (e na captura, como da 6ª geração em diante): quem enfrentou o
+// inimigo e segue de pé divide o XP; com Exp. Share segurado ou Exp. All ligado, os outros
+// de pé levam metade. Cada um pela fórmula com o próprio nível; Ovo da Sorte ×1,5. Na dupla,
+// os dois em campo lutaram e cada um leva a parte cheia, salvo se mais gente passou pelo campo.
 function darXp(c: Ctx, e: Encontro, lutaram: Lutador[]) {
   const { dex, q, eventos } = c;
   const inimigo = dex.especies[e.especie];
+  const uids = new Set([...(e.participantes ?? []), ...lutaram.map((l) => l.uid)]);
+  const participantes = q.time.filter((l) => l.hp > 0 && uids.has(l.uid)).length;
+  const emCampo = Math.max(1, lutaram.filter((l) => l.hp > 0).length);
+  const fatia = participantes > emCampo ? emCampo / participantes : 1;
   for (const l of q.time) {
     if (l.hp <= 0) continue;
-    const lutou = lutaram.includes(l);
-    const parte = lutou ? 1 : q.expAll || l.item === "exp-share" ? 0.5 : 0;
+    const participou = uids.has(l.uid);
+    const share = q.expAll || l.item === "exp-share" ? 0.5 : 0;
+    const parte = participou ? Math.max(fatia, share) : share;
     if (!parte) continue;
     const xp = Math.max(1, Math.floor(xpDaVitoria(inimigo, e.nivel, nivelDe(l), e.tipo !== "selvagem") * parte * (l.item === "lucky-egg" ? 1.5 : 1)));
-    if (lutou) q.xp += xp;
-    ganharXp(dex, l, xp, eventos, limiteDaRegiao(q.regiao), q.cap, !lutou);
+    if (participou) q.xp += xp;
+    ganharXp(dex, l, xp, eventos, limiteDaRegiao(q.regiao), q.cap, !participou);
   }
 }
 
@@ -1479,6 +1498,7 @@ export function responderPoke(dex: Dex, p: PartidaPoke, o: OpcoesResposta): { pa
 
   // Meus em campo, cada um com a sua ação: crítico (a certeza; Lente de Mira / Garra Afiada de
   // vez em quando) e se está impedido de lutar direito.
+  marcarParticipantes(q);
   const lutaram = meusEmCampo(q).map((i) => q.time[i]);
   const plano = lutaram.map((l, k) => {
     const acao: Acao = k === 0 ? o.acao : (o.acao2 ?? { golpe: l.golpes[0] ?? 0 });
@@ -1599,6 +1619,7 @@ export function turnoSemQuestao(dex: Dex, p: PartidaPoke, a: AcaoLivre): { parti
     eventos.push({ tipo: "usouItem", item: a.item, uid: l.uid });
     aplicarItem(dex, l, a.item, eventos, limiteDaRegiao(q.regiao));
   } else {
+    marcarParticipantes(q);
     const slot = a.slot ?? 0;
     const campo = meusEmCampo(q);
     const sai = campo[slot];
@@ -1608,6 +1629,7 @@ export function turnoSemQuestao(dex: Dex, p: PartidaPoke, a: AcaoLivre): { parti
     else q.ativo2 = a.troca;
     eventos.push({ tipo: "trocou", slot, de: q.time[sai].uid, para: entra.uid });
   }
+  marcarParticipantes(q);
   const lutaram = meusEmCampo(q).map((i) => q.time[i]);
   inimigosEmCampo(q).forEach((ini, k) => {
     if (!dePe(ini)) return;

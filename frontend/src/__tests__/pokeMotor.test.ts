@@ -327,6 +327,27 @@ describe("XP como nos jogos", () => {
     expect(xpPor({ ...base, time: [time[0], { ...time[1], hp: 0 }], expAll: true }).b).toBeUndefined();
   });
 
+  it("quem entrou e saiu da luta divide o XP com quem derrubou", () => {
+    const base = partida(8, [], 10);
+    const time = [lutador(dex, criarMon(dex, 4, 10, "a")), lutador(dex, criarMon(dex, 7, 10, "b")), lutador(dex, criarMon(dex, 1, 10, "c"))];
+    const xps = (r: ReturnType<typeof certo>) =>
+      Object.fromEntries(r.eventos.filter((e) => e.tipo === "xp").map((e) => [(e as { uid: string }).uid, e as { valor: number; compartilhado?: boolean }]));
+    const sozinho = xps(certo({ ...base, time, atual: { ...base.atual!, hp: 1, especie: 19, nivel: 10 } }));
+    // a enfrenta, sai para b, b derruba: os dois levam metade, c (não entrou) nada
+    let p: PartidaPoke = { ...base, time, atual: { ...base.atual!, especie: 19, nivel: 10 } };
+    p = turnoSemQuestao(dex, p, { troca: 1 }).partida;
+    expect(p.atual!.participantes).toEqual(["a", "b"]);
+    const dividido = xps(certo({ ...p, atual: { ...p.atual!, hp: 1 } }));
+    expect(dividido.a.valor).toBe(Math.floor(sozinho.a.valor * 0.5));
+    expect(dividido.b.valor).toBe(Math.floor(sozinho.a.valor * 0.5));
+    expect(dividido.a.compartilhado).toBeUndefined();
+    expect(dividido.c).toBeUndefined();
+    // quem saiu e desmaiou depois não ganha nem conta na divisão
+    const caiu = xps(certo({ ...p, time: [{ ...p.time[0], hp: 0 }, ...p.time.slice(1)], atual: { ...p.atual!, hp: 1 } }));
+    expect(caiu.a).toBeUndefined();
+    expect(caiu.b.valor).toBe(sozinho.a.valor);
+  });
+
   it("treinador vale 1,5× o selvagem", () => {
     const p = partida(8, [], 20);
     const e = { ...p.atual!, hp: 1, especie: 19, nivel: 18 };
