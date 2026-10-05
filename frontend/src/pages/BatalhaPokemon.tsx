@@ -377,7 +377,6 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
         xp: prox > base ? (l.xp - base) / (prox - base) : 1,
       };
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dex]
   );
   const visDoEncontro = (e: Encontro, anim: LadoVis["anim"] = "", capturavel = false): LadoVis => {
@@ -619,7 +618,6 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
     return () => {
       cancelado = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fase, chavesEmCampo]);
 
   function perguntar(p: PartidaPoke) {
@@ -1999,20 +1997,28 @@ const dinheiroTxt = (v: number) => `₽${Math.max(0, Math.round(v)).toLocaleStri
 // Poké Mart: a loja da cidade (preços dos jogos; melhora com as insígnias).
 // Lobby: insígnia ganha desde a última visita (por região, guardada neste aparelho) surge no
 // meio da tela e voa até o lugar dela. Na primeira visita só grava o que já existe.
+const chaveInsigniaVoar = (regiao: number) => `q_poke_insignia_voar_${regiao}`;
+
 function useInsigniaNova(regiao: number, insignias: number) {
   const [voando, setVoando] = useState<number | null>(null);
   const [encaixou, setEncaixou] = useState<number | null>(null);
   useEffect(() => {
     const chave = `q_poke_insignias_vistas_${regiao}`;
     let vistas: number | null = null;
+    let marcada: number | null = null;
     try {
       const v = localStorage.getItem(chave);
       vistas = v === null ? null : Number(v);
       localStorage.setItem(chave, String(insignias));
+      // a tela de vitória marca a insígnia ganha: ela voa na volta ao lobby
+      const m = localStorage.getItem(chaveInsigniaVoar(regiao));
+      marcada = m === null ? null : Number(m);
+      localStorage.removeItem(chaveInsigniaVoar(regiao));
     } catch {
       /* sem armazenamento: sem animação */
     }
-    if (vistas !== null && insignias > vistas && insignias > 0) setVoando(insignias - 1);
+    if (marcada !== null && marcada >= 0 && marcada < insignias) setVoando(marcada);
+    else if (vistas !== null && insignias > vistas && insignias > 0) setVoando(insignias - 1);
   }, [regiao, insignias]);
   const pousou = () => {
     setEncaixou(voando);
@@ -2049,7 +2055,6 @@ function InsigniaVoando({ src, alvo, onFim }: { src: string; alvo: () => HTMLEle
     );
     a.onfinish = () => fim.current();
     return () => a.cancel();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src]);
   return createPortal(
     <>
@@ -2436,25 +2441,127 @@ function EditorItem({
   );
 }
 
+// Evolução como nos jogos: o Pokémon chama, vira silhueta branca, luzes se juntam nele, as
+// duas formas se alternam cada vez mais rápido, a tela estoura em branco e a forma nova
+// aparece com o grito dela e a musiquinha de parabéns.
+type FaseEvo = "inicio" | "brilho" | "troca" | "flash" | "fim";
+const TROCAS_EVO = [520, 470, 420, 370, 320, 280, 240, 200, 170, 145, 125, 105, 90, 75, 65, 55, 50, 45, 45, 45, 45, 45];
+
+const nomeDoGrito = (nome: string) =>
+  nome.toLowerCase().replace("♀", "f").replace("♂", "m").normalize("NFD").replace(/[^a-z0-9]/g, "");
+
+function tocarGrito(nome: string) {
+  try {
+    const a = new Audio(`https://play.pokemonshowdown.com/audio/cries/${nomeDoGrito(nome)}.mp3`);
+    a.volume = 0.5;
+    void a.play().catch(() => {});
+  } catch {
+    /* sem áudio */
+  }
+}
+
+// Jingle curto de parabéns (onda quadrada, como o som 8-bit dos jogos).
+function tocarParabens() {
+  try {
+    const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const notas: [number, number, number][] = [
+      [392, 0, 0.14], [523, 0.15, 0.14], [659, 0.3, 0.14], [784, 0.45, 0.3],
+      [659, 0.8, 0.14], [784, 0.95, 0.14], [1047, 1.1, 0.6],
+    ];
+    for (const [f, t, d] of notas) {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "square";
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, ctx.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(0.06, ctx.currentTime + t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t + d);
+      o.connect(g).connect(ctx.destination);
+      o.start(ctx.currentTime + t);
+      o.stop(ctx.currentTime + t + d + 0.05);
+    }
+    setTimeout(() => void ctx.close().catch(() => {}), 2500);
+  } catch {
+    /* sem áudio */
+  }
+}
+
 function EvolucaoPoke({ de, para, nome, onFim }: { de: number; para: number; nome: (id: number) => string; onFim: () => void }) {
-  const [pronto, setPronto] = useState(false);
+  const [fase, setFase] = useState<FaseEvo>("inicio");
+  const [novo, setNovo] = useState(false);
+  const [ritmo, setRitmo] = useState(TROCAS_EVO[0]);
   useEffect(() => {
-    const t = setTimeout(() => setPronto(true), 3300);
-    return () => clearTimeout(t);
-  }, []);
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    const em = (ms: number, f: () => void) => timers.push(setTimeout(f, ms));
+    tocarGrito(nome(de));
+    const final = () => {
+      setNovo(true);
+      setFase("fim");
+      tocarGrito(nome(para));
+      tocarParabens();
+    };
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      em(600, final);
+    } else {
+      em(1500, () => setFase("brilho"));
+      let t = 2700;
+      em(t, () => setFase("troca"));
+      TROCAS_EVO.forEach((d, k) => {
+        em(t, () => {
+          setRitmo(d);
+          setNovo(k % 2 === 0);
+        });
+        t += d;
+      });
+      em(t, () => {
+        setNovo(true);
+        setFase("flash");
+      });
+      em(t + 650, final);
+    }
+    return () => timers.forEach(clearTimeout);
+  }, [de, para]);
+  const pronto = fase === "fim";
+  const branco = fase !== "inicio" && fase !== "fim";
   return (
-    <div className="pk-evo" onClick={() => pronto && onFim()}>
+    <div className={`pk-evo pk-evo--${fase}`} onClick={() => pronto && onFim()} style={{ "--ritmo": `${ritmo}ms` } as CSSProperties}>
+      <div className="pk-evo__raios" />
       <div className="flex flex-col items-center gap-6 px-6 text-center">
         <div className="pk-evo__palco">
           <div className="pk-evo__brilho" />
-          <img className="pk-evo__de" src={spriteFrente(de)} alt="" />
-          <img className="pk-evo__para" src={spriteFrente(para)} alt="" />
+          <div className="pk-evo__orbes">
+            {Array.from({ length: 14 }, (_, k) => (
+              <i key={k} style={{ "--a": `${(k * 360) / 14}deg`, "--d": `${(k % 5) * 0.17}s` } as CSSProperties} />
+            ))}
+          </div>
+          <img className={`pk-evo__mon ${!novo ? "pk-evo__mon--vis" : ""} ${branco ? "pk-evo__mon--branco" : ""}`} src={spriteFrente(de)} alt="" />
+          <img className={`pk-evo__mon ${novo ? "pk-evo__mon--vis" : ""} ${branco ? "pk-evo__mon--branco" : ""}`} src={spriteFrente(para)} alt="" />
+          {pronto && (
+            <div className="pk-evo__estrelas">
+              {Array.from({ length: 16 }, (_, k) => (
+                <i key={k} style={{ "--a": `${(k * 360) / 16}deg`, "--r": `${90 + (k % 3) * 30}px` } as CSSProperties} />
+              ))}
+            </div>
+          )}
         </div>
-        <p className="font-display text-xl font-bold">{pronto ? `Parabéns! ${nome(de)} evoluiu para ${nome(para)}!` : `O quê? ${nome(de)} está evoluindo!`}</p>
+        <p className="pk-evo__texto font-display text-xl font-bold">
+          {pronto ? (
+            <>
+              Parabéns! <b>{nome(de)}</b> evoluiu para <b>{nome(para)}</b>!
+            </>
+          ) : (
+            <>
+              O quê? <b>{nome(de)}</b> está evoluindo!
+            </>
+          )}
+        </p>
         <button onClick={onFim} disabled={!pronto} className="btn-primary disabled:opacity-0">
           Continuar
         </button>
       </div>
+      <div className="pk-evo__flash" />
     </div>
   );
 }
@@ -3356,6 +3463,14 @@ function Fim({
   const capturados = [...partida.time, ...partida.novos].filter((m) => m.capturadoEm === partida.iniciadaEm);
   const ganhouInsignia = partida.fim === "vitoria" && partida.modo === "ginasio" && partida.ginasio !== undefined ? partida.ginasio : null;
   const campeao = partida.fim === "vitoria" && partida.modo === "liga";
+  useEffect(() => {
+    if (ganhouInsignia === null) return;
+    try {
+      localStorage.setItem(chaveInsigniaVoar(partida.regiao ?? 0), String(ganhouInsignia));
+    } catch {
+      /* sem armazenamento: sem animação */
+    }
+  }, [ganhouInsignia, partida.regiao]);
 
   async function salvar() {
     if (!activeId || !licoes.length) return;
@@ -3472,7 +3587,7 @@ function Fim({
 
       <div className="flex flex-col gap-2 sm:flex-row">
         <button onClick={onNova} className="btn-primary flex-1">
-          <RotateCcw size={16} className="mr-2 inline" /> Nova jornada
+          <MapaIcone size={16} className="mr-2 inline" /> Continuar jornada
         </button>
         <Link to="/revisar" className="flex-1 rounded-2xl border border-hair px-5 py-3 text-center font-display font-bold text-muted transition hover:text-brand-500">
           Ver a revisão espaçada

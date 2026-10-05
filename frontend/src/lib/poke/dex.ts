@@ -38,6 +38,11 @@ export const MAX_NIVEL = 100;
 // como inimigos e evoluem sem o limite de geração da região.
 export const ULTIMO_DA_JORNADA = 649;
 const acimaDoLimite = (para: number, ate: number) => para > ate && para <= ULTIMO_DA_JORNADA;
+// Fim da geração de cada número da Pokédex (Kanto, Johto, Hoenn, Sinnoh, Unova).
+const FIM_DAS_GERACOES = [151, 251, 386, 493, 649];
+// Limite de evolução de um Pokémon do jogador: a região da jornada ou a geração dele, o que
+// for maior. Um Treecko em Kanto vira Grovyle e Sceptile; um Golbat não vira Crobat.
+export const ateParaEvoluir = (id: number, ate: number) => Math.max(ate, FIM_DAS_GERACOES.find((f) => id <= f) ?? Infinity);
 export const MAX_GOLPES = 4;
 
 // ---------- tipos ----------

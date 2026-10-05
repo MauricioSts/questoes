@@ -221,15 +221,43 @@
 .pk-carta { animation: bt-carta .45s cubic-bezier(.2, .9, .3, 1.2) both; }
 
 /* evolução */
-.pk-evo { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: radial-gradient(circle, #2a2f45, #0c0d14); color: #fff; }
+.pk-evo { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle, #2a2f45, #0c0d14); color: #fff; }
+.pk-evo::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 50% 42%, #3b2a6b, #07060f 70%); opacity: 0; transition: opacity .9s ease; }
+.pk-evo--brilho::before, .pk-evo--troca::before, .pk-evo--flash::before { opacity: 1; }
+.pk-evo > * { position: relative; }
+.pk-evo__raios { position: absolute !important; left: 50%; top: 42%; width: 160vmax; height: 160vmax; translate: -50% -50%; border-radius: 50%; background: repeating-conic-gradient(from 0deg, rgba(190,170,255,.16) 0 7deg, transparent 7deg 20deg); mask: radial-gradient(circle, #000 5%, transparent 55%); opacity: 0; transition: opacity 1s ease; animation: pk-gira 14s linear infinite; pointer-events: none; }
+.pk-evo--brilho .pk-evo__raios, .pk-evo--troca .pk-evo__raios { opacity: 1; }
+.pk-evo--troca .pk-evo__raios { animation-duration: 4s; }
+.pk-evo--fim .pk-evo__raios { opacity: .6; background: repeating-conic-gradient(from 0deg, rgba(255,230,120,.2) 0 7deg, transparent 7deg 20deg); }
 .pk-evo__palco { position: relative; width: 220px; height: 220px; display: grid; place-items: center; }
-.pk-evo__palco img { position: absolute; width: 190px; image-rendering: pixelated; }
-.pk-evo__de { animation: pk-evo-de 3.2s ease-in both; }
-.pk-evo__para { animation: pk-evo-para 3.2s ease-in both; }
-@keyframes pk-evo-de { 0% { filter: none; } 15% { filter: brightness(0) invert(1); opacity: 1; } 25%, 45%, 65%, 80% { opacity: 1; transform: scale(1); } 35%, 55%, 72%, 86% { opacity: 0; transform: scale(.7); } 90%, 100% { opacity: 0; filter: brightness(0) invert(1); } }
-@keyframes pk-evo-para { 0%, 25% { opacity: 0; filter: brightness(0) invert(1); } 35%, 55%, 72%, 86% { opacity: 1; transform: scale(1.1); } 45%, 65%, 80% { opacity: 0; transform: scale(.8); } 90% { opacity: 1; filter: brightness(0) invert(1); transform: scale(1.15); } 100% { opacity: 1; filter: none; transform: scale(1); } }
-.pk-evo__brilho { position: absolute; inset: -40px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.6), transparent 65%); animation: pk-evo-brilho 3.2s ease both; }
-@keyframes pk-evo-brilho { 0%, 80% { opacity: 0; transform: scale(.5); } 90% { opacity: 1; transform: scale(1.3); } 100% { opacity: 0; transform: scale(1.6); } }
+.pk-evo__mon { position: absolute; width: 190px; image-rendering: pixelated; opacity: 0; transform: scale(.35); transition: transform calc(var(--ritmo, 400ms) * .85) ease-in-out, opacity calc(var(--ritmo, 400ms) * .5) ease, filter .8s ease; }
+.pk-evo__mon--vis { opacity: 1; transform: scale(1); }
+.pk-evo__mon--branco { filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(200,220,255,.9)) drop-shadow(0 0 24px rgba(160,140,255,.7)); }
+.pk-evo--inicio .pk-evo__mon--vis { animation: pk-evo-pula .5s ease 2; }
+.pk-evo--fim .pk-evo__mon--vis { animation: pk-evo-surge .9s cubic-bezier(.2,1.5,.4,1) both; }
+@keyframes pk-evo-pula { 0%, 100% { translate: 0 0; } 40% { translate: 0 -10px; } }
+@keyframes pk-evo-surge { 0% { transform: scale(1.25); filter: brightness(3); } 100% { transform: scale(1); filter: none; } }
+.pk-evo__brilho { position: absolute; inset: -50px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.7), rgba(170,150,255,.25) 40%, transparent 68%); opacity: 0; transform: scale(.5); transition: opacity .8s ease, transform .8s ease; }
+.pk-evo--brilho .pk-evo__brilho, .pk-evo--troca .pk-evo__brilho { opacity: .7; transform: scale(1); animation: pk-evo-pulsa var(--ritmo, 400ms) ease-in-out infinite alternate; }
+.pk-evo--fim .pk-evo__brilho { opacity: 0; transform: scale(1.8); }
+@keyframes pk-evo-pulsa { from { scale: .9; } to { scale: 1.15; } }
+/* luzes que vêm de fora e se juntam no Pokémon */
+.pk-evo__orbes { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .5s ease; }
+.pk-evo--brilho .pk-evo__orbes, .pk-evo--troca .pk-evo__orbes { opacity: 1; }
+.pk-evo__orbes i { position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -4.5px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px 3px rgba(190,200,255,.9); animation: pk-evo-orbe 1.1s var(--d) ease-in infinite; }
+.pk-evo--troca .pk-evo__orbes i { animation-duration: .6s; }
+@keyframes pk-evo-orbe { 0% { opacity: 0; transform: rotate(var(--a)) translateX(170px) scale(1.4); } 25% { opacity: 1; } 100% { opacity: 0; transform: rotate(calc(var(--a) + 70deg)) translateX(0) scale(.3); } }
+/* estouro de estrelas na forma nova */
+.pk-evo__estrelas { position: absolute; inset: 0; pointer-events: none; }
+.pk-evo__estrelas i { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px; background: #FFE066; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); filter: drop-shadow(0 0 6px #FFE066); animation: pk-evo-estrela 1.2s ease-out both; }
+@keyframes pk-evo-estrela { 0% { opacity: 1; transform: rotate(var(--a)) translateX(0) scale(.4); } 70% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--a)) translateX(var(--r)) scale(1.2) rotate(180deg); } }
+/* clarão branco */
+.pk-evo__flash { position: absolute !important; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.pk-evo--flash .pk-evo__flash { animation: pk-evo-flash .65s ease-in both; }
+.pk-evo--fim .pk-evo__flash { animation: pk-evo-flash-sai .7s ease-out both; }
+@keyframes pk-evo-flash { 0% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes pk-evo-flash-sai { 0% { opacity: 1; } 100% { opacity: 0; } }
+.pk-evo__texto { min-height: 3.5rem; text-shadow: 0 2px 0 #000; }
 
 /* ---------- itens ---------- */
 

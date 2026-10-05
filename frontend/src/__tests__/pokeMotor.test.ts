@@ -673,6 +673,22 @@ describe("regiões", () => {
     expect(r2.eventos.some((e) => e.tipo === "evolui" && e.para === 169)).toBe(true);
   });
 
+  it("inicial de outra região evolui na geração dele (Treecko vira Grovyle em Kanto)", () => {
+    const pound = dex.golpes.findIndex((g) => g[0] === "Pound");
+    const treecko = { ...criarMon(dex, 252, 16, "t"), xp: xpDoNivel(17) - 1, golpes: [pound] };
+    const base = montarPartidaPoke({ dex, time: [treecko], mochila: {}, pendentes: pend(8), novas: [], concursoId: null, modo: "rota", semente: 3 })!;
+    const r = certo({ ...base, atual: { ...base.atual!, hp: 1 } });
+    expect(r.eventos.some((e) => e.tipo === "evolui" && e.para === 253)).toBe(true);
+  });
+
+  it("evolução que ficou para trás acontece mesmo parado no level cap", () => {
+    const pound = dex.golpes.findIndex((g) => g[0] === "Pound");
+    const treecko = { ...criarMon(dex, 252, 18, "t"), xp: xpDoNivel(18), golpes: [pound] };
+    const base = montarPartidaPoke({ dex, time: [treecko], mochila: {}, pendentes: pend(8), novas: [], concursoId: null, modo: "rota", semente: 3 })!;
+    const r = certo({ ...base, cap: 18, atual: { ...base.atual!, hp: 1 } });
+    expect(r.partida.time[0].id).toBe(253);
+  });
+
   it("terreno da Safári: Mato alto só tem Planta e Inseto, inclusive na troca", () => {
     const mato = 0;
     const deBase = (id: number) => {

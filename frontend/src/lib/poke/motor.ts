@@ -38,6 +38,7 @@ import {
   atributos,
   dano,
   efetividade,
+  ateParaEvoluir,
   evolucaoPorNivel,
   evolucaoPorPedra,
   formaNoNivel,
@@ -909,6 +910,8 @@ function ganharXp(dex: Dex, l: Lutador, valor: number, eventos: Evento[], ate: n
   const teto = xpDoNivel(Math.min(MAX_NIVEL, cap));
   if (l.xp >= teto) {
     eventos.push({ tipo: "cap", uid: l.uid, nivel: Math.min(MAX_NIVEL, cap) });
+    // Já no nível de evoluir (evolução que ficou para trás): evolui mesmo parado no cap.
+    evoluirSePuder(dex, l, eventos, ate);
     return;
   }
   l.xp = Math.min(teto, somarXp(dex.especies[l.id], l.xp, valor));
@@ -921,10 +924,14 @@ function subiuPara(dex: Dex, l: Lutador, antes: number, hpAntes: number, eventos
   if (depois <= antes) return;
   eventos.push({ tipo: "nivel", uid: l.uid, nivel: depois });
   for (const g of golpesNovos(dex.especies[l.id], antes, depois)) aprender(dex, l, g, eventos);
-  const para = l.item === "everstone" ? null : evolucaoPorNivel(dex.especies[l.id], depois, ate);
-  if (para && dex.especies[para]) evoluir(dex, l, para, eventos);
+  evoluirSePuder(dex, l, eventos, ate);
   // Subir de nível aumenta o HP máximo; o HP atual sobe junto (como nos jogos).
   if (l.hp > 0) l.hp = Math.min(hpMax(dex, l), l.hp + (hpMax(dex, l) - hpAntes));
+}
+
+function evoluirSePuder(dex: Dex, l: Lutador, eventos: Evento[], ate: number) {
+  const para = l.item === "everstone" ? null : evolucaoPorNivel(dex.especies[l.id], nivelDe(l), ateParaEvoluir(l.id, ate));
+  if (para && dex.especies[para]) evoluir(dex, l, para, eventos);
 }
 
 // Com menos de 4 golpes, aprende na hora. Com 4, como nos jogos, o jogador decide qual
@@ -1828,7 +1835,7 @@ export function sortearOferta(p: PartidaPoke, dex?: Dex): PartidaPoke {
     return r;
   };
   // Pedra útil para o time, se houver.
-  const uteis = dex ? PEDRAS.filter((s) => p.time.some((l) => evolucaoPorPedra(dex.especies[l.id], s, limiteDaRegiao(p.regiao)))) : [];
+  const uteis = dex ? PEDRAS.filter((s) => p.time.some((l) => evolucaoPorPedra(dex.especies[l.id], s, ateParaEvoluir(l.id, limiteDaRegiao(p.regiao))))) : [];
   const quantos = p.time.some((l) => l.item === "amulet-coin") ? 4 : 3;
   const escolhidas: string[] = [];
   // Com alguém desmaiado, sempre há algo que ajude.
@@ -1863,7 +1870,7 @@ export function podeUsar(dex: Dex, l: Lutador, item: string, ate = Infinity, cap
   if (item in REVIVER) return l.hp <= 0;
   if (item in CURA_STATUS) return l.hp > 0 && l.status !== "" && (CURA_STATUS[item] === "*" || CURA_STATUS[item] === l.status);
   if (item === "rare-candy") return nivelDe(l) < Math.min(MAX_NIVEL, cap);
-  if (PEDRAS.includes(item)) return evolucaoPorPedra(dex.especies[l.id], item, ate) !== null;
+  if (PEDRAS.includes(item)) return evolucaoPorPedra(dex.especies[l.id], item, ateParaEvoluir(l.id, ate)) !== null;
   return false;
 }
 
@@ -1896,7 +1903,7 @@ function aplicarItem(dex: Dex, l: Lutador, item: string, eventos: Evento[], ate:
     l.xp = Math.max(l.xp, xpDoNivel(antes + 1));
     subiuPara(dex, l, antes, hpAntes, eventos, ate);
   } else {
-    const para = evolucaoPorPedra(dex.especies[l.id], item, ate);
+    const para = evolucaoPorPedra(dex.especies[l.id], item, ateParaEvoluir(l.id, ate));
     if (para) evoluir(dex, l, para, eventos);
   }
 }
