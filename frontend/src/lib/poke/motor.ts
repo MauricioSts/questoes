@@ -53,6 +53,7 @@ import {
   type Golpe,
   ULTIMO_DA_JORNADA,
 } from "./dex";
+import { indiceDaRota, sortearSelvagem, trechoDe, TRECHO_VITORIA, type Rota } from "./rotas";
 import { CURA_ITEM, CURA_STATUS, FRUTA_HP, FRUTA_RESISTE, FRUTA_STATUS, ITENS, PREMIO_CHAVE, REFORCO_DO_TIPO, REFORCO_TIPO, REVIVER, lojaDe } from "./itens";
 
 const INVESTIDA: Golpe = ["Tackle", 0, 40, 0, 0, 0, "", 0, 0];
@@ -103,6 +104,7 @@ export interface Encontro {
   turnos?: number; // questões já respondidas contra ele
   trocas?: number; // selvagem trocado por outro antes do 1º turno (a questão fica)
   participantes?: string[]; // uids dos meus que estiveram em campo contra ele (dividem o XP)
+  rota?: number; // modo história: índice da rota do trecho onde ele aparece (rotas.ts)
   fim?: "ko" | "captura" | "fuga";
 }
 
@@ -516,6 +518,16 @@ export function especieDaQuestao(dex: Dex, questaoId: number, materia: string, n
   return formaNoNivel(dex, base, nivel, ate);
 }
 
+// Pokémon de treinador do caminho: um dos que vivem na rota (como nos jogos, o Caçador de
+// Insetos da Floresta de Viridian tem Caterpie e Weedle), de preferência dos tipos da
+// matéria. A mesma questão na mesma rota é sempre o mesmo Pokémon.
+function especieDaRota(dex: Dex, rota: Rota, questaoId: number, materia: string, nivel: number, ate = Infinity): number {
+  const { tipos } = tiposDaMateria(materia);
+  const doTipo = tipos ? rota.s.filter(([id]) => dex.especies[id]?.t.some((t) => tipos.includes(t))) : [];
+  const [id] = sortearSelvagem({ nome: rota.nome, s: doTipo.length ? doTipo : rota.s }, hash(questaoId + 7919));
+  return formaNoNivel(dex, id, nivel, ate);
+}
+
 // O líder usa uma forma final forte; com o time já alto, pode ser um lendário.
 function especieDoLider(dex: Dex, questaoId: number, materia: string, nivel: number, ate = Infinity): number {
   const { tipos } = tiposDaMateria(materia);
@@ -565,6 +577,7 @@ export function montarPartidaPoke(opts: {
   possui?: string[]; // itens-chave já ganhos (não repetem como prêmio)
   dinheiro?: number; // carteira do perfil
   restantes?: number; // Caminho: treinadores que ainda faltam até o ginásio (a rota acaba neles)
+  passo?: number; // Caminho: treinadores já vencidos no trecho (em que rota o jogador está)
   ajudantesVencidos?: number; // Ginásio: ajudantes já vencidos (ficam de fora)
   tem?: number[];
   semente?: number;
@@ -654,6 +667,21 @@ export function montarPartidaPoke(opts: {
       const n = alvoCaminho + d0 + Math.floor(rolar() * (d1 - d0 + 1));
       return Math.max(2, Math.min(cap ? cap - folga : MAX_NIVEL, n));
     };
+    // As rotas do trecho, como nos jogos: cada treinador vencido anda um pedaço do caminho, e
+    // os selvagens são os da rota onde se está, na chance e no nível dos jogos.
+    const trecho = trechoDe(regiao, opts.rumo);
+    const totalTrecho = treinadoresParaGinasio(opts.rumo ?? TRECHO_VITORIA);
+    const rotaAgora = () => (trecho ? indiceDaRota(trecho, (opts.passo ?? 0) + treinadores.length, totalTrecho) : undefined);
+    const selvagemAqui = (s: Candidata): Encontro => {
+      const k = rotaAgora();
+      if (k === undefined || !trecho) {
+        const nivel = nivelCaminho(-3, -1, 3);
+        return inimigo(s, "selvagem", -1, especieDaQuestao(dex, s.questaoId, s.materia, nivel, ate), nivel);
+      }
+      const [especie, , min, max] = sortearSelvagem(trecho.rotas[k], rolar());
+      const nivel = Math.max(2, Math.min(cap ? cap - 3 : MAX_NIVEL, min + Math.floor(rolar() * (max - min + 1))));
+      return { ...inimigo(s, "selvagem", -1, especie, nivel), rota: k };
+    };
     const comErro = comuns.filter((c) => c.erros > 0 && ehRevisao.has(c.questaoId));
     const selvagens = [...comErro, ...comuns.filter((c) => !comErro.includes(c))].slice(0, nSelv);
     const outras = comuns.filter((c) => !selvagens.includes(c));
@@ -672,36 +700,36 @@ export function montarPartidaPoke(opts: {
       const { treinadores: classes } = tiposDaMateria(grupo[0].materia);
       const sprite = classes[Math.floor(rolar() * classes.length)];
       const idx = treinadores.length;
+      const k = rotaAgora();
+      const rota = k !== undefined && trecho ? trecho.rotas[k] : undefined;
+      const onde = rota ? `${rota.nome}: ` : "";
       // Batalha dupla: grupo de 2+ e time com 2+ Pokémon para pôr em campo.
       if (tam >= 2 && opts.time.length >= 2 && rolar() < CHANCE_DUPLA) {
         const [spriteD, nomeD] = DUPLAS[Math.floor(rolar() * DUPLAS.length)];
-        treinadores.push({ nome: nomeD, sprite: spriteD, lider: false, dupla: true, fala: `${nomeD} barram o caminho ${destinoHistoria(regiao, opts.rumo)}: batalha dupla!` });
+        treinadores.push({ nome: nomeD, sprite: spriteD, lider: false, dupla: true, fala: `${onde}${nomeD} barram o caminho ${destinoHistoria(regiao, opts.rumo)}: batalha dupla!` });
       } else {
         const nome = NOMES_TREINADOR[sprite] ?? "Treinador";
-        treinadores.push({ nome, sprite, lider: false, fala: `${nome} barra o caminho ${destinoHistoria(regiao, opts.rumo)}!` });
+        treinadores.push({ nome, sprite, lider: false, fala: `${onde}${nome} barra o caminho ${destinoHistoria(regiao, opts.rumo)}!` });
       }
       for (const c of grupo) {
         const nivel = nivelCaminho(-1, 1, 2);
-        fila.push(inimigo(c, "treinador", idx, especieDaQuestao(dex, c.questaoId, c.materia, nivel, ate), nivel));
+        const especie = rota ? especieDaRota(dex, rota, c.questaoId, c.materia, nivel, ate) : especieDaQuestao(dex, c.questaoId, c.materia, nivel, ate);
+        fila.push({ ...inimigo(c, "treinador", idx, especie, nivel), ...(k !== undefined ? { rota: k } : {}) });
       }
-      // um selvagem entre treinadores, quando houver
+      // um selvagem entre treinadores, quando houver (já na rota seguinte, se ela mudou)
       const s = selvagens.shift();
-      if (s) {
-        const nivel = nivelCaminho(-3, -1, 3);
-        fila.push(inimigo(s, "selvagem", -1, especieDaQuestao(dex, s.questaoId, s.materia, nivel, ate), nivel));
-      }
+      if (s) fila.push(selvagemAqui(s));
     }
     if (i < deTreinador.length) reserva = [...deTreinador.slice(i).map((c) => ({ questaoId: c.questaoId, retorno: false })), ...reserva];
-    for (const s of selvagens) {
-      const nivel = nivelCaminho(-3, -1, 3);
-      fila.push(inimigo(s, "selvagem", -1, especieDaQuestao(dex, s.questaoId, s.materia, nivel, ate), nivel));
-    }
+    for (const s of selvagens) fila.push(selvagemAqui(s));
     if (chefe) {
       const idx = treinadores.length;
+      const k = rotaAgora();
+      const onde = k !== undefined && trecho ? `${trecho.rotas[k].nome}: ` : "";
       const [sprite, nome] = CHEFES_ROTA[Math.floor(rolar() * CHEFES_ROTA.length)];
-      treinadores.push({ nome, sprite, lider: true, fala: `${nome} guarda o fim do trecho ${destinoHistoria(regiao, opts.rumo)}.` });
+      treinadores.push({ nome, sprite, lider: true, fala: `${onde}${nome} guarda o fim do trecho ${destinoHistoria(regiao, opts.rumo)}.` });
       const nivel = cap ? Math.max(2, Math.min(cap - 1, Math.max(alvoCaminho + 2, cap - 2))) : Math.min(MAX_NIVEL, base + 3);
-      fila.push(inimigo(chefe, "lider", idx, especieDoLider(dex, chefe.questaoId, chefe.materia, nivel, ate), nivel));
+      fila.push({ ...inimigo(chefe, "lider", idx, especieDoLider(dex, chefe.questaoId, chefe.materia, nivel, ate), nivel), ...(k !== undefined ? { rota: k } : {}) });
     }
   }
 
@@ -759,6 +787,24 @@ export function premiosDoGinasio(r: number, i: number, possui: string[]): string
   if (!g) return [];
   const chave = PREMIO_CHAVE[i];
   return [REFORCO_DO_TIPO(g.tipo), chave && !possui.includes(chave) ? chave : null].filter((x): x is string => !!x);
+}
+
+const regiaoAtualDaPartida = (p: PartidaPoke) => (REGIOES[p.regiao ?? 0] ? (p.regiao ?? 0) : 0);
+
+// Rota do caminho onde está o encontro (modo história), ou null.
+export function rotaDoEncontro(p: PartidaPoke, e: Encontro | null | undefined): Rota | null {
+  if (!e || e.rota === undefined || (p.modo ?? "rota") !== "rota") return null;
+  return trechoDe(regiaoAtualDaPartida(p), p.rumo)?.rotas[e.rota] ?? null;
+}
+
+// Lobby: o trecho do caminho atual e a rota em que o jogador está.
+export function rotasDoCaminho(perfil: PerfilPoke): { rotas: string[]; atual: number } | null {
+  const r = regiaoAtual(perfil);
+  const i = insigniasDe(perfil);
+  const rumo = REGIOES[r].ginasios[i] ? i : TRECHO_VITORIA;
+  const trecho = trechoDe(r, rumo);
+  if (!trecho) return null;
+  return { rotas: trecho.rotas.map((x) => x.nome), atual: indiceDaRota(trecho, historiaDe(perfil, r), treinadoresParaGinasio(rumo)) };
 }
 
 // Modo história: o caminho até o próximo ginásio (ou a Estrada Vitória, rumo à Liga).
@@ -890,7 +936,9 @@ export function trocarSelvagem(dex: Dex, p: PartidaPoke): PartidaPoke {
   if (!podeTrocarSelvagem(p)) return p;
   const e = p.atual!;
   const [r, rng] = sortear(p.rng);
-  const especie = selvagemDaRegiao(dex, regiaoDe(p.habitat ?? p.regiao).faixa, e.nivel, r, e.especie, p.modo === "safari" ? p.terreno : undefined);
+  // No caminho, o troco é outro selvagem da mesma rota (no nível dele).
+  const rota = e.rota !== undefined && p.modo !== "safari" ? trechoDe(regiaoAtualDaPartida(p), p.rumo)?.rotas[e.rota] : undefined;
+  const especie = rota ? sortearSelvagem(rota, r, (id) => id === e.especie)[0] : selvagemDaRegiao(dex, regiaoDe(p.habitat ?? p.regiao).faixa, e.nivel, r, e.especie, p.modo === "safari" ? p.terreno : undefined);
   const chaves = p.chaves + 1;
   return {
     ...p,

@@ -101,6 +101,8 @@ import {
   dinheiroDe,
   caminhoConcluido,
   faltamNoCaminho,
+  rotaDoEncontro,
+  rotasDoCaminho,
   ajudantesVencidos,
   type Slot,
   type AcaoGolpe,
@@ -459,7 +461,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
   function comecar(modo: ModoJornada, opts: { ginasio?: number; habitat?: number; terreno?: number; rumo?: number } = {}) {
     if (!pendentes || !perfil) return;
     const time = perfil.time.map((uid) => perfil.colecao.find((m) => m.uid === uid)).filter((m): m is Mon => !!m && podeLutar(perfil, m));
-    const p = montarPartidaPoke({ dex, time, mochila: perfil.mochila, pendentes, novas, concursoId: activeId ?? null, modo, regiao: regiaoAtual(perfil), cap: levelCap(perfil), insignias: insigniasDe(perfil), expAll: expAllLigado(perfil), possui: itensPossuidos(perfil), tem: [...new Set(perfil.colecao.map((m) => m.id))], dinheiro: dinheiroDe(perfil), ...(modo === "rota" && opts.rumo !== undefined ? { restantes: faltamNoCaminho(perfil) } : {}), ...(modo === "ginasio" ? { ajudantesVencidos: ajudantesVencidos(perfil) } : {}), ...opts });
+    const p = montarPartidaPoke({ dex, time, mochila: perfil.mochila, pendentes, novas, concursoId: activeId ?? null, modo, regiao: regiaoAtual(perfil), cap: levelCap(perfil), insignias: insigniasDe(perfil), expAll: expAllLigado(perfil), possui: itensPossuidos(perfil), tem: [...new Set(perfil.colecao.map((m) => m.id))], dinheiro: dinheiroDe(perfil), ...(modo === "rota" && opts.rumo !== undefined ? { restantes: faltamNoCaminho(perfil) } : {}), ...(modo === "rota" ? { passo: historiaDe(perfil) } : {}), ...(modo === "ginasio" ? { ajudantesVencidos: ajudantesVencidos(perfil) } : {}), ...opts });
     if (!p) return;
     setPartida(p);
     entrarNaLuta(p);
@@ -602,12 +604,14 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
           setIni(k, visDoEncontro(e, "saiBola"));
         }
       } else {
+        const rota = rotaDoEncontro(p, daVez);
         setMensagem(
-          daVez.retorno
+          (rota ? `${rota.nome}: ` : "") +
+          (daVez.retorno
             ? `Um ${nomeDe(daVez.especie)} selvagem apareceu: é a revanche da questão #${daVez.questaoId}!`
             : p.modo === "safari" || p.modo === "rota"
               ? `Um ${nomeDe(daVez.especie)} selvagem apareceu! Acerte e lance uma bola para capturar.`
-              : `Um ${nomeDe(daVez.especie)} selvagem apareceu!`
+              : `Um ${nomeDe(daVez.especie)} selvagem apareceu!`)
         );
         setIni(0, visDoEncontro(daVez, "surge", true));
       }
@@ -1634,7 +1638,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
                   </span>
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-faint">A seguir</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-faint">A seguir{rotaDoEncontro(partida, proximo) ? ` · ${rotaDoEncontro(partida, proximo)!.nome}` : ""}</p>
                   {proximoTreinador ? (
                     <>
                       <p className="font-bold text-brand-ink">
@@ -2897,6 +2901,8 @@ function Lobby({
   const cap = levelCap(perfil);
   const liberado = liderLiberado(perfil);
   const historia = historiaDe(perfil);
+  const caminho = rotasDoCaminho(perfil);
+  const ondeEsta = caminho ? ` Você está em: ${caminho.rotas[caminho.atual]}${caminho.atual < caminho.rotas.length - 1 ? ` (depois: ${caminho.rotas.slice(caminho.atual + 1).join(" → ")})` : ""}.` : "";
   const exigidos = proximo ? treinadoresParaGinasio(insignias) : 0;
   const slotsInsignia = useRef<(HTMLImageElement | null)[]>([]);
   const voando = useInsigniaNova(r, insignias);
@@ -3105,8 +3111,8 @@ function Lobby({
                     proximo
                       ? concluido
                         ? `Caminho concluído: você chegou a ${proximo.cidade}. O próximo caminho abre com a ${proximo.insignia}.`
-                        : `Vença ${exigidos} treinadores para enfrentar ${proximo.lider} (${historia}/${exigidos}). Selvagens no mato e um Treinador Ás no fim.`
-                      : "Treinadores e selvagens rumo à Liga Pokémon, com um Treinador Ás no fim"
+                        : `Vença ${exigidos} treinadores para enfrentar ${proximo.lider} (${historia}/${exigidos}).${ondeEsta}`
+                      : `Treinadores e selvagens rumo à Liga Pokémon, com um Treinador Ás no fim.${ondeEsta}`
                   }
                   imagem={spriteItem("poke-ball")}
                   icone={concluido ? <Lock size={16} /> : <MapaIcone size={16} />}

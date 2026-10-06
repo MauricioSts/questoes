@@ -55,8 +55,11 @@ import {
   ajudantesVencidos,
   caminhoConcluido,
   faltamNoCaminho,
+  rotaDoEncontro,
+  rotasDoCaminho,
   type PartidaPoke,
 } from "../lib/poke/motor";
+import { trechoDe } from "../lib/poke/rotas";
 
 const dex = dexJson as unknown as Dex;
 
@@ -983,4 +986,68 @@ describe("turnos como nos jogos, batalha dupla e parada", () => {
     expect(faltamNoCaminho(perfil)).toBe(0);
   });
 
+});
+
+describe("rotas do modo história", () => {
+  const pend = (n: number) => Array.from({ length: n }, (_, i) => cand(i + 1, i % 2 ? "Banco de Dados" : "Português"));
+  const montar = (regiao: number, rumo: number | undefined, passo: number, semente: number, nivel = 5) =>
+    montarPartidaPoke({ dex, time: [criarMon(dex, 4, nivel, "a"), criarMon(dex, 7, nivel, "b")], mochila: {}, pendentes: pend(14), novas: [], concursoId: null, modo: "rota", regiao, rumo, passo, semente, cap: 12 })!;
+
+  it("cada região tem 8 trechos até os ginásios e a Estrada Vitória, todos com selvagens", () => {
+    for (let r = 0; r < 5; r++)
+      for (let t = 0; t <= 8; t++) {
+        const trecho = trechoDe(r, t)!;
+        expect(trecho.rotas.length).toBeGreaterThan(0);
+        for (const rota of trecho.rotas) for (const [id] of rota.s) expect(id).toBeLessThanOrEqual([151, 251, 386, 493, 649][r]);
+      }
+  });
+
+  it("selvagem do caminho para Pewter é dos que vivem nas rotas de lá, no nível dos jogos", () => {
+    const trecho = trechoDe(0, 0)!;
+    const vistos = new Set<number>();
+    for (let semente = 1; semente < 60; semente++) {
+      const p = montar(0, 0, semente % treinadoresParaGinasio(0), semente);
+      for (const e of [...p.fila, p.atual!].filter((x) => x?.tipo === "selvagem")) {
+        expect(e.rota).toBeDefined();
+        const rota = trecho.rotas[e.rota!];
+        const linha = rota.s.find(([id]) => id === e.especie)!;
+        expect(linha).toBeDefined();
+        expect(e.nivel).toBeGreaterThanOrEqual(Math.max(2, linha[2]));
+        expect(e.nivel).toBeLessThanOrEqual(Math.min(9, linha[3]));
+        vistos.add(e.especie);
+      }
+    }
+    // Pidgey, Rattata, Caterpie, Weedle, Spearow, Mankey, Metapod, Kakuna, Pikachu...
+    expect(vistos.size).toBeGreaterThanOrEqual(5);
+    expect(vistos.has(16)).toBe(true);
+  });
+
+  it("a rota avança com os treinadores vencidos no trecho", () => {
+    const comeco = montar(0, 0, 0, 7);
+    expect(rotaDoEncontro(comeco, comeco.atual)?.nome).toBe("Rota 1");
+    const fim = montar(0, 0, treinadoresParaGinasio(0) - 1, 7);
+    expect(rotaDoEncontro(fim, fim.atual)?.nome).toBe("Floresta de Viridian");
+    const perfil = { ...perfilInicial(dex, 1), historiaPorRegiao: [3] };
+    expect(rotasDoCaminho(perfil)!.rotas[rotasDoCaminho(perfil)!.atual]).toBe("Rota 2");
+  });
+
+  it("treinador do caminho usa Pokémon da rota (Johto, Rota 29–31)", () => {
+    const nativos = new Set(trechoDe(1, 0)!.rotas.flatMap((r) => r.s.map(([id]) => id)));
+    const p = montar(1, 0, 0, 3);
+    for (const e of p.fila.filter((x) => x.tipo === "treinador")) {
+      // a espécie ou a pré-evolução dela vive na rota
+      const pre = dex.especies[e.especie].p;
+      expect(nativos.has(e.especie) || (pre !== undefined && nativos.has(pre))).toBe(true);
+    }
+  });
+
+  it("trocar o selvagem do caminho dá outro da mesma rota", () => {
+    const base = montar(0, 0, 2, 1);
+    const selv = base.fila.find((e) => e.tipo === "selvagem")!;
+    const p: PartidaPoke = { ...base, atual: selv, fila: base.fila.filter((e) => e !== selv) };
+    const rota = rotaDoEncontro(p, p.atual)!;
+    const q = trocarSelvagem(dex, p);
+    expect(q.atual!.especie).not.toBe(p.atual!.especie);
+    expect(rota.s.some(([id]) => id === q.atual!.especie)).toBe(true);
+  });
 });
