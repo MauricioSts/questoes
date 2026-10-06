@@ -43,3 +43,24 @@ export function sortearSelvagem(rota: Rota, r01: number, evitar?: (id: number) =
   for (const x of todas) if ((r -= x[1]) < 0) return x;
   return todas[todas.length - 1];
 }
+
+// Pokédex: em que rotas do modo história a espécie aparece, por região (na ordem do caminho,
+// sem repetir). Calculado uma vez.
+let onde: Map<number, { regiao: number; rotas: string[] }[]> | null = null;
+export function ondeEncontrar(id: number): { regiao: number; rotas: string[] }[] {
+  if (!onde) {
+    onde = new Map();
+    REGIOES.forEach((trechos, regiao) => {
+      for (const t of trechos)
+        for (const rota of t.rotas)
+          for (const [esp] of rota.s) {
+            const lista = onde!.get(esp) ?? [];
+            let r = lista.find((x) => x.regiao === regiao);
+            if (!r) lista.push((r = { regiao, rotas: [] }));
+            if (!r.rotas.includes(rota.nome)) r.rotas.push(rota.nome);
+            onde!.set(esp, lista);
+          }
+    });
+  }
+  return onde.get(id) ?? [];
+}

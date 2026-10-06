@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
-import { Backpack, Cloud, CloudOff, CloudUpload, Crown, Flag, Flame, HelpCircle, Lock, Map as MapaIcone, NotebookPen, Pause, Plane, RotateCcw, Shuffle, Swords, Trees, Trophy, Settings, Users, X } from "lucide-react";
+import { Backpack, BookOpen, Cloud, CloudOff, CloudUpload, Crown, Flag, Flame, HelpCircle, Lock, Map as MapaIcone, NotebookPen, Pause, Plane, RotateCcw, Shuffle, Sparkles, Swords, Trees, Trophy, Settings, Users, X } from "lucide-react";
 import type { Alternativa } from "../types/questao";
 import { getQuestao } from "../lib/questoesRepo";
 import { carregarFilaBatalha, novasPorFraqueza, type HistoricoQ } from "../lib/filaBatalha";
@@ -127,6 +127,9 @@ import { Carregando } from "../components/Spinner";
 import { Arena, Pokebolas, TEXTO_HABITAT, TipoChip, habitatDoTipo, type BolaVis, type EstadoBola, type FxVis, type ItemVis, type LadoVis, type LancaVis, type TextoVis } from "../components/poke/Arena";
 import { CHEGADA, efeitoDoGolpe, efeitoDoStatus } from "../components/poke/fx";
 import { carregarSave, criarSalvador, type EstadoSave, type SavePoke } from "../lib/poke/save";
+import { lendaPorId } from "../lib/poke/lendas";
+import { RastroLendario } from "../components/poke/RastroLendario";
+import { Pokedex } from "../components/poke/Pokedex";
 
 // Persistência: o jogo fica no servidor (lib/poke/save.ts). O sprite do jogador fica fora
 // do perfil para sobreviver ao recomeço.
@@ -171,7 +174,7 @@ interface Desfecho {
 
 // Insígnias da PokéAPI em sequência: Kanto 1–8, Johto 9–16, Hoenn 17–24, Sinnoh 25–32, Unova 33–40.
 export const insigniaImg = (i: number, regiao = 0) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/${8 * regiao + i + 1}.png`;
-const NOME_MODO: Record<ModoJornada, string> = { rota: "Caminho", ginasio: "Ginásio", safari: "Zona Safári", liga: "Liga Pokémon" };
+const NOME_MODO: Record<ModoJornada, string> = { rota: "Caminho", ginasio: "Ginásio", safari: "Zona Safári", liga: "Liga Pokémon", lendario: "Rastro Lendário" };
 
 // ---------- página ----------
 
@@ -302,6 +305,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
   const [treinadorVis, setTreinadorVis] = useState<{ sprite: string; chave: number; sai: boolean; lider?: boolean } | null>(null);
   const [transicao, setTransicao] = useState<number | null>(null);
   const [insigniaVis, setInsigniaVis] = useState<{ src: string; nome: string; n: number } | null>(null);
+  const [aparicao, setAparicao] = useState<{ n: number; cor: string } | null>(null);
   const [fx, setFx] = useState<FxVis | null>(null);
   const [textos, setTextos] = useState<TextoVis[]>([]);
   const [bolaVis, setBolaVis] = useState<BolaVis | null>(null);
@@ -397,7 +401,8 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
       enc: e.chave,
       selvagem,
       capturavel,
-      ...(selvagem ? { habitat: habitatDoTipo(dex.especies[e.especie]?.t[0]) } : {}),
+      ...(selvagem && !e.lendario ? { habitat: habitatDoTipo(dex.especies[e.especie]?.t[0]) } : {}),
+      ...(e.lendario ? { lendario: true, cor: COR_TIPO[dex.especies[e.especie]?.t[0] ?? 0] } : {}),
     };
   };
   // Pokébola voando até o lado e abrindo; o Pokémon sai dela (anim "saiBola").
@@ -458,7 +463,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
   }, [fase, hist]);
   const novas = useMemo(() => (hist ? novasPorFraqueza(hist) : []), [hist]);
 
-  function comecar(modo: ModoJornada, opts: { ginasio?: number; habitat?: number; terreno?: number; rumo?: number } = {}) {
+  function comecar(modo: ModoJornada, opts: { ginasio?: number; habitat?: number; terreno?: number; rumo?: number; lenda?: number } = {}) {
     if (!pendentes || !perfil) return;
     const time = perfil.time.map((uid) => perfil.colecao.find((m) => m.uid === uid)).filter((m): m is Mon => !!m && podeLutar(perfil, m));
     const p = montarPartidaPoke({ dex, time, mochila: perfil.mochila, pendentes, novas, concursoId: activeId ?? null, modo, regiao: regiaoAtual(perfil), cap: levelCap(perfil), insignias: insigniasDe(perfil), expAll: expAllLigado(perfil), possui: itensPossuidos(perfil), tem: [...new Set(perfil.colecao.map((m) => m.id))], dinheiro: dinheiroDe(perfil), ...(modo === "rota" && opts.rumo !== undefined ? { restantes: faltamNoCaminho(perfil) } : {}), ...(modo === "rota" ? { passo: historiaDe(perfil) } : {}), ...(modo === "ginasio" ? { ajudantesVencidos: ajudantesVencidos(perfil) } : {}), ...opts });
@@ -496,6 +501,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
     const reg = regiaoDe(partida.regiao);
     if (partida.modo === "ginasio" && partida.ginasio !== undefined) return cenario(reg.ginasios[partida.ginasio]?.tipo ?? null);
     if (partida.modo === "safari") return cenario(TERRENOS[partida.terreno ?? -1]?.tipos[0] ?? null);
+    if (partida.modo === "lendario") return cenario(lendaPorId(partida.lenda ?? -1)?.cenario ?? null);
     const t = encontro && encontro.treinador >= 0 ? partida.treinadores[encontro.treinador] : null;
     if (partida.modo === "liga") return cenario(t?.campeao ? "campeao" : (reg.elite.find((m) => m.nome === t?.nome)?.tipo ?? "campeao"));
     if (encontro && encontro.treinador >= 0) {
@@ -603,13 +609,28 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
           lancar("inimigo", k);
           setIni(k, visDoEncontro(e, "saiBola"));
         }
+      } else if (daVez.lendario) {
+        // A lenda: a terra treme, o céu escurece, a silhueta surge na aura e "acende".
+        const l = lendaPorId(daVez.especie);
+        const cor = COR_TIPO[dex.especies[daVez.especie]?.t[0] ?? 0];
+        setIni(0, null);
+        setAparicao({ n: n(), cor });
+        setMensagem(`${l?.lugar ?? "O santuário"}: o chão começa a tremer...`);
+        if (!(await passo(1700))) return;
+        setMensagem("Uma presença lendária se aproxima!");
+        setIni(0, visDoEncontro(daVez, "lenda", true));
+        tocarGrito(nomeDe(daVez.especie));
+        if (!(await passo(2300))) return;
+        setMensagem(`O lendário ${nomeDe(daVez.especie)} apareceu! Deixe-o por um fio e lance uma bola.`);
+        if (!(await passo(1400))) return;
+        setAparicao(null);
       } else {
         const rota = rotaDoEncontro(p, daVez);
         setMensagem(
           (rota ? `${rota.nome}: ` : "") +
           (daVez.retorno
             ? `Um ${nomeDe(daVez.especie)} selvagem apareceu: é a revanche da questão #${daVez.questaoId}!`
-            : p.modo === "safari" || p.modo === "rota"
+            : p.modo === "safari" || p.modo === "rota" || p.modo === "lendario"
               ? `Um ${nomeDe(daVez.especie)} selvagem apareceu! Acerte e lance uma bola para capturar.`
               : `Um ${nomeDe(daVez.especie)} selvagem apareceu!`)
         );
@@ -723,11 +744,12 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
             anim("inimigo", "dano", { hp: ev.hpInimigo }, alvo);
             texto("inimigo", ev.critico ? `CRÍTICO −${ev.dano}` : `−${ev.dano}`, ev.critico ? "#FFC857" : "#FF5A5F", alvo);
             await esperar(750);
-            if (ev.semEfeito) setMensagem(`Não afeta ${nomeIni(alvo)}... mas a resposta certa arranhou.`);
+            if (ev.firme) setMensagem(`${nomeIni(alvo)} aguentou por um fio! Agora é a hora da bola.`);
+            else if (ev.semEfeito) setMensagem(`Não afeta ${nomeIni(alvo)}... mas a resposta certa arranhou.`);
             else if (ev.efetividade >= 2) setMensagem("É super efetivo!");
             else if (ev.efetividade < 1) setMensagem("Não é muito efetivo...");
             else if (ev.critico) setMensagem("Um golpe crítico!");
-            if (ev.semEfeito || ev.efetividade !== 1 || ev.critico) await esperar(1000);
+            if (ev.firme || ev.semEfeito || ev.efetividade !== 1 || ev.critico) await esperar(ev.firme ? 1400 : 1000);
           } else await esperar(500);
           break;
         }
@@ -778,9 +800,11 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
           await esperar(850 + ev.balancos * 500);
           if (ev.sucesso) {
             await esperar(600);
-            setMensagem(`Pegou! ${nomeIni()} foi capturado!${ev.paraPc ? " O time está cheio: ele foi para o PC." : ""}`);
-            texto("inimigo", "CAPTURADO!", "#FFE066");
-            await esperar(1500);
+            const lendaria = !!inis[0]?.lendario;
+            setMensagem(lendaria ? `Incrível! O lendário ${nomeIni()} é seu!${ev.paraPc ? " Ele foi para o PC." : ""}` : `Pegou! ${nomeIni()} foi capturado!${ev.paraPc ? " O time está cheio: ele foi para o PC." : ""}`);
+            texto("inimigo", lendaria ? "LENDA CAPTURADA!" : "CAPTURADO!", "#FFE066");
+            if (lendaria) tocarParabens();
+            await esperar(lendaria ? 2400 : 1500);
           } else {
             await esperar(200);
             anim("inimigo", "entra");
@@ -986,8 +1010,8 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
           break;
         case "fuga":
           anim("inimigo", "foge", {}, (ev.slot ?? 0) as Slot);
-          setMensagem(`${nomeIni(ev.slot)} fugiu!`);
-          await esperar(1300);
+          setMensagem(ev.lenda ? `${nomeIni(ev.slot)} voltou para o santuário (${lendaPorId(inis[0]?.especie ?? -1)?.lugar ?? "no fim do rastro"})... O rastro continua lá: dá para tentar de novo.` : `${nomeIni(ev.slot)} fugiu!`);
+          await esperar(ev.lenda ? 2600 : 1300);
           break;
         case "treinadorVencido": {
           const t = depois.treinadores[ev.treinador];
@@ -1562,6 +1586,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
           centroCura={centroCura}
           transicao={transicao}
           insignia={insigniaVis}
+          aparicao={aparicao}
           previa={
             fase === "parada" && proximo
               ? proximoTreinador
@@ -1573,8 +1598,10 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
             <div className="flex items-start justify-between gap-2">
               <div className="flex flex-wrap gap-1.5">
                 <Chip title="Onde você está">
-                  {partida.modo === "safari" ? <Trees size={12} /> : partida.modo === "liga" ? <Crown size={12} /> : <MapaIcone size={12} />}
-                  {partida.modo === "ginasio" && partida.ginasio !== undefined
+                  {partida.modo === "safari" ? <Trees size={12} /> : partida.modo === "liga" ? <Crown size={12} /> : partida.modo === "lendario" ? <Sparkles size={12} /> : <MapaIcone size={12} />}
+                  {partida.modo === "lendario"
+                    ? `Rastro Lendário · ${lendaPorId(partida.lenda ?? -1)?.lugar ?? ""}`
+                    : partida.modo === "ginasio" && partida.ginasio !== undefined
                     ? `Ginásio de ${regiaoDe(partida.regiao).ginasios[partida.ginasio].cidade}`
                     : partida.modo === "safari" || partida.modo === "liga"
                       ? `${NOME_MODO[partida.modo]} · ${regiaoDe(partida.habitat ?? partida.regiao).nome}${partida.modo === "safari" && partida.terreno !== undefined ? ` · ${TERRENOS[partida.terreno]?.nome}` : ""}`
@@ -1620,7 +1647,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
           <div className="space-y-4 p-4 sm:p-6">
             <div>
               <p className="font-display text-xl font-bold text-brand-ink">
-                {partida.parada.curadoAuto ? "Diante do líder" : partida.parada.loja ? (partida.modo === "liga" ? "Platô Indigo" : `Cidade de ${regiaoDe(partida.regiao).ginasios[partida.ginasio ?? 0]?.cidade ?? ""}`) : "Pausa no caminho"}
+                {partida.parada.curadoAuto ? "Diante do líder" : partida.parada.loja ? (partida.modo === "lendario" ? `Rastro Lendário · ${lendaPorId(partida.lenda ?? -1)?.lugar ?? ""}` : partida.modo === "liga" ? "Platô Indigo" : `Cidade de ${regiaoDe(partida.regiao).ginasios[partida.ginasio ?? 0]?.cidade ?? ""}`) : "Pausa no caminho"}
               </p>
               <p className="text-sm text-muted">
                 {partida.parada.curadoAuto ? "Seu time foi curado por completo. " : ""}Organize o time e use itens antes de seguir: aqui nada gasta a vez.{" "}
@@ -1632,6 +1659,10 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
               <div className="pk-carta flex items-center gap-3 rounded-2xl border border-hair bg-surface2 p-3">
                 {proximoTreinador ? (
                   <img src={spriteTreinador(proximoTreinador.sprite)} alt="" className="pk-mini h-16 w-16 shrink-0" style={{ filter: "brightness(.35) saturate(.4)" }} />
+                ) : proximo.lendario ? (
+                  <span className="pk-previa-lenda" style={{ "--aura": COR_TIPO[dex.especies[proximo.especie]?.t[0] ?? 0] } as CSSProperties}>
+                    <img src={spriteEstatico(proximo.especie)} alt="" />
+                  </span>
                 ) : (
                   <span className="grid h-16 w-16 shrink-0 place-items-center rounded-xl bg-surface text-3xl" aria-hidden>
                     ?
@@ -1647,6 +1678,8 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
                       </p>
                       <Pokebolas bolas={Array.from({ length: Math.max(1, proximoTreinador.total ?? partida.fila.filter((e) => e.treinador === proximo.treinador).length + 1) }, () => "ok" as EstadoBola)} className="mt-1 text-[15px]" />
                     </>
+                  ) : proximo.lendario ? (
+                    <p className="text-sm text-brand-ink">Uma presença enorme espera no fim do rastro. Leve Ultra Balls e cure o time: a lenda não desmaia, mas bate forte.</p>
                   ) : (
                     <p className="text-sm text-brand-ink">{TEXTO_HABITAT[habitatDoTipo(dex.especies[proximo.especie]?.t[0])]} Um Pokémon selvagem vai aparecer.</p>
                   )}
@@ -1854,6 +1887,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
                                   nivel: encontro.nivel,
                                   turnos: encontro.turnos ?? 0,
                                   jaTem: (partida.tem ?? []).includes(encontro.especie),
+                                  lendario: !!encontro.lendario,
                                 }) * 100
                               )}
                               %
@@ -1862,7 +1896,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
                         </button>
                       ))}
                     </div>
-                    <p className="mt-2 text-xs text-faint">{selecionada ? "HP baixo e status (sono, veneno...) aumentam a chance." : "Escolha a alternativa antes."}</p>
+                    <p className="mt-2 text-xs text-faint">{!selecionada ? "Escolha a alternativa antes." : encontro?.lendario ? "Lenda com HP cheio quase não cai: deixe-a por um fio (ela não desmaia) e, se der, faça-a dormir." : "HP baixo e status (sono, veneno...) aumentam a chance."}</p>
                   </Gaveta>
                 )}
 
@@ -2868,6 +2902,7 @@ function Lobby({
       habitat?: number;
       terreno?: number;
       rumo?: number;
+      lenda?: number;
     },
   ) => void;
   emAndamento: PartidaPoke | null;
@@ -2947,6 +2982,7 @@ function Lobby({
   const abas: { id: AbaLobby; nome: string; icone: ReactNode }[] = [
     { id: "jornada", nome: "Jornada", icone: <MapaIcone size={15} /> },
     { id: "time", nome: `Time e PC`, icone: <Users size={15} /> },
+    { id: "pokedex", nome: "Pokédex", icone: <BookOpen size={15} /> },
     { id: "mochila", nome: "Mochila", icone: <Backpack size={15} /> },
     { id: "ajustes", nome: "Treinador e ajustes", icone: <Settings size={15} /> },
     { id: "ajuda", nome: "Como jogar", icone: <HelpCircle size={15} /> },
@@ -3161,6 +3197,7 @@ function Lobby({
                   </div>
                 </div>
               </div>
+              <RastroLendario dex={dex} perfil={perfil} nivelTime={nivelMedio(time)} disabled={!!emAndamento} onSeguir={(lenda) => onComecar("lendario", { lenda })} />
               <div className="mt-3 rounded-2xl border border-hair bg-surface2 p-3">
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                   <p className="font-display text-base font-bold text-brand-ink">{naCidade ? (proximo ? `Cidade de ${proximo.cidade}` : "Platô Indigo") : "Na estrada"}</p>
@@ -3249,6 +3286,8 @@ function Lobby({
           </div>
         </div>
       )}
+
+      {aba === "pokedex" && <Pokedex dex={dex} perfil={perfil} regiaoInicial={r} />}
 
       {aba === "mochila" && (
         <div className="card p-4 sm:p-5">
@@ -3354,6 +3393,12 @@ function Lobby({
             Campeão. Sendo Campeão, você viaja para a próxima região e escolhe um inicial de lá; o time antigo fica no PC. Na Zona Safári você escolhe a região e só aparecem selvagens; antes de
             responder, dá para trocar o selvagem por outro até {MAX_TROCAS} vezes (a questão é a mesma). Cada treinador vencido dá um item.
           </p>
+          <p>
+            <b className="text-brand-ink">Rastro Lendário:</b> com 7 insígnias (o último ginásio pela frente), as lendas da região acordam. Cada uma está no seu santuário dos jogos e a
+            equipe vilã também está atrás dela: recrutas, selvagens do lugar e um executivo no caminho, e a lenda no fim. Ela luta como chefe e nunca desmaia (fica por 1 HP): deixe-a
+            por um fio, de preferência dormindo ou paralisada, e lance a bola. Se as questões dela acabarem, ela volta ao santuário e dá para tentar de novo. As lendas míticas
+            aparecem para o Campeão. A <b className="text-brand-ink">Pokédex</b> registra quem você já viu e capturou.
+          </p>
           <p className="text-faint">Cada resposta conta na meta do dia, na ofensiva e reagenda a revisão espaçada.</p>
         </div>
       )}
@@ -3361,7 +3406,7 @@ function Lobby({
   );
 }
 
-type AbaLobby = "jornada" | "time" | "mochila" | "ajustes" | "ajuda";
+type AbaLobby = "jornada" | "time" | "pokedex" | "mochila" | "ajustes" | "ajuda";
 
 // Onde está o jogo: no servidor. Mostra quando ainda falta gravar.
 function IndicadorSave({ estado }: { estado: EstadoSave }) {
@@ -3469,6 +3514,9 @@ function Fim({
   const capturados = [...partida.time, ...partida.novos].filter((m) => m.capturadoEm === partida.iniciadaEm);
   const ganhouInsignia = partida.fim === "vitoria" && partida.modo === "ginasio" && partida.ginasio !== undefined ? partida.ginasio : null;
   const campeao = partida.fim === "vitoria" && partida.modo === "liga";
+  const lenda = partida.modo === "lendario" ? lendaPorId(partida.lenda ?? -1) : undefined;
+  const lendaPega = !!lenda && capturados.some((m) => m.id === lenda.id);
+  const lendaVista = !!lenda && perfil.vistos.includes(lenda.id);
   useEffect(() => {
     if (ganhouInsignia === null) return;
     try {
@@ -3497,7 +3545,25 @@ function Fim({
             <img key={l.uid} src={spriteFrente(l.id)} alt="" className="pk-mini h-16 w-16" style={l.hp <= 0 ? { filter: "grayscale(1)", opacity: 0.5 } : undefined} />
           ))}
         </div>
-        <p className="mt-2 font-display text-3xl font-bold text-brand-ink">{campeao ? `Campeão de ${regiao.nome}!` : titulo}</p>
+        {lenda && (
+          <div className={`pk-fim-lenda ${lendaPega ? "pk-fim-lenda--pega" : ""}`} style={{ "--aura": COR_TIPO[dex.especies[lenda.id].t[0]] } as CSSProperties}>
+            <span className="pk-fim-lenda__aura" aria-hidden />
+            <img src={lendaVista ? spriteFrente(lenda.id) : spriteEstatico(lenda.id)} alt="" style={lendaVista ? undefined : { filter: "brightness(0)" }} />
+            <p className="pk-fim-lenda__lugar">{lenda.lugar}</p>
+          </div>
+        )}
+        <p className="mt-2 font-display text-3xl font-bold text-brand-ink">
+          {campeao ? `Campeão de ${regiao.nome}!` : lenda ? (lendaPega ? `${dex.especies[lenda.id].n} é seu!` : lendaVista && partida.fim === "vitoria" ? `${dex.especies[lenda.id].n} voltou ao santuário` : titulo) : titulo}
+        </p>
+        {lenda && (
+          <p className="mx-auto mt-1 max-w-[520px] text-sm text-muted">
+            {lendaPega
+              ? `Mais uma lenda na sua coleção, e a Pokédex já registrou. Cada lenda é uma só: este rastro se fechou.`
+              : lendaVista && partida.fim === "vitoria"
+                ? "Ela escapou desta vez, mas o rastro continua aberto no lobby. Leve Ultra Balls e deixe-a por um fio antes de lançar."
+                : "O rastro continua aberto no lobby: dá para tentar de novo quando quiser."}
+          </p>
+        )}
         {ganhouInsignia !== null && (
           <div className="mt-3 flex flex-col items-center gap-1">
             <img src={insigniaImg(ganhouInsignia, partida.regiao ?? 0)} alt="" className="pk-mini h-16 w-16 object-contain" />

@@ -10,7 +10,7 @@ import type { Status } from "../../lib/poke/motor";
 import { fxSprite, type EfeitoGolpe } from "./fx";
 
 // entra: surge com brilho; saiBola: o mesmo, depois da bola abrir; surge: selvagem chegando
-export type AnimLado = "" | "entra" | "saiBola" | "surge" | "ataca" | "dano" | "desmaia" | "some" | "bola" | "foge" | "status";
+export type AnimLado = "" | "entra" | "saiBola" | "surge" | "lenda" | "ataca" | "dano" | "desmaia" | "some" | "bola" | "foge" | "status";
 export type Slot = 0 | 1;
 
 // De onde o selvagem saiu: as partículas em volta dele (folhas, bolhas, brasas...).
@@ -43,6 +43,8 @@ export interface LadoVis {
   selvagem?: boolean;
   habitat?: Habitat; // selvagem: partículas do lugar de onde saiu
   capturavel?: boolean; // selo de "já te derrubou"
+  lendario?: boolean; // a lenda do Rastro Lendário: aura e faixa dourada
+  cor?: string; // cor da aura (tipo da lenda)
   semente?: boolean; // Leech Seed
   enc?: number; // inimigo: chave do encontro que este desenho mostra
   uid?: string; // meu: o Pokémon que este desenho mostra
@@ -121,7 +123,7 @@ function Caixa({ lado, meu, slot, dupla, bolas }: { lado: LadoVis; meu: boolean;
         </span>
         <span className="shrink-0 text-[0.8em] font-bold">Nv{lado.nivel}</span>
       </div>
-      {lado.selvagem && <span className="pk-selvagem">Selvagem</span>}
+      {lado.lendario ? <span className="pk-selvagem pk-selvagem--lenda">Lendário</span> : lado.selvagem && <span className="pk-selvagem">Selvagem</span>}
       <div className="mt-0.5 flex items-center gap-1.5">
         {st ? (
           <span className="pk-status" style={{ background: st[1] }}>
@@ -163,7 +165,7 @@ function Sprite({ lado, meu, slot, dupla }: { lado: LadoVis; meu: boolean; slot:
   const src = falhou ? spriteEstatico(lado.id) : meu ? spriteCostas(lado.id) : spriteFrente(lado.id);
   const [largura, setLargura] = useState<number | null>(larguras.get(src) ?? null);
   return (
-    <div key={`${lado.id}-${lado.chave}`} className={`pk-sprite ${meu ? "pk-sprite--meu" : "pk-sprite--inimigo"} ${dupla ? `pk-s${slot}` : ""} ${lado.anim ? `pk-anim-${lado.anim}` : ""}`}>
+    <div key={`${lado.id}-${lado.chave}`} className={`pk-sprite ${meu ? "pk-sprite--meu" : "pk-sprite--inimigo"} ${dupla ? `pk-s${slot}` : ""} ${lado.anim ? `pk-anim-${lado.anim}` : ""} ${lado.lendario && !lado.anim ? "pk-lendario" : ""}`}>
       <img
         src={src}
         alt={lado.nome}
@@ -334,6 +336,7 @@ export function Arena({
   centroCura,
   transicao,
   insignia,
+  aparicao,
 }: {
   inimigos: (LadoVis | null)[]; // [slot 0, slot 1]
   meus: (LadoVis | null)[];
@@ -356,14 +359,19 @@ export function Arena({
   centroCura?: number | null; // Centro Pokémon curando o time (chave da animação)
   transicao?: number | null; // chegada de líder: a tela vira blocos de pixel (chave da animação)
   insignia?: { src: string; nome: string; n: number } | null; // insígnia ganha, no meio da arena
+  aparicao?: { n: number; cor: string } | null; // a lenda chegando: a terra treme e o céu escurece
 }) {
   const [fundoOk, setFundoOk] = useState<string | null>(null);
   const comFundo = !!fundo && fundoOk === fundo;
   const slots = (xs: (LadoVis | null)[]) => (dupla ? xs.slice(0, 2) : xs.slice(0, 1)).map((v, k) => [v, k as Slot] as const);
   const primeiroIni = slots(inimigos).find(([v]) => v && v.anim !== "some")?.[1] ?? 0;
   const primeiroMeu = slots(meus).find(([v]) => v && v.anim !== "some")?.[1] ?? 0;
+  const lenda = !dupla && inimigos[0]?.lendario && !["some", "bola", "foge", "desmaia"].includes(inimigos[0].anim) ? inimigos[0] : null;
   return (
-    <div className={`pk-arena ${comFundo ? "pk-arena--fundo" : ""} ${dupla ? "pk-arena--dupla" : ""}`} style={{ "--bioma": cor } as CSSProperties}>
+    <div
+      className={`pk-arena ${comFundo ? "pk-arena--fundo" : ""} ${dupla ? "pk-arena--dupla" : ""} ${aparicao ? "pk-arena--treme" : ""}`}
+      style={{ "--bioma": cor, ...(aparicao || lenda ? { "--aura": aparicao?.cor ?? lenda?.cor ?? "#FFD54A" } : {}) } as CSSProperties}
+    >
       <div className="pk-ceu" />
       {fundo && <img key={fundo} className="pk-fundo" src={fundo} alt="" draggable={false} onLoad={() => setFundoOk(fundo)} onError={() => setFundoOk(null)} />}
       <div className="pk-plataforma pk-plataforma--inimigo" />
@@ -382,6 +390,23 @@ export function Arena({
         />
       )}
       {jogador && <img key={jogador.chave} className="pk-jogador" src={spriteTreinador(jogador.sprite)} alt="" draggable={false} />}
+      {aparicao && (
+        <div key={aparicao.n} className="pk-aparicao" aria-hidden>
+          <i className="pk-aparicao__veu" />
+          {Array.from({ length: 14 }, (_, i) => (
+            <b key={i} style={{ "--x": `${(i * 53) % 100}%`, "--d": `${(i * 0.11).toFixed(2)}s`, "--t": `${1.1 + (i % 4) * 0.25}s` } as CSSProperties} />
+          ))}
+        </div>
+      )}
+      {lenda && (
+        <div key={`aura${lenda.enc}`} className="pk-aura" aria-hidden>
+          <i />
+          <i />
+          {Array.from({ length: 10 }, (_, i) => (
+            <b key={i} style={{ "--a": `${i * 36}deg`, "--d": `${-(i * 0.37).toFixed(2)}s` } as CSSProperties} />
+          ))}
+        </div>
+      )}
       {slots(inimigos).map(([v, k]) => v && <Sprite key={`i${k}`} lado={v} meu={false} slot={k} dupla={dupla} />)}
       {!dupla && inimigos[0]?.selvagem && inimigos[0].habitat && inimigos[0].anim !== "some" && inimigos[0].anim !== "bola" && inimigos[0].anim !== "foge" && inimigos[0].anim !== "desmaia" && (
         <HabitatFx habitat={inimigos[0].habitat} chave={inimigos[0].enc ?? 0} />

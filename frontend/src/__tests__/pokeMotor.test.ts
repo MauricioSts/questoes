@@ -57,8 +57,13 @@ import {
   faltamNoCaminho,
   rotaDoEncontro,
   rotasDoCaminho,
+  lendaCapturada,
+  lendaLiberada,
+  rastroLiberado,
+  capturadosDex,
   type PartidaPoke,
 } from "../lib/poke/motor";
+import { LENDAS } from "../lib/poke/lendas";
 import { trechoDe } from "../lib/poke/rotas";
 
 const dex = dexJson as unknown as Dex;
@@ -1049,5 +1054,108 @@ describe("rotas do modo história", () => {
     const q = trocarSelvagem(dex, p);
     expect(q.atual!.especie).not.toBe(p.atual!.especie);
     expect(rota.s.some(([id]) => id === q.atual!.especie)).toBe(true);
+  });
+});
+
+describe("Rastro Lendário", () => {
+  const pend = (n: number) => Array.from({ length: n }, (_, i) => cand(i + 1, i % 2 ? "Banco de Dados" : "Português", i === 3 ? { erros: 4 } : {}));
+  const montarLenda = (lenda: number, nivel = 45, regiao = 0) => {
+    const p = montarPartidaPoke({ dex, time: [criarMon(dex, 6, nivel, "a")], mochila: { "ultra-ball": 5 }, pendentes: pend(14), novas: pend(40).map((c) => ({ ...c, questaoId: c.questaoId + 100 })), concursoId: null, modo: "lendario", lenda, regiao, semente: 9 })!;
+    return { ...p, time: timeCheio(nivel) };
+  };
+  // anda até a lenda (vencendo tudo com acertos)
+  const ateALenda = (p0: PartidaPoke) => {
+    let p = seguirViagem(p0);
+    for (let g = 0; g < 400 && !p.fim && !p.atual?.lendario; g++) {
+      if (p.oferta) p = escolherOferta(p, p.oferta[0], dex);
+      else if (p.parada) p = seguirViagem(p);
+      else if (precisaTrocar(p)) p = trocar(p, p.time.findIndex((l) => l.hp > 0));
+      else if ((p.aprender ?? []).length) p = decidirGolpe(p, null).partida;
+      else p = avancarPoke(certo(p).partida, dex);
+    }
+    return seguirViagem(p);
+  };
+
+  it("monta recrutas, selvagens do lugar, o executivo e a lenda no fim, com a questão mais errada", () => {
+    const p = montarLenda(144);
+    expect(p.modo).toBe("lendario");
+    expect(p.lenda).toBe(144);
+    expect(p.parada?.loja).toBe(true);
+    expect(p.treinadores.map((t) => t.nome)).toEqual(["Recruta da Equipe Rocket", "Recruta da Equipe Rocket", "Proton"]);
+    const todos = [p.atual!, ...p.fila];
+    const lenda = todos.at(-1)!;
+    expect(lenda).toMatchObject({ especie: 144, tipo: "selvagem", lendario: true, questaoId: 4 });
+    expect(todos.filter((e) => e.tipo === "selvagem" && !e.lendario).length).toBe(3);
+    // Kanto: nada acima do #151 (Houndoom não entra no time do executivo)
+    expect(todos.every((e) => e.especie <= 151)).toBe(true);
+  });
+
+  it("a lenda não desmaia, não é trocada, e a bola é difícil com HP cheio", () => {
+    let p = ateALenda(montarLenda(150, 50));
+    expect(p.atual?.lendario).toBe(true);
+    expect(podeTrocarSelvagem(p)).toBe(false);
+    for (let i = 0; i < 6 && !p.fim; i++) {
+      const r = certo(p);
+      p = r.partida;
+      expect(p.atual!.fim).toBeUndefined();
+      if (precisaTrocar(p)) p = trocar(p, p.time.findIndex((l) => l.hp > 0));
+    }
+    expect(p.atual!.hp).toBe(1);
+    const e = dex.especies[150];
+    expect(chanceCaptura(e, "poke-ball", "duvida", 1, false, { lendario: true })).toBeLessThan(0.1);
+    expect(chanceCaptura(e, "ultra-ball", "duvida", 0.01, true, { lendario: true })).toBeGreaterThan(0.75);
+    expect(chanceCaptura(e, "master-ball", "duvida", 1, false, { lendario: true })).toBe(1);
+  });
+
+  it("errar contra a lenda não a faz fugir; esgotados os turnos, ela volta ao santuário", () => {
+    let p = ateALenda(montarLenda(145, 50));
+    const r = errado(p);
+    expect(r.partida.atual!.fim).toBeUndefined();
+    expect(r.partida.fila.length).toBe(0);
+    p = { ...r.partida, atual: { ...r.partida.atual!, turnos: 9 } };
+    const fim = certo(p);
+    expect(fim.eventos.some((e) => e.tipo === "fuga" && e.lenda)).toBe(true);
+    expect(avancarPoke(fim.partida, dex).fim).toBe("vitoria");
+  });
+
+  it("capturada com Master Ball entra na coleção e fecha o rastro dela", () => {
+    let p = ateALenda(montarLenda(146, 50));
+    p = { ...p, mochila: { ...p.mochila, "master-ball": 1 } };
+    const r = responderPoke(dex, p, { acertou: true, confianca: "duvida", acao: { bola: "master-ball" } });
+    expect(r.partida.atual!.fim).toBe("captura");
+    const perfil = sincronizarPerfil(perfilInicial(dex, 4, "a"), avancarPoke(r.partida, dex));
+    expect(lendaCapturada(perfil, 146)).toBe(true);
+    expect(capturadosDex(perfil).has(146)).toBe(true);
+  });
+
+  it("abre com 7 insígnias; míticas só para o Campeão; região futura nunca", () => {
+    const base = perfilInicial(dex, 4, "a");
+    const art = LENDAS.find((l) => l.id === 144)!;
+    const mew = LENDAS.find((l) => l.id === 151)!;
+    const lugia = LENDAS.find((l) => l.id === 249)!;
+    expect(lendaLiberada(base, art)).toBe(false);
+    const sete = { ...base, insigniasPorRegiao: [7, 0, 0, 0, 0] };
+    expect(rastroLiberado(sete)).toBe(true);
+    expect(lendaLiberada(sete, art)).toBe(true);
+    expect(lendaLiberada(sete, mew)).toBe(false);
+    expect(lendaLiberada({ ...sete, campeaoPorRegiao: [1, 0, 0, 0, 0] }, mew)).toBe(true);
+    expect(lendaLiberada(sete, lugia)).toBe(false);
+    // em Johto, as de Kanto continuam abertas
+    expect(lendaLiberada({ ...sete, regiao: 1, campeaoPorRegiao: [1, 0, 0, 0, 0] }, art)).toBe(true);
+  });
+
+  it("Pokédex: a forma anterior continua registrada depois de evoluir", () => {
+    const perfil = sincronizarPerfil(perfilInicial(dex, 4, "a"), montarLenda(144));
+    const evoluido = { ...perfil, colecao: perfil.colecao.map((m) => (m.uid === "a" ? { ...m, id: 5 } : m)) };
+    expect(capturadosDex(evoluido).has(4)).toBe(true);
+    expect(capturadosDex(evoluido).has(5)).toBe(true);
+  });
+
+  it("todas as lendas montam partida na própria região", () => {
+    for (const l of LENDAS) {
+      const p = montarLenda(l.id, 50, l.regiao);
+      expect(p, `lenda ${l.id}`).toBeTruthy();
+      expect([p.atual!, ...p.fila].at(-1)!.especie).toBe(l.id);
+    }
   });
 });
