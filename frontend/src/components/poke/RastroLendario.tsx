@@ -5,7 +5,7 @@
 import { useState, type CSSProperties } from "react";
 import { Lock, Sparkles } from "lucide-react";
 import { COR_TIPO, NOME_TIPO, spriteEstatico, spriteFrente, spriteTreinador, type Dex } from "../../lib/poke/dex";
-import { REGIOES, campeaoDe, insigniasDe, lendaCapturada, lendaLiberada, nivelDaLenda, regiaoAtual, type PerfilPoke } from "../../lib/poke/motor";
+import { REGIOES, insigniasDe, lendaCapturada, lendaLiberada, nivelDaLenda, regiaoAtual, type PerfilPoke } from "../../lib/poke/motor";
 import { EQUIPES, INSIGNIAS_RASTRO, LENDAS, type Lenda } from "../../lib/poke/lendas";
 
 // Estrelas fixas (posições pseudoaleatórias estáveis): o céu não muda a cada render.
@@ -95,9 +95,7 @@ function Santuario({ dex, perfil, l, nivelTime, disabled, onSeguir }: { dex: Dex
     ? "Ela já é sua. Cada lenda é uma só, como nos jogos."
     : livre
       ? null
-      : l.mitico && l.regiao === regiaoAtual(perfil) && !campeaoDe(perfil, l.regiao)
-        ? `Lenda mítica: aparece para o Campeão de ${REGIOES[l.regiao].nome}.`
-        : `Abre com ${INSIGNIAS_RASTRO} insígnias de ${REGIOES[l.regiao].nome}.`;
+      : `Abre com ${INSIGNIAS_RASTRO} insígnias de ${REGIOES[l.regiao].nome}.`;
   return (
     <div key={l.id} className="rl__santuario" style={{ "--cor": cor } as CSSProperties}>
       <div className="rl__retrato">

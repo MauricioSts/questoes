@@ -313,7 +313,7 @@ function Detalhe({
             {lenda ? (
               <p className="dx__texto">
                 Rastro Lendário de {REGIOES[lenda.regiao].nome}: <b>{lenda.lugar}</b>
-                {lenda.mitico ? " (lenda mítica, para o Campeão)" : ""}.
+                {lenda.mitico ? " (lenda mítica)" : ""}.
               </p>
             ) : onde.length ? (
               <ul className="dx__onde">

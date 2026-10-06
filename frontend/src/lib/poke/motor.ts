@@ -2116,13 +2116,12 @@ export const podeLutar = (perfil: PerfilPoke, m: Mon) => (m.regiao ?? 0) === reg
 
 // ---------- Rastro Lendário ----------
 
-// Abre antes do último ginásio da região (7 insígnias) ou sendo Campeão; as lendas míticas só
-// para o Campeão. Lendas de regiões que ficaram para trás seguem abertas.
+// Abre antes do último ginásio da região (7 insígnias) ou sendo Campeão, para lendárias e
+// míticas igual. Lendas de regiões que ficaram para trás seguem abertas.
 export const rastroLiberado = (perfil: PerfilPoke, r = regiaoAtual(perfil)) => insigniasDe(perfil, r) >= INSIGNIAS_RASTRO || campeaoDe(perfil, r) > 0;
 export function lendaLiberada(perfil: PerfilPoke, l: Lenda): boolean {
   const r = regiaoAtual(perfil);
   if (l.regiao > r) return false;
-  if (l.mitico) return campeaoDe(perfil, l.regiao) > 0 || l.regiao < r;
   return l.regiao < r || rastroLiberado(perfil, r);
 }
 // Como nos jogos, cada lenda é uma só: capturada, o rastro dela se fecha.

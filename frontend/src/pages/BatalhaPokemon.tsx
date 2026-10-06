@@ -3396,8 +3396,8 @@ function Lobby({
           <p>
             <b className="text-brand-ink">Rastro Lendário:</b> com 7 insígnias (o último ginásio pela frente), as lendas da região acordam. Cada uma está no seu santuário dos jogos e a
             equipe vilã também está atrás dela: recrutas, selvagens do lugar e um executivo no caminho, e a lenda no fim. Ela luta como chefe e nunca desmaia (fica por 1 HP): deixe-a
-            por um fio, de preferência dormindo ou paralisada, e lance a bola. Se as questões dela acabarem, ela volta ao santuário e dá para tentar de novo. As lendas míticas
-            aparecem para o Campeão. A <b className="text-brand-ink">Pokédex</b> registra quem você já viu e capturou.
+            por um fio, de preferência dormindo ou paralisada, e lance a bola. Se as questões dela acabarem, ela volta ao santuário e dá para tentar de novo. As míticas (Mew,
+            Celebi, Jirachi...) abrem junto com as outras. A <b className="text-brand-ink">Pokédex</b> registra quem você já viu e capturou.
           </p>
           <p className="text-faint">Cada resposta conta na meta do dia, na ofensiva e reagenda a revisão espaçada.</p>
         </div>

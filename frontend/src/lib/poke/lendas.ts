@@ -1,7 +1,7 @@
 // RASTRO LENDÁRIO: as lendas de cada região, cada uma no seu santuário dos jogos (Articuno nas
 // Ilhas Espuma, Lugia nas Ilhas Redemoinho, Giratina na Caverna Retorno...). O rastro abre
 // antes do último ginásio da região (7 insígnias), como nos jogos, em que os pássaros e os
-// cães lendários aparecem no fim da jornada; as lendas míticas só depois de virar Campeão.
+// cães lendários aparecem no fim da jornada. As míticas abrem junto com as outras.
 //
 // Uma caçada: a equipe vilã da região também está atrás da lenda (recrutas e um admin no
 // caminho), selvagens do lugar entre eles e, no fim, a lenda. Ela é selvagem (dá para
@@ -35,7 +35,7 @@ export interface Lenda {
   regiao: number;
   lugar: string;
   nivel: number; // nível em que aparece nos jogos
-  mitico?: boolean; // lenda mítica: só para o Campeão da região
+  mitico?: boolean; // lenda mítica (Mew, Celebi...): só muda o selo; abre junto com as outras
   lore: string;
   cenario: number | "campeao"; // tipo do cenário de batalha (dex.cenario)
   selvagens: number[]; // Pokémon que vivem no lugar
@@ -124,7 +124,7 @@ export const lendaPorId = (id: number) => LENDAS.find((l) => l.id === id);
 export const lendasDaRegiao = (r: number) => LENDAS.filter((l) => l.regiao === r);
 export const ehLenda = (id: number) => LENDAS.some((l) => l.id === id);
 
-// O rastro abre com 7 insígnias (o último ginásio pela frente); as míticas, sendo Campeão.
+// O rastro abre com 7 insígnias (o último ginásio pela frente), míticas incluídas.
 export const INSIGNIAS_RASTRO = 7;
 
 // Uma questão a mais por turno contra a lenda: até 10 turnos antes de ela voltar ao santuário.

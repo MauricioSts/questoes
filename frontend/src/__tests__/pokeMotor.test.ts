@@ -1128,7 +1128,7 @@ describe("Rastro Lendário", () => {
     expect(capturadosDex(perfil).has(146)).toBe(true);
   });
 
-  it("abre com 7 insígnias; míticas só para o Campeão; região futura nunca", () => {
+  it("abre com 7 insígnias; míticas junto; região futura nunca", () => {
     const base = perfilInicial(dex, 4, "a");
     const art = LENDAS.find((l) => l.id === 144)!;
     const mew = LENDAS.find((l) => l.id === 151)!;
@@ -1137,8 +1137,8 @@ describe("Rastro Lendário", () => {
     const sete = { ...base, insigniasPorRegiao: [7, 0, 0, 0, 0] };
     expect(rastroLiberado(sete)).toBe(true);
     expect(lendaLiberada(sete, art)).toBe(true);
-    expect(lendaLiberada(sete, mew)).toBe(false);
-    expect(lendaLiberada({ ...sete, campeaoPorRegiao: [1, 0, 0, 0, 0] }, mew)).toBe(true);
+    expect(lendaLiberada(base, mew)).toBe(false);
+    expect(lendaLiberada(sete, mew)).toBe(true);
     expect(lendaLiberada(sete, lugia)).toBe(false);
     // em Johto, as de Kanto continuam abertas
     expect(lendaLiberada({ ...sete, regiao: 1, campeaoPorRegiao: [1, 0, 0, 0, 0] }, art)).toBe(true);
