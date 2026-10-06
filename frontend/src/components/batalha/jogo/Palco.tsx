@@ -258,10 +258,6 @@ export const Palco = forwardRef<PalcoApi, Props>(function Palco({ tema, estagio,
 
 function Cenario({ tema }: { tema: Tema }) {
   switch (tema) {
-    case "aranha":
-      return <CenarioCidade />;
-    case "venom":
-      return <CenarioBeco />;
     case "cyberpunk":
       return <CenarioNeon />;
     case "fantasy":
@@ -269,101 +265,6 @@ function Cenario({ tema }: { tema: Tema }) {
     case "rose":
       return <CenarioCeu />;
   }
-}
-
-function CenarioCidade() {
-  return (
-    <g>
-      <defs>
-        <linearGradient id="cc-ceu" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#FFD89A" />
-          <stop offset="1" stopColor="#FF9B7A" />
-        </linearGradient>
-        <pattern id="cc-ret" width="10" height="10" patternUnits="userSpaceOnUse">
-          <circle cx="5" cy="5" r="1.6" fill="rgba(212,25,44,.25)" />
-        </pattern>
-      </defs>
-      <rect width="1000" height="520" fill="url(#cc-ceu)" />
-      <rect width="1000" height="520" fill="url(#cc-ret)" />
-      <circle cx="820" cy="120" r="60" fill="#FFF3C4" opacity=".85" />
-      <g className="jg-nuvem" fill="#FFF6E3" opacity=".9">
-        <ellipse cx="180" cy="90" rx="70" ry="18" />
-        <ellipse cx="230" cy="78" rx="40" ry="16" />
-      </g>
-      <g className="jg-nuvem jg-nuvem--lenta" fill="#FFF6E3" opacity=".7">
-        <ellipse cx="620" cy="60" rx="80" ry="14" />
-      </g>
-      {/* prédios ao fundo */}
-      <g fill="#1446A0" opacity=".55">
-        <path d="M0 330 V220 H60 V180 H120 V250 H170 V160 H240 V300 H290 V200 H350 V330Z" />
-        <path d="M650 330 V210 H700 V150 H770 V240 H820 V190 H880 V260 H930 V170 H1000 V330Z" />
-      </g>
-      <g fill="#D4192C" opacity=".75">
-        <path d="M330 330 V240 H380 V190 H440 V270 H500 V230 H560 V330Z" />
-        <rect x="560" y="200" width="70" height="130" />
-      </g>
-      <g fill="#FFF3C4" opacity=".8">
-        {Array.from({ length: 24 }, (_, i) => (
-          <rect key={i} x={20 + ((i * 41) % 960)} y={230 + ((i * 23) % 80)} width="8" height="10" className={i % 3 ? undefined : "jg-pisca"} style={{ animationDelay: `${i * 0.3}s` }} />
-        ))}
-      </g>
-      {/* caixa d'água */}
-      <g transform="translate(860 300)">
-        <rect x="-26" y="-50" width="52" height="46" rx="6" fill="#6B4423" stroke="#141018" strokeWidth="3" />
-        <path d="M-30 -50 L0 -72 L30 -50Z" fill="#8B5A2B" stroke="#141018" strokeWidth="3" />
-        <path d="M-20 -4 L-24 40 M20 -4 L24 40 M-22 18 H22" stroke="#141018" strokeWidth="3" />
-      </g>
-      {/* telhado */}
-      <path d="M0 360 H1000 V520 H0Z" fill="#3A2F3F" />
-      <path d="M0 360 H1000" stroke="#141018" strokeWidth="6" />
-      <path d="M0 372 H1000" stroke="#5B4C5F" strokeWidth="3" />
-      {/* teia no canto */}
-      <g fill="none" stroke="#141018" strokeWidth="1.2" opacity=".5">
-        <path d="M0 0 L140 120 M0 0 L60 160 M0 0 L170 40 M0 0 L10 170" />
-        <path d="M40 34 Q20 50 18 70 M80 70 Q44 96 36 126 M110 26 Q84 56 80 70 M150 36 Q120 90 116 100" />
-      </g>
-    </g>
-  );
-}
-
-function CenarioBeco() {
-  return (
-    <g>
-      <defs>
-        <linearGradient id="cb-ceu" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#05060A" />
-          <stop offset="1" stopColor="#1A1D2E" />
-        </linearGradient>
-        <radialGradient id="cb-lua">
-          <stop offset="0" stopColor="#DDE3FF" />
-          <stop offset=".6" stopColor="#8E9BD6" stopOpacity=".3" />
-          <stop offset="1" stopColor="#8E9BD6" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <rect width="1000" height="520" fill="url(#cb-ceu)" />
-      <circle cx="760" cy="110" r="120" fill="url(#cb-lua)" />
-      <circle cx="760" cy="110" r="42" fill="#DDE3FF" />
-      {/* paredes de tijolo nas laterais */}
-      <path d="M0 0 H150 L190 360 H0Z" fill="#12141F" />
-      <path d="M1000 0 H850 L810 360 H1000Z" fill="#12141F" />
-      <g stroke="#1E2233" strokeWidth="2">
-        {Array.from({ length: 12 }, (_, i) => (
-          <path key={i} d={`M0 ${30 + i * 28} H${150 + i * 3.2} M1000 ${30 + i * 28} H${850 - i * 3.2}`} />
-        ))}
-      </g>
-      {/* gosma escorrendo do alto */}
-      {[220, 330, 470, 610, 720].map((x, i) => (
-        <path key={x} d={`M${x - 14} 0 C${x - 14} 30 ${x - 6} 40 ${x} 60 C${x + 6} 40 ${x + 14} 30 ${x + 14} 0Z`} fill="#07080D" stroke="#3A4270" strokeWidth="1.5" className="jg-goteja" style={{ animationDelay: `${i * 0.7}s` }} />
-      ))}
-      <g className="jg-nevoa" fill="#3A4270" opacity=".25">
-        <ellipse cx="300" cy="380" rx="260" ry="30" />
-        <ellipse cx="760" cy="400" rx="220" ry="24" />
-      </g>
-      <path d="M0 360 H1000 V520 H0Z" fill="#0B0D16" />
-      <path d="M0 360 H1000" stroke="#3A4270" strokeWidth="3" />
-      <ellipse cx="500" cy="470" rx="220" ry="20" fill="#1F2438" opacity=".7" />
-    </g>
-  );
 }
 
 function CenarioNeon() {

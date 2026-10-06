@@ -47,21 +47,6 @@ export class Fx {
     return new Promise<void>((r) => setTimeout(r, dur));
   }
 
-  teia(em: P, raio = 60) {
-    const n = 10;
-    const ang = Array.from({ length: n }, (_, i) => (i / n) * Math.PI * 2);
-    const pt = (a: number, r: number) => `${(em.x + Math.cos(a) * r).toFixed(1)},${(em.y + Math.sin(a) * r).toFixed(1)}`;
-    let d = ang.map((a) => `M${em.x},${em.y} L${pt(a, raio)}`).join(" ");
-    for (const f of [0.28, 0.5, 0.72, 0.94]) {
-      d += ang.map((a, i) => `${i === 0 ? `M${pt(a, raio * f)}` : ""} Q${pt(a + Math.PI / n, raio * f * 0.82)} ${pt(ang[(i + 1) % n] + (i === n - 1 ? Math.PI * 2 : 0), raio * f)}`).join(" ");
-    }
-    const g = this.el("g");
-    this.el("path", { d, fill: "none", stroke: "#FFFBF3", "stroke-width": 4, "stroke-linecap": "round" }, g);
-    this.el("path", { d, fill: "none", stroke: TRACO, "stroke-width": 1.6, "stroke-linecap": "round" }, g);
-    this.centro(g);
-    void this.descarta(g, this.anima(g, [{ transform: "scale(.05) rotate(-80deg)", opacity: 1 }, { transform: "scale(1.08) rotate(0)", offset: 0.35 }, { transform: "scale(1)", opacity: 1, offset: 0.8 }, { opacity: 0 }], 1200, { easing: "cubic-bezier(.2,1.4,.4,1)" }));
-  }
-
   impacto(em: P, cor = "#FFC857", grande = false) {
     const g = this.el("g", { transform: `translate(${em.x} ${em.y})` });
     const inner = this.el("g", {}, g);
@@ -158,25 +143,6 @@ export class Fx {
       void this.anima(pena, [{ transform: `translate(${de.x}px,${de.y + (i - 2) * 12}px) rotate(0) scale(2)` }, { transform: `translate(${para.x}px,${para.y + (i - 2) * 8}px) rotate(540deg) scale(2)`, opacity: 0.2 }], 560, { delay: i * 70, easing: "ease-in", fill: "both" });
     }
     void this.descarta(g, new Promise((r) => setTimeout(r, 900)));
-  }
-
-  tentaculo(de: P, para: P) {
-    const d = `M${de.x},${de.y} C${de.x + 60},${de.y - 90} ${para.x - 80},${para.y - 60} ${para.x},${para.y}`;
-    const g = this.el("g");
-    for (const [cor, larg] of [["#3A4270", 16], ["#07080D", 11]] as const) {
-      const p = this.el("path", { d, fill: "none", stroke: cor, "stroke-width": larg, "stroke-linecap": "round", pathLength: 1, "stroke-dasharray": 1 }, g);
-      void this.anima(p, [{ strokeDashoffset: 1 }, { strokeDashoffset: 0, offset: 0.35 }, { strokeDashoffset: 0, offset: 0.65 }, { strokeDashoffset: -1 }], 700, { easing: "cubic-bezier(.6,0,.3,1)" });
-    }
-    void this.descarta(g, new Promise((r) => setTimeout(r, 720)));
-  }
-
-  mordida(em: P) {
-    const g = this.el("g", { transform: `translate(${em.x} ${em.y}) scale(1.4)` });
-    const cima = this.el("path", { d: "M-40 -8 C-30 -44 30 -44 40 -8 L32 -4 L26 -16 L18 -4 L10 -16 L2 -4 L-6 -16 L-14 -4 L-22 -16 L-30 -4Z", fill: "#07080D", stroke: "#fff", "stroke-width": 2.5 }, g);
-    const baixo = this.el("path", { d: "M-40 8 C-30 44 30 44 40 8 L32 4 L26 16 L18 4 L10 16 L2 4 L-6 16 L-14 4 L-22 16 L-30 4Z", fill: "#07080D", stroke: "#fff", "stroke-width": 2.5 }, g);
-    void this.anima(cima, [{ transform: "translateY(-40px)", opacity: 0 }, { transform: "translateY(4px)", opacity: 1, offset: 0.5 }, { transform: "translateY(0)", opacity: 1, offset: 0.8 }, { opacity: 0 }], 700, { easing: "cubic-bezier(.7,0,.3,1.4)" });
-    void this.anima(baixo, [{ transform: "translateY(40px)", opacity: 0 }, { transform: "translateY(-4px)", opacity: 1, offset: 0.5 }, { transform: "translateY(0)", opacity: 1, offset: 0.8 }, { opacity: 0 }], 700, { easing: "cubic-bezier(.7,0,.3,1.4)" });
-    void this.descarta(g, new Promise((r) => setTimeout(r, 720)));
   }
 
   constelacao(em: P) {

@@ -4,14 +4,11 @@
 import type { ComponentType, MouseEvent } from "react";
 import { Bird, Cpu, Mountain } from "lucide-react";
 import { TEMAS, nomeDoTema, preCarregarTransicao, proximoTema, useTheme, type Tema } from "../store/theme";
-import { SimboloAranha, SimboloVenom } from "./SimbolosHeroi";
 
 const ICONES: Record<Tema, ComponentType<{ size?: number | string; strokeWidth?: number | string }>> = {
   fantasy: Mountain,
   rose: Bird,
   cyberpunk: Cpu,
-  aranha: SimboloAranha,
-  venom: SimboloVenom,
 };
 
 // Centro do botão clicado: é de lá que a animação de entrada do tema nasce.

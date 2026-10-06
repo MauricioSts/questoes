@@ -5,24 +5,18 @@
 //               fundo Iridescence; a chave interna continua 'rose' (CSS e localStorage);
 // - 'cyberpunk' (escuro): Night City — amarelo, ciano e magenta sobre preto, fundo de
 //               pixels (Pixel Blast).
-// - 'aranha'    (claro): Homem-Aranha em página de gibi — papel jornal, retícula vermelha
-//               e azul, tinta preta, e uma teia desenhada por shader (fundos/TeiaReticula).
-// - 'venom'     (escuro): o simbionte — preto líquido com brilho azulado, branco dos olhos
-//               como acento e o carmim da língua como ponto quente (fundos/Simbionte).
 // Todo tema entra por uma animação de tela cheia (components/transicoes/Transicao<Tema>).
 // Aplica data-theme na raiz (<html>) e persiste a escolha em localStorage. Os temas
 // escuros também ligam a classe .dark para manter utilitários dark: coerentes.
 import { createContext, lazy, Suspense, useContext, useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
 import { importarChunk } from "../lib/importarChunk";
 
-export type Tema = "fantasy" | "rose" | "cyberpunk" | "aranha" | "venom";
+export type Tema = "fantasy" | "rose" | "cyberpunk";
 
 export const TEMAS: { id: Tema; nome: string; escuro: boolean }[] = [
   { id: "fantasy", nome: "Topography", escuro: true },
   { id: "rose", nome: "Lugia", escuro: false },
   { id: "cyberpunk", nome: "Cyberpunk", escuro: true },
-  { id: "aranha", nome: "Aranha", escuro: false },
-  { id: "venom", nome: "Venom", escuro: true },
 ];
 
 export const nomeDoTema = (t: Tema) => TEMAS.find((x) => x.id === t)!.nome;
@@ -47,8 +41,6 @@ const CARREGAR: Record<Tema, () => Promise<{ default: Transicao }>> = {
   fantasy: () => importarChunk(() => import("../components/transicoes/TransicaoTopography")),
   rose: () => importarChunk(() => import("../components/transicoes/TransicaoLugia")),
   cyberpunk: () => importarChunk(() => import("../components/transicoes/TransicaoCyberpunk")),
-  aranha: () => importarChunk(() => import("../components/transicoes/TransicaoAranha")),
-  venom: () => importarChunk(() => import("../components/transicoes/TransicaoVenom")),
 };
 const TRANSICOES = Object.fromEntries(
   (Object.keys(CARREGAR) as Tema[]).map((t) => [t, lazy(CARREGAR[t])])
@@ -78,13 +70,16 @@ const STORAGE_KEY = "q_tema";
 const STORAGE_KEY_ANTIGA = "q_theme";
 
 function ehTema(v: string | null): v is Tema {
-  return v === "fantasy" || v === "rose" || v === "cyberpunk" || v === "aranha" || v === "venom";
+  return v === "fantasy" || v === "rose" || v === "cyberpunk";
 }
 
 function lerSalvo(): Tema {
   try {
     const salvo = localStorage.getItem(STORAGE_KEY);
     if (ehTema(salvo)) return salvo;
+    // Os temas Aranha (claro) e Venom (escuro) saíram: cada um cai no tema mais parecido.
+    if (salvo === "aranha") return "rose";
+    if (salvo === "venom") return "fantasy";
     // Escolha feita antes dos três temas. Cadeia de nomes antigos do tema claro:
     // "light" → "neon" → "cyberpunk" → agora "rose". Qualquer outra coisa era o escuro.
     const antigo = localStorage.getItem(STORAGE_KEY_ANTIGA);

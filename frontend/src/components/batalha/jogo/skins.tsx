@@ -3,8 +3,6 @@
 // personagem virado para a direita. Contorno de nanquim em tudo: visual de gibi/jogo.
 //
 // Heróis (um por tema, 3 formas cada, evoluindo com o nível):
-// - aranha:    Aranha Novato → Aranha → Aranha-Escarlate
-// - venom:     Simbi → Simbionte → Venomorfo
 // - cyberpunk: Dave → Dave Cromado → Dave Sandevistan (edgerunner de jaqueta amarela,
 //              inspirado no protagonista de Cyberpunk: Edgerunners, sem copiar arte oficial)
 // - fantasy:   Cartógrafa Aprendiz → Cartógrafa → Atlas, a Cartomante
@@ -59,150 +57,6 @@ function Brilho({ d }: { d: string }) {
 }
 function Short({ cor, contorno = TRACO }: { cor: string; contorno?: string }) {
   return <path d="M-13,-6 L13,-6 L15,12 Q0,16 -15,12Z" fill={cor} stroke={contorno} strokeWidth="2" strokeLinejoin="round" />;
-}
-// Teia desenhada por cima de uma área (linhas finas)
-function LinhasTeia({ d }: { d: string }) {
-  return <path d={d} fill="none" stroke={TRACO} strokeWidth=".8" opacity=".55" />;
-}
-
-// ---------- ARANHA ----------
-
-function aranha(e: number): Skin {
-  const verm = e === 3 ? "#161218" : "#D4192C";
-  const azul = e === 3 ? "#D4192C" : e === 1 ? "#2B4C9B" : "#1446A0";
-  const teia = e >= 2;
-  const olhos = (
-    <g>
-      <path d="M2,-22 C8,-27 15,-24 14,-15 C11,-11 5,-12 2,-16Z" fill="#fff" stroke={TRACO} strokeWidth="2.6" />
-      <path d="M-8,-21 C-6,-25 -1,-25 0,-19 C-2,-15 -6,-15 -8,-18Z" fill="#fff" stroke={TRACO} strokeWidth="2.2" />
-    </g>
-  );
-  return {
-    esc: e === 1 ? 1.25 : e === 2 ? 1.35 : 1.42,
-    rastro: "#D4192C",
-    partes: {
-      tronco: (
-        <g>
-          <path d={troncoPath(15, 11)} fill={verm} stroke={TRACO} strokeWidth="2" />
-          {e === 1 ? (
-            <>
-              {/* moletom caseiro: capuz nas costas e bolso */}
-              <path d="M-12,-48 Q-4,-40 6,-48" fill="none" stroke={TRACO} strokeWidth="1.5" />
-              <path d="M-8,-14 H8 L6,-4 H-6Z" fill="#B3101F" stroke={TRACO} strokeWidth="1.2" />
-            </>
-          ) : (
-            <>
-              <path d="M-11,4 C-13,-16 -15,-30 -14,-40 L-8,-20 L-6,4Z M11,4 C13,-16 15,-30 14,-40 L8,-20 L6,4Z" fill={azul} />
-              {teia && <LinhasTeia d="M0,-54 V4 M-14,-44 Q0,-38 14,-44 M-15,-32 Q0,-26 15,-32 M-13,-18 Q0,-12 13,-18 M-11,-6 Q0,0 11,-6" />}
-              <g transform="translate(0,-32)">
-                <ellipse cx="0" cy="0" rx="3" ry="4.5" fill={e === 3 ? "#D4192C" : TRACO} />
-                <path d="M-3,-2 L-9,-8 M3,-2 L9,-8 M-3,1 L-10,0 M3,1 L10,0 M-3,3 L-8,9 M3,3 L8,9" stroke={e === 3 ? "#D4192C" : TRACO} strokeWidth={e === 3 ? 2 : 1.4} />
-              </g>
-            </>
-          )}
-          <Brilho d="M-8,-44 Q-2,-49 5,-47" />
-        </g>
-      ),
-      quadril: <Short cor={azul} />,
-      cabeca: (
-        <g>
-          <path d="M-4,2 L4,2 L4,-4 L-4,-4Z" fill={verm} stroke={TRACO} strokeWidth="1.5" />
-          <ellipse cx="1" cy="-15" rx="13" ry="15" fill={verm} stroke={TRACO} strokeWidth="2" />
-          {teia && <LinhasTeia d="M6,-15 L1,-30 M6,-15 L14,-26 M6,-15 L15,-8 M6,-15 L4,0 M6,-15 L-10,-4 M6,-15 L-12,-18 M-6,-26 Q2,-20 12,-22 M-11,-8 Q0,-4 10,-4" />}
-          {e === 1 && <path d="M-12,-20 Q1,-34 13,-20" fill="none" stroke="#B3101F" strokeWidth="4" />}
-          {olhos}
-          <Brilho d="M-6,-26 Q-1,-30 5,-29" />
-        </g>
-      ),
-      bracoF: (
-        <Membro L={24} a={6} b={5} cor={azul}>
-          {e === 3 && <path d="M-6,2 L-18,30 L-6,22Z" fill="rgba(20,16,24,.25)" stroke={TRACO} strokeWidth=".8" />}
-        </Membro>
-      ),
-      bracoT: <Membro L={24} a={6} b={5} cor={azul} />,
-      anteF: <Membro L={22} a={5} b={4.5} cor={verm}>{teia && <LinhasTeia d="M0,2 V20 M-5,8 H5 M-5,15 H5" />}</Membro>,
-      anteT: <Membro L={22} a={5} b={4.5} cor={verm} />,
-      maoF: <Mao cor={verm} />,
-      maoT: <Mao cor={verm} />,
-      coxaF: <Membro L={38} a={8} b={6.5} cor={azul} />,
-      coxaT: <Membro L={38} a={8} b={6.5} cor={azul} />,
-      canelaF: <Membro L={36} a={6.5} b={5} cor={e === 1 ? azul : verm}>{teia && <LinhasTeia d="M0,4 V32 M-6,12 H6 M-6,22 H6" />}</Membro>,
-      canelaT: <Membro L={36} a={6.5} b={5} cor={e === 1 ? azul : verm} />,
-      peF: <Bota cor={e === 1 ? "#E8E4DA" : verm} />,
-      peT: <Bota cor={e === 1 ? "#E8E4DA" : verm} />,
-    },
-  };
-}
-
-// ---------- VENOM ----------
-
-function venom(e: number): Skin {
-  const preto = "#0D0F18";
-  const brilho = "#5D6AA8"; // contorno azulado: preto no beco escuro sumia
-  const larg = e === 1 ? 1 : e === 2 ? 1.15 : 1.3;
-  const tentaculo = (d: string, i: number) => (
-    <path key={i} d={d} fill={preto} stroke={brilho} strokeWidth="1.4" />
-  );
-  return {
-    esc: e === 1 ? 1.2 : e === 2 ? 1.42 : 1.58,
-    onda: e >= 2 ? 14 : 0,
-    rastro: "#3A4270",
-    partes: {
-      capa:
-        e >= 2 ? (
-          <g>
-            {tentaculo("M-4,0 C-30,-10 -40,-40 -30,-58 C-34,-40 -22,-18 2,-6Z", 0)}
-            {tentaculo("M-6,6 C-40,10 -56,-6 -60,-24 C-50,-10 -30,0 -4,-2Z", 1)}
-            {e >= 3 && tentaculo("M-6,14 C-36,30 -58,24 -70,10 C-54,18 -32,18 -4,8Z", 2)}
-          </g>
-        ) : null,
-      tronco: (
-        <g transform={`scale(${larg} 1)`}>
-          <path d={troncoPath(17, 12)} fill={preto} stroke={brilho} strokeWidth="2" />
-          <path d="M-8,-44 C-4,-36 4,-36 8,-44 M-6,-30 C-2,-24 2,-24 6,-30" fill="none" stroke={brilho} strokeWidth="1.2" opacity=".8" />
-          {e >= 3 && (
-            <g transform="translate(0,-30)" fill="#F4F4FF">
-              <ellipse cx="0" cy="0" rx="4" ry="6" />
-              <path d="M-3,-3 C-10,-10 -14,-18 -12,-22 C-10,-14 -6,-8 -2,-5Z M3,-3 C10,-10 14,-18 12,-22 C10,-14 6,-8 2,-5Z M-3,3 C-10,8 -14,16 -12,22 C-10,14 -6,9 -2,6Z M3,3 C10,8 14,16 12,22 C10,14 6,9 2,6Z" />
-            </g>
-          )}
-          <Brilho d="M-9,-45 Q-2,-51 6,-48" />
-        </g>
-      ),
-      quadril: <Short cor={preto} contorno={brilho} />,
-      cabeca: (
-        <g transform={`scale(${1 + (e - 1) * 0.1})`}>
-          <ellipse cx="2" cy="-15" rx="15" ry="15.5" fill={preto} stroke={brilho} strokeWidth="2" />
-          {e >= 3 && <path d="M-10,-26 L-12,-38 L-4,-29 M4,-30 L6,-42 L10,-29" fill={preto} stroke={brilho} strokeWidth="1.4" />}
-          {/* olhos brancos angulosos */}
-          <path d="M4,-17 C8,-28 17,-28 17,-18 C14,-14 8,-13 4,-17Z" fill="#fff" />
-          <path d="M-9,-18 C-8,-27 -1,-27 1,-19 C-2,-15 -6,-15 -9,-18Z" fill="#fff" />
-          {/* boca rasgada com dentes */}
-          <path d="M-8,-9 C0,2 12,2 18,-9 C10,-4 0,-4 -8,-9Z" fill="#fff" />
-          <path d="M-7,-8 L-5,-4 L-3,-7 L-1,-2 L1,-6 L3,-1 L5,-6 L7,-1 L9,-6 L11,-2 L13,-7 L15,-4 L17,-8" fill="none" stroke={preto} strokeWidth="1.3" />
-          <path d={e >= 3 ? "M6,-3 C8,8 18,10 14,22" : "M6,-3 C8,4 12,6 10,12"} fill="none" stroke="#C3163B" strokeWidth={e >= 3 ? 4.5 : 3.5} strokeLinecap="round" />
-          <Brilho d="M-6,-27 Q0,-31 7,-29" />
-        </g>
-      ),
-      bracoF: <Membro L={24} a={7 * larg} b={6 * larg} cor={preto} contorno={brilho} />,
-      bracoT: <Membro L={24} a={7 * larg} b={6 * larg} cor={preto} contorno={brilho} />,
-      anteF: <Membro L={22} a={6 * larg} b={5.5 * larg} cor={preto} contorno={brilho} />,
-      anteT: <Membro L={22} a={6 * larg} b={5.5 * larg} cor={preto} contorno={brilho} />,
-      maoF: (
-        <g>
-          <Mao cor={preto} r={6.5 * larg} contorno={brilho} />
-          {e >= 2 && <path d="M2,8 L4,14 M-1,9 L0,15 M-4,8 L-4,13" stroke="#E8E8F2" strokeWidth="1.6" strokeLinecap="round" />}
-        </g>
-      ),
-      maoT: <Mao cor={preto} r={6.5 * larg} contorno={brilho} />,
-      coxaF: <Membro L={38} a={8.5 * larg} b={7 * larg} cor={preto} contorno={brilho} />,
-      coxaT: <Membro L={38} a={8.5 * larg} b={7 * larg} cor={preto} contorno={brilho} />,
-      canelaF: <Membro L={36} a={7 * larg} b={5.5 * larg} cor={preto} contorno={brilho} />,
-      canelaT: <Membro L={36} a={7 * larg} b={5.5 * larg} cor={preto} contorno={brilho} />,
-      peF: <Bota cor={preto} sola={brilho} contorno={brilho} />,
-      peT: <Bota cor={preto} sola={brilho} contorno={brilho} />,
-    },
-  };
 }
 
 // ---------- DAVE (cyberpunk) ----------
@@ -421,10 +275,6 @@ function guardiao(e: number): Skin {
 export function skinHeroi(tema: Tema, estagio: number): Skin {
   const e = Math.min(3, Math.max(1, estagio));
   switch (tema) {
-    case "aranha":
-      return aranha(e);
-    case "venom":
-      return venom(e);
     case "cyberpunk":
       return dave(e);
     case "fantasy":
@@ -558,18 +408,6 @@ export function skinVilao(tipo: TipoQuestao, opts: { chefe: boolean; nivel: numb
 
 // Nomes das formas dos heróis (evoluem nos níveis de lib/batalha: NIVEIS_EVOLUCAO)
 export const HEROIS: Record<Tema, { formas: [string, string, string]; especies: [string, string, string]; golpeCerteza: string; golpeDuvida: string }> = {
-  aranha: {
-    formas: ["Aranha Novato", "Aranha", "Aranha-Escarlate"],
-    especies: ["herói de moletom", "amigão da vizinhança", "lenda dos gibis"],
-    golpeCerteza: "Voadora de Teia",
-    golpeDuvida: "Disparo de Teia",
-  },
-  venom: {
-    formas: ["Simbi", "Simbionte", "Venomorfo"],
-    especies: ["simbionte filhote", "gosma faminta", "predador simbionte"],
-    golpeCerteza: "Bote Simbionte",
-    golpeDuvida: "Garra Viscosa",
-  },
   cyberpunk: {
     formas: ["Dave", "Dave Cromado", "Dave Sandevistan"],
     especies: ["edgerunner novato", "braço de cromo", "rápido demais para Night City"],

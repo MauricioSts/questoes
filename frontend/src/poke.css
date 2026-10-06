@@ -585,7 +585,7 @@
 .pk-fim-lenda__aura { position: absolute; inset: 0 10px 18px; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--aura) 70%, #fff) 0%, color-mix(in srgb, var(--aura) 35%, transparent) 50%, transparent 75%); animation: pk-aura-pulsa 2.6s ease-in-out infinite; }
 .pk-fim-lenda--pega .pk-fim-lenda__aura::after { content: ""; position: absolute; inset: -8%; border-radius: 50%; background: conic-gradient(from 0deg, transparent, rgba(255, 220, 120, .55), transparent 22%, rgba(255, 220, 120, .4), transparent 48%, rgba(255, 220, 120, .55), transparent 74%); mask: radial-gradient(closest-side, transparent 45%, #000 60%, transparent 76%); animation: pk-aura-gira 7s linear infinite; }
 .pk-fim-lenda img { position: relative; height: 120px; image-rendering: pixelated; object-fit: contain; transform: scale(1.35); transform-origin: 50% 100%; margin-bottom: 26px; filter: drop-shadow(0 0 10px var(--aura)); animation: pk-flutua 3.2s ease-in-out infinite; }
-.pk-fim-lenda__lugar { position: absolute; bottom: 0; font-family: 'Cinzel', serif; font-weight: 600; font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: rgb(var(--muted)); }
+.pk-fim-lenda__lugar { position: absolute; bottom: 0; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: rgb(var(--faint)); }
 
 /* ================= POKÉDEX (components/poke/Pokedex.tsx) =================
    O aparelho vermelho com a lente azul e os LEDs, e telas de LCD verde. Paleta própria. */
@@ -721,69 +721,53 @@
 .dx__meus span { padding: 1px 8px; border-radius: 6px; background: rgba(94,240,168,.1); font-size: 11px; }
 
 /* ================= RASTRO LENDÁRIO no lobby (components/poke/RastroLendario.tsx) =================
-   Céu noturno com estrelas, lendas como medalhões, o santuário escolhido em destaque.
-   Cinzel nos títulos e Cormorant na lenda contada: tom de mito. Paleta própria. */
-.rl {
-  position: relative; isolation: isolate; overflow: hidden; margin-top: 12px; padding: 18px; border-radius: 24px;
-  background: radial-gradient(120% 80% at 85% -10%, #3d2b86 0%, transparent 58%), radial-gradient(90% 70% at -10% 110%, #0f4064 0%, transparent 62%), linear-gradient(180deg, #0b0922, #120c2c);
-  color: #efe9ff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.07), 0 16px 40px rgba(12,6,40,.35);
-}
-.rl::before { content: ""; position: absolute; inset: -40% -10% auto; height: 70%; z-index: -1; background: linear-gradient(100deg, transparent 20%, rgba(94,240,200,.16) 35%, rgba(160,110,255,.2) 50%, transparent 68%); filter: blur(30px); animation: rl-aurora 14s ease-in-out infinite alternate; }
-@keyframes rl-aurora { to { transform: translateX(18%) skewY(-4deg); opacity: .7; } }
-.rl__ceu { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.rl__ceu i { position: absolute; width: calc(2px * var(--s)); height: calc(2px * var(--s)); border-radius: 50%; background: #fff; box-shadow: 0 0 4px #fff; opacity: .5; animation: rl-brilha 3.6s ease-in-out var(--d) infinite; }
-@keyframes rl-brilha { 50% { opacity: 1; transform: scale(1.5); } }
+   Segue o tema: o painel é um .card e as cores saem dos tokens (superfícies, linhas, texto,
+   acento, fonte display). Só a aura de cada lenda usa a cor do tipo dela (--cor). */
+.rl { position: relative; margin-top: 12px; }
 .rl__cab { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.rl__sobre { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: #f5c851; }
-.rl__titulo { margin-top: 2px; font-family: 'Cinzel', serif; font-weight: 600; font-size: clamp(24px, 4vw, 32px); letter-spacing: .06em; line-height: 1.05; background: linear-gradient(180deg, #fff6d6 10%, #f5c851 60%, #c98a14); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 8px rgba(245,200,81,.25)); }
-.rl__sub { margin-top: 6px; max-width: 560px; font-size: 13px; line-height: 1.5; color: #cbc3ea; }
-.rl__placar { display: flex; align-items: baseline; gap: 2px; font-family: 'Cinzel', serif; color: #f5c851; }
-.rl__placar b { font-size: 36px; font-weight: 600; line-height: 1; }
-.rl__placar span { font-size: 18px; color: #a79fcb; }
-.rl__placar small { margin-left: 6px; font-family: inherit; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: #a79fcb; }
+.rl__sobre { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: rgb(var(--faint)); }
+.rl__sobre svg { color: var(--accent); }
+.rl__titulo { margin-top: 2px; font-family: var(--display); font-weight: var(--displayWeight); font-size: clamp(22px, 3.6vw, 28px); line-height: 1.1; color: rgb(var(--ink)); }
+.rl__sub { margin-top: 4px; max-width: 580px; font-size: 13px; line-height: 1.5; color: rgb(var(--muted)); }
+.rl__placar { display: flex; align-items: baseline; gap: 2px; font-family: var(--display); color: rgb(var(--ink)); }
+.rl__placar b { font-size: 30px; font-weight: var(--displayWeight); line-height: 1; }
+.rl__placar span { font-size: 16px; color: rgb(var(--faint)); }
+.rl__placar small { margin-left: 6px; font-family: inherit; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: rgb(var(--faint)); }
 
-.rl__medalhoes { display: flex; gap: 8px; margin: 16px -18px 0; padding: 6px 18px 10px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin; scrollbar-color: rgba(245,200,81,.35) transparent; }
-.rl__med { position: relative; display: flex; flex: 0 0 auto; width: 80px; flex-direction: column; align-items: center; gap: 4px; padding: 4px 2px; scroll-snap-align: start; border-radius: 14px; transition: transform .2s; animation: rl-surge .5s cubic-bezier(.2,.9,.3,1) calc(var(--i) * 45ms) both; }
-@keyframes rl-surge { from { opacity: 0; transform: translateY(10px) scale(.9); } }
-.rl__med--quebra { margin-left: 18px; }
-.rl__med--quebra::before { content: ""; position: absolute; left: -13px; top: 12%; bottom: 20%; width: 1px; background: linear-gradient(transparent, rgba(255,255,255,.25), transparent); }
-.rl__disco { position: relative; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--cor) 38%, transparent), #120f2b 92%); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--cor) 55%, rgba(255,255,255,.2)), 0 0 18px color-mix(in srgb, var(--cor) 30%, transparent); transition: box-shadow .25s, transform .25s; }
-.rl__disco img { width: 58px; height: 58px; image-rendering: pixelated; object-fit: contain; }
-.rl__med:hover .rl__disco { transform: translateY(-3px); }
-.rl__med--sel .rl__disco { transform: translateY(-3px) scale(1.08); box-shadow: inset 0 0 0 2px #ffe08a, 0 0 0 3px rgba(245,200,81,.35), 0 0 26px color-mix(in srgb, var(--cor) 60%, transparent); }
-.rl__med--trancada .rl__disco { filter: grayscale(.7) brightness(.7); }
-.rl__check { position: absolute; right: -2px; bottom: -2px; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 12px; font-style: normal; font-weight: 900; color: #3a2600; background: linear-gradient(135deg, #fff1b0, #f5b82e); box-shadow: 0 0 0 2px #120c2c, 0 0 10px rgba(245,200,81,.7); }
-.rl__cadeado { position: absolute; right: 0; bottom: 0; padding: 3px; box-sizing: content-box; border-radius: 50%; background: #120c2c; color: #a79fcb; }
-.rl__nome { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 700; color: #efe9ff; }
-.rl__med--trancada .rl__nome { color: #8b84ad; }
-.rl__reg { margin-top: -3px; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: #8b84ad; }
-.rl__reg--mit { color: #f5c851; }
+.rl__medalhoes { display: flex; gap: 6px; margin: 14px -4px 0; padding: 6px 4px 8px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin; }
+.rl__med { position: relative; display: flex; flex: 0 0 auto; width: 78px; flex-direction: column; align-items: center; gap: 4px; padding: 4px 2px; scroll-snap-align: start; border-radius: var(--r); animation: rl-surge .45s cubic-bezier(.2,.9,.3,1) calc(var(--i) * 40ms) both; }
+@keyframes rl-surge { from { opacity: 0; transform: translateY(8px); } }
+.rl__med--quebra { margin-left: 14px; }
+.rl__med--quebra::before { content: ""; position: absolute; left: -10px; top: 14%; bottom: 22%; width: 1px; background: rgb(var(--hair)); }
+.rl__disco { position: relative; display: grid; place-items: center; width: 62px; height: 62px; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--cor) 28%, transparent), rgb(var(--surface-2)) 95%); box-shadow: inset 0 0 0 1px rgb(var(--hair)); transition: box-shadow .2s, transform .2s; }
+.rl__disco img { width: 56px; height: 56px; image-rendering: pixelated; object-fit: contain; }
+.rl__med:hover .rl__disco { transform: translateY(-2px); box-shadow: inset 0 0 0 1px rgb(var(--brand-500)); }
+.rl__med--sel .rl__disco { transform: translateY(-2px); box-shadow: inset 0 0 0 2px rgb(var(--brand-500)), 0 0 0 3px var(--accentBg); }
+.rl__med--trancada .rl__disco { filter: grayscale(.8); opacity: .55; }
+.rl__check { position: absolute; right: -2px; bottom: -2px; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 12px; font-style: normal; font-weight: 900; color: var(--onAccent); background: var(--accent); box-shadow: 0 0 0 2px rgb(var(--surface)); }
+.rl__cadeado { position: absolute; right: 0; bottom: 0; padding: 3px; box-sizing: content-box; border-radius: 50%; background: rgb(var(--surface)); color: rgb(var(--faint)); }
+.rl__nome { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 700; color: rgb(var(--ink)); }
+.rl__med--trancada .rl__nome { color: rgb(var(--faint)); }
+.rl__reg { margin-top: -3px; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: rgb(var(--faint)); }
+.rl__reg--mit { color: var(--accentText); }
 
-.rl__santuario { position: relative; display: grid; gap: 16px; margin-top: 8px; padding: 16px; border-radius: 20px; background: linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); animation: rl-abre .45s cubic-bezier(.2,.9,.3,1) both; }
-@keyframes rl-abre { from { opacity: 0; transform: translateY(8px); } }
-@media (min-width: 640px) { .rl__santuario { grid-template-columns: 200px minmax(0, 1fr); align-items: center; } }
-.rl__retrato { position: relative; display: grid; place-items: end center; height: 190px; }
-.rl__halo { position: absolute; inset: 6% 8% 12%; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--cor) 60%, #fff 8%), color-mix(in srgb, var(--cor) 25%, transparent) 55%, transparent 75%); animation: pk-aura-pulsa 3s ease-in-out infinite; }
-.rl__halo::after { content: ""; position: absolute; inset: -14%; border-radius: 50%; background: repeating-conic-gradient(from 0deg, rgba(255,255,255,.12) 0 4deg, transparent 4deg 22deg); mask: radial-gradient(closest-side, transparent 30%, #000 50%, transparent 80%); animation: pk-aura-gira 24s linear infinite; }
-.rl__retrato img { position: relative; height: 110px; margin-bottom: 22px; object-fit: contain; image-rendering: pixelated; transform: scale(1.5); transform-origin: 50% 100%; filter: drop-shadow(0 0 10px color-mix(in srgb, var(--cor) 70%, transparent)); animation: pk-flutua 3.6s ease-in-out infinite; }
-.rl__lugar { font-family: 'Cinzel', serif; font-weight: 600; font-size: 13px; letter-spacing: .22em; text-transform: uppercase; color: #f5c851; }
-.rl__lenda { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 2px; font-family: 'Cinzel', serif; font-weight: 600; font-size: 24px; color: #fff; }
-.rl__tipo { padding: 1px 8px; border-radius: 6px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.3); }
-.rl__lore { margin-top: 8px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 18px; font-style: italic; font-weight: 500; line-height: 1.35; color: #e6defc; }
-.rl__trilha { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; font-size: 12px; font-weight: 600; color: #cbc3ea; }
-.rl__trilha > span:not(.rl__seta) { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px 3px 4px; border-radius: 99px; background: rgba(255,255,255,.07); }
+.rl__santuario { position: relative; display: grid; gap: 14px; margin-top: 6px; padding: 14px; border-radius: calc(var(--r) + 4px); border: 1px solid rgb(var(--hair)); background: rgb(var(--surface-2)); animation: rl-abre .4s cubic-bezier(.2,.9,.3,1) both; }
+@keyframes rl-abre { from { opacity: 0; transform: translateY(6px); } }
+@media (min-width: 640px) { .rl__santuario { grid-template-columns: 190px minmax(0, 1fr); align-items: center; } }
+.rl__retrato { position: relative; display: grid; place-items: end center; height: 180px; }
+.rl__halo { position: absolute; inset: 8% 10% 14%; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--cor) 45%, transparent), color-mix(in srgb, var(--cor) 14%, transparent) 60%, transparent 76%); animation: pk-aura-pulsa 3s ease-in-out infinite; }
+.rl__retrato img { position: relative; height: 104px; margin-bottom: 22px; object-fit: contain; image-rendering: pixelated; transform: scale(1.5); transform-origin: 50% 100%; animation: pk-flutua 3.6s ease-in-out infinite; }
+.rl__lugar { font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: rgb(var(--faint)); }
+.rl__lenda { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 2px; font-family: var(--display); font-weight: var(--displayWeight); font-size: 22px; color: rgb(var(--ink)); }
+.rl__lore { margin-top: 6px; font-size: 14px; font-style: italic; line-height: 1.5; color: rgb(var(--muted)); }
+.rl__trilha { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; font-size: 12px; font-weight: 600; color: rgb(var(--muted)); }
+.rl__trilha > span:not(.rl__seta) { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px 3px 4px; border-radius: var(--rChip); border: 1px solid rgb(var(--hair)); background: rgb(var(--surface)); }
 .rl__trilha img { width: 26px; height: 26px; margin: -6px 0; object-fit: contain; image-rendering: pixelated; }
-.rl__seta { color: #6f679a; }
-.rl__trilha .rl__alvo { padding-left: 9px; color: #ffe08a; box-shadow: inset 0 0 0 1px rgba(245,200,81,.5); }
-.rl__botao { position: relative; display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 10px 22px; overflow: hidden; border-radius: 999px; font-family: 'Cinzel', serif; font-weight: 600; font-size: 15px; letter-spacing: .08em; color: #2e1d00; background: linear-gradient(180deg, #ffe9a3, #f5b82e 60%, #d9930f); box-shadow: 0 0 0 1px #8a5a00, 0 6px 22px rgba(245,184,46,.35), inset 0 1px 0 rgba(255,255,255,.6); transition: transform .15s, box-shadow .15s; }
-.rl__botao::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.7) 50%, transparent 65%); transform: translateX(-120%); animation: rl-brilho 3.2s ease-in-out infinite; }
-@keyframes rl-brilho { 55%, 100% { transform: translateX(120%); } }
-.rl__botao:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px #8a5a00, 0 10px 28px rgba(245,184,46,.5), inset 0 1px 0 rgba(255,255,255,.6); }
-.rl__botao:disabled { opacity: .45; transform: none; cursor: not-allowed; }
-.rl__botao:disabled::after { display: none; }
-.rl__motivo { margin-top: 12px; font-size: 13px; color: #cbc3ea; }
-.rl--fechado .rl__medalhoes { opacity: .8; }
+.rl__seta { color: rgb(var(--faint)); }
+.rl__trilha .rl__alvo { padding-left: 9px; color: var(--accentText); border-color: var(--accentBd); background: var(--accentBg); }
+.rl__botao { margin-top: 14px; display: inline-flex; align-items: center; gap: 8px; }
+.rl__motivo { margin-top: 12px; font-size: 13px; color: rgb(var(--muted)); }
 
 @media (prefers-reduced-motion: reduce) {
-  .rl::before, .rl__ceu i, .rl__halo, .rl__halo::after, .rl__retrato img, .rl__botao::after, .dx__lente i, .dx__leds i, .dx__palco img, .pk-fim-lenda img, .pk-fim-lenda__aura, .pk-previa-lenda img { animation: none; }
+  .rl__halo, .rl__retrato img, .dx__lente i, .dx__leds i, .dx__palco img, .pk-fim-lenda img, .pk-fim-lenda__aura, .pk-previa-lenda img { animation: none; }
 }

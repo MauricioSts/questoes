@@ -1,4 +1,4 @@
-// RASTRO LENDÁRIO no lobby: um céu noturno com as lendas da região como medalhões. Antes de
+// RASTRO LENDÁRIO no lobby: um card do tema com as lendas da região como medalhões. Antes de
 // aparecer numa luta a lenda é só silhueta; capturada, ganha o selo dourado. Escolher uma abre
 // o santuário (lugar, lenda dos jogos, quem da equipe vilã está atrás dela) e o botão de seguir
 // o rastro. As regras de quando abre estão no motor (lendaLiberada).
@@ -6,10 +6,8 @@ import { useState, type CSSProperties } from "react";
 import { Lock, Sparkles } from "lucide-react";
 import { COR_TIPO, NOME_TIPO, spriteEstatico, spriteFrente, spriteTreinador, type Dex } from "../../lib/poke/dex";
 import { REGIOES, insigniasDe, lendaCapturada, lendaLiberada, nivelDaLenda, regiaoAtual, type PerfilPoke } from "../../lib/poke/motor";
+import { TipoChip } from "./Arena";
 import { EQUIPES, INSIGNIAS_RASTRO, LENDAS, type Lenda } from "../../lib/poke/lendas";
-
-// Estrelas fixas (posições pseudoaleatórias estáveis): o céu não muda a cada render.
-const ESTRELAS = Array.from({ length: 46 }, (_, i) => ({ x: (i * 73.3) % 100, y: (i * 41.7) % 100, s: 0.6 + ((i * 7) % 5) / 4, d: ((i * 0.37) % 4).toFixed(2) }));
 
 export function RastroLendario({ dex, perfil, nivelTime, disabled, onSeguir }: { dex: Dex; perfil: PerfilPoke; nivelTime: number; disabled: boolean; onSeguir: (lenda: number) => void }) {
   const r = regiaoAtual(perfil);
@@ -24,12 +22,7 @@ export function RastroLendario({ dex, perfil, nivelTime, disabled, onSeguir }: {
   const ins = insigniasDe(perfil, r);
 
   return (
-    <section className={`rl ${aberto ? "" : "rl--fechado"}`} aria-label="Rastro Lendário">
-      <div className="rl__ceu" aria-hidden>
-        {ESTRELAS.map((e, i) => (
-          <i key={i} style={{ left: `${e.x}%`, top: `${e.y}%`, "--s": e.s, "--d": `${e.d}s` } as CSSProperties} />
-        ))}
-      </div>
+    <section className="rl card p-4 sm:p-5" aria-label="Rastro Lendário">
       <header className="rl__cab">
         <div>
           <p className="rl__sobre">
@@ -100,16 +93,14 @@ function Santuario({ dex, perfil, l, nivelTime, disabled, onSeguir }: { dex: Dex
     <div key={l.id} className="rl__santuario" style={{ "--cor": cor } as CSSProperties}>
       <div className="rl__retrato">
         <span className="rl__halo" aria-hidden />
-        <img src={vista || pega ? spriteFrente(l.id) : spriteEstatico(l.id)} alt={vista ? e.n : ""} draggable={false} style={vista || pega ? undefined : { filter: "brightness(0) drop-shadow(0 0 10px var(--cor))" }} />
+        <img src={vista || pega ? spriteFrente(l.id) : spriteEstatico(l.id)} alt={vista ? e.n : ""} draggable={false} style={vista || pega ? undefined : { filter: "brightness(0)", opacity: 0.8 }} />
       </div>
       <div className="rl__ficha">
         <p className="rl__lugar">{l.lugar}</p>
         <p className="rl__lenda">
           {e.n}
           {e.t.map((t) => (
-            <span key={t} className="rl__tipo" style={{ background: COR_TIPO[t] }}>
-              {NOME_TIPO[t]}
-            </span>
+            <TipoChip key={t} tipo={t} nome={NOME_TIPO[t]} />
           ))}
         </p>
         <p className="rl__lore">“{l.lore}”</p>
@@ -132,7 +123,7 @@ function Santuario({ dex, perfil, l, nivelTime, disabled, onSeguir }: { dex: Dex
             {motivo}
           </p>
         ) : (
-          <button className="rl__botao" disabled={disabled} onClick={() => onSeguir(l.id)}>
+          <button className="btn-primary rl__botao disabled:opacity-45" disabled={disabled} onClick={() => onSeguir(l.id)}>
             <Sparkles size={16} /> Seguir o rastro
           </button>
         )}
