@@ -309,6 +309,7 @@ export interface ItemVis {
   item: string;
   grande?: boolean;
   slot?: Slot;
+  lado?: "meu" | "inimigo"; // item usado pelo treinador inimigo (poção): aparece sobre o Pokémon dele
 }
 
 // O que espera depois da parada: o próximo treinador lá no fundo, ou o mato balançando.
@@ -469,7 +470,15 @@ export function Arena({
         <div
           key={item.n}
           className={`pk-itempop ${item.grande ? "pk-itempop--grande" : ""}`}
-          style={!item.grande && dupla ? ({ left: centro("meu", item.slot, true)[0] } as CSSProperties) : undefined}
+          style={
+            item.grande
+              ? undefined
+              : item.lado === "inimigo"
+                ? ({ left: centro("inimigo", item.slot, dupla)[0], top: "24%" } as CSSProperties)
+                : dupla
+                  ? ({ left: centro("meu", item.slot, true)[0] } as CSSProperties)
+                  : undefined
+          }
           aria-hidden
         >
           <span className="pk-itempop__raios" />

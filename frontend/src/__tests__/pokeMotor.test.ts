@@ -61,6 +61,7 @@ import {
   lendaLiberada,
   rastroLiberado,
   capturadosDex,
+  bolsaDoTreinador,
   type PartidaPoke,
 } from "../lib/poke/motor";
 import { LENDAS } from "../lib/poke/lendas";
@@ -77,10 +78,13 @@ const cand = (id: number, materia = "Português", extra: Partial<Candidata> = {}
   ...extra,
 });
 
+// sem a bolsa de cura dos treinadores: os testes de mecânica derrubam com HP 1 sem poção no meio
+const semBolsa = (p: PartidaPoke): PartidaPoke => ({ ...p, treinadores: p.treinadores.map(({ itens: _, ...t }) => t) });
+
 function partida(n = 8, extras: Partial<Candidata>[] = [], nivel = 10): PartidaPoke {
   const time = [criarMon(dex, 4, nivel, "a")];
   const pendentes = Array.from({ length: n }, (_, i) => cand(i + 1, i % 2 ? "Banco de Dados" : "Português", extras[i]));
-  return montarPartidaPoke({ dex, time, mochila: { "poke-ball": 3, potion: 1 }, pendentes, novas: [], concursoId: null, semente: 11 })!;
+  return semBolsa(montarPartidaPoke({ dex, time, mochila: { "poke-ball": 3, potion: 1 }, pendentes, novas: [], concursoId: null, semente: 11 })!);
 }
 
 // seis Pokémon de pé (Liga inteira só com acertos ainda leva revides)
@@ -449,8 +453,9 @@ describe("modos da jornada", () => {
   const pend = (n: number) => Array.from({ length: n }, (_, i) => cand(i + 1, i % 2 ? "Banco de Dados" : "Português"));
   const montar = (modo: "ginasio" | "safari" | "liga", ginasio?: number, nivel = 10, extra: { regiao?: number; habitat?: number } = {}) =>
     montarPartidaPoke({ dex, time: [criarMon(dex, 4, nivel, "a")], mochila: { "poke-ball": 1 }, pendentes: pend(14), novas: pend(40).map((c) => ({ ...c, questaoId: c.questaoId + 100 })), concursoId: null, modo, ginasio, semente: 5, ...extra })!;
+  // só acertos, mas com time de verdade: um Charmander sozinho não vence ginásio só no acerto
   const jogarAteOFim = (p0: PartidaPoke) => {
-    let p = p0;
+    let p = p0.time.length > 1 ? p0 : { ...p0, time: timeCheio(Math.max(...[p0.atual!, ...p0.fila].map((e) => e.nivel)) + 2) };
     for (let g = 0; g < 400 && !p.fim; g++) {
       if (p.oferta) p = escolherOferta(p, p.oferta[0], dex);
       else if (precisaTrocar(p)) p = trocar(p, p.time.findIndex((l) => l.hp > 0));
@@ -566,8 +571,9 @@ describe("regiões", () => {
   const pend = (n: number) => Array.from({ length: n }, (_, i) => cand(i + 1, i % 2 ? "Banco de Dados" : "Português"));
   const montar = (modo: "ginasio" | "safari" | "liga" | "rota", extra: { regiao?: number; habitat?: number; ginasio?: number; terreno?: number } = {}, nivel = 10) =>
     montarPartidaPoke({ dex, time: [criarMon(dex, 4, nivel, "a")], mochila: { "poke-ball": 1 }, pendentes: pend(14), novas: pend(40).map((c) => ({ ...c, questaoId: c.questaoId + 100 })), concursoId: null, modo, semente: 5, ...extra })!;
+  // só acertos, mas com time de verdade: um Charmander sozinho não vence ginásio só no acerto
   const jogarAteOFim = (p0: PartidaPoke) => {
-    let p = p0;
+    let p = p0.time.length > 1 ? p0 : { ...p0, time: timeCheio(Math.max(...[p0.atual!, ...p0.fila].map((e) => e.nivel)) + 2) };
     for (let g = 0; g < 400 && !p.fim; g++) {
       if (p.oferta) p = escolherOferta(p, p.oferta[0], dex);
       else if (precisaTrocar(p)) p = trocar(p, p.time.findIndex((l) => l.hp > 0));
@@ -769,18 +775,19 @@ describe("level cap, XP e revide", () => {
 
   it("acertou e o inimigo ficou de pé: ele revida mais fraco que no erro", () => {
     const p = montarPartidaPoke({ dex, time: [criarMon(dex, 4, 10, "a")], mochila: {}, pendentes: pend(8), novas: [], concursoId: null, semente: 3 })!;
-    const forte = { ...p, atual: { ...p.atual!, hp: 9999, status: "" as const } };
+    const forte = semBolsa({ ...p, atual: { ...p.atual!, hp: 9999, status: "" as const } });
     let revide = 0, contra = 0;
-    for (let s = 1; s < 20; s++) {
+    for (let s = 1; s < 40; s++) {
       const a = certo({ ...forte, rng: s }).eventos.find((e) => e.tipo === "contra") as { dano: number; revide?: boolean } | undefined;
       const b = errado({ ...forte, rng: s }).eventos.find((e) => e.tipo === "contra") as { dano: number } | undefined;
-      expect(a?.revide).toBe(true);
+      if (!a || !b) continue; // usou golpe de status
+      expect(a.revide).toBe(true);
       revide += a!.dano;
       contra += b!.dano;
     }
     expect(revide).toBeLessThan(contra);
     // KO no acerto: sem revide
-    expect(certo({ ...p, atual: { ...p.atual!, hp: 1 } }).eventos.some((e) => e.tipo === "contra")).toBe(false);
+    expect(certo(semBolsa({ ...p, atual: { ...p.atual!, hp: 1 } })).eventos.some((e) => e.tipo === "contra" && !e.primeiro)).toBe(false);
   });
 });
 
@@ -1157,5 +1164,84 @@ describe("Rastro Lendário", () => {
       expect(p, `lenda ${l.id}`).toBeTruthy();
       expect([p.atual!, ...p.fila].at(-1)!.especie).toBe(l.id);
     }
+  });
+});
+
+describe("IA dos treinadores", () => {
+  const pend = (n: number) => Array.from({ length: n }, (_, i) => cand(i + 1, i % 2 ? "Banco de Dados" : "Português"));
+  const gin = (i: number, nivel: number, time = [criarMon(dex, 7, nivel, "a")]) =>
+    montarPartidaPoke({ dex, time, mochila: {}, pendentes: pend(14), novas: pend(40).map((c) => ({ ...c, questaoId: c.questaoId + 100 })), concursoId: null, modo: "ginasio", ginasio: i, semente: 5 })!;
+  // pula até o líder estar em campo
+  const noLider = (p: PartidaPoke) => {
+    const k = p.fila.findIndex((e) => e.tipo === "lider");
+    return { ...p, parada: null, atual: { ...p.fila[k] }, fila: p.fila.slice(k + 1) };
+  };
+
+  it("bolsa como nos jogos: líder com poções melhores a cada insígnia, Liga com Full Restore", () => {
+    const r = () => 0.5;
+    expect(bolsaDoTreinador({ nome: "Brock", sprite: "", lider: true, insignia: 0 }, 0, r)).toEqual(["potion"]);
+    expect(bolsaDoTreinador({ nome: "Surge", sprite: "", lider: true, insignia: 2 }, 0, r)).toEqual(["super-potion", "super-potion"]);
+    expect(bolsaDoTreinador({ nome: "Giovanni", sprite: "", lider: true, insignia: 7 }, 0, r)).toEqual(["full-restore", "full-restore"]);
+    expect(bolsaDoTreinador({ nome: "Blue", sprite: "", lider: true, campeao: true }, 8, r)).toHaveLength(3);
+    expect(bolsaDoTreinador({ nome: "Joven", sprite: "", lider: false }, 0, () => 0.9)).toEqual([]);
+    expect(bolsaDoTreinador({ nome: "Joven", sprite: "", lider: false }, 0, () => 0.1)).toEqual(["potion"]);
+    expect(gin(0, 12).treinadores.at(-1)!.itens).toEqual(["potion"]);
+  });
+
+  it("líder no vermelho usa a poção em vez de atacar, e a poção sai da bolsa", () => {
+    let p = noLider(gin(2, 24));
+    const max = p.atual!.hp;
+    p = { ...p, atual: { ...p.atual!, hp: Math.floor(max * 0.2) } };
+    const r = errado(p);
+    const ev = r.eventos.find((e) => e.tipo === "itemInimigo") as Extract<(typeof r.eventos)[number], { tipo: "itemInimigo" }>;
+    expect(ev).toMatchObject({ item: "super-potion", valor: Math.min(50, max - Math.floor(max * 0.2)) });
+    expect(r.eventos.some((e) => e.tipo === "contra")).toBe(false);
+    expect(r.partida.atual!.hp).toBe(ev.hpInimigo);
+    expect(r.partida.treinadores.at(-1)!.itens).toEqual(["super-potion"]);
+    expect(r.partida.atual!.curas).toBe(1);
+    // HP alto: ataca
+    expect(errado({ ...p, atual: { ...p.atual!, hp: max } }).eventos.some((e) => e.tipo === "itemInimigo")).toBe(false);
+  });
+
+  it("Full Restore cura tudo e tira o status", () => {
+    let p = noLider(gin(7, 50));
+    p = { ...p, atual: { ...p.atual!, hp: 3, status: "burn" } };
+    const r = errado(p);
+    const ev = r.eventos.find((e) => e.tipo === "itemInimigo") as { item: string; curouStatus?: boolean } | undefined;
+    expect(ev).toMatchObject({ item: "full-restore", curouStatus: true });
+    expect(r.partida.atual!.hp).toBe(atributos(dex.especies[p.atual!.especie], p.atual!.nivel).hp);
+    expect(r.partida.atual!.status).toBe("");
+  });
+
+  it("líder usa golpe de status no meu Pokémon saudável (Poison Powder do Tangela da Erika)", () => {
+    const p0 = noLider(gin(3, 27));
+    const p = { ...p0, atual: { ...p0.atual!, especie: 114 } };
+    let viu = false;
+    for (let s = 1; s < 60 && !viu; s++) {
+      const r = errado({ ...p, rng: s });
+      const st = r.eventos.find((e) => e.tipo === "contraStatus") as { resultado: string } | undefined;
+      if (!st) continue;
+      viu = true;
+      if (st.resultado === "ok") expect(r.partida.time[0].status).not.toBe("");
+    }
+    expect(viu).toBe(true);
+    // já com status, não insiste
+    for (let s = 1; s < 30; s++) expect(errado({ ...p, rng: s, time: [{ ...p.time[0], status: "poison" }] }).eventos.some((e) => e.tipo === "contraStatus")).toBe(false);
+  });
+
+  it("inimigo mais rápido ataca antes do golpe certo, mas não derruba: a resposta certa vale", () => {
+    // Slowpoke Nv20 contra o Pikachu do Surge: o Pikachu é bem mais rápido
+    let p = noLider(gin(2, 20, [criarMon(dex, 79, 20, "a")]));
+    p = { ...p, atual: { ...p.atual!, especie: 25, hp: 999 }, time: [{ ...p.time[0], hp: 1 }] };
+    const r = certo(p);
+    const contra = r.eventos.find((e) => e.tipo === "contra") as { primeiro?: boolean; firme?: boolean } | undefined;
+    const iContra = r.eventos.findIndex((e) => e.tipo === "contra");
+    const iAtaque = r.eventos.findIndex((e) => e.tipo === "ataque");
+    if (contra) {
+      expect(contra.primeiro).toBe(true);
+      expect(iContra).toBeLessThan(iAtaque);
+    }
+    expect(iAtaque).toBeGreaterThanOrEqual(0);
+    expect(r.partida.time[0].hp).toBeGreaterThan(0);
   });
 });

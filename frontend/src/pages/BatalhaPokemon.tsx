@@ -430,9 +430,9 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
     (lado === "meu" ? setMeu : setIni)(slot, (v) => (v ? { ...v, ...extra, anim: a, chave: n() } : v));
   };
   const [itemVis, setItemVis] = useState<ItemVis | null>(null);
-  const mostrarItem = (item: string, grande = false, slot: Slot = 0) => {
+  const mostrarItem = (item: string, grande = false, slot: Slot = 0, lado: "meu" | "inimigo" = "meu") => {
     const k = n();
-    setItemVis({ n: k, item, grande, slot });
+    setItemVis({ n: k, item, grande, slot, ...(lado === "inimigo" ? { lado } : {}) });
     setTimeout(() => setItemVis((v) => (v?.n === k ? null : v)), grande ? 2600 : 1300);
   };
   const texto = (lado: "meu" | "inimigo", t: string, cor: string, slot: Slot = 0) => {
@@ -955,9 +955,11 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
           setMensagem(
             ev.livre
               ? `${nomeIni(de)} aproveitou a vez e atacou${contra} com ${g?.[0] ?? "Tackle"}!`
-              : ev.revide
-                ? `${nomeIni(de)} aguentou e atacou${contra} com ${g?.[0] ?? "Tackle"}!`
-                : `${nomeIni(de)} contra-atacou${contra} com ${g?.[0] ?? "Tackle"}!`
+              : ev.primeiro
+                ? `${nomeIni(de)} foi mais rápido e atacou${contra} com ${g?.[0] ?? "Tackle"}!`
+                : ev.revide
+                  ? `${nomeIni(de)} aguentou e atacou${contra} com ${g?.[0] ?? "Tackle"}!`
+                  : `${nomeIni(de)} contra-atacou${contra} com ${g?.[0] ?? "Tackle"}!`
           );
           anim("inimigo", "ataca", {}, de);
           await esperar(120);
@@ -970,11 +972,38 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
             ev.critico ? "Um golpe crítico!" : "",
             ev.efetividade >= 2 ? "É super efetivo!" : ev.efetividade > 0 && ev.efetividade < 1 ? "Não é muito efetivo..." : "",
             ev.foco ? "A guarda segurou metade!" : "",
+            ev.firme ? `${nomeUid(uid)} aguentou firme: a resposta certa ainda vale!` : "",
           ].filter(Boolean);
           if (extra.length) {
             setMensagem(extra.join(" "));
             await esperar(1000);
           }
+          break;
+        }
+        case "contraStatus": {
+          const g = dex.golpes[ev.golpe];
+          const de = (ev.slot ?? 0) as Slot;
+          const uid = ev.uid ?? campo[0] ?? "";
+          setMensagem(`${nomeIni(de)} usou ${g?.[0] ?? "um golpe"}${dupla ? ` em ${nomeUid(uid)}` : ""}!`);
+          anim("inimigo", "ataca", {}, de);
+          await esperar(700);
+          if (ev.resultado !== "ok") {
+            setMensagem(ev.resultado === "errou" ? "Mas errou!" : ev.resultado === "imune" ? `Não afeta ${nomeUid(uid)}!` : `${nomeUid(uid)} já está com um status. Não teve efeito.`);
+            await esperar(1000);
+          }
+          break;
+        }
+        case "itemInimigo": {
+          const t = depois.treinadores[ev.treinador] ?? antes.treinadores[ev.treinador];
+          const k = (ev.slot ?? 0) as Slot;
+          setMensagem(`${t?.nome ?? "O treinador"} usou ${nomeItem(ev.item)}!`);
+          await esperar(700);
+          mostrarItem(ev.item, false, k, "inimigo");
+          setIni(k, (v) => (v ? { ...v, hp: ev.hpInimigo, ...(ev.curouStatus ? { status: "" } : {}) } : v));
+          if (ev.valor > 0) texto("inimigo", `+${ev.valor} HP`, "#3BC46B", k);
+          await esperar(600);
+          setMensagem(ev.curouStatus ? `${nomeIni(k)} recuperou HP e se curou do status!` : `${nomeIni(k)} recuperou ${ev.valor} HP!`);
+          await esperar(1000);
           break;
         }
         case "status": {
@@ -3363,7 +3392,9 @@ function Lobby({
             status envenenam, queimam, paralisam ou fazem dormir, e Pokémon dormindo não contra-ataca. Marcar "tenho certeza" vira crítico, mas o erro dói 1,5×: treina saber o que você sabe.
           </p>
           <p>
-            <b className="text-brand-ink">Errou? Contra-ataque</b> (com veneno, sono, paralisia...). Acertou e o inimigo aguentou? Ele revida, mais fraco. A questão volta logo depois, com as
+            <b className="text-brand-ink">Errou? Contra-ataque</b> (com veneno, sono, paralisia...). Acertou e o inimigo aguentou? Ele revida, um pouco mais fraco; se for mais rápido que o seu, ataca antes do seu golpe (sem
+            derrubar: a resposta certa sempre vale). Treinadores jogam como nos jogos: escolhem o golpe que mais dói, usam golpes de status e gastam a vez com Potion, Super Potion
+            ou Full Restore quando o Pokémon deles fica no vermelho. A questão volta logo depois, com as
             alternativas em outra ordem (no caminho e na Safári, como selvagem: acerte e lance uma bola para capturar; HP baixo ajuda). Escrever por que o gabarito está certo cura 25% do HP.
           </p>
           <p>
