@@ -1721,7 +1721,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
               </div>
             )}
 
-            {posicaoParada && <MapaRegiao posicao={posicaoParada} jogador={jogador} compacto />}
+            {posicaoParada && <MapaRegiao posicao={posicaoParada} jogador={jogador} />}
 
             {partida.parada.centro && (
               <div className="flex items-center gap-3 rounded-2xl border border-pink-300/60 bg-surface2 p-3">

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import dexJson from "../data/pokedex.json";
 import type { Dex } from "../lib/poke/dex";
 import { REGIOES, perfilInicial, type PerfilPoke } from "../lib/poke/motor";
-import { caminhoNoMapa, mapaDaRegiao, posicaoNoMapa } from "../lib/poke/mapas";
+import { caminhoNoMapa, mapaDaRegiao, numeroDaRota, pontosDaLigacao, posicaoNoMapa } from "../lib/poke/mapas";
 import { trechoDe, TRECHO_VITORIA } from "../lib/poke/rotas";
 
 const dex = dexJson as unknown as Dex;
@@ -24,6 +24,14 @@ describe("mapa de Kanto", () => {
     expect(caminhoNoMapa(kanto, "Pallet", "Rota 25")).not.toBeNull();
     expect(caminhoNoMapa(kanto, "Pallet", "Floresta das Frutas")).toBeNull(); // Sevii: de barco
     expect(caminhoNoMapa(kanto, "Pallet", "Viridian")).toEqual(["Pallet", "Rota 1", "Viridian"]);
+  });
+
+  it("estradas com cotovelos seguem a direção pedida", () => {
+    expect(pontosDaLigacao(kanto, "Rota 22", "Rota 23")).toEqual([[102, 318], [45, 318], [45, 262]]);
+    expect(pontosDaLigacao(kanto, "Rota 23", "Rota 22")).toEqual([[45, 262], [45, 318], [102, 318]]);
+    expect(pontosDaLigacao(kanto, "Pallet", "Pewter")).toBeNull();
+    expect(numeroDaRota("Rota Marítima 19")).toBe("19");
+    expect(numeroDaRota("Rota 24 (Ponte Pepita)")).toBe("24");
   });
 
   it("posição acompanha o progresso", () => {

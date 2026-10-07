@@ -772,29 +772,92 @@
   .rl__halo, .rl__retrato img, .dx__lente i, .dx__leds i, .dx__palco img, .pk-fim-lenda img, .pk-fim-lenda__aura, .pk-previa-lenda img { animation: none; }
 }
 
-/* ---------- mapa da região (components/poke/MapaRegiao.tsx) ---------- */
-.pk-mapa { margin: 0 auto; max-width: 720px; }
-.pk-mapa__svg { display: block; width: 100%; height: auto; border-radius: 16px; background: rgb(var(--surface-2)); border: 1px solid rgb(var(--hair)); }
-.pk-mapa__mar { fill: rgb(var(--brand-500) / 0.1); }
-.pk-mapa__ilhas { fill: rgb(var(--brand-500) / 0.08); stroke: rgb(var(--hair)); stroke-dasharray: 5 5; }
-.pk-mapa__titulo { font-size: 13px; font-weight: 700; fill: rgb(var(--faint)); letter-spacing: .04em; }
-.pk-mapa__via { stroke: rgb(var(--hair)); stroke-width: 5; stroke-linecap: round; }
-.pk-mapa__via--feita { stroke: rgb(var(--brand-500) / 0.75); }
-.pk-mapa__via--sub { stroke-dasharray: 2 9; stroke-width: 4; }
-.pk-mapa__no rect, .pk-mapa__no circle { fill: rgb(var(--surface)); stroke: rgb(var(--muted)); stroke-width: 2; }
-.pk-mapa__no--visto rect, .pk-mapa__no--visto circle { stroke: rgb(var(--brand-500)); }
-.pk-mapa__no--rota.pk-mapa__no--visto circle { fill: rgb(var(--brand-500)); }
-.pk-mapa__no--insignia rect { fill: rgb(var(--brand-500)); }
-.pk-mapa__rotulo { font-size: 13px; fill: rgb(var(--muted)); paint-order: stroke; stroke: rgb(var(--surface-2)); stroke-width: 4px; stroke-linejoin: round; }
-.pk-mapa__rotulo--cidade { font-size: 16px; font-weight: 700; fill: rgb(var(--ink)); }
-.pk-mapa__alvo { fill: none; stroke: rgb(var(--brand-500)); stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: pk-mapa-alvo 1.6s ease-out infinite; }
+/* ---------- mapa da região (components/poke/MapaRegiao.tsx) ----------
+ * Estilo de guia antigo. A paleta clássica (estradas brancas, cidades vermelhas) é a do tema
+ * Lugia; Topography e Cyberpunk trocam só as variáveis --pkm-*. */
+.pk-mapa {
+  --pkm-mar: #bfe6f5; --pkm-terra: #b9ecb0; --pkm-litoral: #3d9be0; --pkm-montanha: #f2b98d;
+  --pkm-borda: #a9a9a9; --pkm-miolo: #ffffff; --pkm-borda-mar: #5aa9c9; --pkm-miolo-mar: #a6f3ff;
+  --pkm-feita: #ffd23f; --pkm-cidade: #e8221b; --pkm-lugar: #3cc84a; --pkm-contorno: #7d7d7d;
+  --pkm-texto: #111111; --pkm-halo: #ffffff; --pkm-numero: #222222; --pkm-sub: #2e9e3a;
+  --pkm-caixa: #ffffff; --pkm-caixa-borda: #111111; --pkm-quadro: rgb(255 255 255 / .35);
+  --pkm-destaque: #e8221b; --pkm-insignia: #ffc400; --pkm-fonte: inherit;
+}
+[data-theme='fantasy'] .pk-mapa {
+  --pkm-mar: #07061c; --pkm-terra: #15124a; --pkm-litoral: #8b74ff; --pkm-montanha: #2a2270;
+  --pkm-borda: #3b3496; --pkm-miolo: #e9e5ff; --pkm-borda-mar: #2800c9; --pkm-miolo-mar: #8fa8ff;
+  --pkm-feita: #ffa46b; --pkm-cidade: #ffa46b; --pkm-lugar: #b9a8ff; --pkm-contorno: #04040c;
+  --pkm-texto: #f4f2ff; --pkm-halo: #07061c; --pkm-numero: #1b1844; --pkm-sub: #b9a8ff;
+  --pkm-caixa: #0c0b2a; --pkm-caixa-borda: #8b74ff; --pkm-quadro: rgb(139 116 255 / .08);
+  --pkm-destaque: #ffffff; --pkm-insignia: #ffd27a; --pkm-fonte: 'Fraunces', Georgia, serif;
+}
+[data-theme='cyberpunk'] .pk-mapa {
+  --pkm-mar: #050509; --pkm-terra: #11101c; --pkm-litoral: #00f0ff; --pkm-montanha: #2a0f22;
+  --pkm-borda: #3d3b10; --pkm-miolo: #fcee0a; --pkm-borda-mar: #004a52; --pkm-miolo-mar: #00f0ff;
+  --pkm-feita: #ff2a6d; --pkm-cidade: #ff2a6d; --pkm-lugar: #00f0ff; --pkm-contorno: #050509;
+  --pkm-texto: #fcee0a; --pkm-halo: #050509; --pkm-numero: #050509; --pkm-sub: #ff2a6d;
+  --pkm-caixa: #0c0b14; --pkm-caixa-borda: #00f0ff; --pkm-quadro: rgb(0 240 255 / .05);
+  --pkm-destaque: #00f0ff; --pkm-insignia: #fcee0a; --pkm-fonte: 'Rajdhani', 'Share Tech Mono', sans-serif;
+}
+.pk-mapa__svg { display: block; width: 100%; height: auto; border-radius: 14px; font-family: var(--pkm-fonte); }
+.pk-mapa__mar { fill: var(--pkm-mar); }
+.pk-mapa__terra { fill: var(--pkm-terra); stroke: var(--pkm-litoral); stroke-width: 3; stroke-linejoin: round; }
+.pk-mapa__montanha { fill: var(--pkm-montanha); }
+.pk-mapa__quadro { fill: var(--pkm-quadro); stroke: var(--pkm-litoral); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.pk-mapa__quadro-titulo { font-size: 11px; font-weight: 800; fill: var(--pkm-texto); paint-order: stroke; stroke: var(--pkm-halo); stroke-width: 3px; }
+.pk-mapa__borda, .pk-mapa__miolo { fill: none; stroke-linejoin: miter; stroke-linecap: square; }
+.pk-mapa__borda { stroke: var(--pkm-borda); stroke-width: 17; }
+.pk-mapa__borda--mar { stroke: var(--pkm-borda-mar); }
+.pk-mapa__miolo { stroke: var(--pkm-miolo); stroke-width: 10; }
+.pk-mapa__miolo--mar { stroke: var(--pkm-miolo-mar); }
+.pk-mapa__miolo--feita { stroke: var(--pkm-feita); }
+.pk-mapa__sub { fill: none; stroke: var(--pkm-sub); stroke-width: 2; stroke-dasharray: 6 4; }
+.pk-mapa__numero { font-size: 13px; font-weight: 800; fill: var(--pkm-numero); pointer-events: none; }
+[data-theme='cyberpunk'] .pk-mapa__numero, [data-theme='fantasy'] .pk-mapa__numero { paint-order: stroke; stroke: var(--pkm-miolo); stroke-width: 2px; }
+.pk-mapa__ponto rect { fill: var(--pkm-cidade); stroke: var(--pkm-contorno); stroke-width: 4; }
+.pk-mapa__ponto circle { fill: var(--pkm-lugar); stroke: var(--pkm-contorno); stroke-width: 3; }
+.pk-mapa__ponto .pk-mapa__insignia { fill: var(--pkm-insignia); stroke: var(--pkm-contorno); stroke-width: 2; }
+.pk-mapa__nome { font-size: 13px; font-weight: 800; fill: var(--pkm-texto); paint-order: stroke; stroke: var(--pkm-halo); stroke-width: 3.5px; stroke-linejoin: round; }
+.pk-mapa__nome--cidade { font-size: 15px; }
+.pk-mapa__alvo-clique { cursor: pointer; outline: none; }
+.pk-mapa__alvo-clique:hover rect, .pk-mapa__alvo-clique:hover circle, .pk-mapa__alvo-clique:focus-visible rect, .pk-mapa__alvo-clique:focus-visible circle { filter: brightness(1.15); stroke: var(--pkm-destaque); }
+.pk-mapa__selecao { fill: none; stroke: var(--pkm-destaque); stroke-width: 3; stroke-dasharray: 6 5; pointer-events: none; animation: pk-mapa-gira 6s linear infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes pk-mapa-gira { to { transform: rotate(360deg); } }
+.pk-mapa__destino { fill: none; stroke: var(--pkm-destaque); stroke-width: 3; pointer-events: none; transform-box: fill-box; transform-origin: center; animation: pk-mapa-alvo 1.6s ease-out infinite; }
 @keyframes pk-mapa-alvo { from { opacity: .9; transform: scale(.7); } to { opacity: 0; transform: scale(1.6); } }
-.pk-mapa__boneco { transition: opacity .4s ease; }
+.pk-mapa__caixa rect:first-child { fill: var(--pkm-caixa); stroke: var(--pkm-caixa-borda); stroke-width: 1.5; }
+.pk-mapa__caixa text { font-size: 11px; font-weight: 700; fill: var(--pkm-texto); }
+.pk-mapa__leg-cidade { fill: var(--pkm-cidade); stroke: var(--pkm-contorno); stroke-width: 2; }
+.pk-mapa__leg-lugar { fill: var(--pkm-lugar); stroke: var(--pkm-contorno); stroke-width: 2; }
+.pk-mapa__caixa .pk-mapa__borda { stroke-width: 9; stroke-linecap: butt; }
+.pk-mapa__caixa .pk-mapa__miolo { stroke-width: 5; stroke-linecap: butt; }
+.pk-mapa__boneco { transition: opacity .4s ease; pointer-events: none; }
 .pk-mapa__boneco--sumido { opacity: 0; }
 .pk-mapa__boneco image { image-rendering: pixelated; transform-box: fill-box; transform-origin: center; }
 .pk-mapa__sombra { fill: rgb(0 0 0 / 0.25); }
 .pk-mapa__boneco--andando .pk-mapa__corpo { animation: pk-mapa-passo .32s ease-in-out infinite; }
 @keyframes pk-mapa-passo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-.pk-mapa__legenda { margin-top: 6px; font-size: 12px; color: rgb(var(--muted)); }
+.pk-mapa__legenda { display: block; margin-top: 6px; font-size: 12px; color: rgb(var(--muted)); }
 .pk-mapa__legenda b { color: rgb(var(--ink)); }
-@media (prefers-reduced-motion: reduce) { .pk-mapa__alvo, .pk-mapa__boneco--andando .pk-mapa__corpo { animation: none; } }
+
+/* miniatura: mapa pequeno + onde está; o cartão inteiro abre o mapa grande */
+.pk-mapa--mini { display: flex; width: 100%; align-items: center; gap: 12px; padding: 6px; text-align: left; border-radius: 16px; border: 1px solid rgb(var(--hair)); background: rgb(var(--surface-2)); transition: border-color .15s; }
+.pk-mapa--mini:hover, .pk-mapa--mini:focus-visible { border-color: rgb(var(--brand-500)); outline: none; }
+.pk-mapa__mini-quadro { display: block; width: 132px; flex-shrink: 0; }
+.pk-mapa__mini-quadro .pk-mapa__svg { border-radius: 10px; }
+.pk-mapa__mini-texto { display: flex; min-width: 0; flex-direction: column; gap: 6px; }
+.pk-mapa__mini-texto .pk-mapa__legenda { margin: 0; font-size: 13px; }
+.pk-mapa__abrir { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: rgb(var(--brand-500)); }
+
+/* mapa ampliado */
+.pk-mapa-modal { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 12px; background: rgb(0 0 0 / .6); animation: pk-mapa-entra .18s ease-out; }
+.pk-mapa-modal__painel { display: flex; width: 100%; max-width: min(720px, calc((100dvh - 150px) * 620 / 610)); max-height: 100%; flex-direction: column; gap: 8px; padding: 12px; border-radius: 20px; border: 1px solid rgb(var(--hair)); background: rgb(var(--surface)); box-shadow: 0 24px 60px -20px rgb(0 0 0 / .5); }
+.pk-mapa-modal__painel { min-width: min(100%, 300px); }
+.pk-mapa-modal__topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.pk-mapa-modal__titulo { font-size: 16px; font-weight: 800; color: rgb(var(--ink)); }
+.pk-mapa-modal__opcao { border-radius: 999px; border: 1px solid rgb(var(--hair)); padding: 3px 11px; font-size: 12px; font-weight: 700; color: rgb(var(--muted)); }
+.pk-mapa-modal__opcao[aria-pressed='true'] { border-color: rgb(var(--brand-500)); background: rgb(var(--brand-500)); color: #fff; }
+.pk-mapa-modal__fechar { display: inline-flex; height: 30px; width: 30px; align-items: center; justify-content: center; border-radius: 999px; color: rgb(var(--muted)); }
+.pk-mapa-modal__fechar:hover { color: rgb(var(--ink)); background: rgb(var(--surface-2)); }
+@keyframes pk-mapa-entra { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pk-mapa__destino, .pk-mapa__selecao, .pk-mapa__boneco--andando .pk-mapa__corpo, .pk-mapa-modal { animation: none; } }
