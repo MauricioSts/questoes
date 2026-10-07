@@ -29,6 +29,7 @@ import {
   lutador,
   montarPartidaPoke,
   darItem,
+  darItemNaPartida,
   multItemAtaque,
   premiosDoGinasio,
   sortearOferta,
@@ -428,6 +429,20 @@ describe("itens segurados e frutas", () => {
     const partidaComItem = montarPartidaPoke({ dex, time: p2.colecao, mochila: p2.mochila, pendentes: [cand(1), cand(2), cand(3)], novas: [], concursoId: null, semente: 1 })!;
     expect(partidaComItem.time[0].item).toBe("leftovers");
     expect(sincronizarPerfil(p2, partidaComItem).colecao[0].item).toBe("leftovers");
+    // na parada entre batalhas dá para trocar e tirar; fora dela, não
+    expect(darItemNaPartida(partidaComItem, 0, null)).toBe(partidaComItem);
+    const naParada = { ...partidaComItem, parada: { centro: false } };
+    const t1 = darItemNaPartida(naParada, 0, "oran-berry");
+    expect(t1.time[0].item).toBe("oran-berry");
+    expect(t1.mochila.leftovers).toBe(1);
+    expect(t1.mochila["oran-berry"]).toBeUndefined();
+    expect(darItemNaPartida(t1, 0, "potion")).toBe(t1);
+    const t2 = darItemNaPartida(t1, 0, null);
+    expect(t2.time[0].item).toBeUndefined();
+    expect(t2.mochila["oran-berry"]).toBe(1);
+    const sinc = sincronizarPerfil(p2, t1);
+    expect(sinc.colecao[0].item).toBe("oran-berry");
+    expect(sinc.mochila.leftovers).toBe(1);
   });
 
   it("prêmios: Exp. Share no 3º ginásio, Exp. All no 6º, sem repetir", () => {

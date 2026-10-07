@@ -55,7 +55,7 @@ import {
 } from "./dex";
 import { indiceDaRota, sortearSelvagem, trechoDe, TRECHO_VITORIA, type Rota } from "./rotas";
 import { EQUIPES, INSIGNIAS_RASTRO, TURNOS_LENDA, lendaPorId, type Lenda } from "./lendas";
-import { CURA_ITEM, CURA_STATUS, FRUTA_HP, FRUTA_RESISTE, FRUTA_STATUS, ITENS, PREMIO_CHAVE, REFORCO_DO_TIPO, REFORCO_TIPO, REVIVER, lojaDe } from "./itens";
+import { CURA_ITEM, CURA_STATUS, FRUTA_HP, FRUTA_RESISTE, FRUTA_STATUS, ITENS, PREMIO_CHAVE, REFORCO_DO_TIPO, REFORCO_TIPO, REVIVER, lojaDe, seguravel } from "./itens";
 
 const INVESTIDA: Golpe = ["Tackle", 0, 40, 0, 0, 0, "", 0, 0];
 
@@ -2313,18 +2313,35 @@ const soMon = ({ uid, id, xp, golpes, questaoId, capturadoEm, regiao, item }: Mo
   ...(item ? { item } : {}),
 });
 
-// Item segurado (só no lobby, fora de partida): o que ele segurava volta para a mochila.
+// Troca o item que um Pokémon segura: o que ele segurava volta para a mochila. null = só tirar.
+function trocarSegurado<T extends Mon>(mochila: Record<string, number>, m: T, item: string | null): { mochila: Record<string, number>; mon: T } | null {
+  if (item && (!seguravel(item) || (mochila[item] ?? 0) <= 0)) return null;
+  const nova = { ...mochila };
+  if (m.item) nova[m.item] = (nova[m.item] ?? 0) + 1;
+  if (item) nova[item] -= 1;
+  for (const k of Object.keys(nova)) if (nova[k] <= 0) delete nova[k];
+  const mon: T = { ...m };
+  if (item) mon.item = item;
+  else delete mon.item;
+  return { mochila: nova, mon };
+}
+
+// Item segurado no lobby (fora de partida).
 export function darItem(perfil: PerfilPoke, uid: string, item: string | null): PerfilPoke {
   const m = perfil.colecao.find((x) => x.uid === uid);
-  if (!m || (item && (!["segurar", "fruta"].includes(ITENS[item]?.cat ?? "") || (perfil.mochila[item] ?? 0) <= 0))) return perfil;
-  const mochila = { ...perfil.mochila };
-  if (m.item) mochila[m.item] = (mochila[m.item] ?? 0) + 1;
-  if (item) mochila[item] -= 1;
-  for (const k of Object.keys(mochila)) if (mochila[k] <= 0) delete mochila[k];
-  const novo: Mon = { ...m };
-  if (item) novo.item = item;
-  else delete novo.item;
-  return { ...perfil, mochila, colecao: perfil.colecao.map((x) => (x.uid === uid ? novo : x)) };
+  const r = m && trocarSegurado(perfil.mochila, m, item);
+  if (!r) return perfil;
+  return { ...perfil, mochila: r.mochila, colecao: perfil.colecao.map((x) => (x.uid === uid ? r.mon : x)) };
+}
+
+// Item segurado no meio da jornada: só na parada entre uma batalha e outra (como nos jogos,
+// mexer no item fora da luta não gasta vez). O perfil acompanha por sincronizarPerfil.
+export function darItemNaPartida(p: PartidaPoke, idx: number, item: string | null): PartidaPoke {
+  const l = p.time[idx];
+  if (!p.parada || p.fim || !l) return p;
+  const r = trocarSegurado(p.mochila, l, item);
+  if (!r) return p;
+  return { ...p, mochila: r.mochila, time: p.time.map((x, i) => (i === idx ? r.mon : x)) };
 }
 
 // Itens-chave já ganhos (na mochila ou segurados por alguém): não repetem como prêmio.

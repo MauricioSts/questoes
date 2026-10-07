@@ -771,3 +771,30 @@
 @media (prefers-reduced-motion: reduce) {
   .rl__halo, .rl__retrato img, .dx__lente i, .dx__leds i, .dx__palco img, .pk-fim-lenda img, .pk-fim-lenda__aura, .pk-previa-lenda img { animation: none; }
 }
+
+/* ---------- mapa da região (components/poke/MapaRegiao.tsx) ---------- */
+.pk-mapa { margin: 0 auto; max-width: 720px; }
+.pk-mapa__svg { display: block; width: 100%; height: auto; border-radius: 16px; background: rgb(var(--surface-2)); border: 1px solid rgb(var(--hair)); }
+.pk-mapa__mar { fill: rgb(var(--brand-500) / 0.1); }
+.pk-mapa__ilhas { fill: rgb(var(--brand-500) / 0.08); stroke: rgb(var(--hair)); stroke-dasharray: 5 5; }
+.pk-mapa__titulo { font-size: 13px; font-weight: 700; fill: rgb(var(--faint)); letter-spacing: .04em; }
+.pk-mapa__via { stroke: rgb(var(--hair)); stroke-width: 5; stroke-linecap: round; }
+.pk-mapa__via--feita { stroke: rgb(var(--brand-500) / 0.75); }
+.pk-mapa__via--sub { stroke-dasharray: 2 9; stroke-width: 4; }
+.pk-mapa__no rect, .pk-mapa__no circle { fill: rgb(var(--surface)); stroke: rgb(var(--muted)); stroke-width: 2; }
+.pk-mapa__no--visto rect, .pk-mapa__no--visto circle { stroke: rgb(var(--brand-500)); }
+.pk-mapa__no--rota.pk-mapa__no--visto circle { fill: rgb(var(--brand-500)); }
+.pk-mapa__no--insignia rect { fill: rgb(var(--brand-500)); }
+.pk-mapa__rotulo { font-size: 13px; fill: rgb(var(--muted)); paint-order: stroke; stroke: rgb(var(--surface-2)); stroke-width: 4px; stroke-linejoin: round; }
+.pk-mapa__rotulo--cidade { font-size: 16px; font-weight: 700; fill: rgb(var(--ink)); }
+.pk-mapa__alvo { fill: none; stroke: rgb(var(--brand-500)); stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: pk-mapa-alvo 1.6s ease-out infinite; }
+@keyframes pk-mapa-alvo { from { opacity: .9; transform: scale(.7); } to { opacity: 0; transform: scale(1.6); } }
+.pk-mapa__boneco { transition: opacity .4s ease; }
+.pk-mapa__boneco--sumido { opacity: 0; }
+.pk-mapa__boneco image { image-rendering: pixelated; transform-box: fill-box; transform-origin: center; }
+.pk-mapa__sombra { fill: rgb(0 0 0 / 0.25); }
+.pk-mapa__boneco--andando .pk-mapa__corpo { animation: pk-mapa-passo .32s ease-in-out infinite; }
+@keyframes pk-mapa-passo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.pk-mapa__legenda { margin-top: 6px; font-size: 12px; color: rgb(var(--muted)); }
+.pk-mapa__legenda b { color: rgb(var(--ink)); }
+@media (prefers-reduced-motion: reduce) { .pk-mapa__alvo, .pk-mapa__boneco--andando .pk-mapa__corpo { animation: none; } }

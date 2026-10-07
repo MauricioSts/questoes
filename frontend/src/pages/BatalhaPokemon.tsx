@@ -20,6 +20,8 @@ import { montarResultado } from "../lib/correcao";
 import { salvarLicoesNoCaderno, textoCalibragem } from "../lib/licoes";
 import { resumir, type Candidata, type Confianca } from "../lib/batalha";
 import { tipoDaMateria } from "../components/batalha/tipos";
+import { MapaRegiao } from "../components/poke/MapaRegiao";
+import { posicaoNoMapa } from "../lib/poke/mapas";
 import {
   COR_TIPO,
   INICIAIS_POR_REGIAO,
@@ -50,6 +52,7 @@ import {
   campeaoDe,
   levelCap,
   darItem,
+  darItemNaPartida,
   expAllLigado,
   itensPossuidos,
   liderLiberado,
@@ -278,6 +281,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
   const [selecionada, setSelecionada] = useState<Alternativa | undefined>();
   const [certeza, setCerteza] = useState(false);
   const [painel, setPainel] = useState<null | "mochila" | "pokemon" | "bolas">(null);
+  const [dandoItemParada, setDandoItemParada] = useState<number | null>(null);
   const [alvoItem, setAlvoItem] = useState<string | null>(null);
   const [trocaEscolhida, setTrocaEscolhida] = useState<number | null>(null); // dupla: quem entra (falta dizer no lugar de quem)
   const [ordens, setOrdens] = useState<(AcaoGolpe | null)[]>([null, null]); // dupla: golpe e alvo de cada um
@@ -1521,6 +1525,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
     .map((e, k) => [e, k as Slot] as const)
     .filter(([e]) => e && !e.fim) as [Encontro, Slot][];
   const proximo = partida.parada ? encontroDaVez(partida) : null;
+  const posicaoParada = partida.parada && perfil ? posicaoNoMapa(perfil, partida) : null;
   const proximoTreinador = proximo && proximo.treinador >= 0 ? partida.treinadores[proximo.treinador] : null;
 
   const listaTime = (onEscolher: (i: number) => void, desabilitar: (l: Lutador, i: number) => boolean, extra?: (l: Lutador, i: number) => ReactNode) => (
@@ -1716,6 +1721,8 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
               </div>
             )}
 
+            {posicaoParada && <MapaRegiao posicao={posicaoParada} jogador={jogador} compacto />}
+
             {partida.parada.centro && (
               <div className="flex items-center gap-3 rounded-2xl border border-pink-300/60 bg-surface2 p-3">
                 <img src={spriteTreinador("nurse")} alt="" className="pk-mini h-16 w-16 shrink-0" />
@@ -1749,16 +1756,41 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
             <div>
               <p className="mb-1.5 text-sm font-bold text-brand-ink">Ordem do time</p>
               <p className="mb-2 text-[11px] text-faint">
-                {proximoTreinador?.dupla ? "Os dois primeiros de pé abrem a batalha dupla." : "O primeiro de pé abre a próxima luta."} Use ▲ para subir na fila; toque para usar um item da mochila.
+                {proximoTreinador?.dupla ? "Os dois primeiros de pé abrem a batalha dupla." : "O primeiro de pé abre a próxima luta."} Use ▲ para subir na fila, "Item" para dar ou tirar o item que ele segura, e toque no Pokémon para usar um item da mochila.
               </p>
               {listaTime(
                 () => setPainel("mochila"),
                 () => false,
-                (_, i) => (
-                  <button onClick={() => moverParada(i, i - 1)} disabled={i === 0} className="rounded-xl border border-hair bg-surface px-2.5 text-sm font-bold text-muted transition hover:border-brand-500 disabled:opacity-30" aria-label="Subir na ordem">
-                    ▲
-                  </button>
+                (l, i) => (
+                  <>
+                    <button
+                      onClick={() => setDandoItemParada(i)}
+                      title={l.item ? `Segurando ${nomeItem(l.item)}: trocar ou tirar` : "Dar um item para segurar"}
+                      className="grid w-11 place-items-center rounded-xl border border-hair bg-surface text-[10px] font-semibold text-muted transition hover:border-brand-500 hover:text-brand-500"
+                      aria-label={l.item ? `Item: ${nomeItem(l.item)}` : "Dar item"}
+                    >
+                      {l.item ? <img src={spriteItem(l.item)} alt="" className="pk-mini h-7 w-7" /> : "Item"}
+                    </button>
+                    <button onClick={() => moverParada(i, i - 1)} disabled={i === 0} className="rounded-xl border border-hair bg-surface px-2.5 text-sm font-bold text-muted transition hover:border-brand-500 disabled:opacity-30" aria-label="Subir na ordem">
+                      ▲
+                    </button>
+                  </>
                 )
+              )}
+              {partida.time[dandoItemParada ?? -1] && (
+                <EditorItem
+                  dex={dex}
+                  m={partida.time[dandoItemParada!]}
+                  mochila={partida.mochila}
+                  onFechar={() => setDandoItemParada(null)}
+                  onDar={(item) => {
+                    const l = partida.time[dandoItemParada!];
+                    const q = darItemNaPartida(partida, dandoItemParada!, item);
+                    if (q === partida) return;
+                    setPartida(q);
+                    setMensagem(item ? `${nomeDe(l.id)} agora segura ${nomeItem(item)}.` : `${nomeItem(l.item ?? "")} voltou para a mochila.`);
+                  }}
+                />
               )}
             </div>
 
@@ -2975,6 +3007,7 @@ function Lobby({
   const naCidade = concluido || (!proximo && liga);
   const [confirmarReset, setConfirmarReset] = useState(false);
   const [aba, setAba] = useState<AbaLobby>("jornada");
+  const posicaoMapa = useMemo(() => posicaoNoMapa(perfil, emAndamento), [perfil, emAndamento]);
   const [dandoItem, setDandoItem] = useState<string | null>(null);
   const monDandoItem = dandoItem ? perfil.colecao.find((m) => m.uid === dandoItem) : undefined;
   const temSeguravel = Object.entries(perfil.mochila).some(([i, q]) => q > 0 && seguravel(i));
@@ -3140,6 +3173,11 @@ function Lobby({
 
       {aba === "jornada" && (
         <div className="card p-4 sm:p-5">
+          {posicaoMapa && (
+            <div className="mb-4">
+              <MapaRegiao posicao={posicaoMapa} jogador={jogador} />
+            </div>
+          )}
           {erro ? (
             <div className="space-y-3">
               <p className="text-sm text-muted">Não consegui carregar a sua fila de revisão.</p>
@@ -3263,7 +3301,7 @@ function Lobby({
               <p className="font-display text-lg font-bold text-brand-ink">
                 Seu time ({time.length}/{MAX_TIME})
               </p>
-              <p className="text-xs text-faint">{podeMexer ? "toque para mandar ao PC" : "termine a partida para mexer no time"}</p>
+              <p className="text-xs text-faint">{podeMexer ? "toque para mandar ao PC" : "partida em andamento: itens e ordem do time se mexem na parada entre batalhas"}</p>
             </div>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
               {time.map((m) => (
@@ -3347,7 +3385,11 @@ function Lobby({
               />
             </label>
           )}
-          {temSeguravel && <p className="mt-2 text-[11px] text-faint">Itens de segurar e frutas: na aba "Time e PC", toque em "Item" embaixo de um Pokémon.</p>}
+          {temSeguravel && (
+            <p className="mt-2 text-[11px] text-faint">
+              Itens de segurar e frutas: {podeMexer ? 'na aba "Time e PC", toque em "Item" embaixo de um Pokémon.' : 'com a partida em andamento, use o botão "Item" do time na parada antes de cada batalha.'}
+            </p>
+          )}
         </div>
       )}
 
