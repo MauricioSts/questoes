@@ -7,6 +7,7 @@
 // quer só a fila do que falta recuperar usa o filtro "pendentes".
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown, Copy, Download, Check } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
 import { getQuestao, rotuloOrigem } from "../lib/questoesRepo";
 import { useConcurso } from "../store/concurso";
@@ -54,8 +55,9 @@ function pct(taxa: number | null): string {
 
 // Recorte de tempo do histórico de erros. O rótulo vai junto no .md exportado, para o
 // Claude saber que "errei 4×" é de uma semana e não da vida inteira.
-type Periodo = "7d" | "30d" | "all";
+type Periodo = "hoje" | "7d" | "30d" | "all";
 const PERIODOS: { valor: Periodo; rotulo: string; frase: string }[] = [
+  { valor: "hoje", rotulo: "Hoje", frase: "hoje" },
   { valor: "7d", rotulo: "7 dias", frase: "nos últimos 7 dias" },
   { valor: "30d", rotulo: "30 dias", frase: "nos últimos 30 dias" },
   { valor: "all", rotulo: "Tudo", frase: "desde sempre" },
@@ -84,11 +86,15 @@ export function Erros() {
   const [sessao, setSessao] = useState<Questao[] | null>(null);
   const [resultado, setResultado] = useState<RespostaSessao[] | null>(null);
   const [copiado, setCopiado] = useState<string | null>(null);
+  // ?periodo=hoje vem do "Erros" do dashboard: abre nos erros do dia, com as recuperadas
+  // (o número do dashboard conta todo erro de hoje, mesmo o que já acertei depois).
+  const [params] = useSearchParams();
+  const doLink = params.get("periodo") === "hoje";
   const [periodo, setPeriodo] = useState<Periodo>(() =>
-    lerPreferencia<Periodo>(CHAVE_PERIODO, ["7d", "30d", "all"], "all")
+    doLink ? "hoje" : lerPreferencia<Periodo>(CHAVE_PERIODO, ["hoje", "7d", "30d", "all"], "all")
   );
   const [estado, setEstado] = useState<Estado>(() =>
-    lerPreferencia<Estado>(CHAVE_ESTADO, ["todas", "pendentes"], "todas")
+    doLink ? "todas" : lerPreferencia<Estado>(CHAVE_ESTADO, ["todas", "pendentes"], "todas")
   );
 
   const carregar = useCallback(() => {
@@ -117,6 +123,8 @@ export function Erros() {
   // Guarda o recorte escolhido: voltar para a tela deve reabrir no mesmo lugar.
   useEffect(() => {
     try {
+      // "Hoje" é recorte de passagem (o link do dashboard): não vira o padrão da tela.
+      if (periodo === "hoje") return;
       localStorage.setItem(CHAVE_PERIODO, periodo);
       localStorage.setItem(CHAVE_ESTADO, estado);
     } catch {

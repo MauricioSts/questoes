@@ -278,18 +278,24 @@ goalsRouter.get(
       });
     }
 
-    // Progresso: quantas das questões da meta eu já respondi HOJE (distintas).
+    // Progresso: questões DISTINTAS da matéria do dia respondidas HOJE, em qualquer modo.
+    // Não só as sorteadas: inglês feito na Batalha (ou no Estudar livre) é inglês do mesmo
+    // jeito, e a meta é de conteúdo, não de lista. O sorteio continua servindo de roteiro
+    // do botão "Fazer as 10", e `feitasIds` diz quais dele já saíram.
     const respostasHoje = await prisma.answer.findMany({
       where: {
         userId: req.userId!,
         ...cf,
         createdAt: { gte: inicioHoje },
-        questaoId: { in: registro.questaoIds },
+        OR: [{ questaoId: { in: registro.questaoIds } }, { materiaSnapshot: { in: materias } }],
       },
       select: { questaoId: true, acertou: true },
     });
-    const feitasIds = new Set(respostasHoje.map((r) => r.questaoId));
+    const respondidasHoje = new Set(respostasHoje.map((r) => r.questaoId));
     const acertosIds = new Set(respostasHoje.filter((r) => r.acertou).map((r) => r.questaoId));
+    const feitasIds = new Set(registro.questaoIds.filter((id) => respondidasHoje.has(id)));
+    const feitas = respondidasHoje.size; // pode passar da meta: o que passa é vantagem
+    const acertos = acertosIds.size;
 
     res.json({
       diaIndex,
@@ -298,9 +304,9 @@ goalsRouter.get(
       meta: registro.questaoIds.length,
       questaoIds: registro.questaoIds,
       feitasIds: [...feitasIds], // quais já saíram hoje: a tela retoma pelas que faltam
-      feitas: feitasIds.size,
-      acertos: acertosIds.size,
-      concluida: registro.questaoIds.length > 0 && feitasIds.size >= registro.questaoIds.length,
+      feitas,
+      acertos,
+      concluida: registro.questaoIds.length > 0 && feitas >= registro.questaoIds.length,
     });
   })
 );

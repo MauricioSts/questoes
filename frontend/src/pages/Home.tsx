@@ -178,7 +178,7 @@ export function Home() {
       <div className="card grid grid-cols-2 sm:grid-cols-4 divide-hair">
         <Kpi rotulo="Realizadas hoje" valor={respondidas} sub={`de ${meta} na meta`} />
         <Kpi rotulo="Acertos" valor={acertosHoje} sub="nesta jornada" cor="var(--goodText)" borda />
-        <Kpi rotulo="Erros" valor={errosHoje} sub="vão para revisão" cor="var(--accentText)" borda />
+        <Kpi rotulo="Erros" valor={errosHoje} sub="ver os erros de hoje →" cor="var(--accentText)" borda para="/erros?periodo=hoje" />
         <Kpi rotulo="Total acumulado" valor={totalAcumulado} sub="desde o início" borda />
       </div>
 
@@ -242,7 +242,7 @@ export function Home() {
                     um título e um botão dentro de uma caixa alta e vazia. */}
                 <div className="mt-1 flex flex-wrap items-stretch justify-center gap-x-6 gap-y-3 border-t border-hair pt-3 sm:justify-start">
                   <MiniDado rotulo="acertos" valor={acertosHoje} cor="var(--goodText)" />
-                  <MiniDado rotulo="erros" valor={errosHoje} cor="var(--accentText)" />
+                  <MiniDado rotulo="erros" valor={errosHoje} cor="var(--accentText)" para="/erros?periodo=hoje" />
                   <MiniDado
                     rotulo={streak === 1 ? "dia de ofensiva" : "dias de ofensiva"}
                     valor={streak}
@@ -457,14 +457,16 @@ function MiniDado({
   valor,
   cor,
   icone,
+  para,
 }: {
   rotulo: string;
   valor: number;
   cor?: string;
   icone?: React.ReactNode;
+  para?: string; // vira link (ex.: erros de hoje)
 }) {
-  return (
-    <div className="leading-none">
+  const conteudo = (
+    <>
       <p
         className="flex items-center gap-1.5 font-display text-xl font-bold"
         style={{ color: cor ?? "var(--text)" }}
@@ -473,8 +475,15 @@ function MiniDado({
         {valor.toLocaleString("pt-BR")}
       </p>
       <p className="mt-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-faint">{rotulo}</p>
-    </div>
+    </>
   );
+  if (para)
+    return (
+      <Link to={para} className="leading-none rounded-md transition hover:opacity-75" title="Ver os erros de hoje">
+        {conteudo}
+      </Link>
+    );
+  return <div className="leading-none">{conteudo}</div>;
 }
 
 function Kpi({
@@ -483,22 +492,32 @@ function Kpi({
   sub,
   cor,
   borda,
+  para,
 }: {
   rotulo: string;
   valor: number;
   sub: string;
   cor?: string;
   borda?: boolean;
+  para?: string; // vira link (ex.: erros de hoje)
 }) {
-  return (
-    <div className={`px-5 py-5 ${borda ? "sm:border-l border-hair" : ""}`}>
+  const classe = `px-5 py-5 ${borda ? "sm:border-l border-hair" : ""}`;
+  const conteudo = (
+    <>
       <p className="legenda text-[10px] font-bold uppercase tracking-[.14em] text-faint">{rotulo}</p>
       <p className="mt-2 font-display font-bold leading-none" style={{ fontSize: 34 }}>
         <Contador valor={valor} fontSize={34} cor={cor ?? "var(--text)"} fontWeight={700} />
       </p>
       <p className="mt-1.5 text-xs text-muted">{sub}</p>
-    </div>
+    </>
   );
+  if (para)
+    return (
+      <Link to={para} className={`${classe} block transition hover:bg-[rgb(var(--faint)/0.08)]`}>
+        {conteudo}
+      </Link>
+    );
+  return <div className={classe}>{conteudo}</div>;
 }
 
 // Cartão comum ou, no Cyberpunk, com a malha elástica de fundo.

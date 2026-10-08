@@ -9,7 +9,7 @@ import { calcularStats } from "../../lib/stats.js";
 import { calcularStreakUsuario } from "../../lib/streak.js";
 import { revisoesPendentes } from "../../lib/srs.js";
 import { srsDesde, filtroSrs, marcarSrsReset } from "../../lib/srsReset.js";
-import { startOfWeekWindow } from "../../lib/date.js";
+import { startOfToday, startOfWeekWindow } from "../../lib/date.js";
 
 export const answersRouter = Router();
 answersRouter.use(requireAuth);
@@ -120,7 +120,8 @@ answersRouter.get(
   asyncHandler(async (req, res) => {
     const period = String(req.query.period ?? "all");
     let desde: Date | undefined;
-    if (period === "7d") desde = new Date(Date.now() - 7 * 864e5);
+    if (period === "hoje") desde = startOfToday(); // o "Erros" do dashboard abre aqui
+    else if (period === "7d") desde = new Date(Date.now() - 7 * 864e5);
     else if (period === "30d") desde = new Date(Date.now() - 30 * 864e5);
     const stats = await calcularStats(req.userId!, desde);
     // Streak sempre considera o histórico completo (independe do período do filtro).
@@ -158,9 +159,9 @@ answersRouter.get(
   })
 );
 
-// GET /answers/erradas?period=7d|30d|all&estado=pendentes|todas
+// GET /answers/erradas?period=hoje|7d|30d|all&estado=pendentes|todas
 // Histórico de erro por questão. Dois eixos independentes:
-// - `period` recorta QUAIS respostas contam (7d/30d = janela móvel; all = tudo).
+// - `period` recorta QUAIS respostas contam (hoje = desde 0h; 7d/30d = janela móvel; all = tudo).
 // - `estado`: "pendentes" (padrão, retrocompatível: só as que o último resultado foi erro,
 //   é o que a aba Revisar consome) ou "todas" (toda questão já errada no período CONTINUA
 //   na lista depois de acertada, para servir de base de estudo em "Meus erros").
@@ -170,7 +171,8 @@ answersRouter.get(
     const period = String(req.query.period ?? "all");
     const estado = String(req.query.estado ?? "pendentes");
     let desde: Date | undefined;
-    if (period === "7d") desde = new Date(Date.now() - 7 * 864e5);
+    if (period === "hoje") desde = startOfToday(); // o "Erros" do dashboard abre aqui
+    else if (period === "7d") desde = new Date(Date.now() - 7 * 864e5);
     else if (period === "30d") desde = new Date(Date.now() - 30 * 864e5);
 
     const rows = await prisma.answer.findMany({
