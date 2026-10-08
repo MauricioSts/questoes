@@ -151,43 +151,9 @@
   -webkit-mask: radial-gradient(circle, #000 50%, transparent 70%); mask: radial-gradient(circle, #000 50%, transparent 70%);
   animation: pk-abre .45s ease-out calc(1.35s + var(--balancos) * .5s) both; }
 
-/* ---------- golpes (desenhos do Pokémon Showdown) ---------- */
-.fx { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
-.fx img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 .8cqw var(--cor)); }
-.fx > span { position: absolute; transform: translate(-50%, -50%); }
-.fx-voo { width: 7cqw; height: 7cqw; animation: fx-voo .48s cubic-bezier(.4,.1,.8,.6) both; }
-.fx-voo--grande { width: 11cqw; height: 11cqw; }
-.fx--forte .fx-voo--grande { width: 15cqw; height: 15cqw; }
-.fx-voo--raio { width: 8cqw; height: 8cqw; animation-duration: .38s; animation-timing-function: linear; }
-.fx-voo--rajada { width: 5.5cqw; height: 5.5cqw; animation: fx-rajada .55s ease-in both; }
-@keyframes fx-voo { from { left: var(--x0); top: var(--y0); opacity: 0; scale: .5; } 12% { opacity: 1; } 90% { opacity: 1; } to { left: var(--x1); top: var(--y1); opacity: 0; scale: 1.15; } }
-@keyframes fx-rajada { from { left: var(--x0); top: var(--y0); opacity: 0; scale: .6; rotate: 0deg; translate: 0 0; } 15% { opacity: 1; } 50% { translate: 0 var(--dy); } 92% { opacity: 1; } to { left: var(--x1); top: var(--y1); opacity: 0; rotate: var(--giro); translate: 0 0; } }
-.fx-cai { left: calc(var(--x1) + var(--dx)); top: var(--y1); width: 7cqw; height: 7cqw; animation: fx-cai .42s cubic-bezier(.5,0,.9,.6) both; }
-@keyframes fx-cai { from { translate: 0 -38cqw; opacity: 0; rotate: -30deg; } 20% { opacity: 1; } 85% { opacity: 1; } to { translate: 0 0; opacity: 0; rotate: 40deg; } }
-.fx-trovao { left: var(--x1); top: calc(var(--y1) - 14cqw); width: 9cqw; height: 26cqw; transform-origin: 50% 0; animation: fx-trovao .4s steps(2) both; }
-.fx-trovao img { object-fit: fill; }
-@keyframes fx-trovao { 0% { scale: 1 0; opacity: 1; } 50% { scale: 1 1; opacity: 1; } 75% { opacity: .2; } 100% { scale: 1 1; opacity: 0; } }
-.fx-clarao { inset: 0 !important; transform: none !important; background: #fff; animation: fx-clarao .35s ease-out both; }
-.fx-clarao--leve { animation-name: fx-clarao-leve; animation-delay: .35s; }
-@keyframes fx-clarao { 0% { opacity: 0; } 20% { opacity: .75; } 100% { opacity: 0; } }
-@keyframes fx-clarao-leve { 0% { opacity: 0; } 30% { opacity: .45; } 100% { opacity: 0; } }
-.fx-impacto { left: var(--x1); top: var(--y1); width: 14cqw; height: 14cqw; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,.95) 0 14%, color-mix(in srgb, var(--cor) 70%, transparent) 36%, transparent 66%);
-  animation: fx-impacto .38s ease-out both; }
-.fx--forte .fx-impacto { width: 20cqw; height: 20cqw; }
-@keyframes fx-impacto { 0% { scale: .2; opacity: 0; } 25% { opacity: 1; } 100% { scale: 1.3; opacity: 0; } }
-.fx-dente { left: var(--x1); width: 9cqw; height: 9cqw; animation: .5s cubic-bezier(.6,0,.9,.5) both; }
-.fx-dente--cima { top: calc(var(--y1) - 6cqw); rotate: 90deg; animation-name: fx-dente-cima; }
-.fx-dente--baixo { top: calc(var(--y1) + 6cqw); rotate: -90deg; animation-name: fx-dente-baixo; }
-@keyframes fx-dente-cima { from { translate: 0 -5cqw; opacity: 0; } 30% { opacity: 1; } 65% { translate: 0 4cqw; opacity: 1; } to { translate: 0 4cqw; opacity: 0; } }
-@keyframes fx-dente-baixo { from { translate: 0 5cqw; opacity: 0; } 30% { opacity: 1; } 65% { translate: 0 -4cqw; opacity: 1; } to { translate: 0 -4cqw; opacity: 0; } }
-.fx-orbita { left: var(--x1); top: var(--y1); width: 8cqw; height: 8cqw; animation: fx-orbita .9s ease-in-out both; }
-@keyframes fx-orbita { from { opacity: 0; transform: translate(-50%, -50%) rotate(var(--ang)) translateX(16cqw) rotate(calc(-1 * var(--ang))); } 25% { opacity: 1; } 80% { opacity: 1; } to { opacity: 0; transform: translate(-50%, -50%) rotate(calc(var(--ang) + 200deg)) translateX(3cqw) rotate(calc(-1 * var(--ang) - 200deg)); } }
-.fx-sobe { left: calc(var(--x1) + var(--dx)); top: calc(var(--y1) + 6cqw); width: 5cqw; height: 5cqw; animation: fx-sobe .8s ease-out both; }
-@keyframes fx-sobe { from { opacity: 0; translate: 0 0; scale: .6; } 25% { opacity: 1; } to { opacity: 0; translate: 0 -16cqw; scale: 1.1; } }
-.fx-anel { left: var(--x1); top: var(--y1); width: 22cqw; height: 22cqw; border-radius: 50%; border: 1.1cqw solid var(--cor); box-shadow: 0 0 2cqw var(--cor), inset 0 0 2cqw var(--cor); animation: fx-anel .8s ease-out both; }
-@keyframes fx-anel { from { scale: .3; opacity: 0; } 30% { opacity: .9; } to { scale: 1.2; opacity: 0; } }
-.fx--tique .fx-anel { display: none; }
+/* ---------- golpes ---------- */
+/* Golpes: canvas do motor procedural (components/poke/golpes). Por cima dos sprites e abaixo das caixas de HP. */
+.pk-golpes { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
 
 .pk-texto { position: absolute; z-index: 5; font-weight: 900; font-size: 1.3em; text-shadow: 0 2px 0 #1d1d24, 0 0 6px rgba(0,0,0,.5); pointer-events: none; transform: translate(-50%, 0); animation: pk-texto 1.3s ease-out both; white-space: nowrap; }
 .pk-texto--inimigo { left: 71%; top: 12%; }

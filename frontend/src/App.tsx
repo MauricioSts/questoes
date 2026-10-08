@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./store/auth";
 import { ThemeProvider } from "./store/theme";
@@ -30,6 +31,9 @@ import { ExigeTrilha } from "./components/ExigeTrilha";
 import { RotaAdmin } from "./components/RotaAdmin";
 import { FronteiraErro } from "./components/FronteiraErro";
 
+// Bancada dos golpes da Batalha Pokémon: só carrega quem abre.
+const MoveLab = lazy(() => import("./pages/MoveLab").then((m) => ({ default: m.MoveLab })));
+
 export default function App() {
   return (
     <FronteiraErro>
@@ -61,6 +65,7 @@ export default function App() {
                   <Route path="/simulado" element={<Simulado />} />
                   <Route path="/revisar" element={<Revisar />} />
                   <Route path="/batalha" element={<BatalhaModo />} />
+                  <Route path="/batalha/lab" element={<Suspense fallback={null}><MoveLab /></Suspense>} />
                   <Route path="/caderno" element={<Caderno />} />
                   <Route path="/stats" element={<Stats />} />
                   <Route path="/ranking" element={<Ranking />} />

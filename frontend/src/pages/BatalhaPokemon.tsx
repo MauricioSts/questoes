@@ -127,8 +127,10 @@ import { usePausarFundo } from "../store/fundo";
 import { QuestaoView } from "../components/QuestaoView";
 import { PageHeader } from "../components/PageHeader";
 import { Carregando } from "../components/Spinner";
-import { Arena, Pokebolas, TEXTO_HABITAT, TipoChip, habitatDoTipo, type BolaVis, type EstadoBola, type FxVis, type ItemVis, type LadoVis, type LancaVis, type TextoVis } from "../components/poke/Arena";
-import { CHEGADA, efeitoDoGolpe, efeitoDoStatus } from "../components/poke/fx";
+import { Arena, Pokebolas, TEXTO_HABITAT, TipoChip, habitatDoTipo, type BolaVis, type EstadoBola, type ItemVis, type LadoVis, type LancaVis, type TextoVis } from "../components/poke/Arena";
+import { MotorGolpes } from "../components/poke/golpes/motor";
+import { specDoGolpe } from "../components/poke/golpes/spec";
+import type { Ancora, Resultado } from "../components/poke/golpes/tipos";
 import { carregarSave, criarSalvador, type EstadoSave, type SavePoke } from "../lib/poke/save";
 import { lendaPorId } from "../lib/poke/lendas";
 import { RastroLendario } from "../components/poke/RastroLendario";
@@ -310,7 +312,9 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
   const [transicao, setTransicao] = useState<number | null>(null);
   const [insigniaVis, setInsigniaVis] = useState<{ src: string; nome: string; n: number } | null>(null);
   const [aparicao, setAparicao] = useState<{ n: number; cor: string } | null>(null);
-  const [fx, setFx] = useState<FxVis | null>(null);
+  // Golpes desenhados no canvas da arena (components/poke/golpes): só visual, a regra é do motor.ts.
+  const motor = useMemo(() => new MotorGolpes(), []);
+  useEffect(() => () => motor.destruir(), [motor]);
   const [textos, setTextos] = useState<TextoVis[]>([]);
   const [bolaVis, setBolaVis] = useState<BolaVis | null>(null);
   const [centroCura, setCentroCura] = useState<number | null>(null);
@@ -422,13 +426,19 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
     setLancamentos((xs) => [...xs.slice(-3), { n: k, lado, bola: "poke-ball", mao: lado === "meu", slot }]);
     setTimeout(() => setLancamentos((xs) => xs.filter((x) => x.n !== k)), 1100);
   };
-  const golpeFx = (de: "meu" | "inimigo", g: number, forte = false, deSlot: Slot = 0, alvoSlot: Slot = 0) => {
+  // Toca o golpe e resolve quando ele CHEGA no alvo (a página tira o HP nesse instante).
+  const golpeFx = (de: "meu" | "inimigo", g: number, o: { critico?: boolean; efetividade?: number; semEfeito?: boolean; errou?: boolean; deSlot?: Slot; alvoSlot?: Slot } = {}): Promise<void> => {
     const m = dex.golpes[g] ?? dex.golpes[0];
-    const efeito = efeitoDoGolpe(m, COR_TIPO[m[1]] ?? "#fff");
-    const proprio = efeito.estilo === "cura";
-    const alvo = proprio ? de : de === "meu" ? "inimigo" : "meu";
-    setFx({ n: n(), de, alvo, efeito, forte, deSlot, alvoSlot: proprio ? deSlot : alvoSlot });
-    return CHEGADA[efeito.estilo];
+    const spec = specDoGolpe(m);
+    const alvo = de === "meu" ? "inimigo" : "meu";
+    const A = motor.atores.ancora(`${de}-${o.deSlot ?? 0}`);
+    const alvos = (spec.archetype === "AOE" && dupla ? [0, 1] : [o.alvoSlot ?? 0]).map((s) => motor.atores.ancora(`${alvo}-${s}`)).filter((x): x is Ancora => !!x);
+    if (!A || !alvos.length) return esperar(300).then(() => undefined);
+    const ef = o.efetividade ?? 1;
+    const outcome: Resultado = o.errou ? "miss" : o.semEfeito || ef === 0 ? "noEffect" : o.critico ? "crit" : ef >= 2 ? "superEffective" : ef < 1 ? "notVeryEffective" : "hit";
+    const aliado = motor.atores.ancora(`${de}-${(o.deSlot ?? 0) === 0 ? 1 : 0}`);
+    const t = motor.tocar(spec, { attacker: A, targets: alvos, power: m[2], outcome, ...(spec.dinamico ? { typeOverride: m[1] } : {}), ...(dupla && aliado ? { aliados: [aliado] } : {}) });
+    return Promise.race([t.impacto, esperar(2600)]).then(() => undefined);
   };
   const anim = (lado: "meu" | "inimigo", a: LadoVis["anim"], extra: Partial<LadoVis> = {}, slot: Slot = 0) => {
     (lado === "meu" ? setMeu : setIni)(slot, (v) => (v ? { ...v, ...extra, anim: a, chave: n() } : v));
@@ -557,7 +567,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
     setPainel(null);
     setTextos([]);
     setBolaVis(null);
-    setFx(null);
+    motor.pular();
     setInsigniaVis(null);
     let cancelado = false;
     const t = daVez.treinador >= 0 ? p.treinadores[daVez.treinador] : null;
@@ -739,11 +749,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
           const k = slotDe(ev.uid);
           const alvo = (ev.alvo ?? 0) as Slot;
           setMensagem(`${nomeUid(ev.uid)} usou ${g?.[0] ?? "Tackle"}${dupla && ev.dano > 0 ? ` em ${nomeIni(alvo)}` : ""}!`);
-          const efeito = g ? efeitoDoGolpe(g, "") : null;
-          if (efeito && efeito.estilo !== "cura" && efeito.estilo !== "aura") anim("meu", "ataca", {}, k);
-          await esperar(efeito?.estilo === "contato" || efeito?.estilo === "mordida" ? 160 : 60);
-          // golpe de status com condição: a aura aparece no evento statusInimigo
-          if (efeito?.estilo !== "aura") await esperar(golpeFx("meu", ev.golpe, ev.critico && ev.dano > 0, k, alvo));
+          await golpeFx("meu", ev.golpe, { critico: ev.critico && ev.dano > 0, efetividade: ev.efetividade, semEfeito: ev.semEfeito, deSlot: k, alvoSlot: alvo });
           if (ev.dano > 0) {
             anim("inimigo", "dano", { hp: ev.hpInimigo }, alvo);
             texto("inimigo", ev.critico ? `CRÍTICO −${ev.dano}` : `−${ev.dano}`, ev.critico ? "#FFC857" : "#FF5A5F", alvo);
@@ -759,7 +765,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
         }
         case "statusInimigo": {
           const k = (ev.slot ?? 0) as Slot;
-          setFx({ n: n(), de: "meu", alvo: "inimigo", efeito: efeitoDoStatus(ev.status), alvoSlot: k });
+          motor.pulsoStatus(`inimigo-${k}`, ev.status);
           anim("inimigo", "status", ev.status === "leech-seed" ? { semente: true } : { status: ev.status }, k);
           setMensagem(`${nomeIni(k)} ${TXT_STATUS_INIMIGO[ev.status]}!`);
           await esperar(1200);
@@ -773,7 +779,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
         }
         case "tiqueInimigo": {
           const k = (ev.slot ?? 0) as Slot;
-          setFx({ n: n(), de: "inimigo", alvo: "inimigo", efeito: efeitoDoStatus(ev.status, "tique"), deSlot: k, alvoSlot: k });
+          motor.pulsoStatus(`inimigo-${k}`, ev.status);
           await esperar(300);
           anim("inimigo", "dano", { hp: ev.hpInimigo }, k);
           texto("inimigo", `−${ev.dano}`, "#C77DFF", k);
@@ -947,7 +953,9 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
                 ? "Resposta errada: os golpes erraram!"
                 : `${nomeUid(campo[0])} usou ${nomeGolpe(golpeUsado)}... mas errou! A resposta estava errada.`
           );
-          campo.forEach((_, k) => anim("meu", "ataca", {}, k as Slot));
+          // o golpe sai e passa raspando: a resposta errada vira um erro visível
+          if (golpeUsado !== null) void golpeFx("meu", golpeUsado, { errou: true });
+          campo.forEach((_, k) => k > 0 && anim("meu", "ataca", {}, k as Slot));
           await esperar(1100);
           break;
         case "contra": {
@@ -965,9 +973,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
                   ? `${nomeIni(de)} aguentou e atacou${contra} com ${g?.[0] ?? "Tackle"}!`
                   : `${nomeIni(de)} contra-atacou${contra} com ${g?.[0] ?? "Tackle"}!`
           );
-          anim("inimigo", "ataca", {}, de);
-          await esperar(120);
-          await esperar(golpeFx("inimigo", ev.golpe >= 0 ? ev.golpe : 0, ev.critico, de, k));
+          await golpeFx("inimigo", ev.golpe >= 0 ? ev.golpe : 0, { critico: ev.critico, efetividade: ev.efetividade, deSlot: de, alvoSlot: k });
           const v = mudaHp(uid, -ev.dano);
           anim("meu", "dano", { hp: v }, k);
           texto("meu", `−${ev.dano}`, "#FF5A5F", k);
@@ -989,8 +995,8 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
           const de = (ev.slot ?? 0) as Slot;
           const uid = ev.uid ?? campo[0] ?? "";
           setMensagem(`${nomeIni(de)} usou ${g?.[0] ?? "um golpe"}${dupla ? ` em ${nomeUid(uid)}` : ""}!`);
-          anim("inimigo", "ataca", {}, de);
-          await esperar(700);
+          await golpeFx("inimigo", ev.golpe, { errou: ev.resultado === "errou", semEfeito: ev.resultado === "imune", deSlot: de, alvoSlot: slotDe(uid) });
+          await esperar(400);
           if (ev.resultado !== "ok") {
             setMensagem(ev.resultado === "errou" ? "Mas errou!" : ev.resultado === "imune" ? `Não afeta ${nomeUid(uid)}!` : `${nomeUid(uid)} já está com um status. Não teve efeito.`);
             await esperar(1000);
@@ -1013,7 +1019,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
         case "status": {
           const k = slotDe(ev.uid);
           if (ev.status) {
-            setFx({ n: n(), de: "inimigo", alvo: "meu", efeito: efeitoDoStatus(ev.status), alvoSlot: k });
+            motor.pulsoStatus(`meu-${k}`, ev.status);
             setMensagem(`${nomeUid(ev.uid)} ${TXT_STATUS[ev.status][0]}!`);
           }
           anim("meu", "status", { status: ev.status }, k);
@@ -1024,7 +1030,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
           const k = slotDe(ev.uid);
           const v = mudaHp(ev.uid, -ev.dano);
           if (ev.status) {
-            setFx({ n: n(), de: "meu", alvo: "meu", efeito: efeitoDoStatus(ev.status, "tique"), deSlot: k, alvoSlot: k });
+            motor.pulsoStatus(`meu-${k}`, ev.status);
             setMensagem(`${nomeUid(ev.uid)} ${TXT_STATUS[ev.status][1]}! −${ev.dano} HP`);
           }
           anim("meu", "dano", { hp: v }, k);
@@ -1171,7 +1177,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
     setPainel(null);
     setTextos([]);
     setBolaVis(null);
-    setFx(null);
+    motor.pular();
     const daVez = encontroDaVez(q)!;
     const vivos = meusEmCampo(q)
       .map((i) => q.time[i])
@@ -1232,7 +1238,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
   function abrirParada(p: PartidaPoke) {
     setInimigos([null, null]);
     setTreinadorVis(null);
-    setFx(null);
+    motor.pular();
     setTextos([]);
     setBolaVis(null);
     setPainel(null);
@@ -1607,7 +1613,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
           treinador={treinadorVis}
           jogador={jogadorVis}
           mensagem={mensagem}
-          fx={fx}
+          motor={motor}
           textos={textos}
           bola={bolaVis}
           lancamentos={lancamentos}

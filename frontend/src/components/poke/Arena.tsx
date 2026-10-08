@@ -4,10 +4,11 @@
 // (`anim`) e reinicia a animação trocando a `chave`.
 // Na batalha dupla cada lado tem dois slots (0 na frente, 1 atrás); as posições saem de
 // `pk-arena--dupla` + `pk-s0`/`pk-s1` no CSS e de CENTRO aqui (golpes, textos, bolas).
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { COR_TIPO, spriteCostas, spriteEstatico, spriteFrente, spriteItem, spriteTreinador } from "../../lib/poke/dex";
 import type { Status } from "../../lib/poke/motor";
-import { fxSprite, type EfeitoGolpe } from "./fx";
+import { CamadaGolpes } from "./golpes/CamadaGolpes";
+import type { MotorGolpes } from "./golpes/motor";
 
 // entra: surge com brilho; saiBola: o mesmo, depois da bola abrir; surge: selvagem chegando
 export type AnimLado = "" | "entra" | "saiBola" | "surge" | "lenda" | "ataca" | "dano" | "desmaia" | "some" | "bola" | "foge" | "status";
@@ -48,16 +49,6 @@ export interface LadoVis {
   semente?: boolean; // Leech Seed
   enc?: number; // inimigo: chave do encontro que este desenho mostra
   uid?: string; // meu: o Pokémon que este desenho mostra
-}
-
-export interface FxVis {
-  n: number;
-  de: "meu" | "inimigo";
-  alvo: "meu" | "inimigo";
-  efeito: EfeitoGolpe;
-  forte?: boolean;
-  deSlot?: Slot;
-  alvoSlot?: Slot;
 }
 
 // Pokébola lançada para mandar um Pokémon a campo
@@ -165,7 +156,7 @@ function Sprite({ lado, meu, slot, dupla }: { lado: LadoVis; meu: boolean; slot:
   const src = falhou ? spriteEstatico(lado.id) : meu ? spriteCostas(lado.id) : spriteFrente(lado.id);
   const [largura, setLargura] = useState<number | null>(larguras.get(src) ?? null);
   return (
-    <div key={`${lado.id}-${lado.chave}`} className={`pk-sprite ${meu ? "pk-sprite--meu" : "pk-sprite--inimigo"} ${dupla ? `pk-s${slot}` : ""} ${lado.anim ? `pk-anim-${lado.anim}` : ""} ${lado.lendario && !lado.anim ? "pk-lendario" : ""}`}>
+    <div key={`${lado.id}-${lado.chave}`} data-ator={`${meu ? "meu" : "inimigo"}-${slot}`} className={`pk-sprite ${meu ? "pk-sprite--meu" : "pk-sprite--inimigo"} ${dupla ? `pk-s${slot}` : ""} ${lado.anim ? `pk-anim-${lado.anim}` : ""} ${lado.lendario && !lado.anim ? "pk-lendario" : ""}`}>
       <img
         src={src}
         alt={lado.nome}
@@ -222,88 +213,6 @@ function centro(lado: "meu" | "inimigo", slot: Slot | undefined, dupla: boolean)
   return slot === 1 ? ["84%", "26%"] : ["61%", "30%"];
 }
 
-function GolpeFx({ fx, dupla }: { fx: FxVis; dupla: boolean }) {
-  const { estilo, sprites, cor } = fx.efeito;
-  const [x0, y0] = centro(fx.de, fx.deSlot, dupla);
-  const [x1, y1] = centro(fx.alvo, fx.alvoSlot, dupla);
-  const vars = { "--x0": x0, "--y0": y0, "--x1": x1, "--y1": y1, "--cor": cor } as CSSProperties;
-  const img = (i: number) => fxSprite(sprites[i % sprites.length]);
-  const pecas: ReactNode[] = [];
-  const impacto = (atraso: number, sprite?: string) =>
-    pecas.push(
-      <span key="impacto" className="fx-impacto" style={{ animationDelay: `${atraso}ms` }}>
-        {sprite ? <img src={fxSprite(sprite)} alt="" /> : null}
-      </span>
-    );
-  if (estilo === "contato") impacto(120, sprites[0]);
-  else if (estilo === "mordida") {
-    pecas.push(
-      <span key="d1" className="fx-dente fx-dente--cima">
-        <img src={img(0)} alt="" />
-      </span>,
-      <span key="d2" className="fx-dente fx-dente--baixo">
-        <img src={img(0)} alt="" />
-      </span>
-    );
-    impacto(300);
-  } else if (estilo === "projetil") {
-    pecas.push(
-      <span key="p" className="fx-voo fx-voo--grande">
-        <img src={img(0)} alt="" />
-      </span>
-    );
-    impacto(420);
-  } else if (estilo === "raio" || estilo === "rajada") {
-    const n = estilo === "raio" ? 8 : 6;
-    for (let i = 0; i < n; i++)
-      pecas.push(
-        <span
-          key={i}
-          className={`fx-voo ${estilo === "raio" ? "fx-voo--raio" : "fx-voo--rajada"}`}
-          style={{ animationDelay: `${i * (estilo === "raio" ? 45 : 70)}ms`, "--dy": `${((i * 37) % 7) - 3}cqw`, "--giro": `${i % 2 ? 360 : -360}deg` } as CSSProperties}
-        >
-          <img src={img(i)} alt="" />
-        </span>
-      );
-    impacto(estilo === "raio" ? 450 : 560);
-  } else if (estilo === "chuva") {
-    for (let i = 0; i < 5; i++)
-      pecas.push(
-        <span key={i} className="fx-cai" style={{ animationDelay: `${i * 90}ms`, "--dx": `${((i * 53) % 13) - 6}cqw` } as CSSProperties}>
-          <img src={img(i)} alt="" />
-        </span>
-      );
-    impacto(560);
-  } else if (estilo === "trovao") {
-    pecas.push(
-      <span key="t" className="fx-trovao">
-        <img src={img(0)} alt="" />
-      </span>,
-      <span key="c" className="fx-clarao" />
-    );
-    impacto(300);
-  } else if (estilo === "aura" || estilo === "cura" || estilo === "tique") {
-    const n = estilo === "tique" ? 3 : 6;
-    for (let i = 0; i < n; i++)
-      pecas.push(
-        <span
-          key={i}
-          className={estilo === "aura" ? "fx-orbita" : "fx-sobe"}
-          style={{ animationDelay: `${i * 80}ms`, "--ang": `${(360 / n) * i}deg`, "--dx": `${((i * 29) % 9) - 4}cqw` } as CSSProperties}
-        >
-          <img src={img(i)} alt="" />
-        </span>
-      );
-    pecas.push(<span key="anel" className="fx-anel" />);
-  }
-  if (fx.forte && estilo !== "trovao") pecas.push(<span key="c" className="fx-clarao fx-clarao--leve" />);
-  return (
-    <div key={fx.n} className={`fx fx--${estilo} ${fx.forte ? "fx--forte" : ""}`} style={vars} aria-hidden>
-      {pecas}
-    </div>
-  );
-}
-
 export interface ItemVis {
   n: number;
   item: string;
@@ -322,7 +231,7 @@ export function Arena({
   treinador,
   jogador,
   mensagem,
-  fx,
+  motor,
   textos,
   bola,
   lancamentos = [],
@@ -345,7 +254,7 @@ export function Arena({
   treinador: { sprite: string; chave: number; sai: boolean; lider?: boolean } | null;
   jogador?: { sprite: string; chave: number } | null; // o jogador aparece para lançar a bola
   mensagem: string;
-  fx: FxVis | null;
+  motor?: MotorGolpes; // golpes desenhados no canvas (golpes/motor.ts)
   textos: TextoVis[];
   bola: BolaVis | null;
   lancamentos?: LancaVis[];
@@ -367,6 +276,25 @@ export function Arena({
   const slots = (xs: (LadoVis | null)[]) => (dupla ? xs.slice(0, 2) : xs.slice(0, 1)).map((v, k) => [v, k as Slot] as const);
   const primeiroIni = slots(inimigos).find(([v]) => v && v.anim !== "some")?.[1] ?? 0;
   const primeiroMeu = slots(meus).find(([v]) => v && v.anim !== "some")?.[1] ?? 0;
+  const centroNum = useCallback((lado: "meu" | "inimigo", slot: Slot): [number, number] => {
+    const [x, y] = centro(lado, slot, dupla);
+    return [parseFloat(x), parseFloat(y) - 8];
+  }, [dupla]);
+  // Status em campo vira overlay contínuo do motor (chamas, bolhas, Z...). Some com o Pokémon.
+  const chaveStatus = [...inimigos, ...meus].map((v) => `${v?.status ?? ""}${v?.semente ? "+s" : ""}${v?.anim ?? ""}`).join("|");
+  useEffect(() => {
+    if (!motor) return;
+    const fora = ["some", "desmaia", "bola", "foge"];
+    for (const [lado, xs] of [["inimigo", inimigos], ["meu", meus]] as const)
+      for (const k of [0, 1] as const) {
+        const v = xs[k];
+        const chave = `${lado}-${k}`;
+        const ok = v && !fora.includes(v.anim) && (dupla || k === 0);
+        motor.definirStatus(chave, ok && v.status ? v.status : null);
+        motor.definirStatus(`${chave}:semente`, ok && v.semente ? "leech-seed" : null);
+      }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [motor, chaveStatus, dupla]);
   const lenda = !dupla && inimigos[0]?.lendario && !["some", "bola", "foge", "desmaia"].includes(inimigos[0].anim) ? inimigos[0] : null;
   return (
     <div
@@ -464,7 +392,7 @@ export function Arena({
         </div>
       )}
 
-      {fx && <GolpeFx key={fx.n} fx={fx} dupla={dupla} />}
+      {motor && <CamadaGolpes motor={motor} centro={centroNum} />}
 
       {item && (
         <div
