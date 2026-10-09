@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "fx:prepare": "node tools/prepare-assets.mjs",
-    "fx:receitas": "node tools/gerar-receitas.mjs"
+    "fx:receitas": "node tools/gerar-receitas.mjs",
+    "fx:menus": "node tools/prepare-menus.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.23.0",

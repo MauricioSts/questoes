@@ -28,4 +28,5 @@ backend/prisma/*.db
 # Assets de golpes (Nintendo/Game Freak, só protótipo local, não publicar)
 *.zip
 frontend/assets/attack-graphics/
+frontend/assets/menus/
 frontend/public/fx/

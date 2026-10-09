@@ -1,0 +1,50 @@
+/* Lista do time no estilo do menu POKéMON do GBA (components/poke/TimeGba.tsx). Peças em
+   pixel art escaladas com pixelated; o texto usa 1 px do GBA = var(--px). */
+.gba-time {
+  display: grid;
+  gap: .4rem;
+  padding: .6rem;
+  border-radius: .8rem;
+  background: var(--gba-fundo) center / cover no-repeat;
+  image-rendering: pixelated;
+}
+@media (min-width: 560px) {
+  .gba-time { grid-template-columns: 2fr 3fr; align-items: start; }
+  .gba-time__linha--lider { grid-row: 1 / span 6; }
+}
+.gba-time__linha { display: flex; align-items: center; gap: .3rem; min-width: 0; }
+.gba-time__linha--lider .gba-cartao { max-width: 260px; }
+
+.gba-cartao {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  container-type: inline-size;
+  border: 0;
+  padding: 0;
+  background: var(--peca) center / 100% 100% no-repeat;
+  image-rendering: pixelated;
+  cursor: pointer;
+  transition: transform .08s;
+}
+.gba-cartao:not(:disabled):hover,
+.gba-cartao:not(:disabled):focus-visible { background-image: var(--peca-sel); background-size: 100% var(--sel-h); outline: none; }
+.gba-cartao:not(:disabled):active { transform: translateY(1px); }
+.gba-cartao:disabled { cursor: default; opacity: .55; }
+.gba-cartao--fora { filter: grayscale(.85) brightness(.9); }
+
+.gba-cartao__icone { position: absolute; height: auto; image-rendering: pixelated; pointer-events: none; }
+.gba-cartao__txt {
+  position: absolute;
+  color: #f8f8f8;
+  font: 700 calc(var(--px) * 8) / 1 ui-monospace, "Cascadia Mono", monospace;
+  letter-spacing: calc(var(--px) * .2);
+  text-shadow: var(--px) var(--px) 0 #505058;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+.gba-cartao__txt--dir { text-align: right; }
+.gba-cartao__hp { position: absolute; pointer-events: none; }
+.gba-cartao__selo { position: absolute; width: calc(var(--px) * 20); height: calc(var(--px) * 8); background: center / 100% 100% no-repeat; image-rendering: pixelated; }

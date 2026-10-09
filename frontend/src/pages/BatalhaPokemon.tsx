@@ -129,6 +129,7 @@ import { PageHeader } from "../components/PageHeader";
 import { Carregando } from "../components/Spinner";
 import { Arena, Pokebolas, TEXTO_HABITAT, TipoChip, habitatDoTipo, type BolaVis, type EstadoBola, type ItemVis, type LadoVis, type LancaVis, type TextoVis } from "../components/poke/Arena";
 import { MotorGolpes } from "../components/poke/golpes/motor";
+import { TimeGba, useTemaGba } from "../components/poke/TimeGba";
 import { specDoGolpe } from "../components/poke/golpes/spec";
 import type { Ancora, Resultado } from "../components/poke/golpes/tipos";
 import { carregarSave, criarSalvador, type EstadoSave, type SavePoke } from "../lib/poke/save";
@@ -273,6 +274,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
 
   const [viagem, setViagem] = useState(false);
   const [fase, setFase] = useState<Fase>(() => (!partida ? "lobby" : partida.fim ? "fim" : partida.oferta ? "recompensa" : "lobby"));
+  const temaGba = useTemaGba(partida?.regiao ?? 0); // lista do time no estilo do menu do GBA, se as peças existirem
 
   // lobby
   const [hist, setHist] = useState<Map<number, HistoricoQ> | null>(null);
@@ -1534,7 +1536,25 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
   const posicaoParada = partida.parada && perfil ? posicaoNoMapa(perfil, partida) : null;
   const proximoTreinador = proximo && proximo.treinador >= 0 ? partida.treinadores[proximo.treinador] : null;
 
-  const listaTime = (onEscolher: (i: number) => void, desabilitar: (l: Lutador, i: number) => boolean, extra?: (l: Lutador, i: number) => ReactNode) => (
+  const listaTime = (onEscolher: (i: number) => void, desabilitar: (l: Lutador, i: number) => boolean, extra?: (l: Lutador, i: number) => ReactNode) =>
+    temaGba ? (
+      <TimeGba
+        tema={temaGba}
+        linhas={partida.time.map((l, i) => ({
+          chave: l.uid,
+          nome: nomeDe(l.id),
+          nivel: nivelDe(l),
+          hp: l.hp,
+          max: hpMax(dex, l),
+          status: l.status || undefined,
+          sprite: spriteEstatico(l.id),
+          emCampo: fase !== "parada" && campo.includes(i),
+          desabilitado: desabilitar(l, i),
+          onClick: () => onEscolher(i),
+          extra: extra?.(l, i),
+        }))}
+      />
+    ) : (
     <div className="grid gap-2 sm:grid-cols-2">
       {partida.time.map((l, i) => {
         const max = hpMax(dex, l);
@@ -1568,7 +1588,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
         );
       })}
     </div>
-  );
+    );
 
   const mochilaCura = (
     <>
