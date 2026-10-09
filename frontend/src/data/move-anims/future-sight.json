@@ -1,0 +1,190 @@
+{
+ "slug": "future-sight",
+ "duration": 84,
+ "layers": [
+  {
+   "asset": "Px-Orbe",
+   "anchor": "user",
+   "start": 0,
+   "end": 30,
+   "frame": 4,
+   "spawn": {
+    "count": 3,
+    "spread": [
+     12,
+     4
+    ],
+    "interval": 4,
+    "life": 22,
+    "seed": 1
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 20,
+       "v": -110,
+       "ease": "in"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Orbe",
+   "anchor": "target",
+   "start": 40,
+   "end": 70,
+   "frame": 5,
+   "spawn": {
+    "count": 3,
+    "spread": [
+     12,
+     4
+    ],
+    "interval": 4,
+    "life": 16,
+    "seed": 2
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -110
+      },
+      {
+       "t": 12,
+       "v": 0,
+       "ease": "in"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Anel",
+   "anchor": "target",
+   "start": 52,
+   "end": 72,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 20,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 17,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  52
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 52,
+    "dur": 16,
+    "amp": 3
+   }
+  ],
+  "flash": [
+   {
+    "t": 50,
+    "dur": 6,
+    "color": "#FFFFFF",
+    "alpha": 0.6
+   }
+  ],
+  "tint": [
+   {
+    "start": 0,
+    "end": 80,
+    "color": "#100828",
+    "alpha": 0.35
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (futuro)"
+}

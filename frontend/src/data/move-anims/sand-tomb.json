@@ -1,0 +1,266 @@
+{
+ "slug": "sand-tomb",
+ "duration": 66,
+ "layers": [
+  {
+   "asset": "Px-Pedra",
+   "anchor": "target",
+   "start": 0,
+   "end": 56,
+   "frame": 0,
+   "keepColor": false,
+   "spawn": {
+    "count": 10,
+    "spread": [
+     0,
+     30
+    ],
+    "interval": 0,
+    "seed": 1
+   },
+   "orbit": {
+    "rx": 30,
+    "ry": 10,
+    "speed": 14
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 1
+      },
+      {
+       "t": 48,
+       "v": 1
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  },
+  {
+   "asset": "Px-Fumaca",
+   "anchor": "field-target",
+   "start": 0,
+   "end": 56,
+   "frameSeq": {
+    "frames": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 6,
+    "loop": false
+   },
+   "spawn": {
+    "count": 4,
+    "spread": [
+     26,
+     4
+    ],
+    "interval": 6,
+    "life": 30,
+    "seed": 2
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.8
+      },
+      {
+       "t": 30,
+       "v": 0.8
+      }
+     ]
+    }
+   },
+   "z": 4
+  },
+  {
+   "asset": "Px-Faisca",
+   "anchor": "target",
+   "start": 10,
+   "end": 14,
+   "spawn": {
+    "count": 3,
+    "spread": [
+     5,
+     5
+    ],
+    "interval": 0,
+    "frames": [
+     2,
+     3,
+     4
+    ],
+    "burst": 1.8,
+    "life": 16,
+    "seed": 3
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Faisca",
+   "anchor": "target",
+   "start": 24,
+   "end": 28,
+   "spawn": {
+    "count": 3,
+    "spread": [
+     5,
+     5
+    ],
+    "interval": 0,
+    "frames": [
+     2,
+     3,
+     4
+    ],
+    "burst": 1.8,
+    "life": 16,
+    "seed": 4
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Faisca",
+   "anchor": "target",
+   "start": 38,
+   "end": 42,
+   "spawn": {
+    "count": 3,
+    "spread": [
+     5,
+     5
+    ],
+    "interval": 0,
+    "frames": [
+     2,
+     3,
+     4
+    ],
+    "burst": 1.8,
+    "life": 16,
+    "seed": 5
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  10,
+  24,
+  38
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 12
+  }
+ ],
+ "pixel": true,
+ "note": "pixel art própria (prender)"
+}

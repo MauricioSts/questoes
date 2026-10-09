@@ -1,0 +1,88 @@
+{
+ "slug": "astonish",
+ "duration": 36,
+ "layers": [
+  {
+   "asset": "Px-Impacto",
+   "anchor": "target",
+   "start": 9,
+   "end": 21,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20,
+    "loop": false
+   },
+   "keepColor": true,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  10
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "dash",
+   "dur": 22
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 10,
+    "dur": 8,
+    "amp": 1
+   }
+  ],
+  "flash": [
+   {
+    "t": 9,
+    "dur": 6,
+    "color": "#FFFFFF",
+    "alpha": 0.5
+   }
+  ],
+  "tint": [
+   {
+    "start": 0,
+    "end": 30,
+    "color": "#100018",
+    "alpha": 0.4
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (contato)"
+}

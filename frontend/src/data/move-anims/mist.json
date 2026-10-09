@@ -1,0 +1,71 @@
+{
+ "slug": "mist",
+ "duration": 50,
+ "layers": [
+  {
+   "asset": "Px-Fumaca",
+   "anchor": "user",
+   "start": 0,
+   "end": 40,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     2,
+     3,
+     4
+    ],
+    "fps": 8,
+    "loop": false
+   },
+   "spawn": {
+    "count": 5,
+    "spread": [
+     18,
+     12
+    ],
+    "interval": 3,
+    "life": 36,
+    "seed": 1,
+    "vx": 0.15,
+    "vy": -0.1
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 0.6
+      },
+      {
+       "t": 30,
+       "v": 0.6
+      },
+      {
+       "t": 36,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 1
+  }
+ ],
+ "react": "self",
+ "pixel": true,
+ "note": "pixel art própria (nuvem)"
+}

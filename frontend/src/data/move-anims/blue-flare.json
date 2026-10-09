@@ -1,0 +1,71 @@
+{
+ "slug": "blue-flare",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Px-Explosao",
+   "anchor": "target",
+   "start": 12,
+   "end": 60,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ],
+    "fps": 16,
+    "loop": false
+   },
+   "keepColor": true,
+   "spawn": {
+    "count": 5,
+    "spread": [
+     26,
+     22
+    ],
+    "interval": 6,
+    "life": 28,
+    "seed": 1
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.1
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  24,
+  36,
+  48
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 24,
+    "dur": 40,
+    "amp": 5
+   }
+  ],
+  "tint": [
+   {
+    "start": 0,
+    "end": 70,
+    "color": "#000830",
+    "alpha": 0.5
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (area)"
+}

@@ -1,0 +1,101 @@
+{
+ "slug": "struggle-bug",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Px-Faisca",
+   "anchor": "target",
+   "start": 6,
+   "end": 56,
+   "frameSeq": {
+    "frames": [
+     2,
+     3,
+     4,
+     3
+    ],
+    "fps": 24,
+    "loop": true
+   },
+   "spawn": {
+    "count": 16,
+    "spread": [
+     30,
+     30
+    ],
+    "interval": 2,
+    "life": 10,
+    "seed": 1
+   },
+   "z": 4
+  },
+  {
+   "asset": "Px-Anel",
+   "anchor": "user",
+   "start": 10,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 17,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  24,
+  36,
+  48
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 24,
+    "dur": 40,
+    "amp": 3
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (area)"
+}

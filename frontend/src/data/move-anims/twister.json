@@ -1,0 +1,96 @@
+{
+ "slug": "twister",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Px-Vento",
+   "anchor": "target",
+   "start": 0,
+   "end": 60,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 24,
+    "loop": true
+   },
+   "spawn": {
+    "count": 6,
+    "spread": [
+     0,
+     30
+    ],
+    "interval": 2,
+    "life": 54,
+    "seed": 1
+   },
+   "orbit": {
+    "rx": 26,
+    "ry": 8,
+    "speed": 12
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 10
+      },
+      {
+       "t": 54,
+       "v": -14
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 1
+      },
+      {
+       "t": 46,
+       "v": 1
+      },
+      {
+       "t": 54,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "hits": [
+  24,
+  36,
+  48
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 24,
+    "dur": 40,
+    "amp": 3
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (area)"
+}

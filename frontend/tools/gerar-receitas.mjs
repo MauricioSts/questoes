@@ -9,8 +9,16 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { RECEITAS, REUSO, REUSO_ARQUETIPO } from "./receitas.mjs";
+import { RECEITAS as RECEITAS_DP, REUSO, REUSO_ARQUETIPO } from "./receitas.mjs";
+import { receitasPixel } from "./receitas-pixel.mjs";
+import { gerarKit } from "./pixel-kit.mjs";
 import { CATALOGO, TIPOS_EN } from "../src/components/poke/golpes/catalogo.ts";
+
+// peças em pixel art próprias (public/fx/Px-*.png) entram no atlas antes da validação
+gerarKit();
+const PIXEL = receitasPixel(CATALOGO);
+const TIPO_PIXEL = new Map(PIXEL.map((p) => [p.receita.slug, p.tipo]));
+const RECEITAS = [...RECEITAS_DP, ...PIXEL.map((p) => p.receita)];
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIR = path.join(RAIZ, "src/data/move-anims");
@@ -50,7 +58,11 @@ const mapa = {};
 for (const l of CATALOGO) {
   const propria = porSlug.get(l.slug);
   const reuso = REUSO[l.slug] ?? REUSO_ARQUETIPO[l.arquetipo];
-  if (propria) mapa[l.slug] = { modo: propria.approx ? "approx" : "asset", receita: l.slug, arquetipo: l.arquetipo };
+  if (propria?.pixel) {
+    if (REUSO[l.slug]) erros.push(`${l.slug}: tem receita pixel e também REUSO`);
+    const tipo = TIPO_PIXEL.get(l.slug);
+    mapa[l.slug] = { modo: "pixel", receita: l.slug, ...(tipo !== undefined ? { tipo } : {}), arquetipo: l.arquetipo };
+  } else if (propria) mapa[l.slug] = { modo: propria.approx ? "approx" : "asset", receita: l.slug, arquetipo: l.arquetipo };
   else if (reuso && porSlug.has(reuso)) {
     const base = tipoDe.get(reuso);
     mapa[l.slug] = { modo: "recolor", receita: reuso, ...(base !== undefined && base !== l.tipo ? { tipo: l.tipo } : {}), arquetipo: l.arquetipo };
@@ -69,6 +81,7 @@ const semUso = atlas ? Object.keys(atlas).filter((a) => !usados.has(a)) : [];
 const linhas = (modos) => CATALOGO.filter((l) => modos.includes(mapa[l.slug].modo));
 const asset = linhas(["asset"]);
 const aprox = linhas(["approx", "recolor"]);
+const pixel = linhas(["pixel"]);
 const fb = linhas(["fallback"]);
 const nomeTipo = (t) => (t === undefined ? "" : TIPOS_EN[t]);
 const md = `# Cobertura das animações de golpes
@@ -79,6 +92,7 @@ Gerado por \`tools/gerar-receitas.mjs\`. ${CATALOGO.length} golpes (gerações 1
 |---|---|
 | Cobertos com asset original | ${asset.length} |
 | Cobertos com aproximação (receita combinada ou reaproveitada) | ${aprox.length} |
+| Pixel art própria (peças Px-* desenhadas por tools/pixel-kit.mjs) | ${pixel.length} |
 | Sem cobertura de sprite (fallback procedural por arquétipo) | ${fb.length} |
 
 Nenhuma receita é a animação do jogo: os PNGs são peças e o movimento foi recriado à mão.
@@ -98,6 +112,10 @@ ${aprox
   })
   .join("\n")}
 
+## Pixel art própria
+
+${pixel.map((l) => `- ${l.nome}: ${porSlug.get(l.slug).note.replace("pixel art própria ", "")}${mapa[l.slug].tipo !== undefined ? ` pintado de ${nomeTipo(mapa[l.slug].tipo)}` : ""}`).join("\n")}
+
 ## Sem cobertura (fallback procedural)
 
 ${fb.map((l) => `- ${l.nome} → arquétipo ${l.arquetipo}`).join("\n")}
@@ -105,7 +123,7 @@ ${fb.map((l) => `- ${l.nome} → arquétipo ${l.arquetipo}`).join("\n")}
 fs.mkdirSync(path.join(RAIZ, "reports"), { recursive: true });
 fs.writeFileSync(path.join(RAIZ, "reports/coverage.md"), md);
 
-console.log(`${RECEITAS.length} receitas · asset ${asset.length} · aproximados ${aprox.length} · fallback ${fb.length}${atlas ? "" : " · (sem atlas: índices não conferidos)"}`);
+console.log(`${RECEITAS.length} receitas · asset ${asset.length} · aproximados ${aprox.length} · pixel ${pixel.length} · fallback ${fb.length}${atlas ? "" : " · (sem atlas: índices não conferidos)"}`);
 if (semUso.length) console.log(`atlas sem receita: ${semUso.join(", ")}`);
 if (erros.length) {
   for (const e of erros) console.error("erro:", e);

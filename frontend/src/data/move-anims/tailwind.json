@@ -1,0 +1,66 @@
+{
+ "slug": "tailwind",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Px-Vento",
+   "anchor": "screen-center",
+   "start": 0,
+   "end": 70,
+   "spawn": {
+    "count": 28,
+    "spread": [
+     140,
+     80
+    ],
+    "interval": 2,
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "life": 24,
+    "vx": 6,
+    "vy": -0.5,
+    "spin": 0,
+    "seed": 1
+   },
+   "keepColor": false,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.2
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "react": "self",
+ "pixel": true,
+ "note": "pixel art própria (clima)"
+}

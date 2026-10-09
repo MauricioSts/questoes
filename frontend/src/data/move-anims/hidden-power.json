@@ -1,0 +1,123 @@
+{
+ "slug": "hidden-power",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Px-Orbe",
+   "anchor": "user",
+   "start": 0,
+   "end": 30,
+   "frame": 3,
+   "spawn": {
+    "count": 6,
+    "spread": 0,
+    "interval": 0
+   },
+   "orbit": {
+    "rx": 30,
+    "ry": 12,
+    "speed": 10
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 28,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Orbe",
+   "anchor": "user",
+   "start": 30,
+   "end": 60,
+   "to": "target",
+   "frame": 3,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     12,
+     10
+    ],
+    "interval": 2,
+    "life": 18,
+    "seed": 1
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 16,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Impacto",
+   "anchor": "target",
+   "start": 46,
+   "end": 70,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20,
+    "loop": false
+   },
+   "keepColor": true,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     16,
+     14
+    ],
+    "interval": 2,
+    "life": 12,
+    "seed": 2
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  46,
+  52,
+  58
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 46,
+    "dur": 16,
+    "amp": 2
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (orbitar)"
+}

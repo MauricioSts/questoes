@@ -1,0 +1,170 @@
+{
+ "slug": "rapid-spin",
+ "duration": 53,
+ "layers": [
+  {
+   "asset": "Px-Impacto",
+   "anchor": "target",
+   "start": 6,
+   "end": 18,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20,
+    "loop": false
+   },
+   "keepColor": true,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -4
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Impacto",
+   "anchor": "target",
+   "start": 26,
+   "end": 38,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20,
+    "loop": false
+   },
+   "keepColor": true,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 6
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 4
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Vento",
+   "anchor": "user",
+   "start": 0,
+   "end": 20,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 24,
+    "loop": true
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  7,
+  27
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 16
+  },
+  {
+   "who": "user",
+   "t": 20,
+   "kind": "lunge",
+   "dur": 16
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 7,
+    "dur": 8,
+    "amp": 1
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (contato)"
+}

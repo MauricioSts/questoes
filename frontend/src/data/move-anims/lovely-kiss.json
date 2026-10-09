@@ -1,0 +1,123 @@
+{
+ "slug": "lovely-kiss",
+ "duration": 70,
+ "layers": [
+  {
+   "asset": "Px-Coracao",
+   "anchor": "user",
+   "start": 0,
+   "end": 36,
+   "to": "target",
+   "frame": 1,
+   "keepColor": true,
+   "arc": 16,
+   "spawn": {
+    "count": 3,
+    "spread": [
+     6,
+     6
+    ],
+    "interval": 5,
+    "life": 26,
+    "seed": 1
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Coracao",
+   "anchor": "target",
+   "start": 24,
+   "end": 66,
+   "frameSeq": {
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 6,
+    "loop": true
+   },
+   "keepColor": true,
+   "spawn": {
+    "count": 6,
+    "spread": 0,
+    "interval": 0
+   },
+   "orbit": {
+    "rx": 26,
+    "ry": 10,
+    "speed": 8
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "hits": [
+  24
+ ],
+ "react": "status",
+ "pixel": true,
+ "note": "pixel art própria (coracoes)"
+}

@@ -1,0 +1,99 @@
+{
+ "slug": "spider-web",
+ "duration": 66,
+ "layers": [
+  {
+   "asset": "Px-Teia",
+   "anchor": "user",
+   "start": 0,
+   "end": 16,
+   "to": "target",
+   "frame": 0,
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 16,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.4
+      },
+      {
+       "t": 16,
+       "v": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Teia",
+   "anchor": "target",
+   "start": 16,
+   "end": 60,
+   "frame": 1,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.6
+      },
+      {
+       "t": 6,
+       "v": 1.1,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 0.9
+      },
+      {
+       "t": 36,
+       "v": 0.9
+      },
+      {
+       "t": 44,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "hits": [
+  16
+ ],
+ "react": "status",
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 12
+  }
+ ],
+ "pixel": true,
+ "note": "pixel art própria (prender)"
+}

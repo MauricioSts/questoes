@@ -1,0 +1,267 @@
+{
+ "slug": "guillotine",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Px-Corte",
+   "anchor": "target",
+   "start": 0,
+   "end": 34,
+   "frame": 2,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -16
+      },
+      {
+       "t": 26,
+       "v": -4,
+       "ease": "in"
+      },
+      {
+       "t": 34,
+       "v": -4
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 45
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 31,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Corte",
+   "anchor": "target",
+   "start": 0,
+   "end": 34,
+   "frame": 2,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 16
+      },
+      {
+       "t": 26,
+       "v": 4,
+       "ease": "in"
+      },
+      {
+       "t": 34,
+       "v": 4
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 225
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 31,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Impacto",
+   "anchor": "target",
+   "start": 28,
+   "end": 40,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20,
+    "loop": false
+   },
+   "keepColor": true,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.6
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Faisca",
+   "anchor": "target",
+   "start": 28,
+   "end": 32,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     5,
+     5
+    ],
+    "interval": 0,
+    "frames": [
+     2,
+     3,
+     4
+    ],
+    "burst": 1.8,
+    "life": 16,
+    "seed": 1
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  28
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 14
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 28,
+    "dur": 24,
+    "amp": 5
+   }
+  ],
+  "flash": [
+   {
+    "t": 27,
+    "dur": 10,
+    "color": "#FFFFFF",
+    "alpha": 0.8
+   }
+  ],
+  "tint": [
+   {
+    "start": 0,
+    "end": 58,
+    "color": "#000000",
+    "alpha": 0.45
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (pinca)"
+}

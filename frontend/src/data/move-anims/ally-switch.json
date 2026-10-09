@@ -1,0 +1,83 @@
+{
+ "slug": "ally-switch",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Px-Anel",
+   "anchor": "user",
+   "start": 0,
+   "end": 24,
+   "frameSeq": {
+    "frames": [
+     4,
+     3,
+     2,
+     1,
+     0
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.4
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Faisca",
+   "anchor": "user",
+   "start": 10,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     2,
+     3,
+     4,
+     3
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "spawn": {
+    "count": 8,
+    "spread": [
+     10,
+     26
+    ],
+    "interval": 2,
+    "life": 14,
+    "vy": -2.4,
+    "seed": 1
+   },
+   "z": 4
+  }
+ ],
+ "react": "self",
+ "actor": [
+  {
+   "who": "user",
+   "t": 14,
+   "kind": "hide",
+   "dur": 40
+  }
+ ],
+ "screen": {
+  "flash": [
+   {
+    "t": 14,
+    "dur": 6,
+    "color": "#FFFFFF",
+    "alpha": 0.5
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (teleporte)"
+}

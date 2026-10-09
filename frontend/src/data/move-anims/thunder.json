@@ -1,0 +1,210 @@
+{
+ "slug": "thunder",
+ "duration": 54,
+ "layers": [
+  {
+   "asset": "Px-Raio",
+   "anchor": "target",
+   "start": 6,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 20,
+    "loop": true
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -56
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Faisca",
+   "anchor": "target",
+   "start": 8,
+   "end": 12,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     5,
+     5
+    ],
+    "interval": 0,
+    "frames": [
+     2,
+     3,
+     4
+    ],
+    "burst": 2,
+    "life": 16,
+    "seed": 1
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Faisca",
+   "anchor": "target",
+   "start": 8,
+   "end": 34,
+   "frameSeq": {
+    "frames": [
+     2,
+     3,
+     4,
+     3
+    ],
+    "fps": 24,
+    "loop": true
+   },
+   "spawn": {
+    "count": 6,
+    "spread": [
+     20,
+     20
+    ],
+    "interval": 3,
+    "life": 8,
+    "seed": 2
+   },
+   "z": 4
+  },
+  {
+   "asset": "Px-Raio",
+   "anchor": "target",
+   "start": 10,
+   "end": 34,
+   "frameSeq": {
+    "frames": [
+     1,
+     2,
+     0
+    ],
+    "fps": 20,
+    "loop": true
+   },
+   "spawn": {
+    "count": 4,
+    "spread": [
+     24,
+     6
+    ],
+    "interval": 5,
+    "life": 8,
+    "seed": 3
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.6
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  8
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 8,
+    "dur": 24,
+    "amp": 4
+   }
+  ],
+  "flash": [
+   {
+    "t": 6,
+    "dur": 10,
+    "color": "#FFFFFF",
+    "alpha": 0.8
+   }
+  ],
+  "tint": [
+   {
+    "start": 0,
+    "end": 44,
+    "color": "#000010",
+    "alpha": 0.45
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (raio)"
+}

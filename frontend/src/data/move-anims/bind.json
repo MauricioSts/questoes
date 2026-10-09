@@ -1,0 +1,333 @@
+{
+ "slug": "bind",
+ "duration": 66,
+ "layers": [
+  {
+   "asset": "Px-Faixa",
+   "anchor": "target",
+   "start": 0,
+   "end": 54,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     2,
+     3,
+     2,
+     3
+    ],
+    "fps": 10,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -12
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 48,
+       "v": 1
+      },
+      {
+       "t": 54,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Faixa",
+   "anchor": "target",
+   "start": 4,
+   "end": 54,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     2,
+     3,
+     2,
+     3
+    ],
+    "fps": 10,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 1
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Faixa",
+   "anchor": "target",
+   "start": 8,
+   "end": 54,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     2,
+     3,
+     2,
+     3
+    ],
+    "fps": 10,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 12
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 40,
+       "v": 1
+      },
+      {
+       "t": 46,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Faisca",
+   "anchor": "target",
+   "start": 10,
+   "end": 14,
+   "spawn": {
+    "count": 3,
+    "spread": [
+     5,
+     5
+    ],
+    "interval": 0,
+    "frames": [
+     2,
+     3,
+     4
+    ],
+    "burst": 1.8,
+    "life": 16,
+    "seed": 1
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Faisca",
+   "anchor": "target",
+   "start": 24,
+   "end": 28,
+   "spawn": {
+    "count": 3,
+    "spread": [
+     5,
+     5
+    ],
+    "interval": 0,
+    "frames": [
+     2,
+     3,
+     4
+    ],
+    "burst": 1.8,
+    "life": 16,
+    "seed": 2
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Faisca",
+   "anchor": "target",
+   "start": 38,
+   "end": 42,
+   "spawn": {
+    "count": 3,
+    "spread": [
+     5,
+     5
+    ],
+    "interval": 0,
+    "frames": [
+     2,
+     3,
+     4
+    ],
+    "burst": 1.8,
+    "life": 16,
+    "seed": 3
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  10,
+  24,
+  38
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 12
+  }
+ ],
+ "pixel": true,
+ "note": "pixel art própria (prender)"
+}

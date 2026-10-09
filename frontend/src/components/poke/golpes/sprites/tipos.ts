@@ -84,6 +84,7 @@ export interface MoveAnim {
   screen?: { shake?: Shake[]; flash?: Flash[]; tint?: Tint[] };
   bg?: { asset: string; frame?: number; frames?: number[]; fps?: number; start: number; end: number; scroll?: { dx: number; dy: number }; alpha?: Track };
   sound?: string;
+  pixel?: boolean; // peças Px-* desenhadas por tools/pixel-kit.mjs (não vêm dos jogos)
   approx?: boolean; // combinação de peças ou movimento inventado: não é a animação do jogo
   note?: string;
 }
@@ -117,7 +118,7 @@ export interface Atlas {
 
 // ---------- mapa golpe → visual ----------
 
-export type ModoVisual = "asset" | "approx" | "recolor" | "fallback";
+export type ModoVisual = "asset" | "approx" | "recolor" | "pixel" | "fallback";
 export interface EntradaMapa {
   modo: ModoVisual;
   receita?: string; // slug da receita usada (a própria, ou a de outro golpe no recolor)

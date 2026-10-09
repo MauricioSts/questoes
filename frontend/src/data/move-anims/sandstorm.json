@@ -1,0 +1,73 @@
+{
+ "slug": "sandstorm",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Px-Pedra",
+   "anchor": "screen-center",
+   "start": 0,
+   "end": 70,
+   "spawn": {
+    "count": 28,
+    "spread": [
+     140,
+     80
+    ],
+    "interval": 2,
+    "frames": [
+     0,
+     1
+    ],
+    "life": 24,
+    "vx": -4,
+    "vy": 2,
+    "spin": 10,
+    "seed": 1
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "react": "self",
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 76,
+    "color": "#402800",
+    "alpha": 0.35
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (clima)"
+}

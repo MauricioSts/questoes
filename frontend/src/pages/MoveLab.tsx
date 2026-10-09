@@ -39,6 +39,7 @@ const SELO: Record<ModoVisual, [string, string]> = {
   asset: ["asset original", "#3DDC84"],
   approx: ["aproximado", "#FFC542"],
   recolor: ["aproximado · reaproveitado", "#FFC542"],
+  pixel: ["pixel art própria", "#5AB4FF"],
   fallback: ["fallback procedural", "#9AA3B5"],
 };
 const ESTRESSE = ["explosion", "blizzard", "draco-meteor", "hyper-beam", "earthquake", "blast-burn", "hurricane", "fire-blast"];
@@ -208,6 +209,7 @@ export function MoveLab() {
             <option value="asset">Asset original</option>
             <option value="approx">Aproximado (combinado)</option>
             <option value="recolor">Reaproveitado / recolor</option>
+            <option value="pixel">Pixel art própria</option>
             <option value="fallback">Fallback procedural</option>
           </select>
           <p className="ml__conta">{lista.length} golpes</p>

@@ -1,0 +1,99 @@
+{
+ "slug": "water-pledge",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Px-Pulso",
+   "anchor": "field-target",
+   "start": 10,
+   "end": 60,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 18,
+    "loop": true
+   },
+   "spawn": {
+    "count": 12,
+    "spread": [
+     20,
+     2
+    ],
+    "interval": 2,
+    "life": 22,
+    "seed": 1,
+    "vy": -3
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Faisca",
+   "anchor": "field-target",
+   "start": 14,
+   "end": 60,
+   "frameSeq": {
+    "frames": [
+     2,
+     3,
+     4
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "spawn": {
+    "count": 10,
+    "spread": [
+     26,
+     4
+    ],
+    "interval": 3,
+    "life": 18,
+    "seed": 2,
+    "vy": -2
+   },
+   "z": 4
+  }
+ ],
+ "hits": [
+  24,
+  36,
+  48
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 24,
+    "dur": 40,
+    "amp": 3
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (area)"
+}

@@ -1,0 +1,199 @@
+{
+ "slug": "gunk-shot",
+ "duration": 42,
+ "layers": [
+  {
+   "asset": "Px-Fumaca",
+   "anchor": "user",
+   "start": 0,
+   "end": 23,
+   "to": "target",
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 10,
+    "loop": false
+   },
+   "arc": 0,
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.9799999999999999
+      },
+      {
+       "t": 22,
+       "v": 1.4
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Impacto",
+   "anchor": "target",
+   "start": 22,
+   "end": 34,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20,
+    "loop": false
+   },
+   "keepColor": true,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Gota",
+   "anchor": "target",
+   "start": 22,
+   "end": 24,
+   "spawn": {
+    "count": 7,
+    "spread": [
+     6,
+     6
+    ],
+    "interval": 1,
+    "frames": [
+     0,
+     1
+    ],
+    "burst": 1.6,
+    "vy": -1.6,
+    "gravity": 0.2,
+    "life": 20,
+    "seed": 1
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Fumaca",
+   "anchor": "target",
+   "start": 22,
+   "end": 52,
+   "spawn": {
+    "count": 3,
+    "spread": [
+     12,
+     8
+    ],
+    "interval": 4,
+    "life": 26,
+    "seed": 2
+   },
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 9,
+    "loop": false
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.9
+      },
+      {
+       "t": 26,
+       "v": 0.9
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  22
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 10
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 22,
+    "dur": 8,
+    "amp": 1
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (projetil)"
+}

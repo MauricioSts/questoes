@@ -1,12 +1,13 @@
 # Cobertura das animações de golpes
 
-Gerado por `tools/gerar-receitas.mjs`. 559 golpes (gerações 1–5), 114 receitas, 95 de 95 arquivos do atlas usados.
+Gerado por `tools/gerar-receitas.mjs`. 559 golpes (gerações 1–5), 342 receitas, 119 de 119 arquivos do atlas usados.
 
 | | golpes |
 |---|---|
 | Cobertos com asset original | 91 |
 | Cobertos com aproximação (receita combinada ou reaproveitada) | 240 |
-| Sem cobertura de sprite (fallback procedural por arquétipo) | 228 |
+| Pixel art própria (peças Px-* desenhadas por tools/pixel-kit.mjs) | 228 |
+| Sem cobertura de sprite (fallback procedural por arquétipo) | 0 |
 
 Nenhuma receita é a animação do jogo: os PNGs são peças e o movimento foi recriado à mão.
 "Asset original" quer dizer que as peças são do próprio golpe.
@@ -348,233 +349,237 @@ Nenhuma receita é a animação do jogo: os PNGs são peças e o movimento foi r
 - Wonder Room: usa `trick-room`
 - Work Up: usa `_stat-up`
 
+## Pixel art própria
+
+- Acid: (projetil) pintado de Poison
+- Aurora Beam: (feixe) pintado de Ice
+- Barrage: (projetil)
+- Bide: (carga)
+- Bind: (prender)
+- Bone Club: (osso) pintado de Ground
+- Bonemerang: (osso) pintado de Ground
+- Clamp: (pinca) pintado de Water
+- Constrict: (prender)
+- Conversion: (brilhos)
+- Counter: (contato) pintado de Fighting
+- Crabhammer: (corte) pintado de Water
+- Dig: (cavar) pintado de Ground
+- Double Slap: (golpe)
+- Dragon Rage: (feixe) pintado de Fire
+- Drill Peck: (chifre) pintado de Flying
+- Explosion: (explosao)
+- Fury Attack: (chifre)
+- Guillotine: (pinca)
+- Gust: (projetil) pintado de Flying
+- Haze: (nuvem)
+- Horn Attack: (chifre)
+- Horn Drill: (chifre)
+- Hyper Beam: (feixe) pintado de Fire
+- Leech Life: (dreno) pintado de Bug
+- Lick: (chicote) pintado de Psychic
+- Light Screen: (barreira) pintado de Electric
+- Lovely Kiss: (coracoes)
+- Mimic: (troca)
+- Mirror Move: (brilhos) pintado de Flying
+- Mist: (nuvem) pintado de Ice
+- Night Shade: (ondas) pintado de Ghost
+- Pay Day: (moedas)
+- Peck: (chifre) pintado de Flying
+- Poison Gas: (nuvem) pintado de Poison
+- Pound: (golpe)
+- Psywave: (ondas) pintado de Psychic
+- Rage: (contato) pintado de Fire
+- Reflect: (barreira) pintado de Psychic
+- Self-Destruct: (explosao)
+- Skull Bash: (carga)
+- Sky Attack: (carga) pintado de Flying
+- Slam: (contato)
+- Smog: (nuvem) pintado de Poison
+- Sonic Boom: (projetil)
+- Strength: (contato)
+- Struggle: (contato)
+- Tackle: (contato)
+- Teleport: (teleporte) pintado de Psychic
+- Thrash: (contato)
+- Thunder: (raio) pintado de Electric
+- Thunder Shock: (raio) pintado de Electric
+- Thunder Wave: (raio) pintado de Electric
+- Thunderbolt: (raio) pintado de Electric
+- Toxic: (nuvem) pintado de Poison
+- Transform: (brilhos)
+- Tri Attack: (projetil)
+- Vine Whip: (chicote) pintado de Grass
+- Vise Grip: (pinca)
+- Wing Attack: (corte) pintado de Flying
+- Wrap: (prender)
+- Attract: (coracoes)
+- Beat Up: (golpe) pintado de Dark
+- Bone Rush: (osso) pintado de Ground
+- Conversion 2: (brilhos)
+- Curse: (maldicao) pintado de Ghost
+- Destiny Bond: (ondas) pintado de Ghost
+- Detect: (brilhos) pintado de Fighting
+- Dragon Breath: (feixe) pintado de Dragon
+- Endure: (aura) pintado de Fighting
+- False Swipe: (corte)
+- Flail: (contato)
+- Frustration: (contato)
+- Future Sight: (futuro) pintado de Psychic
+- Heal Bell: (brilhos)
+- Hidden Power: (orbitar)
+- Iron Tail: (chicote) pintado de Steel
+- Megahorn: (chifre) pintado de Bug
+- Mirror Coat: (feixe) pintado de Psychic
+- Outrage: (contato) pintado de Dragon
+- Pain Split: (troca)
+- Present: (projetil)
+- Protect: (barreira) pintado de Grass
+- Psych Up: (brilhos)
+- Rapid Spin: (contato)
+- Return: (contato)
+- Reversal: (contato) pintado de Fighting
+- Rollout: (contato) pintado de Rock
+- Safeguard: (barreira) pintado de Ice
+- Sandstorm: (clima) pintado de Rock
+- Sketch: (troca)
+- Spark: (choque) pintado de Electric
+- Spider Web: (prender) pintado de Bug
+- Steel Wing: (corte) pintado de Steel
+- Thief: (golpe) pintado de Dark
+- Twister: (area) pintado de Dragon
+- Zap Cannon: (projetil) pintado de Electric
+- Aromatherapy: (brilhos) pintado de Grass
+- Assist: (brilhos)
+- Astonish: (contato) pintado de Ghost
+- Camouflage: (brilhos)
+- Covet: (contato)
+- Doom Desire: (futuro) pintado de Steel
+- Endeavor: (contato)
+- Facade: (contato)
+- Fake Out: (palmas)
+- Hail: (clima) pintado de Ice
+- Knock Off: (golpe) pintado de Dark
+- Luster Purge: (feixe) pintado de Psychic
+- Magic Coat: (barreira) pintado de Psychic
+- Memento: (sacrificio) pintado de Dark
+- Mist Ball: (projetil) pintado de Psychic
+- Nature Power: (projetil)
+- Poison Tail: (chicote) pintado de Poison
+- Psycho Boost: (feixe) pintado de Psychic
+- Recycle: (brilhos)
+- Refresh: (brilhos)
+- Revenge: (contato) pintado de Fighting
+- Role Play: (troca) pintado de Psychic
+- Sand Tomb: (prender) pintado de Ground
+- Secret Power: (projetil)
+- Shock Wave: (ondas) pintado de Electric
+- Silver Wind: (area) pintado de Steel
+- Skill Swap: (troca) pintado de Psychic
+- Smelling Salts: (golpe)
+- Snatch: (troca) pintado de Dark
+- Spit Up: (projetil)
+- Superpower: (contato) pintado de Fighting
+- Swallow: (brilhos)
+- Weather Ball: (projetil)
+- Aqua Tail: (chicote) pintado de Water
+- Avalanche: (area) pintado de Ice
+- Bug Bite: (pinca) pintado de Bug
+- Bug Buzz: (ondas) pintado de Bug
+- Chatter: (ondas) pintado de Flying
+- Copycat: (brilhos)
+- Crush Grip: (golpe)
+- Dark Void: (nuvem) pintado de Dark
+- Defog: (clima) pintado de Flying
+- Discharge: (choque) pintado de Electric
+- Double Hit: (chicote)
+- Draco Meteor: (area) pintado de Dragon
+- Dragon Rush: (contato) pintado de Dragon
+- Fling: (projetil) pintado de Dark
+- Force Palm: (golpe) pintado de Fighting
+- Grass Knot: (chicote) pintado de Grass
+- Gravity: (clima) pintado de Psychic
+- Guard Swap: (troca) pintado de Psychic
+- Gunk Shot: (projetil) pintado de Poison
+- Gyro Ball: (contato) pintado de Steel
+- Healing Wish: (sacrificio) pintado de Psychic
+- Heart Swap: (troca) pintado de Psychic
+- Judgment: (area)
+- Lucky Chant: (barreira)
+- Lunar Dance: (sacrificio) pintado de Psychic
+- Magnet Bomb: (projetil) pintado de Steel
+- Me First: (troca)
+- Metal Burst: (feixe) pintado de Steel
+- Natural Gift: (projetil)
+- Pluck: (chifre) pintado de Flying
+- Power Gem: (projetil) pintado de Rock
+- Power Swap: (troca) pintado de Psychic
+- Power Whip: (chicote) pintado de Grass
+- Psycho Shift: (troca) pintado de Psychic
+- Punishment: (golpe) pintado de Dark
+- Rock Climb: (contato)
+- Switcheroo: (troca) pintado de Dark
+- Tailwind: (clima) pintado de Flying
+- Trump Card: (projetil)
+- Vacuum Wave: (projetil) pintado de Fighting
+- Wake-Up Slap: (golpe) pintado de Fighting
+- Wring Out: (golpe)
+- Acid Spray: (projetil) pintado de Poison
+- Acrobatics: (contato) pintado de Flying
+- Ally Switch: (teleporte) pintado de Psychic
+- Bestow: (troca)
+- Blue Flare: (area) pintado de Fire
+- Bolt Strike: (choque) pintado de Electric
+- Chip Away: (contato)
+- Clear Smog: (nuvem)
+- Dragon Tail: (chicote) pintado de Dragon
+- Drill Run: (chifre) pintado de Ground
+- Dual Chop: (corte) pintado de Dragon
+- Electro Ball: (projetil) pintado de Electric
+- Electroweb: (prender) pintado de Electric
+- Entrainment: (troca)
+- Fiery Dance: (area) pintado de Fire
+- Final Gambit: (contato) pintado de Fighting
+- Fire Pledge: (area) pintado de Fire
+- Flame Burst: (projetil) pintado de Fire
+- Foul Play: (contato) pintado de Dark
+- Freeze Shock: (carga) pintado de Ice
+- Frost Breath: (feixe) pintado de Ice
+- Fusion Bolt: (choque) pintado de Electric
+- Fusion Flare: (projetil) pintado de Fire
+- Gear Grind: (projetil) pintado de Steel
+- Glaciate: (area) pintado de Ice
+- Grass Pledge: (area) pintado de Grass
+- Guard Split: (troca) pintado de Psychic
+- Heart Stamp: (golpe) pintado de Psychic
+- Heat Crash: (contato) pintado de Fire
+- Hurricane: (area) pintado de Flying
+- Ice Burn: (carga) pintado de Ice
+- Icicle Crash: (area) pintado de Ice
+- Low Sweep: (chicote) pintado de Fighting
+- Night Daze: (ondas) pintado de Dark
+- Power Split: (troca) pintado de Psychic
+- Quick Guard: (barreira) pintado de Fighting
+- Razor Shell: (corte) pintado de Water
+- Reflect Type: (troca)
+- Retaliate: (contato)
+- Sacred Sword: (corte) pintado de Fighting
+- Scald: (projetil) pintado de Water
+- Searing Shot: (area) pintado de Fire
+- Secret Sword: (corte) pintado de Fighting
+- Sludge Wave: (area) pintado de Poison
+- Smack Down: (projetil) pintado de Rock
+- Soak: (projetil) pintado de Water
+- Steamroller: (contato) pintado de Bug
+- Struggle Bug: (area) pintado de Bug
+- Synchronoise: (ondas) pintado de Psychic
+- Tail Slap: (chicote)
+- Techno Blast: (feixe)
+- V-create: (contato) pintado de Fire
+- Venoshock: (projetil) pintado de Poison
+- Volt Switch: (choque) pintado de Electric
+- Water Pledge: (area) pintado de Water
+- Wide Guard: (barreira) pintado de Rock
+
 ## Sem cobertura (fallback procedural)
 
-- Acid → arquétipo PROJ
-- Aurora Beam → arquétipo BEAM
-- Barrage → arquétipo MULTI
-- Bide → arquétipo CHARGE
-- Bind → arquétipo TRAP
-- Bone Club → arquétipo STRIKE
-- Bonemerang → arquétipo MULTI
-- Clamp → arquétipo TRAP
-- Constrict → arquétipo STRIKE
-- Conversion → arquétipo SPECIAL
-- Counter → arquétipo STRIKE
-- Crabhammer → arquétipo STRIKE
-- Dig → arquétipo CHARGE
-- Double Slap → arquétipo MULTI
-- Dragon Rage → arquétipo PROJ
-- Drill Peck → arquétipo STRIKE
-- Explosion → arquétipo SACRIFICE
-- Fury Attack → arquétipo MULTI
-- Guillotine → arquétipo OHKO
-- Gust → arquétipo PROJ
-- Haze → arquétipo FIELD
-- Horn Attack → arquétipo STRIKE
-- Horn Drill → arquétipo OHKO
-- Hyper Beam → arquétipo BEAM
-- Leech Life → arquétipo DRAIN
-- Lick → arquétipo STRIKE
-- Light Screen → arquétipo FIELD
-- Lovely Kiss → arquétipo STATUS
-- Mimic → arquétipo SPECIAL
-- Mirror Move → arquétipo SPECIAL
-- Mist → arquétipo FIELD
-- Night Shade → arquétipo PROJ
-- Pay Day → arquétipo MULTI
-- Peck → arquétipo STRIKE
-- Poison Gas → arquétipo STATUS
-- Pound → arquétipo STRIKE
-- Psywave → arquétipo PROJ
-- Rage → arquétipo STRIKE
-- Reflect → arquétipo FIELD
-- Self-Destruct → arquétipo SACRIFICE
-- Skull Bash → arquétipo CHARGE
-- Sky Attack → arquétipo CHARGE
-- Slam → arquétipo STRIKE
-- Smog → arquétipo PROJ
-- Sonic Boom → arquétipo PROJ
-- Strength → arquétipo STRIKE
-- Struggle → arquétipo STRIKE
-- Tackle → arquétipo STRIKE
-- Teleport → arquétipo SPECIAL
-- Thrash → arquétipo STRIKE
-- Thunder → arquétipo PROJ
-- Thunder Shock → arquétipo PROJ
-- Thunder Wave → arquétipo STATUS
-- Thunderbolt → arquétipo BEAM
-- Toxic → arquétipo STATUS
-- Transform → arquétipo SPECIAL
-- Tri Attack → arquétipo PROJ
-- Vine Whip → arquétipo STRIKE
-- Vise Grip → arquétipo STRIKE
-- Wing Attack → arquétipo STRIKE
-- Wrap → arquétipo TRAP
-- Attract → arquétipo STATUS
-- Beat Up → arquétipo MULTI
-- Bone Rush → arquétipo MULTI
-- Conversion 2 → arquétipo SPECIAL
-- Curse → arquétipo STATUS
-- Destiny Bond → arquétipo STATUS
-- Detect → arquétipo FIELD
-- Dragon Breath → arquétipo BEAM
-- Endure → arquétipo FIELD
-- False Swipe → arquétipo STRIKE
-- Flail → arquétipo STRIKE
-- Frustration → arquétipo STRIKE
-- Future Sight → arquétipo SPECIAL
-- Heal Bell → arquétipo FIELD
-- Hidden Power → arquétipo PROJ
-- Iron Tail → arquétipo STRIKE
-- Megahorn → arquétipo STRIKE
-- Mirror Coat → arquétipo STRIKE
-- Outrage → arquétipo STRIKE
-- Pain Split → arquétipo SPECIAL
-- Present → arquétipo PROJ
-- Protect → arquétipo FIELD
-- Psych Up → arquétipo SPECIAL
-- Rapid Spin → arquétipo STRIKE
-- Return → arquétipo STRIKE
-- Reversal → arquétipo STRIKE
-- Rollout → arquétipo STRIKE
-- Safeguard → arquétipo FIELD
-- Sandstorm → arquétipo FIELD
-- Sketch → arquétipo SPECIAL
-- Spark → arquétipo STRIKE
-- Spider Web → arquétipo TRAP
-- Steel Wing → arquétipo STRIKE
-- Thief → arquétipo STRIKE
-- Twister → arquétipo AOE
-- Zap Cannon → arquétipo PROJ
-- Aromatherapy → arquétipo FIELD
-- Assist → arquétipo SPECIAL
-- Astonish → arquétipo STRIKE
-- Camouflage → arquétipo SPECIAL
-- Covet → arquétipo STRIKE
-- Doom Desire → arquétipo SPECIAL
-- Endeavor → arquétipo STRIKE
-- Facade → arquétipo STRIKE
-- Fake Out → arquétipo STRIKE
-- Hail → arquétipo FIELD
-- Knock Off → arquétipo STRIKE
-- Luster Purge → arquétipo PROJ
-- Magic Coat → arquétipo FIELD
-- Memento → arquétipo SACRIFICE
-- Mist Ball → arquétipo PROJ
-- Nature Power → arquétipo SPECIAL
-- Poison Tail → arquétipo STRIKE
-- Psycho Boost → arquétipo BEAM
-- Recycle → arquétipo SPECIAL
-- Refresh → arquétipo HEAL
-- Revenge → arquétipo STRIKE
-- Role Play → arquétipo SPECIAL
-- Sand Tomb → arquétipo TRAP
-- Secret Power → arquétipo STRIKE
-- Shock Wave → arquétipo PROJ
-- Silver Wind → arquétipo AOE
-- Skill Swap → arquétipo SPECIAL
-- Smelling Salts → arquétipo STRIKE
-- Snatch → arquétipo SPECIAL
-- Spit Up → arquétipo PROJ
-- Superpower → arquétipo STRIKE
-- Swallow → arquétipo HEAL
-- Weather Ball → arquétipo PROJ
-- Aqua Tail → arquétipo STRIKE
-- Avalanche → arquétipo AOE
-- Bug Bite → arquétipo STRIKE
-- Bug Buzz → arquétipo AOE
-- Chatter → arquétipo PROJ
-- Copycat → arquétipo SPECIAL
-- Crush Grip → arquétipo STRIKE
-- Dark Void → arquétipo STATUS
-- Defog → arquétipo FIELD
-- Discharge → arquétipo AOE
-- Double Hit → arquétipo MULTI
-- Draco Meteor → arquétipo AOE
-- Dragon Rush → arquétipo STRIKE
-- Fling → arquétipo PROJ
-- Force Palm → arquétipo STRIKE
-- Grass Knot → arquétipo STRIKE
-- Gravity → arquétipo FIELD
-- Guard Swap → arquétipo SPECIAL
-- Gunk Shot → arquétipo PROJ
-- Gyro Ball → arquétipo STRIKE
-- Healing Wish → arquétipo SACRIFICE
-- Heart Swap → arquétipo SPECIAL
-- Judgment → arquétipo BEAM
-- Lucky Chant → arquétipo FIELD
-- Lunar Dance → arquétipo SACRIFICE
-- Magnet Bomb → arquétipo PROJ
-- Me First → arquétipo SPECIAL
-- Metal Burst → arquétipo STRIKE
-- Natural Gift → arquétipo PROJ
-- Pluck → arquétipo STRIKE
-- Power Gem → arquétipo BEAM
-- Power Swap → arquétipo SPECIAL
-- Power Whip → arquétipo STRIKE
-- Psycho Shift → arquétipo STATUS
-- Punishment → arquétipo STRIKE
-- Rock Climb → arquétipo STRIKE
-- Switcheroo → arquétipo SPECIAL
-- Tailwind → arquétipo FIELD
-- Trump Card → arquétipo PROJ
-- Vacuum Wave → arquétipo PROJ
-- Wake-Up Slap → arquétipo STRIKE
-- Wring Out → arquétipo STRIKE
-- Acid Spray → arquétipo PROJ
-- Acrobatics → arquétipo STRIKE
-- Ally Switch → arquétipo SPECIAL
-- Bestow → arquétipo SPECIAL
-- Blue Flare → arquétipo AOE
-- Bolt Strike → arquétipo STRIKE
-- Chip Away → arquétipo MULTI
-- Clear Smog → arquétipo AOE
-- Dragon Tail → arquétipo STRIKE
-- Drill Run → arquétipo STRIKE
-- Dual Chop → arquétipo MULTI
-- Electro Ball → arquétipo PROJ
-- Electroweb → arquétipo TRAP
-- Entrainment → arquétipo SPECIAL
-- Fiery Dance → arquétipo AOE
-- Final Gambit → arquétipo SACRIFICE
-- Fire Pledge → arquétipo AOE
-- Flame Burst → arquétipo PROJ
-- Foul Play → arquétipo STRIKE
-- Freeze Shock → arquétipo CHARGE
-- Frost Breath → arquétipo BEAM
-- Fusion Bolt → arquétipo PROJ
-- Fusion Flare → arquétipo PROJ
-- Gear Grind → arquétipo MULTI
-- Glaciate → arquétipo AOE
-- Grass Pledge → arquétipo AOE
-- Guard Split → arquétipo SPECIAL
-- Heart Stamp → arquétipo STRIKE
-- Heat Crash → arquétipo STRIKE
-- Hurricane → arquétipo AOE
-- Ice Burn → arquétipo CHARGE
-- Icicle Crash → arquétipo PROJ
-- Low Sweep → arquétipo STRIKE
-- Night Daze → arquétipo AOE
-- Power Split → arquétipo SPECIAL
-- Quick Guard → arquétipo FIELD
-- Razor Shell → arquétipo STRIKE
-- Reflect Type → arquétipo SPECIAL
-- Retaliate → arquétipo STRIKE
-- Sacred Sword → arquétipo STRIKE
-- Scald → arquétipo PROJ
-- Searing Shot → arquétipo AOE
-- Secret Sword → arquétipo PROJ
-- Sludge Wave → arquétipo AOE
-- Smack Down → arquétipo PROJ
-- Soak → arquétipo STATUS
-- Steamroller → arquétipo STRIKE
-- Struggle Bug → arquétipo AOE
-- Synchronoise → arquétipo AOE
-- Tail Slap → arquétipo MULTI
-- Techno Blast → arquétipo BEAM
-- V-create → arquétipo STRIKE
-- Venoshock → arquétipo PROJ
-- Volt Switch → arquétipo STRIKE
-- Water Pledge → arquétipo AOE
-- Wide Guard → arquétipo FIELD
+

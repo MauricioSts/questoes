@@ -1,0 +1,100 @@
+{
+ "slug": "sludge-wave",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Px-Gota",
+   "anchor": "target",
+   "start": 6,
+   "end": 50,
+   "spawn": {
+    "count": 14,
+    "spread": [
+     12,
+     8
+    ],
+    "interval": 2,
+    "frames": [
+     0,
+     1
+    ],
+    "burst": 1.8,
+    "vy": -2,
+    "gravity": 0.2,
+    "life": 22,
+    "seed": 1
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.4
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Pulso",
+   "anchor": "target",
+   "start": 4,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 18,
+    "loop": true
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.6
+      },
+      {
+       "t": 12,
+       "v": 1.6,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  24,
+  36,
+  48
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 24,
+    "dur": 40,
+    "amp": 3
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (area)"
+}

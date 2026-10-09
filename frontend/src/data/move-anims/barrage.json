@@ -1,0 +1,321 @@
+{
+ "slug": "barrage",
+ "duration": 54,
+ "layers": [
+  {
+   "asset": "Px-Orbe",
+   "anchor": "user",
+   "start": 0,
+   "end": 19,
+   "to": "target",
+   "frame": 4,
+   "arc": 18,
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 18,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.7
+      },
+      {
+       "t": 18,
+       "v": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Impacto",
+   "anchor": "target",
+   "start": 18,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20,
+    "loop": false
+   },
+   "keepColor": true,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Orbe",
+   "anchor": "user",
+   "start": 8,
+   "end": 27,
+   "to": "target",
+   "frame": 4,
+   "arc": 18,
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 18,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 5
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.7
+      },
+      {
+       "t": 18,
+       "v": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Impacto",
+   "anchor": "target",
+   "start": 26,
+   "end": 38,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20,
+    "loop": false
+   },
+   "keepColor": true,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 5
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Orbe",
+   "anchor": "user",
+   "start": 16,
+   "end": 35,
+   "to": "target",
+   "frame": 4,
+   "arc": 18,
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 18,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 6
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -4
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.7
+      },
+      {
+       "t": 18,
+       "v": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Impacto",
+   "anchor": "target",
+   "start": 34,
+   "end": 46,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20,
+    "loop": false
+   },
+   "keepColor": true,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 6
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -4
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  18,
+  26,
+  34
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 10
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 18,
+    "dur": 8,
+    "amp": 1
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (projetil)"
+}

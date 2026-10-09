@@ -1,0 +1,144 @@
+{
+ "slug": "dark-void",
+ "duration": 68,
+ "layers": [
+  {
+   "asset": "Px-Fumaca",
+   "anchor": "user",
+   "start": 0,
+   "end": 30,
+   "to": "target",
+   "frameSeq": {
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 10,
+    "loop": false
+   },
+   "spawn": {
+    "count": 3,
+    "spread": [
+     6,
+     6
+    ],
+    "interval": 4,
+    "life": 22,
+    "seed": 1
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 18,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 0.9
+      },
+      {
+       "t": 18,
+       "v": 0.9
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Fumaca",
+   "anchor": "target",
+   "start": 18,
+   "end": 58,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     2,
+     3,
+     4
+    ],
+    "fps": 8,
+    "loop": false
+   },
+   "spawn": {
+    "count": 5,
+    "spread": [
+     18,
+     12
+    ],
+    "interval": 3,
+    "life": 36,
+    "seed": 2,
+    "vx": 0.15,
+    "vy": -0.1
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 0.95
+      },
+      {
+       "t": 30,
+       "v": 0.95
+      },
+      {
+       "t": 36,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "hits": [
+  28
+ ],
+ "react": "status",
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 64,
+    "color": "#000010",
+    "alpha": 0.4
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (nuvem)"
+}

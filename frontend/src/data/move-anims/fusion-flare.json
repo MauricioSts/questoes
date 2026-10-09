@@ -1,0 +1,244 @@
+{
+ "slug": "fusion-flare",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Px-Faisca",
+   "anchor": "user",
+   "start": 0,
+   "end": 14,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     30,
+     26
+    ],
+    "interval": 2,
+    "frames": [
+     2,
+     3,
+     4
+    ],
+    "burst": -1.6,
+    "life": 14,
+    "seed": 1
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Orbe",
+   "anchor": "user",
+   "start": 6,
+   "end": 20,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Pulso",
+   "anchor": "user",
+   "start": 20,
+   "end": 49,
+   "to": "target",
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 16,
+    "loop": true
+   },
+   "arc": 0,
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 28,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.26
+      },
+      {
+       "t": 28,
+       "v": 1.8
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Impacto",
+   "anchor": "target",
+   "start": 48,
+   "end": 60,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20,
+    "loop": false
+   },
+   "keepColor": true,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.3
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Explosao",
+   "anchor": "target",
+   "start": 48,
+   "end": 78,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "keepColor": true,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.2
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  48
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 20,
+   "kind": "lunge",
+   "dur": 10
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 48,
+    "dur": 18,
+    "amp": 4
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (projetil)"
+}

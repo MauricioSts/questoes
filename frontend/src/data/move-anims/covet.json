@@ -1,0 +1,122 @@
+{
+ "slug": "covet",
+ "duration": 46,
+ "layers": [
+  {
+   "asset": "Px-Coracao",
+   "anchor": "user",
+   "start": 0,
+   "end": 16,
+   "frameSeq": {
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 8,
+    "loop": true
+   },
+   "keepColor": true,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -20
+      },
+      {
+       "t": 16,
+       "v": -34
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  },
+  {
+   "asset": "Px-Impacto",
+   "anchor": "target",
+   "start": 19,
+   "end": 31,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20,
+    "loop": false
+   },
+   "keepColor": true,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  20
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 10,
+   "kind": "dash",
+   "dur": 22
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 20,
+    "dur": 8,
+    "amp": 1
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (contato)"
+}

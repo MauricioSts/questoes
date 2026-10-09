@@ -1,0 +1,74 @@
+{
+ "slug": "hail",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Px-Orbe",
+   "anchor": "screen-center",
+   "start": 0,
+   "end": 70,
+   "spawn": {
+    "count": 28,
+    "spread": [
+     140,
+     80
+    ],
+    "interval": 2,
+    "frames": [
+     1,
+     2
+    ],
+    "life": 24,
+    "vx": -1.5,
+    "vy": 4.5,
+    "spin": 0,
+    "seed": 1
+   },
+   "keepColor": false,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "react": "self",
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 76,
+    "color": "#102030",
+    "alpha": 0.35
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (clima)"
+}

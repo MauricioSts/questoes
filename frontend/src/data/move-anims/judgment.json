@@ -1,0 +1,132 @@
+{
+ "slug": "judgment",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Px-Orbe",
+   "anchor": "target",
+   "start": 4,
+   "end": 56,
+   "spawn": {
+    "count": 9,
+    "spread": [
+     28,
+     4
+    ],
+    "interval": 6,
+    "life": 16,
+    "frames": [
+     4,
+     5
+    ],
+    "spin": 0,
+    "seed": 1
+   },
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 40
+      },
+      {
+       "t": 12,
+       "v": 0,
+       "ease": "in"
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -110
+      },
+      {
+       "t": 12,
+       "v": 0,
+       "ease": "in"
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Impacto",
+   "anchor": "target",
+   "start": 16,
+   "end": 66,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20,
+    "loop": false
+   },
+   "keepColor": true,
+   "spawn": {
+    "count": 9,
+    "spread": [
+     28,
+     6
+    ],
+    "interval": 6,
+    "life": 12,
+    "seed": 2
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  24,
+  36,
+  48
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 24,
+    "dur": 40,
+    "amp": 5
+   }
+  ],
+  "flash": [
+   {
+    "t": 22,
+    "dur": 8,
+    "color": "#FFFFFF",
+    "alpha": 0.6
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (area)"
+}

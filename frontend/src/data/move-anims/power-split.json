@@ -1,0 +1,235 @@
+{
+ "slug": "power-split",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Px-Faisca",
+   "anchor": "user",
+   "start": 0,
+   "end": 8,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     30,
+     26
+    ],
+    "interval": 2,
+    "frames": [
+     2,
+     3,
+     4
+    ],
+    "burst": -1.6,
+    "life": 14,
+    "seed": 1
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Orbe",
+   "anchor": "user",
+   "start": 6,
+   "end": 14,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Px-Orbe",
+   "anchor": "user",
+   "start": 14,
+   "end": 48,
+   "to": "target",
+   "frame": 4,
+   "arc": 30,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 34,
+       "v": 1,
+       "ease": "inout"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Orbe",
+   "anchor": "target",
+   "start": 14,
+   "end": 48,
+   "to": "user",
+   "frame": 3,
+   "arc": -24,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 34,
+       "v": 1,
+       "ease": "inout"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Px-Brilho",
+   "anchor": "target",
+   "start": 44,
+   "end": 62,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    }
+   },
+   "z": 4
+  },
+  {
+   "asset": "Px-Brilho",
+   "anchor": "user",
+   "start": 44,
+   "end": 62,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "hits": [
+  46
+ ],
+ "react": "status",
+ "pixel": true,
+ "note": "pixel art própria (troca)"
+}

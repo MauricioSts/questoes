@@ -1,0 +1,74 @@
+{
+ "slug": "gravity",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Px-Anel",
+   "anchor": "screen-center",
+   "start": 0,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     4,
+     3,
+     2,
+     1,
+     0
+    ],
+    "fps": 10,
+    "loop": false
+   },
+   "spawn": {
+    "count": 3,
+    "spread": 0,
+    "interval": 12,
+    "life": 30,
+    "seed": 1
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "react": "self",
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 76,
+    "color": "#100020",
+    "alpha": 0.35
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (clima)"
+}

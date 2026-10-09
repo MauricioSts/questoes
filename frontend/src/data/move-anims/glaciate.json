@@ -1,0 +1,87 @@
+{
+ "slug": "glaciate",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Px-Chifre",
+   "anchor": "target",
+   "start": 4,
+   "end": 56,
+   "frame": 0,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     26,
+     4
+    ],
+    "interval": 6,
+    "life": 16,
+    "seed": 1
+   },
+   "tracks": {
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 116
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -90
+      },
+      {
+       "t": 12,
+       "v": -4,
+       "ease": "in"
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.2
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  24,
+  36,
+  48
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 24,
+    "dur": 40,
+    "amp": 3
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (area)"
+}

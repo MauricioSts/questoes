@@ -1,0 +1,92 @@
+{
+ "slug": "memento",
+ "duration": 50,
+ "layers": [
+  {
+   "asset": "Px-Fumaca",
+   "anchor": "target",
+   "start": 0,
+   "end": 40,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     2,
+     3,
+     4
+    ],
+    "fps": 8,
+    "loop": false
+   },
+   "spawn": {
+    "count": 5,
+    "spread": [
+     18,
+     12
+    ],
+    "interval": 3,
+    "life": 36,
+    "seed": 1,
+    "vx": 0.15,
+    "vy": -0.1
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 0.85
+      },
+      {
+       "t": 30,
+       "v": 0.85
+      },
+      {
+       "t": 36,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "hits": [
+  10
+ ],
+ "react": "status",
+ "actor": [
+  {
+   "who": "user",
+   "t": 20,
+   "kind": "hide",
+   "dur": 36
+  }
+ ],
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 46,
+    "color": "#000000",
+    "alpha": 0.4
+   }
+  ]
+ },
+ "pixel": true,
+ "note": "pixel art própria (sacrificio)"
+}
