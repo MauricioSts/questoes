@@ -29,4 +29,3 @@ backend/prisma/*.db
 *.zip
 frontend/assets/attack-graphics/
 frontend/assets/menus/
-frontend/public/fx/
