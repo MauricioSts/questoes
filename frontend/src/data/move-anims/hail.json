@@ -3,59 +3,47 @@
  "duration": 80,
  "layers": [
   {
-   "asset": "Px-Orbe",
-   "anchor": "screen-center",
+   "asset": "Cena-hail",
+   "assetVirado": "Cena-hail-v",
+   "anchor": "user",
    "start": 0,
-   "end": 70,
-   "spawn": {
-    "count": 28,
-    "spread": [
-     140,
-     80
-    ],
-    "interval": 2,
+   "end": 80,
+   "ds": true,
+   "frameSeq": {
     "frames": [
+     0,
      1,
-     2
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26
     ],
-    "life": 24,
-    "vx": -1.5,
-    "vy": 4.5,
-    "spin": 0,
-    "seed": 1
+    "fps": 20,
+    "loop": false
    },
-   "keepColor": false,
-   "tracks": {
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 2,
-       "v": 1
-      },
-      {
-       "t": 20,
-       "v": 1
-      },
-      {
-       "t": 24,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 4
+   "keepColor": true,
+   "z": 3
   }
  ],
  "react": "self",

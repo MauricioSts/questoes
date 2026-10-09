@@ -3,10 +3,12 @@
  "duration": 76,
  "layers": [
   {
-   "asset": "Px-Explosao",
-   "anchor": "target",
-   "start": 12,
-   "end": 60,
+   "asset": "Cena-searing-shot",
+   "assetVirado": "Cena-searing-shot-v",
+   "anchor": "user",
+   "start": 0,
+   "end": 76,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
@@ -15,32 +17,31 @@
      3,
      4,
      5,
-     6
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
     ],
-    "fps": 16,
+    "fps": 20,
     "loop": false
    },
    "keepColor": true,
-   "spawn": {
-    "count": 5,
-    "spread": [
-     26,
-     22
-    ],
-    "interval": 6,
-    "life": 28,
-    "seed": 1
-   },
-   "tracks": {
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0.8
-      }
-     ]
-    }
-   },
    "z": 3
   }
  ],

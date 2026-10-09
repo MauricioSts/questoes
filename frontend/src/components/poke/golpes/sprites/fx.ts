@@ -28,7 +28,8 @@ export class SpritesFx {
 
   constructor(private base = BASE) {}
 
-  // Busca o atlas e começa a baixar todas as folhas em segundo plano (são ~3 MB no total).
+  // Busca o atlas e começa a baixar as folhas em segundo plano (~3 MB). As cenas quadro a
+  // quadro (`sobDemanda`, ~4 MB somadas) ficam para `preparar`, golpe a golpe.
   iniciar(): Promise<void> {
     if (this.iniciado) return this.iniciado;
     if (typeof fetch !== "function" || typeof Image === "undefined") return (this.iniciado = Promise.resolve());
@@ -36,7 +37,7 @@ export class SpritesFx {
       .then((r) => (r.ok ? (r.json() as Promise<Atlas>) : Promise.reject(new Error(`atlas ${r.status}`))))
       .then((a) => {
         this.atlas = a;
-        for (const nome of Object.keys(a.arquivos)) void this.carregar(nome);
+        for (const [nome, arq] of Object.entries(a.arquivos)) if (!arq.sobDemanda) void this.carregar(nome);
       })
       .catch(() => {
         this.falhou = true; // sem assets: procedural para tudo
@@ -71,6 +72,12 @@ export class SpritesFx {
     await Promise.all([...nomes].map((n) => this.carregar(n)));
   }
 
+  // Baixa o que o golpe usa antes de tocar, esperando no máximo `ms` (rede lenta: toca o
+  // procedural desta vez e a folha fica pronta para a próxima).
+  preparar(slug: string, ms = 700): Promise<void> {
+    return Promise.race([this.preCarregar([slug]), new Promise<void>((ok) => setTimeout(ok, ms))]);
+  }
+
   entrada(slug: string): EntradaMapa | undefined {
     return MAPA[slug];
   }
@@ -84,7 +91,7 @@ export class SpritesFx {
 
   assetsDe(anim: MoveAnim | undefined): string[] {
     if (!anim) return [];
-    const s = new Set(anim.layers.map((l) => l.asset));
+    const s = new Set(anim.layers.flatMap((l) => (l.assetVirado ? [l.asset, l.assetVirado] : [l.asset])));
     if (anim.bg) s.add(anim.bg.asset);
     return [...s];
   }

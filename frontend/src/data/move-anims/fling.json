@@ -1,115 +1,38 @@
 {
  "slug": "fling",
- "duration": 40,
+ "duration": 46,
  "layers": [
   {
-   "asset": "Px-Pedra",
+   "asset": "Cena-fling",
+   "assetVirado": "Cena-fling-v",
    "anchor": "user",
    "start": 0,
-   "end": 21,
-   "to": "target",
-   "frame": 2,
-   "arc": 26,
-   "z": 3,
-   "tracks": {
-    "p": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 20,
-       "v": 1,
-       "ease": "linear"
-      }
-     ]
-    },
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0.7
-      },
-      {
-       "t": 20,
-       "v": 1
-      }
-     ]
-    },
-    "rot": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 20,
-       "v": 200
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Impacto",
-   "anchor": "target",
-   "start": 20,
-   "end": 32,
+   "end": 46,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
-     3
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
     ],
     "fps": 20,
     "loop": false
    },
    "keepColor": true,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    }
-   }
+   "z": 3
   }
  ],
  "hits": [

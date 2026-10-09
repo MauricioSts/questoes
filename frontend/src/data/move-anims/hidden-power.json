@@ -1,106 +1,49 @@
 {
  "slug": "hidden-power",
- "duration": 76,
+ "duration": 82,
  "layers": [
   {
-   "asset": "Px-Orbe",
+   "asset": "Cena-hidden-power",
+   "assetVirado": "Cena-hidden-power-v",
    "anchor": "user",
    "start": 0,
-   "end": 30,
-   "frame": 3,
-   "spawn": {
-    "count": 6,
-    "spread": 0,
-    "interval": 0
-   },
-   "orbit": {
-    "rx": 30,
-    "ry": 12,
-    "speed": 10
-   },
-   "tracks": {
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 3,
-       "v": 1
-      },
-      {
-       "t": 28,
-       "v": 1
-      },
-      {
-       "t": 30,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 3
-  },
-  {
-   "asset": "Px-Orbe",
-   "anchor": "user",
-   "start": 30,
-   "end": 60,
-   "to": "target",
-   "frame": 3,
-   "spawn": {
-    "count": 6,
-    "spread": [
-     12,
-     10
-    ],
-    "interval": 2,
-    "life": 18,
-    "seed": 1
-   },
-   "tracks": {
-    "p": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 16,
-       "v": 1,
-       "ease": "linear"
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Impacto",
-   "anchor": "target",
-   "start": 46,
-   "end": 70,
+   "end": 82,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
-     3
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27
     ],
     "fps": 20,
     "loop": false
    },
    "keepColor": true,
-   "spawn": {
-    "count": 6,
-    "spread": [
-     16,
-     14
-    ],
-    "interval": 2,
-    "life": 12,
-    "seed": 2
-   },
    "z": 3
   }
  ],

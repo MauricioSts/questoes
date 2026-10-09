@@ -3,197 +3,33 @@
  "duration": 40,
  "layers": [
   {
-   "asset": "Px-Mao",
-   "anchor": "target",
-   "start": 2,
-   "end": 20,
-   "frame": 1,
-   "keepColor": true,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -34
-      },
-      {
-       "t": 10,
-       "v": -7,
-       "ease": "in"
-      },
-      {
-       "t": 18,
-       "v": -7
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 2,
-       "v": 1
-      },
-      {
-       "t": 14,
-       "v": 1
-      },
-      {
-       "t": 18,
-       "v": 0
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Mao",
-   "anchor": "target",
-   "start": 2,
-   "end": 20,
-   "frame": 1,
-   "keepColor": true,
-   "flipWithSide": false,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 34
-      },
-      {
-       "t": 10,
-       "v": 7,
-       "ease": "in"
-      },
-      {
-       "t": 18,
-       "v": 7
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 2,
-       "v": 1
-      },
-      {
-       "t": 14,
-       "v": 1
-      },
-      {
-       "t": 18,
-       "v": 0
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Impacto",
-   "anchor": "target",
-   "start": 11,
-   "end": 23,
+   "asset": "Cena-fake-out",
+   "assetVirado": "Cena-fake-out-v",
+   "anchor": "user",
+   "start": 0,
+   "end": 40,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
-     3
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
     ],
     "fps": 20,
     "loop": false
    },
    "keepColor": true,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Faisca",
-   "anchor": "target",
-   "start": 11,
-   "end": 15,
-   "spawn": {
-    "count": 6,
-    "spread": [
-     5,
-     5
-    ],
-    "interval": 0,
-    "frames": [
-     2,
-     3,
-     4
-    ],
-    "burst": 1.8,
-    "life": 16,
-    "seed": 1
-   },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 10,
-       "v": 1
-      },
-      {
-       "t": 16,
-       "v": 0
-      }
-     ]
-    }
-   },
    "z": 3
   }
  ],

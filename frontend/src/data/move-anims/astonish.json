@@ -1,50 +1,36 @@
 {
  "slug": "astonish",
- "duration": 36,
+ "duration": 40,
  "layers": [
   {
-   "asset": "Px-Impacto",
-   "anchor": "target",
-   "start": 9,
-   "end": 21,
+   "asset": "Cena-astonish",
+   "assetVirado": "Cena-astonish-v",
+   "anchor": "user",
+   "start": 0,
+   "end": 40,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
-     3
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
     ],
     "fps": 20,
     "loop": false
    },
    "keepColor": true,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    }
-   }
+   "z": 3
   }
  ],
  "hits": [

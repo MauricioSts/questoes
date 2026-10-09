@@ -7,7 +7,6 @@
  "acid": {
   "modo": "pixel",
   "receita": "acid",
-  "tipo": 7,
   "arquetipo": "PROJ"
  },
  "acid-armor": {
@@ -28,7 +27,6 @@
  "aurora-beam": {
   "modo": "pixel",
   "receita": "aurora-beam",
-  "tipo": 5,
   "arquetipo": "BEAM"
  },
  "barrage": {
@@ -69,13 +67,11 @@
  "bone-club": {
   "modo": "pixel",
   "receita": "bone-club",
-  "tipo": 8,
   "arquetipo": "STRIKE"
  },
  "bonemerang": {
   "modo": "pixel",
   "receita": "bonemerang",
-  "tipo": 8,
   "arquetipo": "MULTI"
  },
  "bubble": {
@@ -91,7 +87,6 @@
  "clamp": {
   "modo": "pixel",
   "receita": "clamp",
-  "tipo": 2,
   "arquetipo": "TRAP"
  },
  "comet-punch": {
@@ -123,13 +118,11 @@
  "counter": {
   "modo": "pixel",
   "receita": "counter",
-  "tipo": 6,
   "arquetipo": "STRIKE"
  },
  "crabhammer": {
   "modo": "pixel",
   "receita": "crabhammer",
-  "tipo": 2,
   "arquetipo": "STRIKE"
  },
  "cut": {
@@ -145,7 +138,6 @@
  "dig": {
   "modo": "pixel",
   "receita": "dig",
-  "tipo": 8,
   "arquetipo": "CHARGE"
  },
  "disable": {
@@ -182,7 +174,6 @@
  "dragon-rage": {
   "modo": "pixel",
   "receita": "dragon-rage",
-  "tipo": 1,
   "arquetipo": "PROJ"
  },
  "dream-eater": {
@@ -194,7 +185,6 @@
  "drill-peck": {
   "modo": "pixel",
   "receita": "drill-peck",
-  "tipo": 9,
   "arquetipo": "STRIKE"
  },
  "earthquake": {
@@ -291,7 +281,6 @@
  "gust": {
   "modo": "pixel",
   "receita": "gust",
-  "tipo": 9,
   "arquetipo": "PROJ"
  },
  "harden": {
@@ -334,7 +323,6 @@
  "hyper-beam": {
   "modo": "pixel",
   "receita": "hyper-beam",
-  "tipo": 1,
   "arquetipo": "BEAM"
  },
  "hyper-fang": {
@@ -379,7 +367,6 @@
  "leech-life": {
   "modo": "pixel",
   "receita": "leech-life",
-  "tipo": 11,
   "arquetipo": "DRAIN"
  },
  "leech-seed": {
@@ -395,13 +382,11 @@
  "lick": {
   "modo": "pixel",
   "receita": "lick",
-  "tipo": 10,
   "arquetipo": "STRIKE"
  },
  "light-screen": {
   "modo": "pixel",
   "receita": "light-screen",
-  "tipo": 3,
   "arquetipo": "FIELD"
  },
  "lovely-kiss": {
@@ -454,19 +439,16 @@
  "mirror-move": {
   "modo": "pixel",
   "receita": "mirror-move",
-  "tipo": 9,
   "arquetipo": "SPECIAL"
  },
  "mist": {
   "modo": "pixel",
   "receita": "mist",
-  "tipo": 5,
   "arquetipo": "FIELD"
  },
  "night-shade": {
   "modo": "pixel",
   "receita": "night-shade",
-  "tipo": 13,
   "arquetipo": "PROJ"
  },
  "pay-day": {
@@ -477,7 +459,6 @@
  "peck": {
   "modo": "pixel",
   "receita": "peck",
-  "tipo": 9,
   "arquetipo": "STRIKE"
  },
  "petal-dance": {
@@ -493,7 +474,6 @@
  "poison-gas": {
   "modo": "pixel",
   "receita": "poison-gas",
-  "tipo": 7,
   "arquetipo": "STATUS"
  },
  "poison-powder": {
@@ -526,7 +506,6 @@
  "psywave": {
   "modo": "pixel",
   "receita": "psywave",
-  "tipo": 10,
   "arquetipo": "PROJ"
  },
  "quick-attack": {
@@ -537,7 +516,6 @@
  "rage": {
   "modo": "pixel",
   "receita": "rage",
-  "tipo": 1,
   "arquetipo": "STRIKE"
  },
  "razor-leaf": {
@@ -559,7 +537,6 @@
  "reflect": {
   "modo": "pixel",
   "receita": "reflect",
-  "tipo": 10,
   "arquetipo": "FIELD"
  },
  "rest": {
@@ -631,7 +608,6 @@
  "sky-attack": {
   "modo": "pixel",
   "receita": "sky-attack",
-  "tipo": 9,
   "arquetipo": "CHARGE"
  },
  "slam": {
@@ -658,7 +634,6 @@
  "smog": {
   "modo": "pixel",
   "receita": "smog",
-  "tipo": 7,
   "arquetipo": "PROJ"
  },
  "smokescreen": {
@@ -777,7 +752,6 @@
  "teleport": {
   "modo": "pixel",
   "receita": "teleport",
-  "tipo": 10,
   "arquetipo": "SPECIAL"
  },
  "thrash": {
@@ -788,7 +762,6 @@
  "thunder": {
   "modo": "pixel",
   "receita": "thunder",
-  "tipo": 3,
   "arquetipo": "PROJ"
  },
  "thunder-punch": {
@@ -800,25 +773,21 @@
  "thunder-shock": {
   "modo": "pixel",
   "receita": "thunder-shock",
-  "tipo": 3,
   "arquetipo": "PROJ"
  },
  "thunder-wave": {
   "modo": "pixel",
   "receita": "thunder-wave",
-  "tipo": 3,
   "arquetipo": "STATUS"
  },
  "thunderbolt": {
   "modo": "pixel",
   "receita": "thunderbolt",
-  "tipo": 3,
   "arquetipo": "BEAM"
  },
  "toxic": {
   "modo": "pixel",
   "receita": "toxic",
-  "tipo": 7,
   "arquetipo": "STATUS"
  },
  "transform": {
@@ -839,7 +808,6 @@
  "vine-whip": {
   "modo": "pixel",
   "receita": "vine-whip",
-  "tipo": 4,
   "arquetipo": "STRIKE"
  },
  "vise-grip": {
@@ -865,7 +833,6 @@
  "wing-attack": {
   "modo": "pixel",
   "receita": "wing-attack",
-  "tipo": 9,
   "arquetipo": "STRIKE"
  },
  "withdraw": {
@@ -901,7 +868,6 @@
  "beat-up": {
   "modo": "pixel",
   "receita": "beat-up",
-  "tipo": 15,
   "arquetipo": "MULTI"
  },
  "belly-drum": {
@@ -912,7 +878,6 @@
  "bone-rush": {
   "modo": "pixel",
   "receita": "bone-rush",
-  "tipo": 8,
   "arquetipo": "MULTI"
  },
  "charm": {
@@ -944,25 +909,21 @@
  "curse": {
   "modo": "pixel",
   "receita": "curse",
-  "tipo": 13,
   "arquetipo": "STATUS"
  },
  "destiny-bond": {
   "modo": "pixel",
   "receita": "destiny-bond",
-  "tipo": 13,
   "arquetipo": "STATUS"
  },
  "detect": {
   "modo": "pixel",
   "receita": "detect",
-  "tipo": 6,
   "arquetipo": "FIELD"
  },
  "dragon-breath": {
   "modo": "pixel",
   "receita": "dragon-breath",
-  "tipo": 14,
   "arquetipo": "BEAM"
  },
  "dynamic-punch": {
@@ -978,7 +939,6 @@
  "endure": {
   "modo": "pixel",
   "receita": "endure",
-  "tipo": 6,
   "arquetipo": "FIELD"
  },
  "extreme-speed": {
@@ -1025,7 +985,6 @@
  "future-sight": {
   "modo": "pixel",
   "receita": "future-sight",
-  "tipo": 10,
   "arquetipo": "SPECIAL"
  },
  "giga-drain": {
@@ -1051,7 +1010,6 @@
  "iron-tail": {
   "modo": "pixel",
   "receita": "iron-tail",
-  "tipo": 16,
   "arquetipo": "STRIKE"
  },
  "lock-on": {
@@ -1077,7 +1035,6 @@
  "megahorn": {
   "modo": "pixel",
   "receita": "megahorn",
-  "tipo": 11,
   "arquetipo": "STRIKE"
  },
  "metal-claw": {
@@ -1099,7 +1056,6 @@
  "mirror-coat": {
   "modo": "pixel",
   "receita": "mirror-coat",
-  "tipo": 10,
   "arquetipo": "STRIKE"
  },
  "moonlight": {
@@ -1132,7 +1088,6 @@
  "outrage": {
   "modo": "pixel",
   "receita": "outrage",
-  "tipo": 14,
   "arquetipo": "STRIKE"
  },
  "pain-split": {
@@ -1158,7 +1113,6 @@
  "protect": {
   "modo": "pixel",
   "receita": "protect",
-  "tipo": 4,
   "arquetipo": "FIELD"
  },
  "psych-up": {
@@ -1189,7 +1143,6 @@
  "reversal": {
   "modo": "pixel",
   "receita": "reversal",
-  "tipo": 6,
   "arquetipo": "STRIKE"
  },
  "rock-smash": {
@@ -1200,7 +1153,6 @@
  "rollout": {
   "modo": "pixel",
   "receita": "rollout",
-  "tipo": 12,
   "arquetipo": "STRIKE"
  },
  "sacred-fire": {
@@ -1211,13 +1163,11 @@
  "safeguard": {
   "modo": "pixel",
   "receita": "safeguard",
-  "tipo": 5,
   "arquetipo": "FIELD"
  },
  "sandstorm": {
   "modo": "pixel",
   "receita": "sandstorm",
-  "tipo": 12,
   "arquetipo": "FIELD"
  },
  "scary-face": {
@@ -1256,13 +1206,11 @@
  "spark": {
   "modo": "pixel",
   "receita": "spark",
-  "tipo": 3,
   "arquetipo": "STRIKE"
  },
  "spider-web": {
   "modo": "pixel",
   "receita": "spider-web",
-  "tipo": 11,
   "arquetipo": "TRAP"
  },
  "spikes": {
@@ -1278,7 +1226,6 @@
  "steel-wing": {
   "modo": "pixel",
   "receita": "steel-wing",
-  "tipo": 16,
   "arquetipo": "STRIKE"
  },
  "sunny-day": {
@@ -1311,7 +1258,6 @@
  "thief": {
   "modo": "pixel",
   "receita": "thief",
-  "tipo": 15,
   "arquetipo": "STRIKE"
  },
  "triple-kick": {
@@ -1322,7 +1268,6 @@
  "twister": {
   "modo": "pixel",
   "receita": "twister",
-  "tipo": 14,
   "arquetipo": "AOE"
  },
  "vital-throw": {
@@ -1338,7 +1283,6 @@
  "zap-cannon": {
   "modo": "pixel",
   "receita": "zap-cannon",
-  "tipo": 3,
   "arquetipo": "PROJ"
  },
  "aerial-ace": {
@@ -1360,7 +1304,6 @@
  "aromatherapy": {
   "modo": "pixel",
   "receita": "aromatherapy",
-  "tipo": 4,
   "arquetipo": "FIELD"
  },
  "assist": {
@@ -1371,7 +1314,6 @@
  "astonish": {
   "modo": "pixel",
   "receita": "astonish",
-  "tipo": 13,
   "arquetipo": "STRIKE"
  },
  "blast-burn": {
@@ -1449,7 +1391,6 @@
  "doom-desire": {
   "modo": "pixel",
   "receita": "doom-desire",
-  "tipo": 16,
   "arquetipo": "SPECIAL"
  },
  "dragon-claw": {
@@ -1532,7 +1473,6 @@
  "hail": {
   "modo": "pixel",
   "receita": "hail",
-  "tipo": 5,
   "arquetipo": "FIELD"
  },
  "heat-wave": {
@@ -1590,7 +1530,6 @@
  "knock-off": {
   "modo": "pixel",
   "receita": "knock-off",
-  "tipo": 15,
   "arquetipo": "STRIKE"
  },
  "leaf-blade": {
@@ -1602,13 +1541,11 @@
  "luster-purge": {
   "modo": "pixel",
   "receita": "luster-purge",
-  "tipo": 10,
   "arquetipo": "PROJ"
  },
  "magic-coat": {
   "modo": "pixel",
   "receita": "magic-coat",
-  "tipo": 10,
   "arquetipo": "FIELD"
  },
  "magical-leaf": {
@@ -1619,7 +1556,6 @@
  "memento": {
   "modo": "pixel",
   "receita": "memento",
-  "tipo": 15,
   "arquetipo": "SACRIFICE"
  },
  "metal-sound": {
@@ -1636,7 +1572,6 @@
  "mist-ball": {
   "modo": "pixel",
   "receita": "mist-ball",
-  "tipo": 10,
   "arquetipo": "PROJ"
  },
  "mud-shot": {
@@ -1683,13 +1618,11 @@
  "poison-tail": {
   "modo": "pixel",
   "receita": "poison-tail",
-  "tipo": 7,
   "arquetipo": "STRIKE"
  },
  "psycho-boost": {
   "modo": "pixel",
   "receita": "psycho-boost",
-  "tipo": 10,
   "arquetipo": "BEAM"
  },
  "recycle": {
@@ -1705,7 +1638,6 @@
  "revenge": {
   "modo": "pixel",
   "receita": "revenge",
-  "tipo": 6,
   "arquetipo": "STRIKE"
  },
  "rock-blast": {
@@ -1721,13 +1653,11 @@
  "role-play": {
   "modo": "pixel",
   "receita": "role-play",
-  "tipo": 10,
   "arquetipo": "SPECIAL"
  },
  "sand-tomb": {
   "modo": "pixel",
   "receita": "sand-tomb",
-  "tipo": 8,
   "arquetipo": "TRAP"
  },
  "secret-power": {
@@ -1748,7 +1678,6 @@
  "shock-wave": {
   "modo": "pixel",
   "receita": "shock-wave",
-  "tipo": 3,
   "arquetipo": "PROJ"
  },
  "signal-beam": {
@@ -1760,13 +1689,11 @@
  "silver-wind": {
   "modo": "pixel",
   "receita": "silver-wind",
-  "tipo": 16,
   "arquetipo": "AOE"
  },
  "skill-swap": {
   "modo": "pixel",
   "receita": "skill-swap",
-  "tipo": 10,
   "arquetipo": "SPECIAL"
  },
  "sky-uppercut": {
@@ -1787,7 +1714,6 @@
  "snatch": {
   "modo": "pixel",
   "receita": "snatch",
-  "tipo": 15,
   "arquetipo": "SPECIAL"
  },
  "spit-up": {
@@ -1803,7 +1729,6 @@
  "superpower": {
   "modo": "pixel",
   "receita": "superpower",
-  "tipo": 6,
   "arquetipo": "STRIKE"
  },
  "swallow": {
@@ -1916,7 +1841,6 @@
  "aqua-tail": {
   "modo": "pixel",
   "receita": "aqua-tail",
-  "tipo": 2,
   "arquetipo": "STRIKE"
  },
  "assurance": {
@@ -1937,7 +1861,6 @@
  "avalanche": {
   "modo": "pixel",
   "receita": "avalanche",
-  "tipo": 5,
   "arquetipo": "AOE"
  },
  "brave-bird": {
@@ -1954,13 +1877,11 @@
  "bug-bite": {
   "modo": "pixel",
   "receita": "bug-bite",
-  "tipo": 11,
   "arquetipo": "STRIKE"
  },
  "bug-buzz": {
   "modo": "pixel",
   "receita": "bug-buzz",
-  "tipo": 11,
   "arquetipo": "AOE"
  },
  "bullet-punch": {
@@ -1983,7 +1904,6 @@
  "chatter": {
   "modo": "pixel",
   "receita": "chatter",
-  "tipo": 9,
   "arquetipo": "PROJ"
  },
  "close-combat": {
@@ -2016,7 +1936,6 @@
  "dark-void": {
   "modo": "pixel",
   "receita": "dark-void",
-  "tipo": 15,
   "arquetipo": "STATUS"
  },
  "defend-order": {
@@ -2027,13 +1946,11 @@
  "defog": {
   "modo": "pixel",
   "receita": "defog",
-  "tipo": 9,
   "arquetipo": "FIELD"
  },
  "discharge": {
   "modo": "pixel",
   "receita": "discharge",
-  "tipo": 3,
   "arquetipo": "AOE"
  },
  "double-hit": {
@@ -2044,7 +1961,6 @@
  "draco-meteor": {
   "modo": "pixel",
   "receita": "draco-meteor",
-  "tipo": 14,
   "arquetipo": "AOE"
  },
  "dragon-pulse": {
@@ -2056,7 +1972,6 @@
  "dragon-rush": {
   "modo": "pixel",
   "receita": "dragon-rush",
-  "tipo": 14,
   "arquetipo": "STRIKE"
  },
  "drain-punch": {
@@ -2105,7 +2020,6 @@
  "fling": {
   "modo": "pixel",
   "receita": "fling",
-  "tipo": 15,
   "arquetipo": "PROJ"
  },
  "focus-blast": {
@@ -2116,7 +2030,6 @@
  "force-palm": {
   "modo": "pixel",
   "receita": "force-palm",
-  "tipo": 6,
   "arquetipo": "STRIKE"
  },
  "gastro-acid": {
@@ -2132,31 +2045,26 @@
  "grass-knot": {
   "modo": "pixel",
   "receita": "grass-knot",
-  "tipo": 4,
   "arquetipo": "STRIKE"
  },
  "gravity": {
   "modo": "pixel",
   "receita": "gravity",
-  "tipo": 10,
   "arquetipo": "FIELD"
  },
  "guard-swap": {
   "modo": "pixel",
   "receita": "guard-swap",
-  "tipo": 10,
   "arquetipo": "SPECIAL"
  },
  "gunk-shot": {
   "modo": "pixel",
   "receita": "gunk-shot",
-  "tipo": 7,
   "arquetipo": "PROJ"
  },
  "gyro-ball": {
   "modo": "pixel",
   "receita": "gyro-ball",
-  "tipo": 16,
   "arquetipo": "STRIKE"
  },
  "hammer-arm": {
@@ -2184,13 +2092,11 @@
  "healing-wish": {
   "modo": "pixel",
   "receita": "healing-wish",
-  "tipo": 10,
   "arquetipo": "SACRIFICE"
  },
  "heart-swap": {
   "modo": "pixel",
   "receita": "heart-swap",
-  "tipo": 10,
   "arquetipo": "SPECIAL"
  },
  "ice-fang": {
@@ -2237,7 +2143,6 @@
  "lunar-dance": {
   "modo": "pixel",
   "receita": "lunar-dance",
-  "tipo": 10,
   "arquetipo": "SACRIFICE"
  },
  "magma-storm": {
@@ -2248,7 +2153,6 @@
  "magnet-bomb": {
   "modo": "pixel",
   "receita": "magnet-bomb",
-  "tipo": 16,
   "arquetipo": "PROJ"
  },
  "magnet-rise": {
@@ -2264,7 +2168,6 @@
  "metal-burst": {
   "modo": "pixel",
   "receita": "metal-burst",
-  "tipo": 16,
   "arquetipo": "STRIKE"
  },
  "miracle-eye": {
@@ -2312,7 +2215,6 @@
  "pluck": {
   "modo": "pixel",
   "receita": "pluck",
-  "tipo": 9,
   "arquetipo": "STRIKE"
  },
  "poison-jab": {
@@ -2323,13 +2225,11 @@
  "power-gem": {
   "modo": "pixel",
   "receita": "power-gem",
-  "tipo": 12,
   "arquetipo": "BEAM"
  },
  "power-swap": {
   "modo": "pixel",
   "receita": "power-swap",
-  "tipo": 10,
   "arquetipo": "SPECIAL"
  },
  "power-trick": {
@@ -2340,7 +2240,6 @@
  "power-whip": {
   "modo": "pixel",
   "receita": "power-whip",
-  "tipo": 4,
   "arquetipo": "STRIKE"
  },
  "psycho-cut": {
@@ -2351,13 +2250,11 @@
  "psycho-shift": {
   "modo": "pixel",
   "receita": "psycho-shift",
-  "tipo": 10,
   "arquetipo": "STATUS"
  },
  "punishment": {
   "modo": "pixel",
   "receita": "punishment",
-  "tipo": 15,
   "arquetipo": "STRIKE"
  },
  "roar-of-time": {
@@ -2435,13 +2332,11 @@
  "switcheroo": {
   "modo": "pixel",
   "receita": "switcheroo",
-  "tipo": 15,
   "arquetipo": "SPECIAL"
  },
  "tailwind": {
   "modo": "pixel",
   "receita": "tailwind",
-  "tipo": 9,
   "arquetipo": "FIELD"
  },
  "thunder-fang": {
@@ -2475,13 +2370,11 @@
  "vacuum-wave": {
   "modo": "pixel",
   "receita": "vacuum-wave",
-  "tipo": 6,
   "arquetipo": "PROJ"
  },
  "wake-up-slap": {
   "modo": "pixel",
   "receita": "wake-up-slap",
-  "tipo": 6,
   "arquetipo": "STRIKE"
  },
  "wood-hammer": {
@@ -2513,13 +2406,11 @@
  "acid-spray": {
   "modo": "pixel",
   "receita": "acid-spray",
-  "tipo": 7,
   "arquetipo": "PROJ"
  },
  "acrobatics": {
   "modo": "pixel",
   "receita": "acrobatics",
-  "tipo": 9,
   "arquetipo": "STRIKE"
  },
  "after-you": {
@@ -2530,7 +2421,6 @@
  "ally-switch": {
   "modo": "pixel",
   "receita": "ally-switch",
-  "tipo": 10,
   "arquetipo": "SPECIAL"
  },
  "autotomize": {
@@ -2546,13 +2436,11 @@
  "blue-flare": {
   "modo": "pixel",
   "receita": "blue-flare",
-  "tipo": 1,
   "arquetipo": "AOE"
  },
  "bolt-strike": {
   "modo": "pixel",
   "receita": "bolt-strike",
-  "tipo": 3,
   "arquetipo": "STRIKE"
  },
  "bulldoze": {
@@ -2588,19 +2476,16 @@
  "dragon-tail": {
   "modo": "pixel",
   "receita": "dragon-tail",
-  "tipo": 14,
   "arquetipo": "STRIKE"
  },
  "drill-run": {
   "modo": "pixel",
   "receita": "drill-run",
-  "tipo": 8,
   "arquetipo": "STRIKE"
  },
  "dual-chop": {
   "modo": "pixel",
   "receita": "dual-chop",
-  "tipo": 14,
   "arquetipo": "MULTI"
  },
  "echoed-voice": {
@@ -2611,13 +2496,11 @@
  "electro-ball": {
   "modo": "pixel",
   "receita": "electro-ball",
-  "tipo": 3,
   "arquetipo": "PROJ"
  },
  "electroweb": {
   "modo": "pixel",
   "receita": "electroweb",
-  "tipo": 3,
   "arquetipo": "TRAP"
  },
  "entrainment": {
@@ -2628,25 +2511,21 @@
  "fiery-dance": {
   "modo": "pixel",
   "receita": "fiery-dance",
-  "tipo": 1,
   "arquetipo": "AOE"
  },
  "final-gambit": {
   "modo": "pixel",
   "receita": "final-gambit",
-  "tipo": 6,
   "arquetipo": "SACRIFICE"
  },
  "fire-pledge": {
   "modo": "pixel",
   "receita": "fire-pledge",
-  "tipo": 1,
   "arquetipo": "AOE"
  },
  "flame-burst": {
   "modo": "pixel",
   "receita": "flame-burst",
-  "tipo": 1,
   "arquetipo": "PROJ"
  },
  "flame-charge": {
@@ -2657,55 +2536,46 @@
  "foul-play": {
   "modo": "pixel",
   "receita": "foul-play",
-  "tipo": 15,
   "arquetipo": "STRIKE"
  },
  "freeze-shock": {
   "modo": "pixel",
   "receita": "freeze-shock",
-  "tipo": 5,
   "arquetipo": "CHARGE"
  },
  "frost-breath": {
   "modo": "pixel",
   "receita": "frost-breath",
-  "tipo": 5,
   "arquetipo": "BEAM"
  },
  "fusion-bolt": {
   "modo": "pixel",
   "receita": "fusion-bolt",
-  "tipo": 3,
   "arquetipo": "PROJ"
  },
  "fusion-flare": {
   "modo": "pixel",
   "receita": "fusion-flare",
-  "tipo": 1,
   "arquetipo": "PROJ"
  },
  "gear-grind": {
   "modo": "pixel",
   "receita": "gear-grind",
-  "tipo": 16,
   "arquetipo": "MULTI"
  },
  "glaciate": {
   "modo": "pixel",
   "receita": "glaciate",
-  "tipo": 5,
   "arquetipo": "AOE"
  },
  "grass-pledge": {
   "modo": "pixel",
   "receita": "grass-pledge",
-  "tipo": 4,
   "arquetipo": "AOE"
  },
  "guard-split": {
   "modo": "pixel",
   "receita": "guard-split",
-  "tipo": 10,
   "arquetipo": "SPECIAL"
  },
  "head-charge": {
@@ -2722,13 +2592,11 @@
  "heart-stamp": {
   "modo": "pixel",
   "receita": "heart-stamp",
-  "tipo": 10,
   "arquetipo": "STRIKE"
  },
  "heat-crash": {
   "modo": "pixel",
   "receita": "heat-crash",
-  "tipo": 1,
   "arquetipo": "STRIKE"
  },
  "heavy-slam": {
@@ -2755,19 +2623,16 @@
  "hurricane": {
   "modo": "pixel",
   "receita": "hurricane",
-  "tipo": 9,
   "arquetipo": "AOE"
  },
  "ice-burn": {
   "modo": "pixel",
   "receita": "ice-burn",
-  "tipo": 5,
   "arquetipo": "CHARGE"
  },
  "icicle-crash": {
   "modo": "pixel",
   "receita": "icicle-crash",
-  "tipo": 5,
   "arquetipo": "PROJ"
  },
  "incinerate": {
@@ -2788,7 +2653,6 @@
  "low-sweep": {
   "modo": "pixel",
   "receita": "low-sweep",
-  "tipo": 6,
   "arquetipo": "STRIKE"
  },
  "magic-room": {
@@ -2799,13 +2663,11 @@
  "night-daze": {
   "modo": "pixel",
   "receita": "night-daze",
-  "tipo": 15,
   "arquetipo": "AOE"
  },
  "power-split": {
   "modo": "pixel",
   "receita": "power-split",
-  "tipo": 10,
   "arquetipo": "SPECIAL"
  },
  "psyshock": {
@@ -2826,7 +2688,6 @@
  "quick-guard": {
   "modo": "pixel",
   "receita": "quick-guard",
-  "tipo": 6,
   "arquetipo": "FIELD"
  },
  "quiver-dance": {
@@ -2843,7 +2704,6 @@
  "razor-shell": {
   "modo": "pixel",
   "receita": "razor-shell",
-  "tipo": 2,
   "arquetipo": "STRIKE"
  },
  "reflect-type": {
@@ -2869,25 +2729,21 @@
  "sacred-sword": {
   "modo": "pixel",
   "receita": "sacred-sword",
-  "tipo": 6,
   "arquetipo": "STRIKE"
  },
  "scald": {
   "modo": "pixel",
   "receita": "scald",
-  "tipo": 2,
   "arquetipo": "PROJ"
  },
  "searing-shot": {
   "modo": "pixel",
   "receita": "searing-shot",
-  "tipo": 1,
   "arquetipo": "AOE"
  },
  "secret-sword": {
   "modo": "pixel",
   "receita": "secret-sword",
-  "tipo": 6,
   "arquetipo": "PROJ"
  },
  "shell-smash": {
@@ -2913,13 +2769,11 @@
  "sludge-wave": {
   "modo": "pixel",
   "receita": "sludge-wave",
-  "tipo": 7,
   "arquetipo": "AOE"
  },
  "smack-down": {
   "modo": "pixel",
   "receita": "smack-down",
-  "tipo": 12,
   "arquetipo": "PROJ"
  },
  "snarl": {
@@ -2931,13 +2785,11 @@
  "soak": {
   "modo": "pixel",
   "receita": "soak",
-  "tipo": 2,
   "arquetipo": "STATUS"
  },
  "steamroller": {
   "modo": "pixel",
   "receita": "steamroller",
-  "tipo": 11,
   "arquetipo": "STRIKE"
  },
  "stored-power": {
@@ -2953,13 +2805,11 @@
  "struggle-bug": {
   "modo": "pixel",
   "receita": "struggle-bug",
-  "tipo": 11,
   "arquetipo": "AOE"
  },
  "synchronoise": {
   "modo": "pixel",
   "receita": "synchronoise",
-  "tipo": 10,
   "arquetipo": "AOE"
  },
  "tail-slap": {
@@ -2980,31 +2830,26 @@
  "v-create": {
   "modo": "pixel",
   "receita": "v-create",
-  "tipo": 1,
   "arquetipo": "STRIKE"
  },
  "venoshock": {
   "modo": "pixel",
   "receita": "venoshock",
-  "tipo": 7,
   "arquetipo": "PROJ"
  },
  "volt-switch": {
   "modo": "pixel",
   "receita": "volt-switch",
-  "tipo": 3,
   "arquetipo": "STRIKE"
  },
  "water-pledge": {
   "modo": "pixel",
   "receita": "water-pledge",
-  "tipo": 2,
   "arquetipo": "AOE"
  },
  "wide-guard": {
   "modo": "pixel",
   "receita": "wide-guard",
-  "tipo": 12,
   "arquetipo": "FIELD"
  },
  "wild-charge": {

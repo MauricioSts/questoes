@@ -1,341 +1,39 @@
 {
  "slug": "acid",
- "duration": 48,
+ "duration": 54,
  "layers": [
   {
-   "asset": "Px-Gota",
+   "asset": "Cena-acid",
+   "assetVirado": "Cena-acid-v",
    "anchor": "user",
    "start": 0,
-   "end": 19,
-   "to": "target",
-   "frameSeq": {
-    "frames": [
-     0,
-     1
-    ],
-    "fps": 10,
-    "loop": true
-   },
-   "arc": 14,
-   "z": 3,
-   "tracks": {
-    "p": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 18,
-       "v": 1,
-       "ease": "linear"
-      }
-     ]
-    },
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0.7
-      },
-      {
-       "t": 18,
-       "v": 1
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Impacto",
-   "anchor": "target",
-   "start": 18,
-   "end": 30,
+   "end": 54,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
-     3
-    ],
-    "fps": 20,
-    "loop": false
-   },
-   "keepColor": true,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Gota",
-   "anchor": "user",
-   "start": 5,
-   "end": 24,
-   "to": "target",
-   "frameSeq": {
-    "frames": [
-     0,
-     1
-    ],
-    "fps": 10,
-    "loop": true
-   },
-   "arc": 14,
-   "z": 3,
-   "tracks": {
-    "p": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 18,
-       "v": 1,
-       "ease": "linear"
-      }
-     ]
-    },
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -6
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 5
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0.7
-      },
-      {
-       "t": 18,
-       "v": 1
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Impacto",
-   "anchor": "target",
-   "start": 23,
-   "end": 35,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3
-    ],
-    "fps": 20,
-    "loop": false
-   },
-   "keepColor": true,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -6
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 5
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Gota",
-   "anchor": "user",
-   "start": 10,
-   "end": 29,
-   "to": "target",
-   "frameSeq": {
-    "frames": [
-     0,
-     1
-    ],
-    "fps": 10,
-    "loop": true
-   },
-   "arc": 14,
-   "z": 3,
-   "tracks": {
-    "p": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 18,
-       "v": 1,
-       "ease": "linear"
-      }
-     ]
-    },
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 6
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -4
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0.7
-      },
-      {
-       "t": 18,
-       "v": 1
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Impacto",
-   "anchor": "target",
-   "start": 28,
-   "end": 40,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3
-    ],
-    "fps": 20,
-    "loop": false
-   },
-   "keepColor": true,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 6
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -4
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Gota",
-   "anchor": "target",
-   "start": 18,
-   "end": 30,
-   "spawn": {
-    "count": 7,
-    "spread": [
+     3,
+     4,
+     5,
      6,
-     6
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17
     ],
-    "interval": 1,
-    "frames": [
-     0,
-     1
-    ],
-    "burst": 1.6,
-    "vy": -1.6,
-    "gravity": 0.2,
-    "life": 20,
-    "seed": 1
+    "fps": 20,
+    "loop": false
    },
+   "keepColor": true,
    "z": 3
   }
  ],

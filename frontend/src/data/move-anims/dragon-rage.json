@@ -3,267 +3,39 @@
  "duration": 60,
  "layers": [
   {
-   "asset": "Px-Feixe",
+   "asset": "Cena-dragon-rage",
+   "assetVirado": "Cena-dragon-rage-v",
    "anchor": "user",
-   "start": 4,
-   "end": 34,
-   "to": "target",
-   "orient": true,
-   "frameSeq": {
-    "frames": [
-     0,
-     1
-    ],
-    "fps": 20,
-    "loop": true
-   },
-   "spawn": {
-    "count": 20,
-    "spread": [
-     0,
-     1
-    ],
-    "interval": 1.5,
-    "life": 10,
-    "seed": 1
-   },
-   "tracks": {
-    "p": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 10,
-       "v": 1
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0.8
-      },
-      {
-       "t": 10,
-       "v": 1
-      }
-     ]
-    }
-   },
-   "z": 2
-  },
-  {
-   "asset": "Px-Pulso",
-   "anchor": "user",
-   "start": 4,
-   "end": 34,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3
-    ],
-    "fps": 20,
-    "loop": true
-   },
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 10
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -6
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0.7
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 2,
-       "v": 1
-      },
-      {
-       "t": 26,
-       "v": 1
-      },
-      {
-       "t": 30,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 3
-  },
-  {
-   "asset": "Px-Pulso",
-   "anchor": "target",
-   "start": 14,
-   "end": 42,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3
-    ],
-    "fps": 20,
-    "loop": true
-   },
-   "tracks": {
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 2,
-       "v": 1
-      },
-      {
-       "t": 22,
-       "v": 1
-      },
-      {
-       "t": 28,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 3
-  },
-  {
-   "asset": "Px-Anel",
-   "anchor": "target",
-   "start": 14,
-   "end": 42,
+   "start": 0,
+   "end": 60,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
      3,
-     4
-    ],
-    "fps": 20,
-    "loop": true
-   },
-   "tracks": {
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 2,
-       "v": 1
-      },
-      {
-       "t": 22,
-       "v": 1
-      },
-      {
-       "t": 28,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 3
-  },
-  {
-   "asset": "Px-Faisca",
-   "anchor": "target",
-   "start": 34,
-   "end": 38,
-   "spawn": {
-    "count": 8,
-    "spread": [
+     4,
      5,
-     5
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19
     ],
-    "interval": 0,
-    "frames": [
-     2,
-     3,
-     4
-    ],
-    "burst": 2.2,
-    "life": 16,
-    "seed": 2
+    "fps": 20,
+    "loop": false
    },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 10,
-       "v": 1
-      },
-      {
-       "t": 16,
-       "v": 0
-      }
-     ]
-    }
-   },
+   "keepColor": true,
    "z": 3
   }
  ],

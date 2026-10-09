@@ -1,131 +1,33 @@
 {
  "slug": "bone-club",
- "duration": 29,
+ "duration": 33,
  "layers": [
   {
-   "asset": "Px-Osso",
-   "anchor": "target",
+   "asset": "Cena-bone-club",
+   "assetVirado": "Cena-bone-club-v",
+   "anchor": "user",
    "start": 0,
-   "end": 14,
-   "keepColor": true,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -20
-      },
-      {
-       "t": 7,
-       "v": -2,
-       "ease": "in"
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -26
-      },
-      {
-       "t": 7,
-       "v": -4,
-       "ease": "in"
-      }
-     ]
-    },
-    "rot": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -80
-      },
-      {
-       "t": 7,
-       "v": 20,
-       "ease": "in"
-      },
-      {
-       "t": 14,
-       "v": 30
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.6
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 2,
-       "v": 1
-      },
-      {
-       "t": 10,
-       "v": 1
-      },
-      {
-       "t": 14,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 3
-  },
-  {
-   "asset": "Px-Impacto",
-   "anchor": "target",
-   "start": 7,
-   "end": 19,
+   "end": 33,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
-     3
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
     ],
     "fps": 20,
     "loop": false
    },
    "keepColor": true,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -4
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    }
-   }
+   "z": 3
   }
  ],
  "hits": [

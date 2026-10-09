@@ -1,68 +1,45 @@
 {
  "slug": "haze",
- "duration": 50,
+ "duration": 68,
  "layers": [
   {
-   "asset": "Px-Fumaca",
-   "anchor": "screen-center",
+   "asset": "Cena-haze",
+   "assetVirado": "Cena-haze-v",
+   "anchor": "user",
    "start": 0,
-   "end": 40,
+   "end": 68,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
      3,
-     2,
-     3,
-     4
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22
     ],
-    "fps": 8,
+    "fps": 20,
     "loop": false
    },
-   "spawn": {
-    "count": 10,
-    "spread": [
-     110,
-     50
-    ],
-    "interval": 3,
-    "life": 36,
-    "seed": 1,
-    "vx": 0.15,
-    "vy": -0.1
-   },
-   "tracks": {
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.6
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 4,
-       "v": 0.7
-      },
-      {
-       "t": 30,
-       "v": 0.7
-      },
-      {
-       "t": 36,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 4
+   "keepColor": true,
+   "z": 3
   }
  ],
  "react": "self",

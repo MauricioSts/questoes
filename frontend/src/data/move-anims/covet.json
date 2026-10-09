@@ -1,100 +1,39 @@
 {
  "slug": "covet",
- "duration": 46,
+ "duration": 50,
  "layers": [
   {
-   "asset": "Px-Coracao",
+   "asset": "Cena-covet",
+   "assetVirado": "Cena-covet-v",
    "anchor": "user",
    "start": 0,
-   "end": 16,
-   "frameSeq": {
-    "frames": [
-     0,
-     1
-    ],
-    "fps": 8,
-    "loop": true
-   },
-   "keepColor": true,
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -20
-      },
-      {
-       "t": 16,
-       "v": -34
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 2,
-       "v": 1
-      },
-      {
-       "t": 12,
-       "v": 1
-      },
-      {
-       "t": 16,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 4
-  },
-  {
-   "asset": "Px-Impacto",
-   "anchor": "target",
-   "start": 19,
-   "end": 31,
+   "end": 50,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
-     3
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16
     ],
     "fps": 20,
     "loop": false
    },
    "keepColor": true,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    }
-   }
+   "z": 3
   }
  ],
  "hits": [

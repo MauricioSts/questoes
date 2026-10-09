@@ -3,10 +3,12 @@
  "duration": 66,
  "layers": [
   {
-   "asset": "Px-Escudo",
+   "asset": "Cena-protect",
+   "assetVirado": "Cena-protect-v",
    "anchor": "user",
    "start": 0,
-   "end": 60,
+   "end": 66,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
@@ -15,100 +17,28 @@
      3,
      4,
      5,
-     2,
-     2,
-     3,
-     4,
-     5
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21
     ],
-    "fps": 14,
+    "fps": 20,
     "loop": false
    },
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 26
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -4
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.2
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 3,
-       "v": 0.85
-      },
-      {
-       "t": 52,
-       "v": 0.85
-      },
-      {
-       "t": 60,
-       "v": 0
-      }
-     ]
-    }
-   },
+   "keepColor": true,
    "z": 3
-  },
-  {
-   "asset": "Px-Faisca",
-   "anchor": "user",
-   "start": 10,
-   "end": 56,
-   "frameSeq": {
-    "frames": [
-     2,
-     3,
-     4,
-     3,
-     2
-    ],
-    "fps": 16,
-    "loop": false
-   },
-   "spawn": {
-    "count": 6,
-    "spread": [
-     24,
-     28
-    ],
-    "interval": 6,
-    "life": 12,
-    "seed": 1
-   },
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 26
-      }
-     ]
-    }
-   },
-   "z": 4
   }
  ],
  "react": "self",

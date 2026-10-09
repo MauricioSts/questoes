@@ -3,176 +3,46 @@
  "duration": 76,
  "layers": [
   {
-   "asset": "Px-Corte",
-   "anchor": "target",
-   "start": 2,
-   "end": 14,
-   "frame": 2,
-   "tracks": {
-    "rot": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 45
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0.6
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 1,
-       "v": 1
-      },
-      {
-       "t": 8,
-       "v": 1
-      },
-      {
-       "t": 12,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 3
-  },
-  {
-   "asset": "Px-Impacto",
-   "anchor": "target",
-   "start": 6,
-   "end": 18,
+   "asset": "Cena-leech-life",
+   "assetVirado": "Cena-leech-life-v",
+   "anchor": "user",
+   "start": 0,
+   "end": 76,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
-     3
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
     ],
     "fps": 20,
     "loop": false
    },
    "keepColor": true,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Orbe",
-   "anchor": "target",
-   "start": 14,
-   "end": 60,
-   "to": "user",
-   "frame": 2,
-   "arc": 20,
-   "spawn": {
-    "count": 6,
-    "spread": [
-     10,
-     10
-    ],
-    "interval": 4,
-    "life": 24,
-    "seed": 1
-   },
-   "tracks": {
-    "p": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 22,
-       "v": 1,
-       "ease": "in"
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 2,
-       "v": 1
-      },
-      {
-       "t": 20,
-       "v": 1
-      },
-      {
-       "t": 24,
-       "v": 0
-      }
-     ]
-    }
-   },
    "z": 3
-  },
-  {
-   "asset": "Px-Brilho",
-   "anchor": "user",
-   "start": 38,
-   "end": 70,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3
-    ],
-    "fps": 14,
-    "loop": false
-   },
-   "spawn": {
-    "count": 4,
-    "spread": [
-     18,
-     18
-    ],
-    "interval": 6,
-    "life": 14,
-    "seed": 2
-   },
-   "z": 4
   }
  ],
  "hits": [

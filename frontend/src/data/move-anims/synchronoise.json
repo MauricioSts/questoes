@@ -3,316 +3,44 @@
  "duration": 70,
  "layers": [
   {
-   "asset": "Px-Anel",
+   "asset": "Cena-synchronoise",
+   "assetVirado": "Cena-synchronoise-v",
    "anchor": "user",
    "start": 0,
-   "end": 18,
+   "end": 70,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
      3,
-     4
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23
     ],
-    "fps": 16,
+    "fps": 20,
     "loop": false
    },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.6
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 15,
-       "v": 1
-      },
-      {
-       "t": 18,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 2
-  },
-  {
-   "asset": "Px-Anel",
-   "anchor": "user",
-   "start": 6,
-   "end": 24,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3,
-     4
-    ],
-    "fps": 16,
-    "loop": false
-   },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.6
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 15,
-       "v": 1
-      },
-      {
-       "t": 18,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 2
-  },
-  {
-   "asset": "Px-Anel",
-   "anchor": "user",
-   "start": 12,
-   "end": 30,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3,
-     4
-    ],
-    "fps": 16,
-    "loop": false
-   },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.6
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 15,
-       "v": 1
-      },
-      {
-       "t": 18,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 2
-  },
-  {
-   "asset": "Px-Anel",
-   "anchor": "user",
-   "start": 18,
-   "end": 36,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3,
-     4
-    ],
-    "fps": 16,
-    "loop": false
-   },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.6
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 15,
-       "v": 1
-      },
-      {
-       "t": 18,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 2
-  },
-  {
-   "asset": "Px-Anel",
-   "anchor": "user",
-   "start": 24,
-   "end": 42,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3,
-     4
-    ],
-    "fps": 16,
-    "loop": false
-   },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.6
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 15,
-       "v": 1
-      },
-      {
-       "t": 18,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 2
-  },
-  {
-   "asset": "Px-Anel",
-   "anchor": "user",
-   "start": 30,
-   "end": 48,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3,
-     4
-    ],
-    "fps": 16,
-    "loop": false
-   },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.6
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 15,
-       "v": 1
-      },
-      {
-       "t": 18,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 2
+   "keepColor": true,
+   "z": 3
   }
  ],
  "hits": [

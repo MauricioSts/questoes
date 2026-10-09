@@ -1,116 +1,34 @@
 {
  "slug": "low-sweep",
- "duration": 32,
+ "duration": 36,
  "layers": [
   {
-   "asset": "Px-Chicote",
-   "anchor": "field-target",
-   "start": 2,
-   "end": 16,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2
-    ],
-    "fps": 20,
-    "loop": false
-   },
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -14
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -10
-      }
-     ]
-    },
-    "rot": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.2
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 10,
-       "v": 1
-      },
-      {
-       "t": 14,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 3
-  },
-  {
-   "asset": "Px-Impacto",
-   "anchor": "target",
-   "start": 10,
-   "end": 22,
+   "asset": "Cena-low-sweep",
+   "assetVirado": "Cena-low-sweep-v",
+   "anchor": "user",
+   "start": 0,
+   "end": 36,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
-     3
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11
     ],
     "fps": 20,
     "loop": false
    },
    "keepColor": true,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 12
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    }
-   }
+   "z": 3
   }
  ],
  "hits": [

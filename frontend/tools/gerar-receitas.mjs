@@ -10,13 +10,14 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { RECEITAS as RECEITAS_DP, REUSO, REUSO_ARQUETIPO } from "./receitas.mjs";
-import { receitasPixel } from "./receitas-pixel.mjs";
+import { gerarCenas } from "./cenas-pixel.mjs";
 import { gerarKit } from "./pixel-kit.mjs";
 import { CATALOGO, TIPOS_EN } from "../src/components/poke/golpes/catalogo.ts";
 
-// peças em pixel art próprias (public/fx/Px-*.png) entram no atlas antes da validação
+// peças em pixel art próprias (public/fx/Px-*.png) e as cenas quadro a quadro dos golpes sem
+// folha do DP (public/fx/Cena-*.png) entram no atlas antes da validação
 gerarKit();
-const PIXEL = receitasPixel(CATALOGO);
+const PIXEL = gerarCenas(CATALOGO).receitas;
 const TIPO_PIXEL = new Map(PIXEL.map((p) => [p.receita.slug, p.tipo]));
 const RECEITAS = [...RECEITAS_DP, ...PIXEL.map((p) => p.receita)];
 

@@ -1,133 +1,34 @@
 {
  "slug": "crabhammer",
- "duration": 32,
+ "duration": 37,
  "layers": [
   {
-   "asset": "Px-Garra",
-   "anchor": "target",
-   "start": 4,
-   "end": 20,
+   "asset": "Cena-crabhammer",
+   "assetVirado": "Cena-crabhammer-v",
+   "anchor": "user",
+   "start": 0,
+   "end": 37,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
-     3
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
     ],
-    "fps": 24,
+    "fps": 20,
     "loop": false
    },
-   "tracks": {
-    "rot": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 12,
-       "v": 1
-      },
-      {
-       "t": 16,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 3
-  },
-  {
-   "asset": "Px-Faisca",
-   "anchor": "target",
-   "start": 10,
-   "end": 14,
-   "spawn": {
-    "count": 4,
-    "spread": [
-     5,
-     5
-    ],
-    "interval": 0,
-    "frames": [
-     2,
-     3,
-     4
-    ],
-    "burst": 1.8,
-    "life": 16,
-    "seed": 1
-   },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 10,
-       "v": 1
-      },
-      {
-       "t": 16,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 3
-  },
-  {
-   "asset": "Px-Gota",
-   "anchor": "target",
-   "start": 10,
-   "end": 14,
-   "spawn": {
-    "count": 6,
-    "spread": [
-     6,
-     6
-    ],
-    "interval": 0,
-    "frames": [
-     0,
-     1
-    ],
-    "burst": 1.5,
-    "vy": -1.4,
-    "gravity": 0.18,
-    "life": 20,
-    "seed": 2
-   },
+   "keepColor": true,
    "z": 3
   }
  ],

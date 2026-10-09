@@ -3,124 +3,51 @@
  "duration": 96,
  "layers": [
   {
-   "asset": "Px-Pulso",
+   "asset": "Cena-self-destruct",
+   "assetVirado": "Cena-self-destruct-v",
    "anchor": "user",
    "start": 0,
-   "end": 22,
+   "end": 96,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
-     3
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
     ],
     "fps": 20,
-    "loop": true
-   },
-   "tracks": {
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0.6
-      },
-      {
-       "t": 22,
-       "v": 1.6,
-       "ease": "in"
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0.9
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Explosao",
-   "anchor": "user",
-   "start": 20,
-   "end": 56,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3,
-     4,
-     5,
-     6
-    ],
-    "fps": 14,
     "loop": false
    },
    "keepColor": true,
-   "spawn": {
-    "count": 3,
-    "spread": [
-     30,
-     22
-    ],
-    "interval": 4,
-    "life": 30,
-    "seed": 1
-   },
-   "tracks": {
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    }
-   },
-   "z": 3
-  },
-  {
-   "asset": "Px-Explosao",
-   "anchor": "target",
-   "start": 26,
-   "end": 70,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3,
-     4,
-     5,
-     6
-    ],
-    "fps": 14,
-    "loop": false
-   },
-   "keepColor": true,
-   "spawn": {
-    "count": 4,
-    "spread": [
-     30,
-     24
-    ],
-    "interval": 4,
-    "life": 30,
-    "seed": 2
-   },
-   "tracks": {
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    }
-   },
    "z": 3
   }
  ],

@@ -108,6 +108,7 @@ export interface ArquivoAtlas {
   w: number;
   h: number;
   celula?: [number, number];
+  sobDemanda?: boolean; // cenas quadro a quadro (Cena-*): só baixa quando o golpe vai tocar
   quadros: QuadroAtlas[];
 }
 

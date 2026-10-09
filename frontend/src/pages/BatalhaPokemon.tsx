@@ -129,6 +129,7 @@ import { PageHeader } from "../components/PageHeader";
 import { Carregando } from "../components/Spinner";
 import { Arena, Pokebolas, TEXTO_HABITAT, TipoChip, habitatDoTipo, type BolaVis, type EstadoBola, type ItemVis, type LadoVis, type LancaVis, type TextoVis } from "../components/poke/Arena";
 import { MotorGolpes } from "../components/poke/golpes/motor";
+import { spritesFx } from "../components/poke/golpes/sprites/fx";
 import { TimeGba, useTemaGba } from "../components/poke/TimeGba";
 import { specDoGolpe } from "../components/poke/golpes/spec";
 import type { Ancora, Resultado } from "../components/poke/golpes/tipos";
@@ -439,8 +440,11 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
     const ef = o.efetividade ?? 1;
     const outcome: Resultado = o.errou ? "miss" : o.semEfeito || ef === 0 ? "noEffect" : o.critico ? "crit" : ef >= 2 ? "superEffective" : ef < 1 ? "notVeryEffective" : "hit";
     const aliado = motor.atores.ancora(`${de}-${(o.deSlot ?? 0) === 0 ? 1 : 0}`);
-    const t = motor.tocar(spec, { attacker: A, targets: alvos, power: m[2], outcome, ...(spec.dinamico ? { typeOverride: m[1] } : {}), ...(dupla && aliado ? { aliados: [aliado] } : {}) });
-    return Promise.race([t.impacto, esperar(2600)]).then(() => undefined);
+    // a cena quadro a quadro do golpe baixa na primeira vez que ele toca
+    return spritesFx.preparar(spec.slug).then(() => {
+      const t = motor.tocar(spec, { attacker: A, targets: alvos, power: m[2], outcome, ...(spec.dinamico ? { typeOverride: m[1] } : {}), ...(dupla && aliado ? { aliados: [aliado] } : {}) });
+      return Promise.race([t.impacto, esperar(2600)]).then(() => undefined);
+    });
   };
   const anim = (lado: "meu" | "inimigo", a: LadoVis["anim"], extra: Partial<LadoVis> = {}, slot: Slot = 0) => {
     (lado === "meu" ? setMeu : setIni)(slot, (v) => (v ? { ...v, ...extra, anim: a, chave: n() } : v));

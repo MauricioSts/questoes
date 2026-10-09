@@ -3,60 +3,39 @@
  "duration": 56,
  "layers": [
   {
-   "asset": "Px-Anel",
+   "asset": "Cena-teleport",
+   "assetVirado": "Cena-teleport-v",
    "anchor": "user",
    "start": 0,
-   "end": 24,
+   "end": 56,
+   "ds": true,
    "frameSeq": {
     "frames": [
-     4,
-     3,
-     2,
+     0,
      1,
-     0
-    ],
-    "fps": 14,
-    "loop": false
-   },
-   "tracks": {
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.4
-      }
-     ]
-    }
-   },
-   "z": 3
-  },
-  {
-   "asset": "Px-Faisca",
-   "anchor": "user",
-   "start": 10,
-   "end": 50,
-   "frameSeq": {
-    "frames": [
      2,
      3,
      4,
-     3
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18
     ],
-    "fps": 14,
+    "fps": 20,
     "loop": false
    },
-   "spawn": {
-    "count": 8,
-    "spread": [
-     10,
-     26
-    ],
-    "interval": 2,
-    "life": 14,
-    "vy": -2.4,
-    "seed": 1
-   },
-   "z": 4
+   "keepColor": true,
+   "z": 3
   }
  ],
  "react": "self",

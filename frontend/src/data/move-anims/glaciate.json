@@ -3,68 +3,45 @@
  "duration": 76,
  "layers": [
   {
-   "asset": "Px-Chifre",
-   "anchor": "target",
-   "start": 4,
-   "end": 56,
-   "frame": 0,
-   "spawn": {
-    "count": 6,
-    "spread": [
-     26,
-     4
+   "asset": "Cena-glaciate",
+   "assetVirado": "Cena-glaciate-v",
+   "anchor": "user",
+   "start": 0,
+   "end": 76,
+   "ds": true,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
     ],
-    "interval": 6,
-    "life": 16,
-    "seed": 1
+    "fps": 20,
+    "loop": false
    },
-   "tracks": {
-    "rot": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 116
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -90
-      },
-      {
-       "t": 12,
-       "v": -4,
-       "ease": "in"
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.2
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 12,
-       "v": 1
-      },
-      {
-       "t": 16,
-       "v": 0
-      }
-     ]
-    }
-   },
+   "keepColor": true,
    "z": 3
   }
  ],

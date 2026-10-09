@@ -3,134 +3,38 @@
  "duration": 54,
  "layers": [
   {
-   "asset": "Px-Raio",
-   "anchor": "target",
-   "start": 6,
-   "end": 30,
+   "asset": "Cena-thunder-shock",
+   "assetVirado": "Cena-thunder-shock-v",
+   "anchor": "user",
+   "start": 0,
+   "end": 54,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
-     2
-    ],
-    "fps": 20,
-    "loop": true
-   },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -24
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 20,
-       "v": 1
-      },
-      {
-       "t": 24,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 3
-  },
-  {
-   "asset": "Px-Faisca",
-   "anchor": "target",
-   "start": 8,
-   "end": 12,
-   "spawn": {
-    "count": 8,
-    "spread": [
-     5,
-     5
-    ],
-    "interval": 0,
-    "frames": [
-     2,
-     3,
-     4
-    ],
-    "burst": 2,
-    "life": 16,
-    "seed": 1
-   },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 10,
-       "v": 1
-      },
-      {
-       "t": 16,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 3
-  },
-  {
-   "asset": "Px-Faisca",
-   "anchor": "target",
-   "start": 8,
-   "end": 34,
-   "frameSeq": {
-    "frames": [
      2,
      3,
      4,
-     3
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17
     ],
-    "fps": 24,
-    "loop": true
+    "fps": 20,
+    "loop": false
    },
-   "spawn": {
-    "count": 6,
-    "spread": [
-     20,
-     20
-    ],
-    "interval": 3,
-    "life": 8,
-    "seed": 2
-   },
-   "z": 4
+   "keepColor": true,
+   "z": 3
   }
  ],
  "hits": [

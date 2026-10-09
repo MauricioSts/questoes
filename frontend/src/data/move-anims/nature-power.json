@@ -1,191 +1,44 @@
 {
  "slug": "nature-power",
- "duration": 60,
+ "duration": 66,
  "layers": [
   {
-   "asset": "Px-Faisca",
+   "asset": "Cena-nature-power",
+   "assetVirado": "Cena-nature-power-v",
    "anchor": "user",
    "start": 0,
-   "end": 14,
-   "spawn": {
-    "count": 8,
-    "spread": [
-     30,
-     26
-    ],
-    "interval": 2,
-    "frames": [
-     2,
-     3,
-     4
-    ],
-    "burst": -1.6,
-    "life": 14,
-    "seed": 1
-   },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -6
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 2,
-       "v": 1
-      },
-      {
-       "t": 10,
-       "v": 1
-      },
-      {
-       "t": 14,
-       "v": 0
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Orbe",
-   "anchor": "user",
-   "start": 6,
-   "end": 20,
+   "end": 66,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
      3,
-     4
-    ],
-    "fps": 14,
-    "loop": false
-   },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -6
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Brilho",
-   "anchor": "user",
-   "start": 20,
-   "end": 41,
-   "to": "target",
-   "frameSeq": {
-    "frames": [
-     1,
-     2,
-     3,
-     2
-    ],
-    "fps": 16,
-    "loop": true
-   },
-   "arc": 0,
-   "z": 3,
-   "tracks": {
-    "p": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 20,
-       "v": 1,
-       "ease": "linear"
-      }
-     ]
-    },
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0.7
-      },
-      {
-       "t": 20,
-       "v": 1
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Impacto",
-   "anchor": "target",
-   "start": 40,
-   "end": 52,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21
     ],
     "fps": 20,
     "loop": false
    },
    "keepColor": true,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    }
-   }
+   "z": 3
   }
  ],
  "hits": [

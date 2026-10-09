@@ -1,98 +1,35 @@
 {
  "slug": "megahorn",
- "duration": 36,
+ "duration": 38,
  "layers": [
   {
-   "asset": "Px-Chifre",
+   "asset": "Cena-megahorn",
+   "assetVirado": "Cena-megahorn-v",
    "anchor": "user",
    "start": 0,
-   "end": 15,
-   "to": "target",
-   "orient": true,
-   "frame": 0,
-   "tracks": {
-    "p": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 12,
-       "v": 1,
-       "ease": "linear"
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.6
-      }
-     ]
-    },
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Impacto",
-   "anchor": "target",
-   "start": 12,
-   "end": 24,
+   "end": 38,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
-     3
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
     ],
     "fps": 20,
     "loop": false
    },
    "keepColor": true,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.4
-      }
-     ]
-    }
-   }
+   "z": 3
   }
  ],
  "hits": [

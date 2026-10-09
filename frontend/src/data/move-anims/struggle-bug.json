@@ -3,82 +3,45 @@
  "duration": 76,
  "layers": [
   {
-   "asset": "Px-Faisca",
-   "anchor": "target",
-   "start": 6,
-   "end": 56,
-   "frameSeq": {
-    "frames": [
-     2,
-     3,
-     4,
-     3
-    ],
-    "fps": 24,
-    "loop": true
-   },
-   "spawn": {
-    "count": 16,
-    "spread": [
-     30,
-     30
-    ],
-    "interval": 2,
-    "life": 10,
-    "seed": 1
-   },
-   "z": 4
-  },
-  {
-   "asset": "Px-Anel",
+   "asset": "Cena-struggle-bug",
+   "assetVirado": "Cena-struggle-bug-v",
    "anchor": "user",
-   "start": 10,
-   "end": 30,
+   "start": 0,
+   "end": 76,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
      3,
-     4
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
     ],
-    "fps": 14,
+    "fps": 20,
     "loop": false
    },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.4
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 17,
-       "v": 1
-      },
-      {
-       "t": 20,
-       "v": 0
-      }
-     ]
-    }
-   },
+   "keepColor": true,
    "z": 3
   }
  ],

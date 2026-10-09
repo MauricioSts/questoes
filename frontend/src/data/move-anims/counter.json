@@ -1,148 +1,38 @@
 {
  "slug": "counter",
- "duration": 46,
+ "duration": 50,
  "layers": [
   {
-   "asset": "Px-Pulso",
+   "asset": "Cena-counter",
+   "assetVirado": "Cena-counter-v",
    "anchor": "user",
    "start": 0,
-   "end": 14,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3
-    ],
-    "fps": 20,
-    "loop": true
-   },
-   "tracks": {
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.6
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 2,
-       "v": 0.8
-      },
-      {
-       "t": 10,
-       "v": 0.8
-      },
-      {
-       "t": 14,
-       "v": 0
-      }
-     ]
-    }
-   },
-   "z": 1
-  },
-  {
-   "asset": "Px-Impacto",
-   "anchor": "target",
-   "start": 19,
-   "end": 31,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3
-    ],
-    "fps": 20,
-    "loop": false
-   },
-   "keepColor": true,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.4
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Anel",
-   "anchor": "target",
-   "start": 20,
-   "end": 35,
+   "end": 50,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
      3,
-     4
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16
     ],
     "fps": 20,
     "loop": false
    },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1.2
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 12,
-       "v": 1
-      },
-      {
-       "t": 15,
-       "v": 0
-      }
-     ]
-    }
-   },
+   "keepColor": true,
    "z": 3
   }
  ],

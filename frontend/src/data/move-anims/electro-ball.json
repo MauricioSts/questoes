@@ -1,165 +1,37 @@
 {
  "slug": "electro-ball",
- "duration": 40,
+ "duration": 46,
  "layers": [
   {
-   "asset": "Px-Pulso",
+   "asset": "Cena-electro-ball",
+   "assetVirado": "Cena-electro-ball-v",
    "anchor": "user",
    "start": 0,
-   "end": 21,
-   "to": "target",
+   "end": 46,
+   "ds": true,
    "frameSeq": {
     "frames": [
      0,
      1,
      2,
-     3
-    ],
-    "fps": 16,
-    "loop": true
-   },
-   "arc": 0,
-   "z": 3,
-   "tracks": {
-    "p": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 20,
-       "v": 1,
-       "ease": "linear"
-      }
-     ]
-    },
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0.84
-      },
-      {
-       "t": 20,
-       "v": 1.2
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Impacto",
-   "anchor": "target",
-   "start": 20,
-   "end": 32,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2,
-     3
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
     ],
     "fps": 20,
     "loop": false
    },
    "keepColor": true,
-   "z": 3,
-   "tracks": {
-    "x": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 1
-      }
-     ]
-    }
-   }
-  },
-  {
-   "asset": "Px-Raio",
-   "anchor": "target",
-   "start": 20,
-   "end": 36,
-   "frameSeq": {
-    "frames": [
-     0,
-     1,
-     2
-    ],
-    "fps": 20,
-    "loop": true
-   },
-   "tracks": {
-    "y": {
-     "keys": [
-      {
-       "t": 0,
-       "v": -20
-      }
-     ]
-    },
-    "scale": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0.6
-      }
-     ]
-    },
-    "alpha": {
-     "keys": [
-      {
-       "t": 0,
-       "v": 0
-      },
-      {
-       "t": 0,
-       "v": 1
-      },
-      {
-       "t": 12,
-       "v": 1
-      },
-      {
-       "t": 16,
-       "v": 0
-      }
-     ]
-    }
-   },
    "z": 3
   }
  ],
