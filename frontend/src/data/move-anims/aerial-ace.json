@@ -1,0 +1,94 @@
+{
+ "slug": "aerial-ace",
+ "duration": 48,
+ "layers": [
+  {
+   "asset": "Aerial-Ace",
+   "anchor": "target",
+   "start": 10,
+   "end": 22,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20,
+    "loop": false
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Aerial-Ace",
+   "anchor": "target",
+   "start": 14,
+   "end": 40,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     6,
+     6
+    ],
+    "interval": 1,
+    "frames": [
+     4,
+     5,
+     6
+    ],
+    "burst": 2.2,
+    "gravity": 0.15,
+    "life": 20,
+    "seed": 2
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  12
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "dash",
+   "dur": 22
+  }
+ ]
+}

@@ -1,0 +1,53 @@
+{
+ "slug": "bubble-beam",
+ "duration": 66,
+ "layers": [
+  {
+   "asset": "Water-Pulse",
+   "anchor": "user",
+   "start": 0,
+   "end": 50,
+   "to": "target",
+   "spawn": {
+    "count": 16,
+    "spread": [
+     6,
+     6
+    ],
+    "interval": 2,
+    "frames": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "life": 16,
+    "seed": 3
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 14,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  14,
+  30,
+  44
+ ],
+ "approx": true,
+ "note": "bolhas da folha de Water Pulse"
+}

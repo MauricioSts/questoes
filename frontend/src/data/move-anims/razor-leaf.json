@@ -1,0 +1,50 @@
+{
+ "slug": "razor-leaf",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Leaves",
+   "anchor": "user",
+   "start": 0,
+   "end": 34,
+   "to": "target",
+   "spawn": {
+    "count": 4,
+    "spread": [
+     10,
+     10
+    ],
+    "interval": 3,
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "spin": 20,
+    "life": 20,
+    "seed": 4
+   },
+   "arc": 10,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 18,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  18,
+  24
+ ]
+}

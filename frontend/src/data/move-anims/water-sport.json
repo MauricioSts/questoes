@@ -1,0 +1,94 @@
+{
+ "slug": "water-sport",
+ "duration": 66,
+ "layers": [
+  {
+   "asset": "Water-Sport",
+   "anchor": "field-user",
+   "start": 0,
+   "end": 56,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     40,
+     6
+    ],
+    "interval": 6,
+    "frames": [
+     0,
+     1
+    ],
+    "life": 22,
+    "seed": 2
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -20
+      },
+      {
+       "t": 22,
+       "v": 0,
+       "ease": "in"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Water-Sport",
+   "anchor": "field-user",
+   "start": 6,
+   "end": 60,
+   "spawn": {
+    "count": 10,
+    "spread": [
+     40,
+     6
+    ],
+    "interval": 4,
+    "frames": [
+     12,
+     13,
+     14
+    ],
+    "vy": 2,
+    "life": 16,
+    "seed": 3
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -40
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "self"
+}

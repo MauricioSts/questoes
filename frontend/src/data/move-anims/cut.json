@@ -1,0 +1,93 @@
+{
+ "slug": "cut",
+ "duration": 40,
+ "layers": [
+  {
+   "asset": "Cut",
+   "anchor": "target",
+   "start": 4,
+   "end": 20,
+   "frame": 0,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.5
+      },
+      {
+       "t": 5,
+       "v": 1.1,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Cut",
+   "anchor": "target",
+   "start": 8,
+   "end": 34,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     10,
+     10
+    ],
+    "interval": 1,
+    "frames": [
+     1,
+     2,
+     3
+    ],
+    "burst": 1.6,
+    "life": 18,
+    "seed": 3
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  8
+ ]
+}

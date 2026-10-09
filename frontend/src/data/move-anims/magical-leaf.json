@@ -1,0 +1,115 @@
+{
+ "slug": "magical-leaf",
+ "duration": 70,
+ "layers": [
+  {
+   "asset": "Magical-Leaf",
+   "anchor": "user",
+   "start": 0,
+   "end": 44,
+   "to": "target",
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "fps": 16,
+    "loop": true
+   },
+   "arc": 30,
+   "spawn": {
+    "count": 5,
+    "spread": [
+     12,
+     12
+    ],
+    "interval": 4,
+    "life": 26,
+    "seed": 3
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 24,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Magical-Leaf",
+   "anchor": "target",
+   "start": 24,
+   "end": 60,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     16,
+     16
+    ],
+    "interval": 4,
+    "frames": [
+     32,
+     33,
+     34,
+     35
+    ],
+    "life": 12,
+    "seed": 4
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.4
+      },
+      {
+       "t": 6,
+       "v": 1,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  26,
+  38
+ ]
+}

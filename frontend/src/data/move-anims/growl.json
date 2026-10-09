@@ -1,0 +1,118 @@
+{
+ "slug": "growl",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Growl",
+   "anchor": "user",
+   "start": 0,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 10,
+    "loop": true
+   },
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 22
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -30
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Growl",
+   "anchor": "user",
+   "start": 4,
+   "end": 56,
+   "to": "target",
+   "frame": 4,
+   "spawn": {
+    "count": 3,
+    "spread": 0,
+    "interval": 8,
+    "life": 30,
+    "seed": 1
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 30,
+       "v": 0.7,
+       "ease": "out"
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.2
+      },
+      {
+       "t": 30,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  30
+ ],
+ "react": "status"
+}

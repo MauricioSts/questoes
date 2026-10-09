@@ -1,0 +1,90 @@
+{
+ "slug": "psycho-cut",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Psycho-Cut",
+   "anchor": "user",
+   "start": 0,
+   "end": 28,
+   "spawn": {
+    "count": 8,
+    "spread": 0,
+    "interval": 0,
+    "frames": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11
+    ]
+   },
+   "orbit": {
+    "rx": 30,
+    "ry": 22,
+    "speed": 16
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 28,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Psycho-Cut",
+   "anchor": "user",
+   "start": 26,
+   "end": 44,
+   "to": "target",
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12,
+    "loop": false
+   },
+   "orient": true,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 14,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  40
+ ]
+}

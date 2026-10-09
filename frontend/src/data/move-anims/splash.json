@@ -1,0 +1,60 @@
+{
+ "slug": "splash",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Water-Sport",
+   "anchor": "field-user",
+   "start": 0,
+   "end": 56,
+   "spawn": {
+    "count": 10,
+    "spread": [
+     20,
+     4
+    ],
+    "interval": 4,
+    "frames": [
+     12,
+     13,
+     14
+    ],
+    "vy": -2,
+    "gravity": 0.15,
+    "life": 26,
+    "seed": 4
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "none",
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "hop",
+   "dur": 16
+  },
+  {
+   "who": "user",
+   "t": 18,
+   "kind": "hop",
+   "dur": 16
+  },
+  {
+   "who": "user",
+   "t": 36,
+   "kind": "hop",
+   "dur": 16
+  }
+ ]
+}

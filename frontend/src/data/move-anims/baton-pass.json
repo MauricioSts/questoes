@@ -1,0 +1,166 @@
+{
+ "slug": "baton-pass",
+ "duration": 70,
+ "layers": [
+  {
+   "asset": "Baton-Pass",
+   "anchor": "user",
+   "start": 0,
+   "end": 40,
+   "frame": 2,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 20,
+       "v": -34,
+       "ease": "out"
+      },
+      {
+       "t": 40,
+       "v": -34
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 40,
+       "v": 1080
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 36,
+       "v": 1
+      },
+      {
+       "t": 40,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Baton-Pass",
+   "anchor": "user",
+   "start": 30,
+   "end": 56,
+   "frame": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -34
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.4
+      },
+      {
+       "t": 26,
+       "v": 2.6,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Baton-Pass",
+   "anchor": "user",
+   "start": 40,
+   "end": 62,
+   "frameSeq": {
+    "frames": [
+     1,
+     4
+    ],
+    "fps": 10,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -34
+      },
+      {
+       "t": 22,
+       "v": 10,
+       "ease": "in"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "react": "self",
+ "actor": [
+  {
+   "who": "user",
+   "t": 40,
+   "kind": "hide",
+   "dur": 28
+  }
+ ]
+}

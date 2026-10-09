@@ -1,0 +1,32 @@
+{
+ "slug": "agility",
+ "duration": 60,
+ "layers": [],
+ "bg": {
+  "asset": "Speed-Attack-Back",
+  "frame": 0,
+  "start": 0,
+  "end": 56,
+  "scroll": {
+   "dx": -14,
+   "dy": 0
+  },
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.7
+    }
+   ]
+  }
+ },
+ "react": "self",
+ "actor": [
+  {
+   "who": "user",
+   "t": 6,
+   "kind": "blink",
+   "dur": 40
+  }
+ ]
+}

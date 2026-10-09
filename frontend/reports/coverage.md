@@ -1,0 +1,580 @@
+# Cobertura das animações de golpes
+
+Gerado por `tools/gerar-receitas.mjs`. 559 golpes (gerações 1–5), 114 receitas, 95 de 95 arquivos do atlas usados.
+
+| | golpes |
+|---|---|
+| Cobertos com asset original | 91 |
+| Cobertos com aproximação (receita combinada ou reaproveitada) | 240 |
+| Sem cobertura de sprite (fallback procedural por arquétipo) | 228 |
+
+Nenhuma receita é a animação do jogo: os PNGs são peças e o movimento foi recriado à mão.
+"Asset original" quer dizer que as peças são do próprio golpe.
+
+## Cobertos (asset original)
+
+- Agility (`agility`)
+- Amnesia (`amnesia`)
+- Cut (`cut`)
+- Double Kick (`double-kick`)
+- Fire Blast (`fire-blast`)
+- Fire Punch (`fire-punch`)
+- Fire Spin (`fire-spin`)
+- Fissure (`fissure`)
+- Fly (`fly`)
+- Growl (`growl`)
+- Hydro Pump (`hydro-pump`)
+- Hypnosis (`hypnosis`)
+- Kinesis (`kinesis`)
+- Leech Seed (`leech-seed`)
+- Mega Kick (`mega-kick`)
+- Metronome (`metronome`)
+- Pin Missile (`pin-missile`)
+- Psychic (`psychic`)
+- Quick Attack (`quick-attack`)
+- Razor Leaf (`razor-leaf`)
+- Recover (`recover`)
+- Rest (`rest`)
+- Scratch (`scratch`)
+- Seismic Toss (`seismic-toss`)
+- Sing (`sing`)
+- Splash (`splash`)
+- Stomp (`stomp`)
+- Substitute (`substitute`)
+- Surf (`surf`)
+- Swift (`swift`)
+- Swords Dance (`swords-dance`)
+- Waterfall (`waterfall`)
+- Aeroblast (`aeroblast`)
+- Ancient Power (`ancient-power`)
+- Baton Pass (`baton-pass`)
+- Crunch (`crunch`)
+- Foresight (`foresight`)
+- Lock-On (`lock-on`)
+- Mean Look (`mean-look`)
+- Nightmare (`nightmare`)
+- Rain Dance (`rain-dance`)
+- Sacred Fire (`sacred-fire`)
+- Scary Face (`scary-face`)
+- Shadow Ball (`shadow-ball`)
+- Spikes (`spikes`)
+- Swagger (`swagger`)
+- Whirlpool (`whirlpool`)
+- Aerial Ace (`aerial-ace`)
+- Blast Burn (`blast-burn`)
+- Block (`block`)
+- Bullet Seed (`bullet-seed`)
+- Dragon Claw (`dragon-claw`)
+- Eruption (`eruption`)
+- Frenzy Plant (`frenzy-plant`)
+- Grudge (`grudge`)
+- Heat Wave (`heat-wave`)
+- Helping Hand (`helping-hand`)
+- Magical Leaf (`magical-leaf`)
+- Mud Shot (`mud-shot`)
+- Mud Sport (`mud-sport`)
+- Needle Arm (`needle-arm`)
+- Rock Tomb (`rock-tomb`)
+- Teeter Dance (`teeter-dance`)
+- Water Pulse (`water-pulse`)
+- Water Sport (`water-sport`)
+- Acupressure (`acupressure`)
+- Attack Order (`attack-order`)
+- Close Combat (`close-combat`)
+- Energy Ball (`energy-ball`)
+- Flash Cannon (`flash-cannon`)
+- Focus Blast (`focus-blast`)
+- Giga Impact (`giga-impact`)
+- Hammer Arm (`hammer-arm`)
+- Heal Order (`heal-order`)
+- Ice Shard (`ice-shard`)
+- Iron Head (`iron-head`)
+- Last Resort (`last-resort`)
+- Lava Plume (`lava-plume`)
+- Leaf Storm (`leaf-storm`)
+- Poison Jab (`poison-jab`)
+- Psycho Cut (`psycho-cut`)
+- Seed Flare (`seed-flare`)
+- Shadow Claw (`shadow-claw`)
+- Shadow Force (`shadow-force`)
+- Spacial Rend (`spacial-rend`)
+- Stone Edge (`stone-edge`)
+- Sucker Punch (`sucker-punch`)
+- Trick Room (`trick-room`)
+- Wood Hammer (`wood-hammer`)
+- Worry Seed (`worry-seed`)
+- X-Scissor (`x-scissor`)
+
+## Cobertos com aproximação
+
+- Absorb: receita própria combinando peças: orbes e brilhos de Leech Seed voltando ao usuário
+- Acid Armor: usa `_stat-up`
+- Barrier: usa `_stat-up`
+- Bite: usa `crunch`
+- Blizzard: receita própria combinando peças: nevasca com cacos de gelo cruzando a tela
+- Body Slam: usa `stomp`
+- Bubble: usa `bubble-beam`
+- Bubble Beam: receita própria combinando peças: bolhas da folha de Water Pulse
+- Comet Punch: usa `rock-smash` pintado de Normal
+- Confuse Ray: receita própria combinando peças: orbe de Sacred Fire + pássaros de confusão
+- Confusion: usa `psychic`
+- Defense Curl: usa `_stat-up`
+- Disable: usa `_stat-down`
+- Dizzy Punch: usa `rock-smash` pintado de Normal
+- Double Team: usa `_stat-up`
+- Double-Edge: usa `giga-impact`
+- Dream Eater: usa `nightmare` pintado de Psychic
+- Earthquake: receita própria combinando peças: rachaduras de Fissure + tremor
+- Egg Bomb: usa `mud-bomb` pintado de Normal
+- Ember: receita própria combinando peças: chama pequena de Fire Spin + Burn
+- Flamethrower: receita própria combinando peças: jato montado com chamas soltas de Fire Spin
+- Flash: usa `_stat-down`
+- Focus Energy: usa `_stat-up`
+- Fury Swipes: usa `scratch`
+- Glare: usa `mean-look`
+- Growth: usa `_stat-up`
+- Harden: usa `_stat-up`
+- Headbutt: usa `iron-head` pintado de Normal
+- High Jump Kick: usa `mega-kick` pintado de Fighting
+- Hyper Fang: usa `crunch` pintado de Normal
+- Ice Beam: receita própria combinando peças: raio montado com cacos de gelo
+- Ice Punch: usa `fire-punch` pintado de Ice
+- Jump Kick: usa `mega-kick` pintado de Fighting
+- Karate Chop: usa `cut` pintado de Fighting
+- Leer: usa `scary-face`
+- Low Kick: usa `mega-kick` pintado de Fighting
+- Meditate: usa `_stat-up`
+- Mega Drain: usa `absorb`
+- Mega Punch: usa `rock-smash` pintado de Normal
+- Minimize: usa `_stat-up`
+- Petal Dance: usa `magical-leaf`
+- Poison Powder: usa `sleep-powder` pintado de Poison
+- Poison Sting: usa `pin-missile` pintado de Poison
+- Psybeam: usa `psychic`
+- Razor Wind: usa `psycho-cut` pintado de Normal
+- Roar: usa `growl`
+- Rock Slide: usa `rock-tomb`
+- Rock Throw: usa `rock-tomb`
+- Rolling Kick: usa `mega-kick` pintado de Fighting
+- Sand Attack: usa `_stat-down`
+- Screech: usa `growl`
+- Sharpen: usa `_stat-up`
+- Slash: usa `cut`
+- Sleep Powder: receita própria combinando peças: nuvens de Worry Seed como pó
+- Sludge: usa `mud-bomb` pintado de Poison
+- Smokescreen: usa `_stat-down`
+- Soft-Boiled: usa `recover`
+- Solar Beam: usa `flash-cannon` pintado de Grass
+- Spike Cannon: usa `pin-missile` pintado de Normal
+- Spore: usa `sleep-powder`
+- String Shot: usa `_stat-down`
+- Stun Spore: usa `sleep-powder`
+- Submission: usa `seismic-toss`
+- Super Fang: usa `crunch` pintado de Normal
+- Supersonic: usa `growl`
+- Tail Whip: usa `_stat-down`
+- Take Down: usa `giga-impact`
+- Thunder Punch: usa `fire-punch` pintado de Electric
+- Twineedle: usa `pin-missile`
+- Water Gun: usa `bubble-beam`
+- Whirlwind: usa `_stat-down`
+- Withdraw: usa `_stat-up`
+- Belly Drum: usa `_stat-up`
+- Charm: usa `_stat-down`
+- Cotton Spore: usa `sleep-powder`
+- Cross Chop: usa `x-scissor` pintado de Fighting
+- Dynamic Punch: receita própria combinando peças: fundo do asset + punho de Close Combat
+- Encore: usa `_stat-down`
+- Extreme Speed: usa `quick-attack`
+- Feint Attack: usa `sucker-punch`
+- Flame Wheel: receita própria combinando peças
+- Fury Cutter: usa `cut` pintado de Bug
+- Giga Drain: usa `absorb`
+- Icy Wind: usa `blizzard`
+- Mach Punch: usa `rock-smash`
+- Magnitude: usa `earthquake`
+- Metal Claw: usa `scratch` pintado de Steel
+- Milk Drink: usa `recover`
+- Mind Reader: usa `lock-on`
+- Moonlight: usa `recover` pintado de Fairy
+- Morning Sun: usa `recover`
+- Mud-Slap: usa `mud-bomb`
+- Octazooka: usa `mud-shot` pintado de Water
+- Perish Song: usa `sing`
+- Powder Snow: usa `blizzard`
+- Pursuit: usa `sucker-punch`
+- Rock Smash: receita própria combinando peças: punho de Close Combat + pedras
+- Sleep Talk: usa `rest` pintado de Normal
+- Sludge Bomb: usa `mud-bomb` pintado de Poison
+- Snore: usa `rest` pintado de Normal
+- Spite: usa `grudge`
+- Sunny Day: receita própria combinando peças: bola de fogo como sol
+- Sweet Kiss: usa `confuse-ray` pintado de Fairy
+- Sweet Scent: usa `_stat-down`
+- Synthesis: usa `recover` pintado de Grass
+- Triple Kick: usa `double-kick`
+- Vital Throw: usa `seismic-toss`
+- Air Cutter: usa `psycho-cut` pintado de Flying
+- Arm Thrust: usa `close-combat`
+- Blaze Kick: usa `mega-kick` pintado de Fire
+- Bounce: usa `fly`
+- Brick Break: usa `hammer-arm`
+- Bulk Up: usa `_stat-up`
+- Calm Mind: usa `_stat-up`
+- Charge: usa `_stat-up`
+- Cosmic Power: usa `_stat-up`
+- Crush Claw: usa `shadow-claw` pintado de Normal
+- Dive: usa `whirlpool`
+- Dragon Dance: usa `_stat-up`
+- Extrasensory: usa `psychic`
+- Fake Tears: usa `_stat-down`
+- Feather Dance: usa `_stat-down`
+- Flatter: usa `swagger` pintado de Dark
+- Focus Punch: usa `dynamic-punch`
+- Follow Me: usa `metronome`
+- Grass Whistle: usa `sing` pintado de Grass
+- Howl: usa `_stat-up`
+- Hydro Cannon: receita própria combinando peças: fundo do asset + jato de Hydro Pump
+- Hyper Voice: usa `growl`
+- Ice Ball: usa `ice-shard`
+- Icicle Spear: usa `ice-shard`
+- Imprison: usa `block` pintado de Psychic
+- Ingrain: usa `recover` pintado de Grass
+- Iron Defense: usa `_stat-up`
+- Leaf Blade: usa `psycho-cut` pintado de Grass
+- Metal Sound: usa `growl` pintado de Steel
+- Meteor Mash: usa `iron-head`
+- Muddy Water: usa `surf`
+- Odor Sleuth: usa `foresight`
+- Overheat: receita própria combinando peças
+- Poison Fang: usa `crunch` pintado de Poison
+- Rock Blast: usa `rock-tomb`
+- Shadow Punch: usa `shadow-claw`
+- Sheer Cold: usa `blizzard`
+- Signal Beam: usa `flash-cannon` pintado de Bug
+- Sky Uppercut: usa `rock-smash`
+- Slack Off: usa `recover`
+- Stockpile: usa `_stat-up`
+- Tail Glow: usa `_stat-up`
+- Taunt: usa `swagger` pintado de Dark
+- Tickle: usa `_stat-down`
+- Torment: usa `block` pintado de Dark
+- Trick: receita própria combinando peças: copos embaralhando: não sabemos qual golpe do DP usa esta folha
+- Uproar: usa `growl`
+- Volt Tackle: usa `flare-blitz` pintado de Electric
+- Water Spout: usa `hydro-pump`
+- Will-O-Wisp: receita própria combinando peças: chamas de Grudge + chamas de Burn
+- Wish: usa `recover`
+- Yawn: usa `rest` pintado de Normal
+- Air Slash: usa `psycho-cut` pintado de Flying
+- Aqua Jet: usa `quick-attack` pintado de Water
+- Aqua Ring: usa `recover` pintado de Water
+- Assurance: usa `sucker-punch`
+- Aura Sphere: receita própria combinando peças: orbes da folha de Sacred Fire
+- Brave Bird: usa `flare-blitz` pintado de Flying
+- Brine: usa `water-pulse`
+- Bullet Punch: usa `rock-smash` pintado de Steel
+- Captivate: usa `_stat-down`
+- Charge Beam: usa `flash-cannon` pintado de Electric
+- Cross Poison: usa `x-scissor` pintado de Poison
+- Dark Pulse: usa `shadow-ball` pintado de Dark
+- Defend Order: receita própria combinando peças: esferas de mel como escudo: movimento inventado
+- Dragon Pulse: usa `aura-sphere` pintado de Dragon
+- Drain Punch: usa `absorb` pintado de Fighting
+- Earth Power: usa `fissure`
+- Embargo: usa `block` pintado de Dark
+- Feint: usa `quick-attack`
+- Fire Fang: usa `crunch` pintado de Fire
+- Flare Blitz: receita própria combinando peças: fundo do asset + explosão de Fire Punch
+- Gastro Acid: usa `_stat-down`
+- Head Smash: usa `iron-head` pintado de Rock
+- Heal Block: usa `block` pintado de Psychic
+- Ice Fang: usa `crunch` pintado de Ice
+- Magma Storm: usa `fire-spin`
+- Magnet Rise: usa `_stat-up`
+- Miracle Eye: usa `foresight` pintado de Psychic
+- Mirror Shot: usa `flash-cannon`
+- Mud Bomb: receita própria combinando peças: bola de Mud Bomb + respingo de Mud Sport
+- Nasty Plot: usa `_stat-up`
+- Night Slash: usa `x-scissor` pintado de Dark
+- Ominous Wind: usa `shadow-ball`
+- Payback: usa `sucker-punch`
+- Power Trick: usa `_stat-up`
+- Roar of Time: usa `spacial-rend`
+- Rock Polish: usa `_stat-up`
+- Rock Wrecker: usa `rock-tomb`
+- Roost: usa `recover` pintado de Flying
+- Seed Bomb: usa `worry-seed`
+- Shadow Sneak: usa `shadow-force`
+- Stealth Rock: usa `spikes` pintado de Rock
+- Thunder Fang: usa `crunch` pintado de Electric
+- Toxic Spikes: usa `spikes` pintado de Poison
+- U-turn: usa `quick-attack` pintado de Bug
+- Zen Headbutt: usa `iron-head` pintado de Psychic
+- After You: usa `_stat-up`
+- Autotomize: usa `_stat-up`
+- Bulldoze: usa `earthquake`
+- Circle Throw: usa `seismic-toss`
+- Coil: usa `_stat-up`
+- Cotton Guard: usa `_stat-up`
+- Echoed Voice: usa `growl`
+- Flame Charge: usa `flare-blitz`
+- Head Charge: usa `giga-impact`
+- Heal Pulse: usa `recover` pintado de Psychic
+- Heavy Slam: usa `iron-head`
+- Hex: usa `nightmare`
+- Hone Claws: usa `swords-dance` pintado de Dark
+- Horn Leech: usa `absorb`
+- Incinerate: usa `flamethrower`
+- Inferno: usa `fire-blast`
+- Leaf Tornado: usa `leaf-storm`
+- Magic Room: usa `trick-room`
+- Psyshock: usa `psychic`
+- Psystrike: usa `psychic`
+- Quash: usa `_stat-down`
+- Quiver Dance: usa `_stat-up`
+- Rage Powder: usa `sleep-powder` pintado de Bug
+- Relic Song: usa `sing`
+- Round: usa `sing`
+- Shell Smash: usa `_stat-up`
+- Shift Gear: usa `_stat-up`
+- Simple Beam: usa `_stat-down`
+- Sky Drop: usa `fly`
+- Snarl: usa `growl` pintado de Dark
+- Stored Power: usa `psychic`
+- Storm Throw: usa `seismic-toss`
+- Telekinesis: usa `kinesis`
+- Wild Charge: usa `flare-blitz` pintado de Electric
+- Wonder Room: usa `trick-room`
+- Work Up: usa `_stat-up`
+
+## Sem cobertura (fallback procedural)
+
+- Acid → arquétipo PROJ
+- Aurora Beam → arquétipo BEAM
+- Barrage → arquétipo MULTI
+- Bide → arquétipo CHARGE
+- Bind → arquétipo TRAP
+- Bone Club → arquétipo STRIKE
+- Bonemerang → arquétipo MULTI
+- Clamp → arquétipo TRAP
+- Constrict → arquétipo STRIKE
+- Conversion → arquétipo SPECIAL
+- Counter → arquétipo STRIKE
+- Crabhammer → arquétipo STRIKE
+- Dig → arquétipo CHARGE
+- Double Slap → arquétipo MULTI
+- Dragon Rage → arquétipo PROJ
+- Drill Peck → arquétipo STRIKE
+- Explosion → arquétipo SACRIFICE
+- Fury Attack → arquétipo MULTI
+- Guillotine → arquétipo OHKO
+- Gust → arquétipo PROJ
+- Haze → arquétipo FIELD
+- Horn Attack → arquétipo STRIKE
+- Horn Drill → arquétipo OHKO
+- Hyper Beam → arquétipo BEAM
+- Leech Life → arquétipo DRAIN
+- Lick → arquétipo STRIKE
+- Light Screen → arquétipo FIELD
+- Lovely Kiss → arquétipo STATUS
+- Mimic → arquétipo SPECIAL
+- Mirror Move → arquétipo SPECIAL
+- Mist → arquétipo FIELD
+- Night Shade → arquétipo PROJ
+- Pay Day → arquétipo MULTI
+- Peck → arquétipo STRIKE
+- Poison Gas → arquétipo STATUS
+- Pound → arquétipo STRIKE
+- Psywave → arquétipo PROJ
+- Rage → arquétipo STRIKE
+- Reflect → arquétipo FIELD
+- Self-Destruct → arquétipo SACRIFICE
+- Skull Bash → arquétipo CHARGE
+- Sky Attack → arquétipo CHARGE
+- Slam → arquétipo STRIKE
+- Smog → arquétipo PROJ
+- Sonic Boom → arquétipo PROJ
+- Strength → arquétipo STRIKE
+- Struggle → arquétipo STRIKE
+- Tackle → arquétipo STRIKE
+- Teleport → arquétipo SPECIAL
+- Thrash → arquétipo STRIKE
+- Thunder → arquétipo PROJ
+- Thunder Shock → arquétipo PROJ
+- Thunder Wave → arquétipo STATUS
+- Thunderbolt → arquétipo BEAM
+- Toxic → arquétipo STATUS
+- Transform → arquétipo SPECIAL
+- Tri Attack → arquétipo PROJ
+- Vine Whip → arquétipo STRIKE
+- Vise Grip → arquétipo STRIKE
+- Wing Attack → arquétipo STRIKE
+- Wrap → arquétipo TRAP
+- Attract → arquétipo STATUS
+- Beat Up → arquétipo MULTI
+- Bone Rush → arquétipo MULTI
+- Conversion 2 → arquétipo SPECIAL
+- Curse → arquétipo STATUS
+- Destiny Bond → arquétipo STATUS
+- Detect → arquétipo FIELD
+- Dragon Breath → arquétipo BEAM
+- Endure → arquétipo FIELD
+- False Swipe → arquétipo STRIKE
+- Flail → arquétipo STRIKE
+- Frustration → arquétipo STRIKE
+- Future Sight → arquétipo SPECIAL
+- Heal Bell → arquétipo FIELD
+- Hidden Power → arquétipo PROJ
+- Iron Tail → arquétipo STRIKE
+- Megahorn → arquétipo STRIKE
+- Mirror Coat → arquétipo STRIKE
+- Outrage → arquétipo STRIKE
+- Pain Split → arquétipo SPECIAL
+- Present → arquétipo PROJ
+- Protect → arquétipo FIELD
+- Psych Up → arquétipo SPECIAL
+- Rapid Spin → arquétipo STRIKE
+- Return → arquétipo STRIKE
+- Reversal → arquétipo STRIKE
+- Rollout → arquétipo STRIKE
+- Safeguard → arquétipo FIELD
+- Sandstorm → arquétipo FIELD
+- Sketch → arquétipo SPECIAL
+- Spark → arquétipo STRIKE
+- Spider Web → arquétipo TRAP
+- Steel Wing → arquétipo STRIKE
+- Thief → arquétipo STRIKE
+- Twister → arquétipo AOE
+- Zap Cannon → arquétipo PROJ
+- Aromatherapy → arquétipo FIELD
+- Assist → arquétipo SPECIAL
+- Astonish → arquétipo STRIKE
+- Camouflage → arquétipo SPECIAL
+- Covet → arquétipo STRIKE
+- Doom Desire → arquétipo SPECIAL
+- Endeavor → arquétipo STRIKE
+- Facade → arquétipo STRIKE
+- Fake Out → arquétipo STRIKE
+- Hail → arquétipo FIELD
+- Knock Off → arquétipo STRIKE
+- Luster Purge → arquétipo PROJ
+- Magic Coat → arquétipo FIELD
+- Memento → arquétipo SACRIFICE
+- Mist Ball → arquétipo PROJ
+- Nature Power → arquétipo SPECIAL
+- Poison Tail → arquétipo STRIKE
+- Psycho Boost → arquétipo BEAM
+- Recycle → arquétipo SPECIAL
+- Refresh → arquétipo HEAL
+- Revenge → arquétipo STRIKE
+- Role Play → arquétipo SPECIAL
+- Sand Tomb → arquétipo TRAP
+- Secret Power → arquétipo STRIKE
+- Shock Wave → arquétipo PROJ
+- Silver Wind → arquétipo AOE
+- Skill Swap → arquétipo SPECIAL
+- Smelling Salts → arquétipo STRIKE
+- Snatch → arquétipo SPECIAL
+- Spit Up → arquétipo PROJ
+- Superpower → arquétipo STRIKE
+- Swallow → arquétipo HEAL
+- Weather Ball → arquétipo PROJ
+- Aqua Tail → arquétipo STRIKE
+- Avalanche → arquétipo AOE
+- Bug Bite → arquétipo STRIKE
+- Bug Buzz → arquétipo AOE
+- Chatter → arquétipo PROJ
+- Copycat → arquétipo SPECIAL
+- Crush Grip → arquétipo STRIKE
+- Dark Void → arquétipo STATUS
+- Defog → arquétipo FIELD
+- Discharge → arquétipo AOE
+- Double Hit → arquétipo MULTI
+- Draco Meteor → arquétipo AOE
+- Dragon Rush → arquétipo STRIKE
+- Fling → arquétipo PROJ
+- Force Palm → arquétipo STRIKE
+- Grass Knot → arquétipo STRIKE
+- Gravity → arquétipo FIELD
+- Guard Swap → arquétipo SPECIAL
+- Gunk Shot → arquétipo PROJ
+- Gyro Ball → arquétipo STRIKE
+- Healing Wish → arquétipo SACRIFICE
+- Heart Swap → arquétipo SPECIAL
+- Judgment → arquétipo BEAM
+- Lucky Chant → arquétipo FIELD
+- Lunar Dance → arquétipo SACRIFICE
+- Magnet Bomb → arquétipo PROJ
+- Me First → arquétipo SPECIAL
+- Metal Burst → arquétipo STRIKE
+- Natural Gift → arquétipo PROJ
+- Pluck → arquétipo STRIKE
+- Power Gem → arquétipo BEAM
+- Power Swap → arquétipo SPECIAL
+- Power Whip → arquétipo STRIKE
+- Psycho Shift → arquétipo STATUS
+- Punishment → arquétipo STRIKE
+- Rock Climb → arquétipo STRIKE
+- Switcheroo → arquétipo SPECIAL
+- Tailwind → arquétipo FIELD
+- Trump Card → arquétipo PROJ
+- Vacuum Wave → arquétipo PROJ
+- Wake-Up Slap → arquétipo STRIKE
+- Wring Out → arquétipo STRIKE
+- Acid Spray → arquétipo PROJ
+- Acrobatics → arquétipo STRIKE
+- Ally Switch → arquétipo SPECIAL
+- Bestow → arquétipo SPECIAL
+- Blue Flare → arquétipo AOE
+- Bolt Strike → arquétipo STRIKE
+- Chip Away → arquétipo MULTI
+- Clear Smog → arquétipo AOE
+- Dragon Tail → arquétipo STRIKE
+- Drill Run → arquétipo STRIKE
+- Dual Chop → arquétipo MULTI
+- Electro Ball → arquétipo PROJ
+- Electroweb → arquétipo TRAP
+- Entrainment → arquétipo SPECIAL
+- Fiery Dance → arquétipo AOE
+- Final Gambit → arquétipo SACRIFICE
+- Fire Pledge → arquétipo AOE
+- Flame Burst → arquétipo PROJ
+- Foul Play → arquétipo STRIKE
+- Freeze Shock → arquétipo CHARGE
+- Frost Breath → arquétipo BEAM
+- Fusion Bolt → arquétipo PROJ
+- Fusion Flare → arquétipo PROJ
+- Gear Grind → arquétipo MULTI
+- Glaciate → arquétipo AOE
+- Grass Pledge → arquétipo AOE
+- Guard Split → arquétipo SPECIAL
+- Heart Stamp → arquétipo STRIKE
+- Heat Crash → arquétipo STRIKE
+- Hurricane → arquétipo AOE
+- Ice Burn → arquétipo CHARGE
+- Icicle Crash → arquétipo PROJ
+- Low Sweep → arquétipo STRIKE
+- Night Daze → arquétipo AOE
+- Power Split → arquétipo SPECIAL
+- Quick Guard → arquétipo FIELD
+- Razor Shell → arquétipo STRIKE
+- Reflect Type → arquétipo SPECIAL
+- Retaliate → arquétipo STRIKE
+- Sacred Sword → arquétipo STRIKE
+- Scald → arquétipo PROJ
+- Searing Shot → arquétipo AOE
+- Secret Sword → arquétipo PROJ
+- Sludge Wave → arquétipo AOE
+- Smack Down → arquétipo PROJ
+- Soak → arquétipo STATUS
+- Steamroller → arquétipo STRIKE
+- Struggle Bug → arquétipo AOE
+- Synchronoise → arquétipo AOE
+- Tail Slap → arquétipo MULTI
+- Techno Blast → arquétipo BEAM
+- V-create → arquétipo STRIKE
+- Venoshock → arquétipo PROJ
+- Volt Switch → arquétipo STRIKE
+- Water Pledge → arquétipo AOE
+- Wide Guard → arquétipo FIELD

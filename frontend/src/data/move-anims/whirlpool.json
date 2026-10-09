@@ -1,0 +1,81 @@
+{
+ "slug": "whirlpool",
+ "duration": 90,
+ "layers": [
+  {
+   "asset": "Whirlpool",
+   "anchor": "target",
+   "start": 0,
+   "end": 80,
+   "spawn": {
+    "count": 10,
+    "spread": 0,
+    "interval": 0,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "orbit": {
+    "rx": 40,
+    "ry": 14,
+    "speed": 10
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 16
+      },
+      {
+       "t": 80,
+       "v": -10
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 68,
+       "v": 1
+      },
+      {
+       "t": 80,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "bg": {
+  "asset": "Whirlpool",
+  "frame": 5,
+  "start": 0,
+  "end": 86,
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.7
+    }
+   ]
+  }
+ },
+ "hits": [
+  20,
+  50
+ ]
+}

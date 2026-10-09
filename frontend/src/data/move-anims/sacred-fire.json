@@ -1,0 +1,91 @@
+{
+ "slug": "sacred-fire",
+ "duration": 86,
+ "layers": [
+  {
+   "asset": "Sacred-Fire",
+   "anchor": "field-target",
+   "start": 8,
+   "end": 76,
+   "spawn": {
+    "count": 16,
+    "spread": [
+     34,
+     6
+    ],
+    "interval": 4,
+    "frames": [
+     3,
+     4,
+     5,
+     6,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16
+    ],
+    "vy": -1.6,
+    "life": 18,
+    "seed": 3
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "bg": {
+  "asset": "Sacred-Fire",
+  "frame": 34,
+  "start": 0,
+  "end": 80,
+  "scroll": {
+   "dx": 0,
+   "dy": -2
+  },
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.8
+    }
+   ]
+  }
+ },
+ "hits": [
+  16,
+  40
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 16,
+    "dur": 30,
+    "amp": 3
+   }
+  ]
+ }
+}

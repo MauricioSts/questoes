@@ -1,0 +1,128 @@
+{
+ "slug": "ice-beam",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Ice-Shards",
+   "anchor": "user",
+   "start": 0,
+   "end": 64,
+   "to": "target",
+   "spawn": {
+    "count": 24,
+    "spread": [
+     3,
+     3
+    ],
+    "interval": 2,
+    "frames": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23
+    ],
+    "life": 14,
+    "seed": 5
+   },
+   "blend": "add",
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 12,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Ice-Shards",
+   "anchor": "target",
+   "start": 14,
+   "end": 70,
+   "spawn": {
+    "count": 10,
+    "spread": [
+     20,
+     20
+    ],
+    "interval": 5,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "life": 14,
+    "seed": 6
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.4
+      },
+      {
+       "t": 6,
+       "v": 1.2,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  14,
+  40,
+  62
+ ],
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 72,
+    "color": "#BFE8FF",
+    "alpha": 0.2
+   }
+  ]
+ },
+ "approx": true,
+ "note": "raio montado com cacos de gelo"
+}

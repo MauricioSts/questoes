@@ -1,0 +1,175 @@
+{
+ "slug": "eruption",
+ "duration": 96,
+ "layers": [
+  {
+   "asset": "Eruption",
+   "anchor": "user",
+   "start": 0,
+   "end": 26,
+   "spawn": {
+    "count": 5,
+    "spread": [
+     16,
+     4
+    ],
+    "interval": 3,
+    "frames": [
+     8,
+     9,
+     10
+    ],
+    "vy": -1.5,
+    "life": 22,
+    "seed": 4
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -26
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Eruption",
+   "anchor": "user",
+   "start": 2,
+   "end": 30,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     14,
+     4
+    ],
+    "interval": 2,
+    "frames": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "life": 18,
+    "seed": 5
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      },
+      {
+       "t": 18,
+       "v": -150,
+       "ease": "out"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Eruption",
+   "anchor": "target",
+   "start": 34,
+   "end": 84,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     34,
+     6
+    ],
+    "interval": 5,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "life": 16,
+    "seed": 6
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -150
+      },
+      {
+       "t": 14,
+       "v": 0,
+       "ease": "in"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  48,
+  58,
+  68
+ ],
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 92,
+    "color": "#4A1000",
+    "alpha": 0.4
+   }
+  ],
+  "shake": [
+   {
+    "t": 48,
+    "dur": 30,
+    "amp": 3
+   }
+  ]
+ }
+}

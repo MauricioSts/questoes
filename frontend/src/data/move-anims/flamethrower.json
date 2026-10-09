@@ -1,0 +1,79 @@
+{
+ "slug": "flamethrower",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Fire-Spin",
+   "anchor": "user",
+   "start": 0,
+   "end": 60,
+   "to": "target",
+   "spawn": {
+    "count": 22,
+    "spread": [
+     6,
+     6
+    ],
+    "interval": 2,
+    "frames": [
+     1,
+     3,
+     4
+    ],
+    "life": 18,
+    "seed": 5
+   },
+   "blend": "add",
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 16,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.5
+      },
+      {
+       "t": 16,
+       "v": 1.3
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  18,
+  36,
+  54
+ ],
+ "approx": true,
+ "note": "jato montado com chamas soltas de Fire Spin"
+}

@@ -1,0 +1,123 @@
+{
+ "slug": "leaf-storm",
+ "duration": 96,
+ "layers": [
+  {
+   "asset": "Leaf-Storm",
+   "anchor": "user",
+   "start": 6,
+   "end": 76,
+   "to": "target",
+   "spawn": {
+    "count": 26,
+    "spread": [
+     26,
+     26
+    ],
+    "interval": 2,
+    "frames": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8
+    ],
+    "spin": 14,
+    "life": 18,
+    "seed": 2
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 16,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Leaf-Storm",
+   "anchor": "target",
+   "start": 44,
+   "end": 76,
+   "frameSeq": {
+    "frames": [
+     9,
+     10,
+     11,
+     12
+    ],
+    "fps": 10,
+    "loop": false
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.6
+      },
+      {
+       "t": 32,
+       "v": 1.8
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 1
+      },
+      {
+       "t": 32,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "bg": {
+  "asset": "Leaf-Storm",
+  "frame": 0,
+  "start": 0,
+  "end": 90,
+  "scroll": {
+   "dx": -10,
+   "dy": 0
+  },
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.85
+    }
+   ]
+  }
+ },
+ "hits": [
+  26,
+  44,
+  60
+ ]
+}

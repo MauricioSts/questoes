@@ -1,0 +1,201 @@
+{
+ "slug": "trick",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Cups",
+   "anchor": "screen-center",
+   "start": 0,
+   "end": 70,
+   "frame": 0,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -34
+      },
+      {
+       "t": 24,
+       "v": -34
+      },
+      {
+       "t": 34,
+       "v": 0,
+       "ease": "inout"
+      },
+      {
+       "t": 44,
+       "v": 34,
+       "ease": "inout"
+      },
+      {
+       "t": 70,
+       "v": 34
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 64,
+       "v": 1
+      },
+      {
+       "t": 70,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Cups",
+   "anchor": "screen-center",
+   "start": 0,
+   "end": 70,
+   "frame": 1,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 24,
+       "v": 0
+      },
+      {
+       "t": 34,
+       "v": -34,
+       "ease": "inout"
+      },
+      {
+       "t": 54,
+       "v": -34
+      },
+      {
+       "t": 64,
+       "v": 0,
+       "ease": "inout"
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 64,
+       "v": 1
+      },
+      {
+       "t": 70,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Cups",
+   "anchor": "screen-center",
+   "start": 0,
+   "end": 70,
+   "frame": 2,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 34
+      },
+      {
+       "t": 34,
+       "v": 34
+      },
+      {
+       "t": 44,
+       "v": 0,
+       "ease": "inout"
+      },
+      {
+       "t": 54,
+       "v": 0
+      },
+      {
+       "t": 64,
+       "v": -34,
+       "ease": "inout"
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 64,
+       "v": 1
+      },
+      {
+       "t": 70,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "status",
+ "hits": [
+  66
+ ],
+ "approx": true,
+ "note": "copos embaralhando: não sabemos qual golpe do DP usa esta folha"
+}

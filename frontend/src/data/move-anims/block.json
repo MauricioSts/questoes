@@ -1,0 +1,57 @@
+{
+ "slug": "block",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "X",
+   "anchor": "target",
+   "start": 0,
+   "end": 54,
+   "frame": 0,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 2.4
+      },
+      {
+       "t": 8,
+       "v": 1.2,
+       "ease": "in"
+      },
+      {
+       "t": 12,
+       "v": 1.4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 1
+      },
+      {
+       "t": 54,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "hits": [
+  8
+ ],
+ "react": "status"
+}

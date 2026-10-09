@@ -1,0 +1,68 @@
+{
+ "slug": "aeroblast",
+ "duration": 96,
+ "layers": [
+  {
+   "asset": "Aero-Blast",
+   "anchor": "user",
+   "start": 0,
+   "end": 72,
+   "ds": true,
+   "frameSeq": {
+    "frames": [
+     0,
+     2,
+     4,
+     6,
+     8,
+     10,
+     12,
+     14,
+     16,
+     1,
+     3,
+     5,
+     7,
+     9,
+     11,
+     13,
+     15
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "keepColor": true
+  }
+ ],
+ "bg": {
+  "asset": "Aero-Blast",
+  "frame": 17,
+  "start": 60,
+  "end": 92,
+  "scroll": {
+   "dx": 0,
+   "dy": 0
+  },
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.85
+    }
+   ]
+  }
+ },
+ "hits": [
+  56
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 56,
+    "dur": 20,
+    "amp": 2
+   }
+  ]
+ },
+ "note": "telas do DS reduzidas no rip (202 px): saem um pouco menores"
+}

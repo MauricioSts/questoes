@@ -1,0 +1,54 @@
+{
+ "slug": "bullet-seed",
+ "duration": 66,
+ "layers": [
+  {
+   "asset": "Bullet-Seed",
+   "anchor": "user",
+   "start": 0,
+   "end": 50,
+   "to": "target",
+   "spawn": {
+    "count": 6,
+    "spread": [
+     4,
+     4
+    ],
+    "interval": 6,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "life": 16,
+    "seed": 3
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 14,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  14,
+  20,
+  26,
+  32,
+  38,
+  44
+ ]
+}

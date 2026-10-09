@@ -1,0 +1,51 @@
+{
+ "slug": "seed-flare",
+ "duration": 96,
+ "layers": [
+  {
+   "asset": "Seed-Flare",
+   "anchor": "user",
+   "start": 0,
+   "end": 84,
+   "ds": true,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "fps": 8,
+    "loop": false
+   },
+   "keepColor": true
+  }
+ ],
+ "hits": [
+  44,
+  60
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 44,
+    "dur": 30,
+    "amp": 3
+   }
+  ],
+  "tint": [
+   {
+    "start": 0,
+    "end": 90,
+    "color": "#0A2A20",
+    "alpha": 0.25
+   }
+  ]
+ }
+}

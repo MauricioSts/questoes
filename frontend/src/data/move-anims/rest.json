@@ -1,0 +1,80 @@
+{
+ "slug": "rest",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Hypnosis",
+   "anchor": "user",
+   "start": 0,
+   "end": 70,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": false
+   },
+   "spawn": {
+    "count": 3,
+    "spread": [
+     6,
+     2
+    ],
+    "interval": 12,
+    "life": 40,
+    "seed": 2
+   },
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 14
+      },
+      {
+       "t": 40,
+       "v": 30
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -26
+      },
+      {
+       "t": 40,
+       "v": -70
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 1
+      },
+      {
+       "t": 40,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "react": "self"
+}

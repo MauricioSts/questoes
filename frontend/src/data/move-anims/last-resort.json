@@ -1,0 +1,100 @@
+{
+ "slug": "last-resort",
+ "duration": 70,
+ "layers": [
+  {
+   "asset": "Last-Resort",
+   "anchor": "target",
+   "start": 0,
+   "end": 30,
+   "spawn": {
+    "count": 4,
+    "spread": 0,
+    "interval": 0,
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ]
+   },
+   "orbit": {
+    "rx": 40,
+    "ry": 26,
+    "speed": 14
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Last-Resort",
+   "anchor": "target",
+   "start": 30,
+   "end": 54,
+   "frame": 4,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.4
+      },
+      {
+       "t": 10,
+       "v": 1.4,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  30
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 14,
+   "kind": "dash",
+   "dur": 22
+  }
+ ]
+}

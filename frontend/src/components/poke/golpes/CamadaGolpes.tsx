@@ -28,6 +28,13 @@ function atoresDe(raiz: HTMLElement, centro: Centro): Atores {
       const w = b.width * (lado === "meu" ? 0.16 : 0.11);
       return { x: (px / 100) * b.width, y: (py / 100) * b.height, w, h: w, lado, chave: base };
     },
+    silhueta(chave: string) {
+      const b = raiz.getBoundingClientRect();
+      const img = raiz.querySelector<HTMLImageElement>(`[data-ator="${chave.split(":")[0]}"] img`);
+      const r = img?.getBoundingClientRect();
+      if (!img || !r || r.width < 2 || !img.complete) return null;
+      return { img, x: r.left - b.left, y: r.top - b.top, w: r.width, h: r.height };
+    },
     animar(chave, quadros, ms, easing = "ease-in-out") {
       const ator = raiz.querySelector<HTMLElement>(`[data-ator="${chave.split(":")[0]}"]`);
       if (!ator) return;
@@ -64,6 +71,7 @@ function atoresDe(raiz: HTMLElement, centro: Centro): Atores {
 
 export function CamadaGolpes({ motor, centro }: { motor: MotorGolpes; centro: Centro }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const refFundo = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const c = ref.current;
     const raiz = c?.parentElement;
@@ -73,7 +81,9 @@ export function CamadaGolpes({ motor, centro }: { motor: MotorGolpes; centro: Ce
     const lerRm = () => (motor.reducedMotion = !!mq?.matches);
     lerRm();
     mq?.addEventListener?.("change", lerRm);
+    motor.ligarFundo(refFundo.current);
     motor.ligarCanvas(c);
+    void motor.sprites?.iniciar();
     const ro = typeof ResizeObserver === "function" ? new ResizeObserver(() => motor.redimensionar()) : null;
     ro?.observe(c);
     return () => {
@@ -81,7 +91,14 @@ export function CamadaGolpes({ motor, centro }: { motor: MotorGolpes; centro: Ce
       mq?.removeEventListener?.("change", lerRm);
       motor.atores.cancelar();
       motor.ligarCanvas(null);
+      motor.ligarFundo(null);
     };
   }, [motor, centro]);
-  return <canvas ref={ref} className="pk-golpes" aria-hidden />;
+  // fundo dos golpes (Psychic, Surf...) atrás dos Pokémon; o resto por cima de tudo
+  return (
+    <>
+      <canvas ref={refFundo} className="pk-golpes-fundo" aria-hidden />
+      <canvas ref={ref} className="pk-golpes" aria-hidden />
+    </>
+  );
 }

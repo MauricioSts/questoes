@@ -1,0 +1,50 @@
+{
+ "slug": "trick-room",
+ "duration": 90,
+ "layers": [],
+ "bg": {
+  "asset": "Trick-Room",
+  "frame": 0,
+  "start": 0,
+  "end": 86,
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0
+    },
+    {
+     "t": 16,
+     "v": 1
+    },
+    {
+     "t": 70,
+     "v": 1
+    },
+    {
+     "t": 86,
+     "v": 0
+    }
+   ]
+  }
+ },
+ "react": "self",
+ "screen": {
+  "flash": [
+   {
+    "t": 16,
+    "dur": 8,
+    "color": "#FFFFFF",
+    "alpha": 0.4
+   }
+  ],
+  "tint": [
+   {
+    "start": 0,
+    "end": 86,
+    "color": "#2A0A40",
+    "alpha": 0.3
+   }
+  ]
+ }
+}

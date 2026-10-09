@@ -1,0 +1,93 @@
+{
+ "slug": "flare-blitz",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Fire-Punch",
+   "anchor": "target",
+   "start": 18,
+   "end": 66,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23
+    ],
+    "fps": 30,
+    "loop": false
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.6
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "bg": {
+  "asset": "Flare-Blitz",
+  "frames": [
+   0,
+   1
+  ],
+  "fps": 10,
+  "start": 4,
+  "end": 40
+ },
+ "hits": [
+  18
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 4,
+   "kind": "dash",
+   "dur": 26
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 18,
+    "dur": 20,
+    "amp": 5
+   }
+  ],
+  "flash": [
+   {
+    "t": 16,
+    "dur": 6,
+    "color": "#FFFFFF",
+    "alpha": 0.6
+   }
+  ]
+ },
+ "approx": true,
+ "note": "fundo do asset + explosão de Fire Punch"
+}

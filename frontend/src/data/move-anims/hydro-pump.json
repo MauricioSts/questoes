@@ -1,0 +1,65 @@
+{
+ "slug": "hydro-pump",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Hydro-Pump",
+   "anchor": "user",
+   "start": 0,
+   "end": 64,
+   "ds": true,
+   "frameSeq": {
+    "frames": [
+     0,
+     2,
+     4,
+     6,
+     8,
+     10,
+     12,
+     1,
+     3,
+     5,
+     7,
+     9,
+     11,
+     13
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "keepColor": true
+  }
+ ],
+ "bg": {
+  "asset": "Hydro-Pump",
+  "frame": 14,
+  "start": 14,
+  "end": 60,
+  "scroll": {
+   "dx": 8,
+   "dy": 0
+  },
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.5
+    }
+   ]
+  }
+ },
+ "hits": [
+  30,
+  46
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 30,
+    "dur": 20,
+    "amp": 2
+   }
+  ]
+ }
+}

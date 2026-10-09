@@ -1,0 +1,169 @@
+{
+ "slug": "energy-ball",
+ "duration": 72,
+ "layers": [
+  {
+   "asset": "Energy-Ball",
+   "anchor": "user",
+   "start": 0,
+   "end": 20,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     34,
+     30
+    ],
+    "interval": 1,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "burst": -1.6,
+    "life": 18,
+    "seed": 2
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Energy-Ball",
+   "anchor": "user",
+   "start": 12,
+   "end": 22,
+   "frameSeq": {
+    "frames": [
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16
+    ],
+    "fps": 16,
+    "loop": true
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.2
+      },
+      {
+       "t": 10,
+       "v": 1,
+       "ease": "out"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Energy-Ball",
+   "anchor": "user",
+   "start": 22,
+   "end": 44,
+   "to": "target",
+   "frameSeq": {
+    "frames": [
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16
+    ],
+    "fps": 16,
+    "loop": true
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 1,
+       "ease": "in"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Energy-Ball",
+   "anchor": "target",
+   "start": 44,
+   "end": 62,
+   "frameSeq": {
+    "frames": [
+     6,
+     7,
+     8,
+     9
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 2.2,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  44
+ ]
+}

@@ -1,0 +1,179 @@
+{
+ "slug": "fire-blast",
+ "duration": 96,
+ "layers": [
+  {
+   "asset": "Fire-Blast",
+   "anchor": "user",
+   "start": 0,
+   "end": 20,
+   "to": "target",
+   "frame": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 20,
+       "v": 1,
+       "ease": "in"
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.4
+      },
+      {
+       "t": 20,
+       "v": 0.8
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Fire-Blast",
+   "anchor": "target",
+   "start": 20,
+   "end": 62,
+   "frameSeq": {
+    "frames": [
+     4,
+     5,
+     6,
+     7,
+     8
+    ],
+    "fps": 12,
+    "loop": true
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.5
+      },
+      {
+       "t": 8,
+       "v": 1,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 32,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Fire-Blast",
+   "anchor": "target",
+   "start": 46,
+   "end": 86,
+   "spawn": {
+    "count": 10,
+    "spread": [
+     20,
+     20
+    ],
+    "interval": 2,
+    "frames": [
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23
+    ],
+    "burst": 1.2,
+    "life": 20,
+    "seed": 2
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "bg": {
+  "asset": "Fire-Blast",
+  "frame": 24,
+  "start": 20,
+  "end": 40,
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.85
+    }
+   ]
+  }
+ },
+ "hits": [
+  22,
+  36,
+  50
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 22,
+    "dur": 34,
+    "amp": 4
+   }
+  ]
+ }
+}

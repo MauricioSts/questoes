@@ -1,0 +1,144 @@
+{
+ "slug": "wood-hammer",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Wood-Hammer",
+   "anchor": "target",
+   "start": 14,
+   "end": 32,
+   "frame": 0,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.5
+      },
+      {
+       "t": 6,
+       "v": 1.2,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Wood-Hammer",
+   "anchor": "field-target",
+   "start": 18,
+   "end": 44,
+   "frameSeq": {
+    "frames": [
+     4,
+     8
+    ],
+    "fps": 6,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -12
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.6
+      },
+      {
+       "t": 26,
+       "v": 1.4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Wood-Hammer",
+   "anchor": "target",
+   "start": 16,
+   "end": 50,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     6,
+     6
+    ],
+    "interval": 0,
+    "frames": [
+     1,
+     2,
+     5,
+     6,
+     7,
+     9,
+     10,
+     11,
+     12
+    ],
+    "burst": 2.2,
+    "gravity": 0.25,
+    "life": 30,
+    "seed": 3
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  16
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "dash",
+   "dur": 26
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 16,
+    "dur": 14,
+    "amp": 4
+   }
+  ]
+ }
+}

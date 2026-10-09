@@ -1,0 +1,47 @@
+{
+ "slug": "pin-missile",
+ "duration": 70,
+ "layers": [
+  {
+   "asset": "Needle-Arn",
+   "anchor": "user",
+   "start": 0,
+   "end": 40,
+   "to": "target",
+   "frame": 6,
+   "orient": true,
+   "spawn": {
+    "count": 5,
+    "spread": [
+     6,
+     8
+    ],
+    "interval": 6,
+    "life": 14,
+    "seed": 2
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 12,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  12,
+  18,
+  24,
+  30,
+  36
+ ]
+}

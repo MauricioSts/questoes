@@ -1,0 +1,44 @@
+{
+ "slug": "_stat-down",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 0,
+   "end": 56,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  20
+ ],
+ "react": "status"
+}

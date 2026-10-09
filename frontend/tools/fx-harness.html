@@ -1,0 +1,15 @@
+<!doctype html>
+<!-- Bancada de captura das receitas (só dev, fora do build): npm run dev e abra
+     /tools/fx-harness.html. window.__fx.tocar(slug, inimigoAtaca) e __fx.ate(quadro)
+     avançam o motor quadro a quadro, sem depender do relógio (screenshots determinísticos). -->
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>FX harness</title>
+    <style>body{margin:0;background:#111} #r{width:720px}</style>
+  </head>
+  <body>
+    <div id="r"></div>
+    <script type="module" src="./fx-harness.tsx"></script>
+  </body>
+</html>

@@ -13,6 +13,8 @@ import { desenharForma, halo } from "./formas";
 import { COR_STAT, PALETA_TIPO, tierDe } from "./spec";
 import type { Ancora, Campo, ContextoGolpe, Forma, MoveVisualSpec, Stat, StatusVis, Tier } from "./tipos";
 import { rodarArquetipo } from "./arquetipos";
+import { spritesFx, type SpritesFx } from "./sprites/fx";
+import { tocarReceita } from "./sprites/player";
 
 const POOL = 400;
 const TETO = [150, 150, 150, 400];
@@ -21,6 +23,7 @@ export const TREMOR = [1.5, 4, 8, 16];
 
 export interface Atores {
   ancora(chave: string): Ancora | null;
+  silhueta?(chave: string): { img: HTMLImageElement; x: number; y: number; w: number; h: number } | null; // sprite desenhado agora (texturas recortadas)
   animar(chave: string, quadros: Keyframe[], ms: number, easing?: string): void;
   tremerTela(px: number, ms: number): void;
   cancelar(): void;
@@ -77,6 +80,7 @@ export interface OpcPart {
 
 export interface Desenho {
   camada: number;
+  fundo?: boolean; // desenha no canvas de trás (atrás dos Pokémon): fundos de tela dos sprites
   t0: number;
   dur: number;
   dono: number;
@@ -127,6 +131,9 @@ export class MotorGolpes {
   private campos = new Map<string, { campo: Campo; desde: number; ate: number }>();
   private canvas: HTMLCanvasElement | null = null;
   private g: CanvasRenderingContext2D | null = null;
+  private canvasFundo: HTMLCanvasElement | null = null;
+  private gFundo: CanvasRenderingContext2D | null = null;
+  sprites: SpritesFx | null = spritesFx; // receitas com sprites; sem elas (ou sem assets), procedural
   private dpr = 1;
   private raf = 0;
   private ultimoReal = 0;
@@ -134,6 +141,7 @@ export class MotorGolpes {
   erros: string[] = []; // golpes que lançaram exceção (o teste confere que fica vazio)
   atores: Atores = { ancora: () => null, animar: () => {}, tremerTela: () => {}, cancelar: () => {} };
   reducedMotion = false;
+  pausado = false; // Move Lab: congela o relógio (passo() avança um quadro)
   autoLoop = typeof window !== "undefined" && typeof requestAnimationFrame === "function";
 
   ligarCanvas(c: HTMLCanvasElement | null) {
@@ -143,6 +151,12 @@ export class MotorGolpes {
     this.garantirLoop();
   }
 
+  ligarFundo(c: HTMLCanvasElement | null) {
+    this.canvasFundo = c;
+    this.gFundo = c?.getContext("2d") ?? null;
+    if (c) this.redimensionar();
+  }
+
   redimensionar() {
     const c = this.canvas;
     if (!c) return;
@@ -150,6 +164,10 @@ export class MotorGolpes {
     const r = c.getBoundingClientRect();
     c.width = Math.max(1, Math.round(r.width * this.dpr));
     c.height = Math.max(1, Math.round(r.height * this.dpr));
+    if (this.canvasFundo) {
+      this.canvasFundo.width = c.width;
+      this.canvasFundo.height = c.height;
+    }
   }
 
   get largura() {
@@ -169,7 +187,10 @@ export class MotorGolpes {
     const impacto = new Promise<void>((ok) => (marcarImpacto = ok));
     const kit = new Kit(this, dono, spec, ctx, tier, marcarImpacto);
     this.garantirLoop();
-    const fim = rodarArquetipo(kit)
+    // golpe com receita de sprites pronta (atlas e imagens carregados): toca ela; senão o
+    // arquétipo procedural de sempre
+    const receita = this.sprites?.receitaPronta(spec.slug);
+    const fim = (receita ? tocarReceita(kit, receita.anim, this.sprites!, receita.tipo ?? (ctx.typeOverride !== undefined && ctx.typeOverride !== spec.type ? ctx.typeOverride : undefined)) : rodarArquetipo(kit))
       .catch((e) => {
         this.erros.push(`${spec.slug}: ${e instanceof Error ? e.message : String(e)}`);
         if (typeof console !== "undefined") console.warn("golpe visual falhou", spec.slug, e);
@@ -228,6 +249,13 @@ export class MotorGolpes {
       const a = (i / 7) * TAU;
       this.part({ x: an.x + Math.cos(a) * an.w * 0.35, y: an.y + Math.sin(a) * an.h * 0.3, vx: Math.cos(a) * 30, vy: st === "freeze" ? 0 : -40, vida: 750, s0: 5, s1: 2, forma, c: cor, c2: "#FFFFFF", camada: 4, brilho: st === "paralysis" ? 1.2 : 0.5, rot: a }, 0);
     }
+    this.garantirLoop();
+  }
+
+  // Avança um quadro de 1/60 s com o relógio pausado (Move Lab).
+  passo() {
+    this.tick(1000 / 60);
+    this.render();
     this.garantirLoop();
   }
 
@@ -316,7 +344,7 @@ export class MotorGolpes {
       const dt = Math.min(50, t - this.ultimoReal);
       this.ultimoReal = t;
       const ini = performance.now();
-      this.tick(dt);
+      this.tick(this.pausado ? 0 : dt);
       this.render();
       this.tempoQuadro = performance.now() - ini;
       if (this.ocupado() || this.esperas.length) this.raf = requestAnimationFrame(passo);
@@ -390,11 +418,25 @@ export class MotorGolpes {
     if (Math.abs(r.width * this.dpr - c.width) > 2 || Math.abs(r.height * this.dpr - c.height) > 2) this.redimensionar();
     g.setTransform(1, 0, 0, 1, 0, 0);
     g.clearRect(0, 0, c.width, c.height);
+    const gf = this.gFundo;
+    if (gf && this.canvasFundo) {
+      gf.setTransform(1, 0, 0, 1, 0, 0);
+      gf.clearRect(0, 0, this.canvasFundo.width, this.canvasFundo.height);
+      for (const d of this.desenhos) {
+        if (!d.fundo || !d.draw) continue;
+        const k = d.dur === Infinity ? 0 : (this.agora - d.t0) / d.dur;
+        if (k < 0 || k >= 1) continue;
+        gf.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+        gf.globalAlpha = 1;
+        gf.globalCompositeOperation = "source-over";
+        d.draw(gf, k, this.agora);
+      }
+    }
     for (let camada = 0; camada <= 5; camada++) {
       if (camada === 0 || camada === 4) this.desenharCampos(g, camada);
       if (camada === 4) this.desenharStatus(g);
       for (const d of this.desenhos) {
-        if (d.camada !== camada || !d.draw) continue;
+        if (d.camada !== camada || !d.draw || (d.fundo && gf)) continue;
         const k = d.dur === Infinity ? 0 : (this.agora - d.t0) / d.dur;
         if (k < 0 || k >= 1) continue;
         g.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);

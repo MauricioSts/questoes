@@ -1,0 +1,41 @@
+{
+ "slug": "mud-shot",
+ "duration": 84,
+ "layers": [
+  {
+   "asset": "Mud-Shot",
+   "anchor": "user",
+   "start": 0,
+   "end": 72,
+   "ds": true,
+   "frameSeq": {
+    "frames": [
+     0,
+     2,
+     4,
+     6,
+     8,
+     10,
+     12,
+     14,
+     16,
+     1,
+     3,
+     5,
+     7,
+     9,
+     11,
+     13,
+     15
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "keepColor": true
+  }
+ ],
+ "hits": [
+  44,
+  60
+ ]
+}

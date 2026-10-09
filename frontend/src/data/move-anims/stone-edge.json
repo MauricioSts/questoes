@@ -1,0 +1,132 @@
+{
+ "slug": "stone-edge",
+ "duration": 70,
+ "layers": [
+  {
+   "asset": "Srone-Edge",
+   "anchor": "field-target",
+   "start": 4,
+   "end": 30,
+   "frame": 0,
+   "spawn": {
+    "count": 3,
+    "spread": [
+     26,
+     4
+    ],
+    "interval": 3,
+    "seed": 2
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 30
+      },
+      {
+       "t": 8,
+       "v": -50,
+       "ease": "out"
+      },
+      {
+       "t": 20,
+       "v": -50
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Srone-Edge",
+   "anchor": "target",
+   "start": 14,
+   "end": 40,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     4,
+     4
+    ],
+    "interval": 0,
+    "frames": [
+     2,
+     3,
+     5
+    ],
+    "burst": 2.2,
+    "gravity": 0.25,
+    "life": 26,
+    "seed": 3
+   },
+   "z": 3
+  },
+  {
+   "asset": "Srone-Edge",
+   "anchor": "target",
+   "start": 14,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     1,
+     4
+    ],
+    "fps": 10,
+    "loop": false
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "blend": "add",
+   "z": 3
+  }
+ ],
+ "hits": [
+  14
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 14,
+    "dur": 14,
+    "amp": 4
+   }
+  ]
+ }
+}

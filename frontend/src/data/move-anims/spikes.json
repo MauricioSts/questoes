@@ -1,0 +1,64 @@
+{
+ "slug": "spikes",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Spikes",
+   "anchor": "user",
+   "start": 0,
+   "end": 56,
+   "to": "field-target",
+   "arc": 50,
+   "spawn": {
+    "count": 3,
+    "spread": [
+     24,
+     2
+    ],
+    "interval": 4,
+    "life": 40,
+    "seed": 1
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 1,
+       "ease": "in"
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 1
+      },
+      {
+       "t": 40,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "none"
+}

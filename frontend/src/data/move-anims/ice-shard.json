@@ -1,0 +1,101 @@
+{
+ "slug": "ice-shard",
+ "duration": 52,
+ "layers": [
+  {
+   "asset": "Ice-Shards",
+   "anchor": "user",
+   "start": 0,
+   "end": 30,
+   "to": "target",
+   "spawn": {
+    "count": 6,
+    "spread": [
+     6,
+     6
+    ],
+    "interval": 2,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "life": 16,
+    "seed": 2
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 14,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Ice-Shards",
+   "anchor": "target",
+   "start": 16,
+   "end": 40,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     4,
+     4
+    ],
+    "interval": 0,
+    "frames": [
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "burst": 1.6,
+    "life": 18,
+    "seed": 3
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  16
+ ]
+}

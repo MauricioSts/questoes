@@ -1,0 +1,2643 @@
+{
+ "absorb": {
+  "modo": "approx",
+  "receita": "absorb",
+  "arquetipo": "DRAIN"
+ },
+ "acid": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "acid-armor": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "agility": {
+  "modo": "asset",
+  "receita": "agility",
+  "arquetipo": "BUFF"
+ },
+ "amnesia": {
+  "modo": "asset",
+  "receita": "amnesia",
+  "arquetipo": "BUFF"
+ },
+ "aurora-beam": {
+  "modo": "fallback",
+  "arquetipo": "BEAM"
+ },
+ "barrage": {
+  "modo": "fallback",
+  "arquetipo": "MULTI"
+ },
+ "barrier": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "bide": {
+  "modo": "fallback",
+  "arquetipo": "CHARGE"
+ },
+ "bind": {
+  "modo": "fallback",
+  "arquetipo": "TRAP"
+ },
+ "bite": {
+  "modo": "recolor",
+  "receita": "crunch",
+  "arquetipo": "STRIKE"
+ },
+ "blizzard": {
+  "modo": "approx",
+  "receita": "blizzard",
+  "arquetipo": "AOE"
+ },
+ "body-slam": {
+  "modo": "recolor",
+  "receita": "stomp",
+  "arquetipo": "STRIKE"
+ },
+ "bone-club": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "bonemerang": {
+  "modo": "fallback",
+  "arquetipo": "MULTI"
+ },
+ "bubble": {
+  "modo": "recolor",
+  "receita": "bubble-beam",
+  "arquetipo": "PROJ"
+ },
+ "bubble-beam": {
+  "modo": "approx",
+  "receita": "bubble-beam",
+  "arquetipo": "BEAM"
+ },
+ "clamp": {
+  "modo": "fallback",
+  "arquetipo": "TRAP"
+ },
+ "comet-punch": {
+  "modo": "recolor",
+  "receita": "rock-smash",
+  "tipo": 0,
+  "arquetipo": "MULTI"
+ },
+ "confuse-ray": {
+  "modo": "approx",
+  "receita": "confuse-ray",
+  "arquetipo": "STATUS"
+ },
+ "confusion": {
+  "modo": "recolor",
+  "receita": "psychic",
+  "arquetipo": "PROJ"
+ },
+ "constrict": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "conversion": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "counter": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "crabhammer": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "cut": {
+  "modo": "asset",
+  "receita": "cut",
+  "arquetipo": "STRIKE"
+ },
+ "defense-curl": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "dig": {
+  "modo": "fallback",
+  "arquetipo": "CHARGE"
+ },
+ "disable": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "dizzy-punch": {
+  "modo": "recolor",
+  "receita": "rock-smash",
+  "tipo": 0,
+  "arquetipo": "STRIKE"
+ },
+ "double-kick": {
+  "modo": "asset",
+  "receita": "double-kick",
+  "arquetipo": "MULTI"
+ },
+ "double-slap": {
+  "modo": "fallback",
+  "arquetipo": "MULTI"
+ },
+ "double-team": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "double-edge": {
+  "modo": "recolor",
+  "receita": "giga-impact",
+  "arquetipo": "STRIKE"
+ },
+ "dragon-rage": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "dream-eater": {
+  "modo": "recolor",
+  "receita": "nightmare",
+  "tipo": 10,
+  "arquetipo": "DRAIN"
+ },
+ "drill-peck": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "earthquake": {
+  "modo": "approx",
+  "receita": "earthquake",
+  "arquetipo": "AOE"
+ },
+ "egg-bomb": {
+  "modo": "recolor",
+  "receita": "mud-bomb",
+  "tipo": 0,
+  "arquetipo": "PROJ"
+ },
+ "ember": {
+  "modo": "approx",
+  "receita": "ember",
+  "arquetipo": "PROJ"
+ },
+ "explosion": {
+  "modo": "fallback",
+  "arquetipo": "SACRIFICE"
+ },
+ "fire-blast": {
+  "modo": "asset",
+  "receita": "fire-blast",
+  "arquetipo": "PROJ"
+ },
+ "fire-punch": {
+  "modo": "asset",
+  "receita": "fire-punch",
+  "arquetipo": "STRIKE"
+ },
+ "fire-spin": {
+  "modo": "asset",
+  "receita": "fire-spin",
+  "arquetipo": "TRAP"
+ },
+ "fissure": {
+  "modo": "asset",
+  "receita": "fissure",
+  "arquetipo": "OHKO"
+ },
+ "flamethrower": {
+  "modo": "approx",
+  "receita": "flamethrower",
+  "arquetipo": "BEAM"
+ },
+ "flash": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "fly": {
+  "modo": "asset",
+  "receita": "fly",
+  "arquetipo": "CHARGE"
+ },
+ "focus-energy": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "fury-attack": {
+  "modo": "fallback",
+  "arquetipo": "MULTI"
+ },
+ "fury-swipes": {
+  "modo": "recolor",
+  "receita": "scratch",
+  "arquetipo": "MULTI"
+ },
+ "glare": {
+  "modo": "recolor",
+  "receita": "mean-look",
+  "arquetipo": "STATUS"
+ },
+ "growl": {
+  "modo": "asset",
+  "receita": "growl",
+  "arquetipo": "DEBUFF"
+ },
+ "growth": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "guillotine": {
+  "modo": "fallback",
+  "arquetipo": "OHKO"
+ },
+ "gust": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "harden": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "haze": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "headbutt": {
+  "modo": "recolor",
+  "receita": "iron-head",
+  "tipo": 0,
+  "arquetipo": "STRIKE"
+ },
+ "high-jump-kick": {
+  "modo": "recolor",
+  "receita": "mega-kick",
+  "tipo": 6,
+  "arquetipo": "STRIKE"
+ },
+ "horn-attack": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "horn-drill": {
+  "modo": "fallback",
+  "arquetipo": "OHKO"
+ },
+ "hydro-pump": {
+  "modo": "asset",
+  "receita": "hydro-pump",
+  "arquetipo": "BEAM"
+ },
+ "hyper-beam": {
+  "modo": "fallback",
+  "arquetipo": "BEAM"
+ },
+ "hyper-fang": {
+  "modo": "recolor",
+  "receita": "crunch",
+  "tipo": 0,
+  "arquetipo": "STRIKE"
+ },
+ "hypnosis": {
+  "modo": "asset",
+  "receita": "hypnosis",
+  "arquetipo": "STATUS"
+ },
+ "ice-beam": {
+  "modo": "approx",
+  "receita": "ice-beam",
+  "arquetipo": "BEAM"
+ },
+ "ice-punch": {
+  "modo": "recolor",
+  "receita": "fire-punch",
+  "tipo": 5,
+  "arquetipo": "STRIKE"
+ },
+ "jump-kick": {
+  "modo": "recolor",
+  "receita": "mega-kick",
+  "tipo": 6,
+  "arquetipo": "STRIKE"
+ },
+ "karate-chop": {
+  "modo": "recolor",
+  "receita": "cut",
+  "tipo": 6,
+  "arquetipo": "STRIKE"
+ },
+ "kinesis": {
+  "modo": "asset",
+  "receita": "kinesis",
+  "arquetipo": "DEBUFF"
+ },
+ "leech-life": {
+  "modo": "fallback",
+  "arquetipo": "DRAIN"
+ },
+ "leech-seed": {
+  "modo": "asset",
+  "receita": "leech-seed",
+  "arquetipo": "STATUS"
+ },
+ "leer": {
+  "modo": "recolor",
+  "receita": "scary-face",
+  "arquetipo": "DEBUFF"
+ },
+ "lick": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "light-screen": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "lovely-kiss": {
+  "modo": "fallback",
+  "arquetipo": "STATUS"
+ },
+ "low-kick": {
+  "modo": "recolor",
+  "receita": "mega-kick",
+  "tipo": 6,
+  "arquetipo": "STRIKE"
+ },
+ "meditate": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "mega-drain": {
+  "modo": "recolor",
+  "receita": "absorb",
+  "arquetipo": "DRAIN"
+ },
+ "mega-kick": {
+  "modo": "asset",
+  "receita": "mega-kick",
+  "arquetipo": "STRIKE"
+ },
+ "mega-punch": {
+  "modo": "recolor",
+  "receita": "rock-smash",
+  "tipo": 0,
+  "arquetipo": "STRIKE"
+ },
+ "metronome": {
+  "modo": "asset",
+  "receita": "metronome",
+  "arquetipo": "SPECIAL"
+ },
+ "mimic": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "minimize": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "mirror-move": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "mist": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "night-shade": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "pay-day": {
+  "modo": "fallback",
+  "arquetipo": "MULTI"
+ },
+ "peck": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "petal-dance": {
+  "modo": "recolor",
+  "receita": "magical-leaf",
+  "arquetipo": "AOE"
+ },
+ "pin-missile": {
+  "modo": "asset",
+  "receita": "pin-missile",
+  "arquetipo": "MULTI"
+ },
+ "poison-gas": {
+  "modo": "fallback",
+  "arquetipo": "STATUS"
+ },
+ "poison-powder": {
+  "modo": "recolor",
+  "receita": "sleep-powder",
+  "tipo": 7,
+  "arquetipo": "STATUS"
+ },
+ "poison-sting": {
+  "modo": "recolor",
+  "receita": "pin-missile",
+  "tipo": 7,
+  "arquetipo": "PROJ"
+ },
+ "pound": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "psybeam": {
+  "modo": "recolor",
+  "receita": "psychic",
+  "arquetipo": "BEAM"
+ },
+ "psychic": {
+  "modo": "asset",
+  "receita": "psychic",
+  "arquetipo": "AOE"
+ },
+ "psywave": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "quick-attack": {
+  "modo": "asset",
+  "receita": "quick-attack",
+  "arquetipo": "STRIKE"
+ },
+ "rage": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "razor-leaf": {
+  "modo": "asset",
+  "receita": "razor-leaf",
+  "arquetipo": "MULTI"
+ },
+ "razor-wind": {
+  "modo": "recolor",
+  "receita": "psycho-cut",
+  "tipo": 0,
+  "arquetipo": "CHARGE"
+ },
+ "recover": {
+  "modo": "asset",
+  "receita": "recover",
+  "arquetipo": "HEAL"
+ },
+ "reflect": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "rest": {
+  "modo": "asset",
+  "receita": "rest",
+  "arquetipo": "HEAL"
+ },
+ "roar": {
+  "modo": "recolor",
+  "receita": "growl",
+  "arquetipo": "DEBUFF"
+ },
+ "rock-slide": {
+  "modo": "recolor",
+  "receita": "rock-tomb",
+  "arquetipo": "AOE"
+ },
+ "rock-throw": {
+  "modo": "recolor",
+  "receita": "rock-tomb",
+  "arquetipo": "PROJ"
+ },
+ "rolling-kick": {
+  "modo": "recolor",
+  "receita": "mega-kick",
+  "tipo": 6,
+  "arquetipo": "STRIKE"
+ },
+ "sand-attack": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "scratch": {
+  "modo": "asset",
+  "receita": "scratch",
+  "arquetipo": "STRIKE"
+ },
+ "screech": {
+  "modo": "recolor",
+  "receita": "growl",
+  "arquetipo": "DEBUFF"
+ },
+ "seismic-toss": {
+  "modo": "asset",
+  "receita": "seismic-toss",
+  "arquetipo": "STRIKE"
+ },
+ "self-destruct": {
+  "modo": "fallback",
+  "arquetipo": "SACRIFICE"
+ },
+ "sharpen": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "sing": {
+  "modo": "asset",
+  "receita": "sing",
+  "arquetipo": "STATUS"
+ },
+ "skull-bash": {
+  "modo": "fallback",
+  "arquetipo": "CHARGE"
+ },
+ "sky-attack": {
+  "modo": "fallback",
+  "arquetipo": "CHARGE"
+ },
+ "slam": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "slash": {
+  "modo": "recolor",
+  "receita": "cut",
+  "arquetipo": "STRIKE"
+ },
+ "sleep-powder": {
+  "modo": "approx",
+  "receita": "sleep-powder",
+  "arquetipo": "STATUS"
+ },
+ "sludge": {
+  "modo": "recolor",
+  "receita": "mud-bomb",
+  "tipo": 7,
+  "arquetipo": "PROJ"
+ },
+ "smog": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "smokescreen": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "soft-boiled": {
+  "modo": "recolor",
+  "receita": "recover",
+  "arquetipo": "HEAL"
+ },
+ "solar-beam": {
+  "modo": "recolor",
+  "receita": "flash-cannon",
+  "tipo": 4,
+  "arquetipo": "CHARGE"
+ },
+ "sonic-boom": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "spike-cannon": {
+  "modo": "recolor",
+  "receita": "pin-missile",
+  "tipo": 0,
+  "arquetipo": "MULTI"
+ },
+ "splash": {
+  "modo": "asset",
+  "receita": "splash",
+  "arquetipo": "SPECIAL"
+ },
+ "spore": {
+  "modo": "recolor",
+  "receita": "sleep-powder",
+  "arquetipo": "STATUS"
+ },
+ "stomp": {
+  "modo": "asset",
+  "receita": "stomp",
+  "arquetipo": "STRIKE"
+ },
+ "strength": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "string-shot": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "struggle": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "stun-spore": {
+  "modo": "recolor",
+  "receita": "sleep-powder",
+  "arquetipo": "STATUS"
+ },
+ "submission": {
+  "modo": "recolor",
+  "receita": "seismic-toss",
+  "arquetipo": "STRIKE"
+ },
+ "substitute": {
+  "modo": "asset",
+  "receita": "substitute",
+  "arquetipo": "FIELD"
+ },
+ "super-fang": {
+  "modo": "recolor",
+  "receita": "crunch",
+  "tipo": 0,
+  "arquetipo": "STRIKE"
+ },
+ "supersonic": {
+  "modo": "recolor",
+  "receita": "growl",
+  "arquetipo": "STATUS"
+ },
+ "surf": {
+  "modo": "asset",
+  "receita": "surf",
+  "arquetipo": "AOE"
+ },
+ "swift": {
+  "modo": "asset",
+  "receita": "swift",
+  "arquetipo": "MULTI"
+ },
+ "swords-dance": {
+  "modo": "asset",
+  "receita": "swords-dance",
+  "arquetipo": "BUFF"
+ },
+ "tackle": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "tail-whip": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "take-down": {
+  "modo": "recolor",
+  "receita": "giga-impact",
+  "arquetipo": "STRIKE"
+ },
+ "teleport": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "thrash": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "thunder": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "thunder-punch": {
+  "modo": "recolor",
+  "receita": "fire-punch",
+  "tipo": 3,
+  "arquetipo": "STRIKE"
+ },
+ "thunder-shock": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "thunder-wave": {
+  "modo": "fallback",
+  "arquetipo": "STATUS"
+ },
+ "thunderbolt": {
+  "modo": "fallback",
+  "arquetipo": "BEAM"
+ },
+ "toxic": {
+  "modo": "fallback",
+  "arquetipo": "STATUS"
+ },
+ "transform": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "tri-attack": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "twineedle": {
+  "modo": "recolor",
+  "receita": "pin-missile",
+  "arquetipo": "MULTI"
+ },
+ "vine-whip": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "vise-grip": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "water-gun": {
+  "modo": "recolor",
+  "receita": "bubble-beam",
+  "arquetipo": "PROJ"
+ },
+ "waterfall": {
+  "modo": "asset",
+  "receita": "waterfall",
+  "arquetipo": "STRIKE"
+ },
+ "whirlwind": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "wing-attack": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "withdraw": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "wrap": {
+  "modo": "fallback",
+  "arquetipo": "TRAP"
+ },
+ "aeroblast": {
+  "modo": "asset",
+  "receita": "aeroblast",
+  "arquetipo": "BEAM"
+ },
+ "ancient-power": {
+  "modo": "asset",
+  "receita": "ancient-power",
+  "arquetipo": "PROJ"
+ },
+ "attract": {
+  "modo": "fallback",
+  "arquetipo": "STATUS"
+ },
+ "baton-pass": {
+  "modo": "asset",
+  "receita": "baton-pass",
+  "arquetipo": "SPECIAL"
+ },
+ "beat-up": {
+  "modo": "fallback",
+  "arquetipo": "MULTI"
+ },
+ "belly-drum": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "bone-rush": {
+  "modo": "fallback",
+  "arquetipo": "MULTI"
+ },
+ "charm": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "conversion-2": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "cotton-spore": {
+  "modo": "recolor",
+  "receita": "sleep-powder",
+  "arquetipo": "DEBUFF"
+ },
+ "cross-chop": {
+  "modo": "recolor",
+  "receita": "x-scissor",
+  "tipo": 6,
+  "arquetipo": "STRIKE"
+ },
+ "crunch": {
+  "modo": "asset",
+  "receita": "crunch",
+  "arquetipo": "STRIKE"
+ },
+ "curse": {
+  "modo": "fallback",
+  "arquetipo": "STATUS"
+ },
+ "destiny-bond": {
+  "modo": "fallback",
+  "arquetipo": "STATUS"
+ },
+ "detect": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "dragon-breath": {
+  "modo": "fallback",
+  "arquetipo": "BEAM"
+ },
+ "dynamic-punch": {
+  "modo": "approx",
+  "receita": "dynamic-punch",
+  "arquetipo": "STRIKE"
+ },
+ "encore": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "endure": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "extreme-speed": {
+  "modo": "recolor",
+  "receita": "quick-attack",
+  "arquetipo": "STRIKE"
+ },
+ "false-swipe": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "feint-attack": {
+  "modo": "recolor",
+  "receita": "sucker-punch",
+  "arquetipo": "STRIKE"
+ },
+ "flail": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "flame-wheel": {
+  "modo": "approx",
+  "receita": "flame-wheel",
+  "arquetipo": "STRIKE"
+ },
+ "foresight": {
+  "modo": "asset",
+  "receita": "foresight",
+  "arquetipo": "DEBUFF"
+ },
+ "frustration": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "fury-cutter": {
+  "modo": "recolor",
+  "receita": "cut",
+  "tipo": 11,
+  "arquetipo": "STRIKE"
+ },
+ "future-sight": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "giga-drain": {
+  "modo": "recolor",
+  "receita": "absorb",
+  "arquetipo": "DRAIN"
+ },
+ "heal-bell": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "hidden-power": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "icy-wind": {
+  "modo": "recolor",
+  "receita": "blizzard",
+  "arquetipo": "AOE"
+ },
+ "iron-tail": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "lock-on": {
+  "modo": "asset",
+  "receita": "lock-on",
+  "arquetipo": "BUFF"
+ },
+ "mach-punch": {
+  "modo": "recolor",
+  "receita": "rock-smash",
+  "arquetipo": "STRIKE"
+ },
+ "magnitude": {
+  "modo": "recolor",
+  "receita": "earthquake",
+  "arquetipo": "AOE"
+ },
+ "mean-look": {
+  "modo": "asset",
+  "receita": "mean-look",
+  "arquetipo": "DEBUFF"
+ },
+ "megahorn": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "metal-claw": {
+  "modo": "recolor",
+  "receita": "scratch",
+  "tipo": 16,
+  "arquetipo": "STRIKE"
+ },
+ "milk-drink": {
+  "modo": "recolor",
+  "receita": "recover",
+  "arquetipo": "HEAL"
+ },
+ "mind-reader": {
+  "modo": "recolor",
+  "receita": "lock-on",
+  "arquetipo": "BUFF"
+ },
+ "mirror-coat": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "moonlight": {
+  "modo": "recolor",
+  "receita": "recover",
+  "tipo": 17,
+  "arquetipo": "HEAL"
+ },
+ "morning-sun": {
+  "modo": "recolor",
+  "receita": "recover",
+  "arquetipo": "HEAL"
+ },
+ "mud-slap": {
+  "modo": "recolor",
+  "receita": "mud-bomb",
+  "arquetipo": "PROJ"
+ },
+ "nightmare": {
+  "modo": "asset",
+  "receita": "nightmare",
+  "arquetipo": "STATUS"
+ },
+ "octazooka": {
+  "modo": "recolor",
+  "receita": "mud-shot",
+  "tipo": 2,
+  "arquetipo": "PROJ"
+ },
+ "outrage": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "pain-split": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "perish-song": {
+  "modo": "recolor",
+  "receita": "sing",
+  "arquetipo": "FIELD"
+ },
+ "powder-snow": {
+  "modo": "recolor",
+  "receita": "blizzard",
+  "arquetipo": "PROJ"
+ },
+ "present": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "protect": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "psych-up": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "pursuit": {
+  "modo": "recolor",
+  "receita": "sucker-punch",
+  "arquetipo": "STRIKE"
+ },
+ "rain-dance": {
+  "modo": "asset",
+  "receita": "rain-dance",
+  "arquetipo": "FIELD"
+ },
+ "rapid-spin": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "return": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "reversal": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "rock-smash": {
+  "modo": "approx",
+  "receita": "rock-smash",
+  "arquetipo": "STRIKE"
+ },
+ "rollout": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "sacred-fire": {
+  "modo": "asset",
+  "receita": "sacred-fire",
+  "arquetipo": "PROJ"
+ },
+ "safeguard": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "sandstorm": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "scary-face": {
+  "modo": "asset",
+  "receita": "scary-face",
+  "arquetipo": "DEBUFF"
+ },
+ "shadow-ball": {
+  "modo": "asset",
+  "receita": "shadow-ball",
+  "arquetipo": "PROJ"
+ },
+ "sketch": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "sleep-talk": {
+  "modo": "recolor",
+  "receita": "rest",
+  "tipo": 0,
+  "arquetipo": "SPECIAL"
+ },
+ "sludge-bomb": {
+  "modo": "recolor",
+  "receita": "mud-bomb",
+  "tipo": 7,
+  "arquetipo": "PROJ"
+ },
+ "snore": {
+  "modo": "recolor",
+  "receita": "rest",
+  "tipo": 0,
+  "arquetipo": "AOE"
+ },
+ "spark": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "spider-web": {
+  "modo": "fallback",
+  "arquetipo": "TRAP"
+ },
+ "spikes": {
+  "modo": "asset",
+  "receita": "spikes",
+  "arquetipo": "FIELD"
+ },
+ "spite": {
+  "modo": "recolor",
+  "receita": "grudge",
+  "arquetipo": "DEBUFF"
+ },
+ "steel-wing": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "sunny-day": {
+  "modo": "approx",
+  "receita": "sunny-day",
+  "arquetipo": "FIELD"
+ },
+ "swagger": {
+  "modo": "asset",
+  "receita": "swagger",
+  "arquetipo": "STATUS"
+ },
+ "sweet-kiss": {
+  "modo": "recolor",
+  "receita": "confuse-ray",
+  "tipo": 17,
+  "arquetipo": "STATUS"
+ },
+ "sweet-scent": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "synthesis": {
+  "modo": "recolor",
+  "receita": "recover",
+  "tipo": 4,
+  "arquetipo": "HEAL"
+ },
+ "thief": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "triple-kick": {
+  "modo": "recolor",
+  "receita": "double-kick",
+  "arquetipo": "MULTI"
+ },
+ "twister": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "vital-throw": {
+  "modo": "recolor",
+  "receita": "seismic-toss",
+  "arquetipo": "STRIKE"
+ },
+ "whirlpool": {
+  "modo": "asset",
+  "receita": "whirlpool",
+  "arquetipo": "TRAP"
+ },
+ "zap-cannon": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "aerial-ace": {
+  "modo": "asset",
+  "receita": "aerial-ace",
+  "arquetipo": "STRIKE"
+ },
+ "air-cutter": {
+  "modo": "recolor",
+  "receita": "psycho-cut",
+  "tipo": 9,
+  "arquetipo": "PROJ"
+ },
+ "arm-thrust": {
+  "modo": "recolor",
+  "receita": "close-combat",
+  "arquetipo": "MULTI"
+ },
+ "aromatherapy": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "assist": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "astonish": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "blast-burn": {
+  "modo": "asset",
+  "receita": "blast-burn",
+  "arquetipo": "AOE"
+ },
+ "blaze-kick": {
+  "modo": "recolor",
+  "receita": "mega-kick",
+  "tipo": 1,
+  "arquetipo": "STRIKE"
+ },
+ "block": {
+  "modo": "asset",
+  "receita": "block",
+  "arquetipo": "DEBUFF"
+ },
+ "bounce": {
+  "modo": "recolor",
+  "receita": "fly",
+  "arquetipo": "CHARGE"
+ },
+ "brick-break": {
+  "modo": "recolor",
+  "receita": "hammer-arm",
+  "arquetipo": "STRIKE"
+ },
+ "bulk-up": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "bullet-seed": {
+  "modo": "asset",
+  "receita": "bullet-seed",
+  "arquetipo": "MULTI"
+ },
+ "calm-mind": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "camouflage": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "charge": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "cosmic-power": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "covet": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "crush-claw": {
+  "modo": "recolor",
+  "receita": "shadow-claw",
+  "tipo": 0,
+  "arquetipo": "STRIKE"
+ },
+ "dive": {
+  "modo": "recolor",
+  "receita": "whirlpool",
+  "arquetipo": "CHARGE"
+ },
+ "doom-desire": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "dragon-claw": {
+  "modo": "asset",
+  "receita": "dragon-claw",
+  "arquetipo": "STRIKE"
+ },
+ "dragon-dance": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "endeavor": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "eruption": {
+  "modo": "asset",
+  "receita": "eruption",
+  "arquetipo": "AOE"
+ },
+ "extrasensory": {
+  "modo": "recolor",
+  "receita": "psychic",
+  "arquetipo": "PROJ"
+ },
+ "facade": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "fake-out": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "fake-tears": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "feather-dance": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "flatter": {
+  "modo": "recolor",
+  "receita": "swagger",
+  "tipo": 15,
+  "arquetipo": "STATUS"
+ },
+ "focus-punch": {
+  "modo": "recolor",
+  "receita": "dynamic-punch",
+  "arquetipo": "CHARGE"
+ },
+ "follow-me": {
+  "modo": "recolor",
+  "receita": "metronome",
+  "arquetipo": "FIELD"
+ },
+ "frenzy-plant": {
+  "modo": "asset",
+  "receita": "frenzy-plant",
+  "arquetipo": "AOE"
+ },
+ "grass-whistle": {
+  "modo": "recolor",
+  "receita": "sing",
+  "tipo": 4,
+  "arquetipo": "STATUS"
+ },
+ "grudge": {
+  "modo": "asset",
+  "receita": "grudge",
+  "arquetipo": "STATUS"
+ },
+ "hail": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "heat-wave": {
+  "modo": "asset",
+  "receita": "heat-wave",
+  "arquetipo": "AOE"
+ },
+ "helping-hand": {
+  "modo": "asset",
+  "receita": "helping-hand",
+  "arquetipo": "BUFF"
+ },
+ "howl": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "hydro-cannon": {
+  "modo": "approx",
+  "receita": "hydro-cannon",
+  "arquetipo": "BEAM"
+ },
+ "hyper-voice": {
+  "modo": "recolor",
+  "receita": "growl",
+  "arquetipo": "AOE"
+ },
+ "ice-ball": {
+  "modo": "recolor",
+  "receita": "ice-shard",
+  "arquetipo": "STRIKE"
+ },
+ "icicle-spear": {
+  "modo": "recolor",
+  "receita": "ice-shard",
+  "arquetipo": "MULTI"
+ },
+ "imprison": {
+  "modo": "recolor",
+  "receita": "block",
+  "tipo": 10,
+  "arquetipo": "DEBUFF"
+ },
+ "ingrain": {
+  "modo": "recolor",
+  "receita": "recover",
+  "tipo": 4,
+  "arquetipo": "HEAL"
+ },
+ "iron-defense": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "knock-off": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "leaf-blade": {
+  "modo": "recolor",
+  "receita": "psycho-cut",
+  "tipo": 4,
+  "arquetipo": "STRIKE"
+ },
+ "luster-purge": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "magic-coat": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "magical-leaf": {
+  "modo": "asset",
+  "receita": "magical-leaf",
+  "arquetipo": "MULTI"
+ },
+ "memento": {
+  "modo": "fallback",
+  "arquetipo": "SACRIFICE"
+ },
+ "metal-sound": {
+  "modo": "recolor",
+  "receita": "growl",
+  "tipo": 16,
+  "arquetipo": "DEBUFF"
+ },
+ "meteor-mash": {
+  "modo": "recolor",
+  "receita": "iron-head",
+  "arquetipo": "STRIKE"
+ },
+ "mist-ball": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "mud-shot": {
+  "modo": "asset",
+  "receita": "mud-shot",
+  "arquetipo": "PROJ"
+ },
+ "mud-sport": {
+  "modo": "asset",
+  "receita": "mud-sport",
+  "arquetipo": "FIELD"
+ },
+ "muddy-water": {
+  "modo": "recolor",
+  "receita": "surf",
+  "arquetipo": "AOE"
+ },
+ "nature-power": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "needle-arm": {
+  "modo": "asset",
+  "receita": "needle-arm",
+  "arquetipo": "STRIKE"
+ },
+ "odor-sleuth": {
+  "modo": "recolor",
+  "receita": "foresight",
+  "arquetipo": "DEBUFF"
+ },
+ "overheat": {
+  "modo": "approx",
+  "receita": "overheat",
+  "arquetipo": "BEAM"
+ },
+ "poison-fang": {
+  "modo": "recolor",
+  "receita": "crunch",
+  "tipo": 7,
+  "arquetipo": "STRIKE"
+ },
+ "poison-tail": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "psycho-boost": {
+  "modo": "fallback",
+  "arquetipo": "BEAM"
+ },
+ "recycle": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "refresh": {
+  "modo": "fallback",
+  "arquetipo": "HEAL"
+ },
+ "revenge": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "rock-blast": {
+  "modo": "recolor",
+  "receita": "rock-tomb",
+  "arquetipo": "MULTI"
+ },
+ "rock-tomb": {
+  "modo": "asset",
+  "receita": "rock-tomb",
+  "arquetipo": "TRAP"
+ },
+ "role-play": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "sand-tomb": {
+  "modo": "fallback",
+  "arquetipo": "TRAP"
+ },
+ "secret-power": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "shadow-punch": {
+  "modo": "recolor",
+  "receita": "shadow-claw",
+  "arquetipo": "STRIKE"
+ },
+ "sheer-cold": {
+  "modo": "recolor",
+  "receita": "blizzard",
+  "arquetipo": "OHKO"
+ },
+ "shock-wave": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "signal-beam": {
+  "modo": "recolor",
+  "receita": "flash-cannon",
+  "tipo": 11,
+  "arquetipo": "BEAM"
+ },
+ "silver-wind": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "skill-swap": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "sky-uppercut": {
+  "modo": "recolor",
+  "receita": "rock-smash",
+  "arquetipo": "STRIKE"
+ },
+ "slack-off": {
+  "modo": "recolor",
+  "receita": "recover",
+  "arquetipo": "HEAL"
+ },
+ "smelling-salts": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "snatch": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "spit-up": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "stockpile": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "superpower": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "swallow": {
+  "modo": "fallback",
+  "arquetipo": "HEAL"
+ },
+ "tail-glow": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "taunt": {
+  "modo": "recolor",
+  "receita": "swagger",
+  "tipo": 15,
+  "arquetipo": "DEBUFF"
+ },
+ "teeter-dance": {
+  "modo": "asset",
+  "receita": "teeter-dance",
+  "arquetipo": "STATUS"
+ },
+ "tickle": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "torment": {
+  "modo": "recolor",
+  "receita": "block",
+  "tipo": 15,
+  "arquetipo": "DEBUFF"
+ },
+ "trick": {
+  "modo": "approx",
+  "receita": "trick",
+  "arquetipo": "SPECIAL"
+ },
+ "uproar": {
+  "modo": "recolor",
+  "receita": "growl",
+  "arquetipo": "AOE"
+ },
+ "volt-tackle": {
+  "modo": "recolor",
+  "receita": "flare-blitz",
+  "tipo": 3,
+  "arquetipo": "STRIKE"
+ },
+ "water-pulse": {
+  "modo": "asset",
+  "receita": "water-pulse",
+  "arquetipo": "PROJ"
+ },
+ "water-sport": {
+  "modo": "asset",
+  "receita": "water-sport",
+  "arquetipo": "FIELD"
+ },
+ "water-spout": {
+  "modo": "recolor",
+  "receita": "hydro-pump",
+  "arquetipo": "AOE"
+ },
+ "weather-ball": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "will-o-wisp": {
+  "modo": "approx",
+  "receita": "will-o-wisp",
+  "arquetipo": "STATUS"
+ },
+ "wish": {
+  "modo": "recolor",
+  "receita": "recover",
+  "arquetipo": "HEAL"
+ },
+ "yawn": {
+  "modo": "recolor",
+  "receita": "rest",
+  "tipo": 0,
+  "arquetipo": "STATUS"
+ },
+ "acupressure": {
+  "modo": "asset",
+  "receita": "acupressure",
+  "arquetipo": "BUFF"
+ },
+ "air-slash": {
+  "modo": "recolor",
+  "receita": "psycho-cut",
+  "tipo": 9,
+  "arquetipo": "PROJ"
+ },
+ "aqua-jet": {
+  "modo": "recolor",
+  "receita": "quick-attack",
+  "tipo": 2,
+  "arquetipo": "STRIKE"
+ },
+ "aqua-ring": {
+  "modo": "recolor",
+  "receita": "recover",
+  "tipo": 2,
+  "arquetipo": "HEAL"
+ },
+ "aqua-tail": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "assurance": {
+  "modo": "recolor",
+  "receita": "sucker-punch",
+  "arquetipo": "STRIKE"
+ },
+ "attack-order": {
+  "modo": "asset",
+  "receita": "attack-order",
+  "arquetipo": "MULTI"
+ },
+ "aura-sphere": {
+  "modo": "approx",
+  "receita": "aura-sphere",
+  "arquetipo": "PROJ"
+ },
+ "avalanche": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "brave-bird": {
+  "modo": "recolor",
+  "receita": "flare-blitz",
+  "tipo": 9,
+  "arquetipo": "STRIKE"
+ },
+ "brine": {
+  "modo": "recolor",
+  "receita": "water-pulse",
+  "arquetipo": "PROJ"
+ },
+ "bug-bite": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "bug-buzz": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "bullet-punch": {
+  "modo": "recolor",
+  "receita": "rock-smash",
+  "tipo": 16,
+  "arquetipo": "STRIKE"
+ },
+ "captivate": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "charge-beam": {
+  "modo": "recolor",
+  "receita": "flash-cannon",
+  "tipo": 3,
+  "arquetipo": "BEAM"
+ },
+ "chatter": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "close-combat": {
+  "modo": "asset",
+  "receita": "close-combat",
+  "arquetipo": "MULTI"
+ },
+ "copycat": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "cross-poison": {
+  "modo": "recolor",
+  "receita": "x-scissor",
+  "tipo": 7,
+  "arquetipo": "STRIKE"
+ },
+ "crush-grip": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "dark-pulse": {
+  "modo": "recolor",
+  "receita": "shadow-ball",
+  "tipo": 15,
+  "arquetipo": "BEAM"
+ },
+ "dark-void": {
+  "modo": "fallback",
+  "arquetipo": "STATUS"
+ },
+ "defend-order": {
+  "modo": "approx",
+  "receita": "defend-order",
+  "arquetipo": "BUFF"
+ },
+ "defog": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "discharge": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "double-hit": {
+  "modo": "fallback",
+  "arquetipo": "MULTI"
+ },
+ "draco-meteor": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "dragon-pulse": {
+  "modo": "recolor",
+  "receita": "aura-sphere",
+  "tipo": 14,
+  "arquetipo": "BEAM"
+ },
+ "dragon-rush": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "drain-punch": {
+  "modo": "recolor",
+  "receita": "absorb",
+  "tipo": 6,
+  "arquetipo": "DRAIN"
+ },
+ "earth-power": {
+  "modo": "recolor",
+  "receita": "fissure",
+  "arquetipo": "AOE"
+ },
+ "embargo": {
+  "modo": "recolor",
+  "receita": "block",
+  "tipo": 15,
+  "arquetipo": "DEBUFF"
+ },
+ "energy-ball": {
+  "modo": "asset",
+  "receita": "energy-ball",
+  "arquetipo": "PROJ"
+ },
+ "feint": {
+  "modo": "recolor",
+  "receita": "quick-attack",
+  "arquetipo": "STRIKE"
+ },
+ "fire-fang": {
+  "modo": "recolor",
+  "receita": "crunch",
+  "tipo": 1,
+  "arquetipo": "STRIKE"
+ },
+ "flare-blitz": {
+  "modo": "approx",
+  "receita": "flare-blitz",
+  "arquetipo": "STRIKE"
+ },
+ "flash-cannon": {
+  "modo": "asset",
+  "receita": "flash-cannon",
+  "arquetipo": "BEAM"
+ },
+ "fling": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "focus-blast": {
+  "modo": "asset",
+  "receita": "focus-blast",
+  "arquetipo": "PROJ"
+ },
+ "force-palm": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "gastro-acid": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "giga-impact": {
+  "modo": "asset",
+  "receita": "giga-impact",
+  "arquetipo": "STRIKE"
+ },
+ "grass-knot": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "gravity": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "guard-swap": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "gunk-shot": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "gyro-ball": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "hammer-arm": {
+  "modo": "asset",
+  "receita": "hammer-arm",
+  "arquetipo": "STRIKE"
+ },
+ "head-smash": {
+  "modo": "recolor",
+  "receita": "iron-head",
+  "tipo": 12,
+  "arquetipo": "STRIKE"
+ },
+ "heal-block": {
+  "modo": "recolor",
+  "receita": "block",
+  "tipo": 10,
+  "arquetipo": "DEBUFF"
+ },
+ "heal-order": {
+  "modo": "asset",
+  "receita": "heal-order",
+  "arquetipo": "HEAL"
+ },
+ "healing-wish": {
+  "modo": "fallback",
+  "arquetipo": "SACRIFICE"
+ },
+ "heart-swap": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "ice-fang": {
+  "modo": "recolor",
+  "receita": "crunch",
+  "tipo": 5,
+  "arquetipo": "STRIKE"
+ },
+ "ice-shard": {
+  "modo": "asset",
+  "receita": "ice-shard",
+  "arquetipo": "PROJ"
+ },
+ "iron-head": {
+  "modo": "asset",
+  "receita": "iron-head",
+  "arquetipo": "STRIKE"
+ },
+ "judgment": {
+  "modo": "fallback",
+  "arquetipo": "BEAM"
+ },
+ "last-resort": {
+  "modo": "asset",
+  "receita": "last-resort",
+  "arquetipo": "STRIKE"
+ },
+ "lava-plume": {
+  "modo": "asset",
+  "receita": "lava-plume",
+  "arquetipo": "AOE"
+ },
+ "leaf-storm": {
+  "modo": "asset",
+  "receita": "leaf-storm",
+  "arquetipo": "AOE"
+ },
+ "lucky-chant": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "lunar-dance": {
+  "modo": "fallback",
+  "arquetipo": "SACRIFICE"
+ },
+ "magma-storm": {
+  "modo": "recolor",
+  "receita": "fire-spin",
+  "arquetipo": "TRAP"
+ },
+ "magnet-bomb": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "magnet-rise": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "me-first": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "metal-burst": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "miracle-eye": {
+  "modo": "recolor",
+  "receita": "foresight",
+  "tipo": 10,
+  "arquetipo": "DEBUFF"
+ },
+ "mirror-shot": {
+  "modo": "recolor",
+  "receita": "flash-cannon",
+  "arquetipo": "BEAM"
+ },
+ "mud-bomb": {
+  "modo": "approx",
+  "receita": "mud-bomb",
+  "arquetipo": "PROJ"
+ },
+ "nasty-plot": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "natural-gift": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "night-slash": {
+  "modo": "recolor",
+  "receita": "x-scissor",
+  "tipo": 15,
+  "arquetipo": "STRIKE"
+ },
+ "ominous-wind": {
+  "modo": "recolor",
+  "receita": "shadow-ball",
+  "arquetipo": "AOE"
+ },
+ "payback": {
+  "modo": "recolor",
+  "receita": "sucker-punch",
+  "arquetipo": "STRIKE"
+ },
+ "pluck": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "poison-jab": {
+  "modo": "asset",
+  "receita": "poison-jab",
+  "arquetipo": "STRIKE"
+ },
+ "power-gem": {
+  "modo": "fallback",
+  "arquetipo": "BEAM"
+ },
+ "power-swap": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "power-trick": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "power-whip": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "psycho-cut": {
+  "modo": "asset",
+  "receita": "psycho-cut",
+  "arquetipo": "PROJ"
+ },
+ "psycho-shift": {
+  "modo": "fallback",
+  "arquetipo": "STATUS"
+ },
+ "punishment": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "roar-of-time": {
+  "modo": "recolor",
+  "receita": "spacial-rend",
+  "arquetipo": "BEAM"
+ },
+ "rock-climb": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "rock-polish": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "rock-wrecker": {
+  "modo": "recolor",
+  "receita": "rock-tomb",
+  "arquetipo": "PROJ"
+ },
+ "roost": {
+  "modo": "recolor",
+  "receita": "recover",
+  "tipo": 9,
+  "arquetipo": "HEAL"
+ },
+ "seed-bomb": {
+  "modo": "recolor",
+  "receita": "worry-seed",
+  "arquetipo": "PROJ"
+ },
+ "seed-flare": {
+  "modo": "asset",
+  "receita": "seed-flare",
+  "arquetipo": "AOE"
+ },
+ "shadow-claw": {
+  "modo": "asset",
+  "receita": "shadow-claw",
+  "arquetipo": "STRIKE"
+ },
+ "shadow-force": {
+  "modo": "asset",
+  "receita": "shadow-force",
+  "arquetipo": "CHARGE"
+ },
+ "shadow-sneak": {
+  "modo": "recolor",
+  "receita": "shadow-force",
+  "arquetipo": "STRIKE"
+ },
+ "spacial-rend": {
+  "modo": "asset",
+  "receita": "spacial-rend",
+  "arquetipo": "BEAM"
+ },
+ "stealth-rock": {
+  "modo": "recolor",
+  "receita": "spikes",
+  "tipo": 12,
+  "arquetipo": "FIELD"
+ },
+ "stone-edge": {
+  "modo": "asset",
+  "receita": "stone-edge",
+  "arquetipo": "PROJ"
+ },
+ "sucker-punch": {
+  "modo": "asset",
+  "receita": "sucker-punch",
+  "arquetipo": "STRIKE"
+ },
+ "switcheroo": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "tailwind": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "thunder-fang": {
+  "modo": "recolor",
+  "receita": "crunch",
+  "tipo": 3,
+  "arquetipo": "STRIKE"
+ },
+ "toxic-spikes": {
+  "modo": "recolor",
+  "receita": "spikes",
+  "tipo": 7,
+  "arquetipo": "FIELD"
+ },
+ "trick-room": {
+  "modo": "asset",
+  "receita": "trick-room",
+  "arquetipo": "FIELD"
+ },
+ "trump-card": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "u-turn": {
+  "modo": "recolor",
+  "receita": "quick-attack",
+  "tipo": 11,
+  "arquetipo": "STRIKE"
+ },
+ "vacuum-wave": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "wake-up-slap": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "wood-hammer": {
+  "modo": "asset",
+  "receita": "wood-hammer",
+  "arquetipo": "STRIKE"
+ },
+ "worry-seed": {
+  "modo": "asset",
+  "receita": "worry-seed",
+  "arquetipo": "STATUS"
+ },
+ "wring-out": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "x-scissor": {
+  "modo": "asset",
+  "receita": "x-scissor",
+  "arquetipo": "STRIKE"
+ },
+ "zen-headbutt": {
+  "modo": "recolor",
+  "receita": "iron-head",
+  "tipo": 10,
+  "arquetipo": "STRIKE"
+ },
+ "acid-spray": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "acrobatics": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "after-you": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "ally-switch": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "autotomize": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "bestow": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "blue-flare": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "bolt-strike": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "bulldoze": {
+  "modo": "recolor",
+  "receita": "earthquake",
+  "arquetipo": "AOE"
+ },
+ "chip-away": {
+  "modo": "fallback",
+  "arquetipo": "MULTI"
+ },
+ "circle-throw": {
+  "modo": "recolor",
+  "receita": "seismic-toss",
+  "arquetipo": "STRIKE"
+ },
+ "clear-smog": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "coil": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "cotton-guard": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "dragon-tail": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "drill-run": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "dual-chop": {
+  "modo": "fallback",
+  "arquetipo": "MULTI"
+ },
+ "echoed-voice": {
+  "modo": "recolor",
+  "receita": "growl",
+  "arquetipo": "AOE"
+ },
+ "electro-ball": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "electroweb": {
+  "modo": "fallback",
+  "arquetipo": "TRAP"
+ },
+ "entrainment": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "fiery-dance": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "final-gambit": {
+  "modo": "fallback",
+  "arquetipo": "SACRIFICE"
+ },
+ "fire-pledge": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "flame-burst": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "flame-charge": {
+  "modo": "recolor",
+  "receita": "flare-blitz",
+  "arquetipo": "STRIKE"
+ },
+ "foul-play": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "freeze-shock": {
+  "modo": "fallback",
+  "arquetipo": "CHARGE"
+ },
+ "frost-breath": {
+  "modo": "fallback",
+  "arquetipo": "BEAM"
+ },
+ "fusion-bolt": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "fusion-flare": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "gear-grind": {
+  "modo": "fallback",
+  "arquetipo": "MULTI"
+ },
+ "glaciate": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "grass-pledge": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "guard-split": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "head-charge": {
+  "modo": "recolor",
+  "receita": "giga-impact",
+  "arquetipo": "STRIKE"
+ },
+ "heal-pulse": {
+  "modo": "recolor",
+  "receita": "recover",
+  "tipo": 10,
+  "arquetipo": "HEAL"
+ },
+ "heart-stamp": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "heat-crash": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "heavy-slam": {
+  "modo": "recolor",
+  "receita": "iron-head",
+  "arquetipo": "STRIKE"
+ },
+ "hex": {
+  "modo": "recolor",
+  "receita": "nightmare",
+  "arquetipo": "PROJ"
+ },
+ "hone-claws": {
+  "modo": "recolor",
+  "receita": "swords-dance",
+  "tipo": 15,
+  "arquetipo": "BUFF"
+ },
+ "horn-leech": {
+  "modo": "recolor",
+  "receita": "absorb",
+  "arquetipo": "DRAIN"
+ },
+ "hurricane": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "ice-burn": {
+  "modo": "fallback",
+  "arquetipo": "CHARGE"
+ },
+ "icicle-crash": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "incinerate": {
+  "modo": "recolor",
+  "receita": "flamethrower",
+  "arquetipo": "AOE"
+ },
+ "inferno": {
+  "modo": "recolor",
+  "receita": "fire-blast",
+  "arquetipo": "AOE"
+ },
+ "leaf-tornado": {
+  "modo": "recolor",
+  "receita": "leaf-storm",
+  "arquetipo": "AOE"
+ },
+ "low-sweep": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "magic-room": {
+  "modo": "recolor",
+  "receita": "trick-room",
+  "arquetipo": "FIELD"
+ },
+ "night-daze": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "power-split": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "psyshock": {
+  "modo": "recolor",
+  "receita": "psychic",
+  "arquetipo": "PROJ"
+ },
+ "psystrike": {
+  "modo": "recolor",
+  "receita": "psychic",
+  "arquetipo": "PROJ"
+ },
+ "quash": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "quick-guard": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "quiver-dance": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "rage-powder": {
+  "modo": "recolor",
+  "receita": "sleep-powder",
+  "tipo": 11,
+  "arquetipo": "FIELD"
+ },
+ "razor-shell": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "reflect-type": {
+  "modo": "fallback",
+  "arquetipo": "SPECIAL"
+ },
+ "relic-song": {
+  "modo": "recolor",
+  "receita": "sing",
+  "arquetipo": "AOE"
+ },
+ "retaliate": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "round": {
+  "modo": "recolor",
+  "receita": "sing",
+  "arquetipo": "AOE"
+ },
+ "sacred-sword": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "scald": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "searing-shot": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "secret-sword": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "shell-smash": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "shift-gear": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ },
+ "simple-beam": {
+  "modo": "recolor",
+  "receita": "_stat-down",
+  "arquetipo": "DEBUFF"
+ },
+ "sky-drop": {
+  "modo": "recolor",
+  "receita": "fly",
+  "arquetipo": "CHARGE"
+ },
+ "sludge-wave": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "smack-down": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "snarl": {
+  "modo": "recolor",
+  "receita": "growl",
+  "tipo": 15,
+  "arquetipo": "AOE"
+ },
+ "soak": {
+  "modo": "fallback",
+  "arquetipo": "STATUS"
+ },
+ "steamroller": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "stored-power": {
+  "modo": "recolor",
+  "receita": "psychic",
+  "arquetipo": "PROJ"
+ },
+ "storm-throw": {
+  "modo": "recolor",
+  "receita": "seismic-toss",
+  "arquetipo": "STRIKE"
+ },
+ "struggle-bug": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "synchronoise": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "tail-slap": {
+  "modo": "fallback",
+  "arquetipo": "MULTI"
+ },
+ "techno-blast": {
+  "modo": "fallback",
+  "arquetipo": "BEAM"
+ },
+ "telekinesis": {
+  "modo": "recolor",
+  "receita": "kinesis",
+  "arquetipo": "DEBUFF"
+ },
+ "v-create": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "venoshock": {
+  "modo": "fallback",
+  "arquetipo": "PROJ"
+ },
+ "volt-switch": {
+  "modo": "fallback",
+  "arquetipo": "STRIKE"
+ },
+ "water-pledge": {
+  "modo": "fallback",
+  "arquetipo": "AOE"
+ },
+ "wide-guard": {
+  "modo": "fallback",
+  "arquetipo": "FIELD"
+ },
+ "wild-charge": {
+  "modo": "recolor",
+  "receita": "flare-blitz",
+  "tipo": 3,
+  "arquetipo": "STRIKE"
+ },
+ "wonder-room": {
+  "modo": "recolor",
+  "receita": "trick-room",
+  "arquetipo": "FIELD"
+ },
+ "work-up": {
+  "modo": "recolor",
+  "receita": "_stat-up",
+  "arquetipo": "BUFF"
+ }
+}

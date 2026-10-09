@@ -1,0 +1,125 @@
+{
+ "slug": "earthquake",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Fissure",
+   "anchor": "field-target",
+   "start": 8,
+   "end": 70,
+   "frameSeq": {
+    "frames": [
+     8,
+     7,
+     6
+    ],
+    "fps": 8,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 52,
+       "v": 1
+      },
+      {
+       "t": 62,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Fissure",
+   "anchor": "field-user",
+   "start": 14,
+   "end": 70,
+   "frameSeq": {
+    "frames": [
+     8,
+     7
+    ],
+    "fps": 8,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 46,
+       "v": 1
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "perTarget": false
+  }
+ ],
+ "bg": {
+  "asset": "Fissure",
+  "frame": 0,
+  "start": 0,
+  "end": 76,
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.4
+    }
+   ]
+  }
+ },
+ "hits": [
+  20,
+  44
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 0,
+    "dur": 70,
+    "amp": 6
+   }
+  ]
+ },
+ "approx": true,
+ "note": "rachaduras de Fissure + tremor"
+}

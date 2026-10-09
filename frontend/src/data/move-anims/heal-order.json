@@ -1,0 +1,101 @@
+{
+ "slug": "heal-order",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Attack-and-Heal-Order",
+   "anchor": "user",
+   "start": 0,
+   "end": 64,
+   "frameSeq": {
+    "frames": [
+     24,
+     25,
+     26,
+     27
+    ],
+    "fps": 16,
+    "loop": true
+   },
+   "spawn": {
+    "count": 6,
+    "spread": 0,
+    "interval": 0
+   },
+   "orbit": {
+    "rx": 34,
+    "ry": 12,
+    "speed": 8
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 58,
+       "v": 1
+      },
+      {
+       "t": 64,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Attack-and-Heal-Order",
+   "anchor": "user",
+   "start": 30,
+   "end": 76,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     26,
+     20
+    ],
+    "interval": 4,
+    "frames": [
+     44,
+     45,
+     46,
+     47
+    ],
+    "vy": -0.8,
+    "life": 18,
+    "seed": 4
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "react": "self"
+}

@@ -1,0 +1,63 @@
+{
+ "slug": "frenzy-plant",
+ "duration": 100,
+ "layers": [
+  {
+   "asset": "Frenzy-Plant",
+   "anchor": "user",
+   "start": 0,
+   "end": 88,
+   "ds": true,
+   "frameSeq": {
+    "frames": [
+     0,
+     4,
+     8,
+     1,
+     5,
+     9,
+     2,
+     6,
+     10,
+     3,
+     7
+    ],
+    "fps": 8,
+    "loop": false
+   },
+   "keepColor": true
+  }
+ ],
+ "bg": {
+  "asset": "Frenzy-Plant",
+  "frame": 11,
+  "start": 0,
+  "end": 96,
+  "scroll": {
+   "dx": 0,
+   "dy": -2
+  },
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.85
+    }
+   ]
+  }
+ },
+ "hits": [
+  48,
+  66,
+  80
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 48,
+    "dur": 40,
+    "amp": 3
+   }
+  ]
+ }
+}

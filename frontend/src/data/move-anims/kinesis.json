@@ -1,0 +1,73 @@
+{
+ "slug": "kinesis",
+ "duration": 70,
+ "layers": [
+  {
+   "asset": "Telekineses",
+   "anchor": "user",
+   "start": 0,
+   "end": 60,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 6,
+    "loop": false
+   },
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 12
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -46
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 54,
+       "v": 1
+      },
+      {
+       "t": 60,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "hits": [
+  36
+ ],
+ "react": "status"
+}

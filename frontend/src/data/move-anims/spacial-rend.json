@@ -1,0 +1,142 @@
+{
+ "slug": "spacial-rend",
+ "duration": 86,
+ "layers": [
+  {
+   "asset": "Spacial-Rend",
+   "anchor": "target",
+   "start": 20,
+   "end": 50,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     26,
+     26
+    ],
+    "interval": 3,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "life": 12,
+    "seed": 2
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.6
+      },
+      {
+       "t": 6,
+       "v": 1.4,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Spacial-Rend",
+   "anchor": "target",
+   "start": 44,
+   "end": 70,
+   "frame": 8,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.4
+      },
+      {
+       "t": 14,
+       "v": 1.6,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "bg": {
+  "asset": "Spacial-Rend",
+  "frames": [
+   9,
+   10
+  ],
+  "fps": 8,
+  "start": 0,
+  "end": 80,
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.85
+    }
+   ]
+  }
+ },
+ "hits": [
+  24,
+  44
+ ],
+ "screen": {
+  "flash": [
+   {
+    "t": 44,
+    "dur": 8,
+    "color": "#F0C8FF",
+    "alpha": 0.5
+   }
+  ],
+  "shake": [
+   {
+    "t": 44,
+    "dur": 18,
+    "amp": 4
+   }
+  ]
+ }
+}

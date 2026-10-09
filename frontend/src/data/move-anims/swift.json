@@ -1,0 +1,45 @@
+{
+ "slug": "swift",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Swift",
+   "anchor": "user",
+   "start": 0,
+   "end": 40,
+   "to": "target",
+   "frame": 0,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     8,
+     8
+    ],
+    "interval": 3,
+    "spin": 12,
+    "life": 20,
+    "seed": 2
+   },
+   "arc": 14,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 18,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  18,
+  30
+ ]
+}

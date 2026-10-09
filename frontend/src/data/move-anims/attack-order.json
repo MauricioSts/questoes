@@ -1,0 +1,73 @@
+{
+ "slug": "attack-order",
+ "duration": 72,
+ "layers": [
+  {
+   "asset": "Attack-and-Heal-Order",
+   "anchor": "user",
+   "start": 0,
+   "end": 34,
+   "to": "target",
+   "frameSeq": {
+    "frames": [
+     16,
+     17,
+     18,
+     19
+    ],
+    "fps": 16,
+    "loop": true
+   },
+   "spawn": {
+    "count": 8,
+    "spread": [
+     18,
+     14
+    ],
+    "interval": 3,
+    "life": 34,
+    "seed": 9
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 26,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 28,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  28,
+  40,
+  52
+ ]
+}

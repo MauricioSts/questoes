@@ -1,0 +1,108 @@
+{
+ "slug": "worry-seed",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Worry-Seed",
+   "anchor": "user",
+   "start": 0,
+   "end": 20,
+   "to": "target",
+   "frame": 2,
+   "arc": 36,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 20,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 20,
+       "v": 360
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Worry-Seed",
+   "anchor": "target",
+   "start": 20,
+   "end": 52,
+   "frameSeq": {
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 8,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      },
+      {
+       "t": 32,
+       "v": -30
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.5
+      },
+      {
+       "t": 10,
+       "v": 1.1,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 1
+      },
+      {
+       "t": 32,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  20
+ ],
+ "react": "status"
+}

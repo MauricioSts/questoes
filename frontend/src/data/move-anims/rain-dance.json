@@ -1,0 +1,47 @@
+{
+ "slug": "rain-dance",
+ "duration": 84,
+ "layers": [
+  {
+   "asset": "Rain",
+   "anchor": "screen-center",
+   "start": 0,
+   "end": 76,
+   "frame": 0,
+   "spawn": {
+    "count": 60,
+    "spread": [
+     150,
+     100
+    ],
+    "interval": 1,
+    "vx": -2,
+    "vy": 9,
+    "life": 14,
+    "seed": 4
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.9
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "react": "self",
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 82,
+    "color": "#20305A",
+    "alpha": 0.35
+   }
+  ]
+ }
+}

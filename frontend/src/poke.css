@@ -154,6 +154,7 @@
 /* ---------- golpes ---------- */
 /* Golpes: canvas do motor procedural (components/poke/golpes). Por cima dos sprites e abaixo das caixas de HP. */
 .pk-golpes { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+.pk-golpes-fundo { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; image-rendering: pixelated; }
 
 .pk-texto { position: absolute; z-index: 5; font-weight: 900; font-size: 1.3em; text-shadow: 0 2px 0 #1d1d24, 0 0 6px rgba(0,0,0,.5); pointer-events: none; transform: translate(-50%, 0); animation: pk-texto 1.3s ease-out both; white-space: nowrap; }
 .pk-texto--inimigo { left: 71%; top: 12%; }

@@ -1,0 +1,114 @@
+{
+ "slug": "rock-smash",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Close-Combat",
+   "anchor": "target",
+   "start": 0,
+   "end": 14,
+   "frame": 5,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.8
+      },
+      {
+       "t": 6,
+       "v": 1,
+       "ease": "in"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 0
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -16
+      },
+      {
+       "t": 6,
+       "v": 0,
+       "ease": "in"
+      }
+     ]
+    }
+   },
+   "z": 3,
+   "keepColor": true
+  },
+  {
+   "asset": "Rock-Smash",
+   "anchor": "target",
+   "start": 8,
+   "end": 46,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     6,
+     6
+    ],
+    "interval": 0,
+    "frames": [
+     0,
+     1,
+     4,
+     5,
+     9,
+     10,
+     11,
+     12
+    ],
+    "burst": 2.2,
+    "gravity": 0.25,
+    "life": 34,
+    "seed": 3
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  8
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 14
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 8,
+    "dur": 10,
+    "amp": 3
+   }
+  ]
+ },
+ "approx": true,
+ "note": "punho de Close Combat + pedras"
+}

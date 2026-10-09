@@ -1,0 +1,79 @@
+{
+ "slug": "fissure",
+ "duration": 100,
+ "layers": [
+  {
+   "asset": "Fissure",
+   "anchor": "field-target",
+   "start": 10,
+   "end": 92,
+   "frameSeq": {
+    "frames": [
+     4,
+     3,
+     2,
+     1,
+     5
+    ],
+    "fps": 8,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -16
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 70,
+       "v": 1
+      },
+      {
+       "t": 82,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "bg": {
+  "asset": "Fissure",
+  "frame": 0,
+  "start": 0,
+  "end": 96,
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.75
+    }
+   ]
+  }
+ },
+ "hits": [
+  30
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 10,
+    "dur": 70,
+    "amp": 5
+   }
+  ]
+ }
+}

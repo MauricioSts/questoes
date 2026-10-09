@@ -1,0 +1,69 @@
+{
+ "slug": "fire-spin",
+ "duration": 90,
+ "layers": [
+  {
+   "asset": "Fire-Spin",
+   "anchor": "target",
+   "start": 0,
+   "end": 80,
+   "spawn": {
+    "count": 10,
+    "spread": 0,
+    "interval": 0,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "seed": 3
+   },
+   "orbit": {
+    "rx": 36,
+    "ry": 12,
+    "speed": 9
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 20
+      },
+      {
+       "t": 80,
+       "v": -30
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 66,
+       "v": 1
+      },
+      {
+       "t": 80,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  14,
+  40,
+  64
+ ]
+}

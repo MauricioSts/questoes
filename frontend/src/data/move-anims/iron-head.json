@@ -1,0 +1,116 @@
+{
+ "slug": "iron-head",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Iron-Head",
+   "anchor": "target",
+   "start": 12,
+   "end": 34,
+   "frame": 6,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.3
+      },
+      {
+       "t": 10,
+       "v": 1.1,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Iron-Head",
+   "anchor": "target",
+   "start": 12,
+   "end": 30,
+   "frame": 7,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.6
+      },
+      {
+       "t": 18,
+       "v": 1.6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Iron-Head",
+   "anchor": "target",
+   "start": 14,
+   "end": 44,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     4,
+     4
+    ],
+    "interval": 0,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "burst": 2,
+    "gravity": 0.2,
+    "life": 26,
+    "seed": 4
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  12
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "dash",
+   "dur": 22
+  }
+ ]
+}

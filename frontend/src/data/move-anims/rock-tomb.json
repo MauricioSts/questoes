@@ -1,0 +1,83 @@
+{
+ "slug": "rock-tomb",
+ "duration": 70,
+ "layers": [
+  {
+   "asset": "Rock-Tomb",
+   "anchor": "target",
+   "start": 0,
+   "end": 50,
+   "spawn": {
+    "count": 4,
+    "spread": [
+     30,
+     4
+    ],
+    "interval": 6,
+    "frames": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "life": 30,
+    "seed": 3
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -140
+      },
+      {
+       "t": 12,
+       "v": 10,
+       "ease": "in"
+      },
+      {
+       "t": 16,
+       "v": 6
+      },
+      {
+       "t": 30,
+       "v": 6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  12,
+  18,
+  24,
+  30
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 12,
+    "dur": 26,
+    "amp": 3
+   }
+  ]
+ }
+}

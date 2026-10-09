@@ -1,0 +1,142 @@
+{
+ "slug": "close-combat",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Close-Combat",
+   "anchor": "target",
+   "start": 6,
+   "end": 66,
+   "spawn": {
+    "count": 9,
+    "spread": [
+     22,
+     22
+    ],
+    "interval": 6,
+    "life": 8,
+    "seed": 4
+   },
+   "frame": 5,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.6
+      },
+      {
+       "t": 3,
+       "v": 1,
+       "ease": "in"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Close-Combat",
+   "anchor": "target",
+   "start": 9,
+   "end": 70,
+   "spawn": {
+    "count": 9,
+    "spread": [
+     24,
+     24
+    ],
+    "interval": 6,
+    "life": 8,
+    "frames": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "seed": 7
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.5
+      },
+      {
+       "t": 3,
+       "v": 1.2,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 5,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "bg": {
+  "asset": "Close-Combat",
+  "frame": 0,
+  "start": 0,
+  "end": 74,
+  "scroll": {
+   "dx": -10,
+   "dy": 0
+  },
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.85
+    }
+   ]
+  }
+ },
+ "hits": [
+  9,
+  21,
+  33,
+  45,
+  57
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 14
+  }
+ ]
+}

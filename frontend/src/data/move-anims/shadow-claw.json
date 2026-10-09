@@ -1,0 +1,80 @@
+{
+ "slug": "shadow-claw",
+ "duration": 48,
+ "layers": [
+  {
+   "asset": "Scratch-Shadow-Claw",
+   "anchor": "target",
+   "start": 6,
+   "end": 26,
+   "frame": 0,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.4
+      },
+      {
+       "t": 6,
+       "v": 1.2,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Scratch-Shadow-Claw",
+   "anchor": "target",
+   "start": 10,
+   "end": 34,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     10,
+     10
+    ],
+    "interval": 1,
+    "frames": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "burst": 1.6,
+    "life": 18,
+    "seed": 2
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  10
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 16
+  }
+ ]
+}

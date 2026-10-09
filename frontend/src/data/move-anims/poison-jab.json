@@ -1,0 +1,107 @@
+{
+ "slug": "poison-jab",
+ "duration": 52,
+ "layers": [
+  {
+   "asset": "Poison-Jab",
+   "anchor": "target",
+   "start": 0,
+   "end": 20,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     50,
+     40
+    ],
+    "interval": 1,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "burst": -2.6,
+    "life": 16,
+    "seed": 2
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Poison-Jab",
+   "anchor": "target",
+   "start": 16,
+   "end": 34,
+   "frameSeq": {
+    "frames": [
+     10,
+     11,
+     12
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  16
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 16
+  }
+ ]
+}

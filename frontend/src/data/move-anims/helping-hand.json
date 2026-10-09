@@ -1,0 +1,115 @@
+{
+ "slug": "helping-hand",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Helping-Hand",
+   "anchor": "user",
+   "start": 0,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "fps": 10,
+    "loop": true
+   },
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -14
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -44
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 1
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Helping-Hand",
+   "anchor": "user",
+   "start": 0,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     1,
+     4,
+     6,
+     4
+    ],
+    "fps": 10,
+    "loop": true
+   },
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 14
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -44
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 1
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "self"
+}

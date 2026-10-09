@@ -1,0 +1,81 @@
+{
+ "slug": "acupressure",
+ "duration": 54,
+ "layers": [
+  {
+   "asset": "Accupressure",
+   "anchor": "user",
+   "start": 0,
+   "end": 50,
+   "frame": 0,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 14
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -40
+      },
+      {
+       "t": 8,
+       "v": -26,
+       "ease": "in"
+      },
+      {
+       "t": 12,
+       "v": -30
+      },
+      {
+       "t": 20,
+       "v": -22,
+       "ease": "in"
+      },
+      {
+       "t": 24,
+       "v": -28
+      },
+      {
+       "t": 32,
+       "v": -20,
+       "ease": "in"
+      },
+      {
+       "t": 50,
+       "v": -20
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 1
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "react": "self",
+ "note": "dedo pressiona o usuário 3 vezes"
+}

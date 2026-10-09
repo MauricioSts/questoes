@@ -1,0 +1,72 @@
+{
+ "slug": "scratch",
+ "duration": 40,
+ "layers": [
+  {
+   "asset": "Scratch-Shadow-Claw",
+   "anchor": "target",
+   "start": 2,
+   "end": 22,
+   "frame": 5,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.4
+      },
+      {
+       "t": 6,
+       "v": 1.1,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Scratch-Shadow-Claw",
+   "anchor": "target",
+   "start": 6,
+   "end": 30,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     10,
+     10
+    ],
+    "interval": 1,
+    "frames": [
+     6,
+     7,
+     8,
+     9
+    ],
+    "burst": 1.6,
+    "life": 18,
+    "seed": 2
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  6
+ ]
+}

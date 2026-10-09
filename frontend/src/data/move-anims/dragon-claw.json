@@ -1,0 +1,104 @@
+{
+ "slug": "dragon-claw",
+ "duration": 52,
+ "layers": [
+  {
+   "asset": "Dragon-Claw",
+   "anchor": "target",
+   "start": 8,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     10,
+     11,
+     12,
+     13,
+     16,
+     18,
+     20
+    ],
+    "fps": 22,
+    "loop": false
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Dragon-Claw",
+   "anchor": "user",
+   "start": 0,
+   "end": 16,
+   "spawn": {
+    "count": 5,
+    "spread": [
+     24,
+     10
+    ],
+    "interval": 1,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "vy": -1.5,
+    "life": 14,
+    "seed": 1
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  12
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 16
+  }
+ ]
+}

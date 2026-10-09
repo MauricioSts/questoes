@@ -1,0 +1,115 @@
+{
+ "slug": "water-pulse",
+ "duration": 70,
+ "layers": [
+  {
+   "asset": "Water-Pulse",
+   "anchor": "user",
+   "start": 4,
+   "end": 44,
+   "to": "target",
+   "frameSeq": {
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 8,
+    "loop": true
+   },
+   "spawn": {
+    "count": 3,
+    "spread": 0,
+    "interval": 6,
+    "life": 24,
+    "seed": 1
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.3
+      },
+      {
+       "t": 22,
+       "v": 1.2
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Water-Pulse",
+   "anchor": "target",
+   "start": 26,
+   "end": 56,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     10,
+     10
+    ],
+    "interval": 1,
+    "frames": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "burst": 1.2,
+    "vy": -0.6,
+    "life": 22,
+    "seed": 2
+   },
+   "z": 3
+  }
+ ],
+ "bg": {
+  "asset": "Water-Pulse",
+  "frame": 8,
+  "start": 0,
+  "end": 64,
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.75
+    }
+   ]
+  }
+ },
+ "hits": [
+  26
+ ]
+}

@@ -1,0 +1,115 @@
+{
+ "slug": "scary-face",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Scary-Face-Transparent",
+   "anchor": "target",
+   "start": 6,
+   "end": 70,
+   "frame": 15,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 40,
+       "v": 2.2
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 10,
+       "v": 0.5
+      },
+      {
+       "t": 40,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4,
+   "perTarget": false
+  },
+  {
+   "asset": "Scary-Face-Reg",
+   "anchor": "target",
+   "start": 0,
+   "end": 70,
+   "frameSeq": {
+    "frames": [
+     12,
+     13,
+     14,
+     15
+    ],
+    "fps": 8,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 60,
+       "v": 1
+      },
+      {
+       "t": 70,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4,
+   "perTarget": false
+  }
+ ],
+ "hits": [
+  28
+ ],
+ "react": "status",
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 74,
+    "color": "#10001A",
+    "alpha": 0.4
+   }
+  ]
+ }
+}

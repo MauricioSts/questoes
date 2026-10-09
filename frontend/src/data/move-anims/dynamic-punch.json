@@ -1,0 +1,90 @@
+{
+ "slug": "dynamic-punch",
+ "duration": 70,
+ "layers": [
+  {
+   "asset": "Close-Combat",
+   "anchor": "target",
+   "start": 4,
+   "end": 22,
+   "frame": 5,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 2.4
+      },
+      {
+       "t": 8,
+       "v": 1.2,
+       "ease": "in"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3,
+   "keepColor": true
+  }
+ ],
+ "bg": {
+  "asset": "Dynamic-Punch",
+  "frames": [
+   0,
+   1
+  ],
+  "fps": 10,
+  "start": 10,
+  "end": 56
+ },
+ "hits": [
+  12
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 12,
+    "dur": 26,
+    "amp": 6
+   }
+  ],
+  "flash": [
+   {
+    "t": 10,
+    "dur": 6,
+    "color": "#FFFFFF",
+    "alpha": 0.6
+   }
+  ]
+ },
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 14
+  }
+ ],
+ "approx": true,
+ "note": "fundo do asset + punho de Close Combat"
+}

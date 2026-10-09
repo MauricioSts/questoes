@@ -1,0 +1,98 @@
+{
+ "slug": "seismic-toss",
+ "duration": 96,
+ "layers": [
+  {
+   "asset": "Siesmic-Toss",
+   "anchor": "target",
+   "start": 0,
+   "end": 70,
+   "spawn": {
+    "count": 14,
+    "spread": [
+     40,
+     20
+    ],
+    "interval": 3,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16
+    ],
+    "vy": -7,
+    "life": 14,
+    "seed": 3
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "bg": {
+  "asset": "Siesmic-Toss",
+  "frame": 17,
+  "start": 0,
+  "end": 90,
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.9
+    }
+   ]
+  }
+ },
+ "hits": [
+  58
+ ],
+ "actor": [
+  {
+   "who": "target",
+   "t": 16,
+   "kind": "hop",
+   "dur": 44
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 58,
+    "dur": 16,
+    "amp": 5
+   }
+  ]
+ }
+}

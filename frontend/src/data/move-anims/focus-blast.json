@@ -1,0 +1,154 @@
+{
+ "slug": "focus-blast",
+ "duration": 84,
+ "layers": [
+  {
+   "asset": "Focus-Blast",
+   "anchor": "user",
+   "start": 0,
+   "end": 22,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     30,
+     26
+    ],
+    "interval": 2,
+    "frames": [
+     0,
+     1
+    ],
+    "burst": -1.4,
+    "life": 16,
+    "seed": 2
+   },
+   "blend": "add"
+  },
+  {
+   "asset": "Focus-Blast",
+   "anchor": "user",
+   "start": 10,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     5,
+     4,
+     3,
+     2
+    ],
+    "fps": 12,
+    "loop": false
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.3
+      },
+      {
+       "t": 20,
+       "v": 0.6
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Focus-Blast",
+   "anchor": "user",
+   "start": 30,
+   "end": 48,
+   "to": "target",
+   "frame": 4,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 18,
+       "v": 1,
+       "ease": "in"
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.6
+      },
+      {
+       "t": 18,
+       "v": 0.9
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Focus-Blast",
+   "anchor": "target",
+   "start": 48,
+   "end": 66,
+   "frame": 6,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 2.4,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "bg": {
+  "asset": "Focus-Blast",
+  "frame": 7,
+  "start": 46,
+  "end": 72,
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.7
+    }
+   ]
+  }
+ },
+ "hits": [
+  48
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 48,
+    "dur": 16,
+    "amp": 4
+   }
+  ]
+ }
+}

@@ -1,0 +1,59 @@
+{
+ "slug": "hydro-cannon",
+ "duration": 96,
+ "layers": [
+  {
+   "asset": "Hydro-Pump",
+   "anchor": "user",
+   "start": 16,
+   "end": 80,
+   "ds": true,
+   "frameSeq": {
+    "frames": [
+     0,
+     2,
+     4,
+     6,
+     8,
+     10,
+     12,
+     1,
+     3,
+     5,
+     7,
+     9,
+     11,
+     13
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "keepColor": true
+  }
+ ],
+ "bg": {
+  "asset": "Hydro-Cannon-Back",
+  "frame": 0,
+  "start": 0,
+  "end": 90,
+  "scroll": {
+   "dx": -6,
+   "dy": 0
+  }
+ },
+ "hits": [
+  46,
+  62
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 46,
+    "dur": 30,
+    "amp": 5
+   }
+  ]
+ },
+ "approx": true,
+ "note": "fundo do asset + jato de Hydro Pump"
+}

@@ -1,0 +1,94 @@
+{
+ "slug": "swords-dance",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Swords-Dance",
+   "anchor": "user",
+   "start": 0,
+   "end": 64,
+   "spawn": {
+    "count": 5,
+    "spread": 0,
+    "interval": 0,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "orbit": {
+    "rx": 38,
+    "ry": 14,
+    "speed": 12
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 54,
+       "v": 1
+      },
+      {
+       "t": 64,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Swords-Dance",
+   "anchor": "user",
+   "start": 50,
+   "end": 76,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     24,
+     24
+    ],
+    "interval": 2,
+    "frames": [
+     5,
+     6,
+     7
+    ],
+    "life": 12,
+    "seed": 3
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.4
+      },
+      {
+       "t": 6,
+       "v": 1.2,
+       "ease": "out"
+      },
+      {
+       "t": 12,
+       "v": 0.4
+      }
+     ]
+    }
+   },
+   "blend": "add",
+   "z": 4
+  }
+ ],
+ "react": "self"
+}

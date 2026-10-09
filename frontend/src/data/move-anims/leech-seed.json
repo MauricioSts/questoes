@@ -1,0 +1,105 @@
+{
+ "slug": "leech-seed",
+ "duration": 84,
+ "layers": [
+  {
+   "asset": "Leech-Seed",
+   "anchor": "user",
+   "start": 0,
+   "end": 34,
+   "to": "target",
+   "arc": 40,
+   "spawn": {
+    "count": 3,
+    "spread": [
+     6,
+     4
+    ],
+    "interval": 3,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "life": 26,
+    "seed": 2
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 24,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Leech-Seed",
+   "anchor": "field-target",
+   "start": 26,
+   "end": 78,
+   "frameSeq": {
+    "frames": [
+     6,
+     14,
+     10
+    ],
+    "fps": 6,
+    "loop": false
+   },
+   "spawn": {
+    "count": 3,
+    "spread": [
+     24,
+     2
+    ],
+    "interval": 3,
+    "seed": 3
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -14
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 1
+      },
+      {
+       "t": 52,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  26
+ ],
+ "react": "status"
+}

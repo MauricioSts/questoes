@@ -1,0 +1,112 @@
+{
+ "slug": "absorb",
+ "duration": 70,
+ "layers": [
+  {
+   "asset": "Leech-Seed",
+   "anchor": "target",
+   "start": 4,
+   "end": 64,
+   "to": "user",
+   "spawn": {
+    "count": 10,
+    "spread": [
+     16,
+     16
+    ],
+    "interval": 4,
+    "frames": [
+     7,
+     8,
+     11,
+     15,
+     16
+    ],
+    "life": 22,
+    "seed": 3
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 1,
+       "ease": "inout"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "blend": "add",
+   "perTarget": true
+  },
+  {
+   "asset": "Leech-Seed",
+   "anchor": "user",
+   "start": 30,
+   "end": 70,
+   "spawn": {
+    "count": 4,
+    "spread": [
+     20,
+     20
+    ],
+    "interval": 8,
+    "frames": [
+     9,
+     13
+    ],
+    "life": 12,
+    "seed": 4
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.4
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0.4
+      }
+     ]
+    }
+   },
+   "blend": "add",
+   "z": 4
+  }
+ ],
+ "hits": [
+  4
+ ],
+ "approx": true,
+ "note": "orbes e brilhos de Leech Seed voltando ao usuário"
+}

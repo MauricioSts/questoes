@@ -1,0 +1,154 @@
+{
+ "slug": "blast-burn",
+ "duration": 100,
+ "layers": [
+  {
+   "asset": "Blast-Burn",
+   "anchor": "field-target",
+   "start": 14,
+   "end": 84,
+   "frameSeq": {
+    "frames": [
+     6,
+     7,
+     8,
+     0,
+     1,
+     2,
+     4,
+     5,
+     3
+    ],
+    "fps": 12,
+    "loop": true
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -40
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.4
+      },
+      {
+       "t": 12,
+       "v": 0.8,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 58,
+       "v": 1
+      },
+      {
+       "t": 70,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Blast-Burn",
+   "anchor": "field-user",
+   "start": 0,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     6,
+     7,
+     8
+    ],
+    "fps": 12,
+    "loop": true
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -40
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 0.8
+      },
+      {
+       "t": 20,
+       "v": 0.8
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  24,
+  44,
+  64
+ ],
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 96,
+    "color": "#3A0800",
+    "alpha": 0.45
+   }
+  ],
+  "shake": [
+   {
+    "t": 24,
+    "dur": 50,
+    "amp": 4
+   }
+  ],
+  "flash": [
+   {
+    "t": 22,
+    "dur": 8,
+    "color": "#FFE8B0",
+    "alpha": 0.55
+   }
+  ]
+ }
+}

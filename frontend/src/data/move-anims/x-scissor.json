@@ -1,0 +1,104 @@
+{
+ "slug": "x-scissor",
+ "duration": 48,
+ "layers": [
+  {
+   "asset": "X-Scizzor",
+   "anchor": "target",
+   "start": 4,
+   "end": 26,
+   "frame": 0,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.3
+      },
+      {
+       "t": 6,
+       "v": 1,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "X-Scizzor",
+   "anchor": "target",
+   "start": 8,
+   "end": 30,
+   "frame": 0,
+   "tracks": {
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 90
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.3
+      },
+      {
+       "t": 6,
+       "v": 1,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  8,
+  12
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "dash",
+   "dur": 20
+  }
+ ]
+}

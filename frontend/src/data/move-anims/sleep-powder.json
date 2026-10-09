@@ -1,0 +1,72 @@
+{
+ "slug": "sleep-powder",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Worry-Seed",
+   "anchor": "target",
+   "start": 0,
+   "end": 64,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     30,
+     6
+    ],
+    "interval": 5,
+    "frames": [
+     0,
+     1
+    ],
+    "vy": 1,
+    "life": 28,
+    "seed": 3
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -50
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.5
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 0.8
+      },
+      {
+       "t": 18,
+       "v": 0.8
+      },
+      {
+       "t": 28,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  40
+ ],
+ "react": "status",
+ "approx": true,
+ "note": "nuvens de Worry Seed como pó"
+}

@@ -1,0 +1,41 @@
+{
+ "slug": "_stat-up",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Status",
+   "anchor": "user",
+   "start": 0,
+   "end": 56,
+   "frame": 0,
+   "maskActor": "user",
+   "scroll": {
+    "dx": 0,
+    "dy": -2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "self"
+}

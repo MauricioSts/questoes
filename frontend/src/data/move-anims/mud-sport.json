@@ -1,0 +1,64 @@
+{
+ "slug": "mud-sport",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Mud-Sport",
+   "anchor": "screen-center",
+   "start": 0,
+   "end": 70,
+   "spawn": {
+    "count": 14,
+    "spread": [
+     120,
+     40
+    ],
+    "interval": 4,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "vy": 1.8,
+    "life": 20,
+    "seed": 5
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -20
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "self"
+}

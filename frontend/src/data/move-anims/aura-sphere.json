@@ -1,0 +1,115 @@
+{
+ "slug": "aura-sphere",
+ "duration": 66,
+ "layers": [
+  {
+   "asset": "Sacred-Fire",
+   "anchor": "user",
+   "start": 0,
+   "end": 16,
+   "frameSeq": {
+    "frames": [
+     27,
+     17,
+     7
+    ],
+    "fps": 10,
+    "loop": false
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.4
+      },
+      {
+       "t": 16,
+       "v": 0.7
+      }
+     ]
+    }
+   },
+   "blend": "add"
+  },
+  {
+   "asset": "Sacred-Fire",
+   "anchor": "user",
+   "start": 16,
+   "end": 38,
+   "to": "target",
+   "frameSeq": {
+    "frames": [
+     8,
+     18
+    ],
+    "fps": 10,
+    "loop": true
+   },
+   "blend": "add",
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 1,
+       "ease": "in"
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.7
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Sacred-Fire",
+   "anchor": "target",
+   "start": 38,
+   "end": 58,
+   "frame": 2,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.6
+      },
+      {
+       "t": 20,
+       "v": 1.8
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "blend": "add",
+   "z": 3
+  }
+ ],
+ "hits": [
+  38
+ ],
+ "approx": true,
+ "note": "orbes da folha de Sacred Fire"
+}

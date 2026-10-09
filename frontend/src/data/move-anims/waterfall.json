@@ -1,0 +1,100 @@
+{
+ "slug": "waterfall",
+ "duration": 70,
+ "layers": [
+  {
+   "asset": "Waterfall",
+   "anchor": "target",
+   "start": 24,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     1,
+     2,
+     3
+    ],
+    "fps": 10,
+    "loop": false
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.8
+      },
+      {
+       "t": 26,
+       "v": 2
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Waterfall",
+   "anchor": "target",
+   "start": 26,
+   "end": 56,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     6,
+     6
+    ],
+    "interval": 0,
+    "frames": [
+     4,
+     5
+    ],
+    "burst": 2,
+    "gravity": 0.2,
+    "life": 26,
+    "seed": 2
+   },
+   "z": 3
+  }
+ ],
+ "bg": {
+  "asset": "Waterfall",
+  "frame": 6,
+  "start": 0,
+  "end": 60,
+  "scroll": {
+   "dx": 0,
+   "dy": 8
+  },
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.85
+    }
+   ]
+  }
+ },
+ "hits": [
+  26
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 8,
+   "kind": "dash",
+   "dur": 26
+  }
+ ]
+}

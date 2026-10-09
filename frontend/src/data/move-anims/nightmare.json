@@ -1,0 +1,36 @@
+{
+ "slug": "nightmare",
+ "duration": 80,
+ "layers": [],
+ "bg": {
+  "asset": "Nightmare",
+  "frame": 0,
+  "start": 0,
+  "end": 76,
+  "scroll": {
+   "dx": 1,
+   "dy": -1
+  },
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.9
+    }
+   ]
+  }
+ },
+ "hits": [
+  24,
+  48
+ ],
+ "react": "status",
+ "actor": [
+  {
+   "who": "target",
+   "t": 20,
+   "kind": "shake",
+   "dur": 40
+  }
+ ]
+}

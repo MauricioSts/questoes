@@ -1,0 +1,108 @@
+{
+ "slug": "ember",
+ "duration": 50,
+ "layers": [
+  {
+   "asset": "Fire-Spin",
+   "anchor": "user",
+   "start": 0,
+   "end": 28,
+   "to": "target",
+   "spawn": {
+    "count": 3,
+    "spread": [
+     4,
+     4
+    ],
+    "interval": 4,
+    "frames": [
+     3
+    ],
+    "life": 18,
+    "seed": 5
+   },
+   "arc": 10,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 16,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.5
+      },
+      {
+       "t": 16,
+       "v": 0.8
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Burn",
+   "anchor": "field-target",
+   "start": 18,
+   "end": 44,
+   "frameSeq": {
+    "frames": [
+     3,
+     2,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 14,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -12
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  18
+ ],
+ "approx": true,
+ "note": "chama pequena de Fire Spin + Burn"
+}

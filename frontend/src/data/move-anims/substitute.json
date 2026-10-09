@@ -1,0 +1,77 @@
+{
+ "slug": "substitute",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Substitute-Back",
+   "anchor": "field-user",
+   "start": 20,
+   "end": 76,
+   "assetVirado": "Substitute-Front",
+   "frame": 0,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -20
+      },
+      {
+       "t": 8,
+       "v": -34,
+       "ease": "out"
+      },
+      {
+       "t": 16,
+       "v": -20,
+       "ease": "in"
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.4
+      },
+      {
+       "t": 8,
+       "v": 1,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 46,
+       "v": 1
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "flipWithSide": false
+  }
+ ],
+ "react": "self",
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "hide",
+   "dur": 76
+  }
+ ]
+}

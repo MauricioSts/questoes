@@ -1,0 +1,147 @@
+{
+ "slug": "mean-look",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Mean-Look",
+   "anchor": "target",
+   "start": 0,
+   "end": 70,
+   "frameSeq": {
+    "frames": [
+     0,
+     2,
+     3
+    ],
+    "fps": 6,
+    "loop": false
+   },
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -24
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -40
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 60,
+       "v": 1
+      },
+      {
+       "t": 70,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4,
+   "perTarget": false
+  },
+  {
+   "asset": "Mean-Look",
+   "anchor": "target",
+   "start": 0,
+   "end": 70,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     4
+    ],
+    "fps": 6,
+    "loop": false
+   },
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 24
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -40
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 60,
+       "v": 1
+      },
+      {
+       "t": 70,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4,
+   "perTarget": false,
+   "flipWithSide": false
+  }
+ ],
+ "hits": [
+  30
+ ],
+ "react": "status",
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 74,
+    "color": "#000000",
+    "alpha": 0.4
+   }
+  ]
+ }
+}

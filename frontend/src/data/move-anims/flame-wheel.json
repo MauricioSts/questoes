@@ -1,0 +1,101 @@
+{
+ "slug": "flame-wheel",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Fire",
+   "anchor": "user",
+   "start": 0,
+   "end": 34,
+   "frameSeq": {
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 10,
+    "loop": true
+   },
+   "spawn": {
+    "count": 6,
+    "spread": 0,
+    "interval": 0
+   },
+   "orbit": {
+    "rx": 30,
+    "ry": 26,
+    "speed": 18
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Fire-Punch",
+   "anchor": "target",
+   "start": 34,
+   "end": 60,
+   "frameSeq": {
+    "frames": [
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23
+    ],
+    "fps": 30,
+    "loop": false
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  34
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 20,
+   "kind": "dash",
+   "dur": 22
+  }
+ ],
+ "approx": true
+}

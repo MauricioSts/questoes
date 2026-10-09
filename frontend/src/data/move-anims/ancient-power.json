@@ -1,0 +1,151 @@
+{
+ "slug": "ancient-power",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Ancient-Power",
+   "anchor": "field-user",
+   "start": 0,
+   "end": 56,
+   "to": "target",
+   "spawn": {
+    "count": 6,
+    "spread": [
+     36,
+     4
+    ],
+    "interval": 2,
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "seed": 5
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 18,
+       "v": -48,
+       "ease": "out"
+      },
+      {
+       "t": 26,
+       "v": -48
+      },
+      {
+       "t": 44,
+       "v": 0
+      }
+     ]
+    },
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 24,
+       "v": 0
+      },
+      {
+       "t": 44,
+       "v": 1,
+       "ease": "in"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 1
+      },
+      {
+       "t": 48,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Ancient-Power",
+   "anchor": "target",
+   "start": 50,
+   "end": 72,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     4,
+     4
+    ],
+    "interval": 0,
+    "frames": [
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "burst": 2,
+    "gravity": 0.2,
+    "seed": 6
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  50
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 50,
+    "dur": 10,
+    "amp": 2
+   }
+  ]
+ }
+}

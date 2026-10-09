@@ -1,0 +1,93 @@
+{
+ "slug": "teeter-dance",
+ "duration": 90,
+ "layers": [
+  {
+   "asset": "Confuse",
+   "anchor": "target",
+   "start": 20,
+   "end": 88,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19
+    ],
+    "fps": 14,
+    "loop": true
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -40
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 60,
+       "v": 1
+      },
+      {
+       "t": 68,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "hits": [
+  20
+ ],
+ "react": "status",
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "hop",
+   "dur": 12
+  },
+  {
+   "who": "user",
+   "t": 12,
+   "kind": "hop",
+   "dur": 12
+  },
+  {
+   "who": "user",
+   "t": 24,
+   "kind": "hop",
+   "dur": 12
+  }
+ ]
+}

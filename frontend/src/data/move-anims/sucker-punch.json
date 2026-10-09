@@ -1,0 +1,71 @@
+{
+ "slug": "sucker-punch",
+ "duration": 48,
+ "layers": [
+  {
+   "asset": "Sucker-Punch",
+   "anchor": "user",
+   "start": 0,
+   "end": 12,
+   "to": "target",
+   "frameSeq": {
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 12,
+    "loop": true
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 10,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Sucker-Punch",
+   "anchor": "target",
+   "start": 10,
+   "end": 32,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     4,
+     4
+    ],
+    "interval": 0,
+    "frames": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "burst": 2,
+    "life": 20,
+    "seed": 2
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  10
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "dash",
+   "dur": 18
+  }
+ ]
+}

@@ -1,0 +1,117 @@
+{
+ "slug": "fly",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Fly",
+   "anchor": "target",
+   "start": 34,
+   "end": 46,
+   "frameSeq": {
+    "frames": [
+     2,
+     3,
+     4
+    ],
+    "fps": 18,
+    "loop": false
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -130
+      },
+      {
+       "t": 10,
+       "v": 0,
+       "ease": "in"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Fly",
+   "anchor": "target",
+   "start": 44,
+   "end": 64,
+   "frame": 5,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.6
+      },
+      {
+       "t": 20,
+       "v": 1.6,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "bg": {
+  "asset": "Fly",
+  "frame": 6,
+  "start": 10,
+  "end": 50,
+  "scroll": {
+   "dx": 0,
+   "dy": 8
+  },
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.8
+    }
+   ]
+  }
+ },
+ "hits": [
+  44
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "hide",
+   "dur": 60
+  }
+ ]
+}

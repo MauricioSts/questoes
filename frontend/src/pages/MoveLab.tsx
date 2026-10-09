@@ -8,6 +8,8 @@ import { Arena, type LadoVis } from "../components/poke/Arena";
 import { CATALOGO, TIPOS_EN } from "../components/poke/golpes/catalogo";
 import { desenharForma } from "../components/poke/golpes/formas";
 import { MotorGolpes } from "../components/poke/golpes/motor";
+import { RECEITA_POR_SLUG, spritesFx } from "../components/poke/golpes/sprites/fx";
+import type { ModoVisual } from "../components/poke/golpes/sprites/tipos";
 import { specPorSlug, tierDe } from "../components/poke/golpes/spec";
 import { ARQUETIPOS, type Arquetipo, type MoveVisualSpec, type Resultado } from "../components/poke/golpes/tipos";
 import { COR_TIPO, NOME_TIPO } from "../lib/poke/dex";
@@ -33,6 +35,12 @@ const PARES: [number, number, string][] = [
   [445, 448, "Garchomp × Lucario"],
   [637, 609, "Volcarona × Chandelure"],
 ];
+const SELO: Record<ModoVisual, [string, string]> = {
+  asset: ["asset original", "#3DDC84"],
+  approx: ["aproximado", "#FFC542"],
+  recolor: ["aproximado · reaproveitado", "#FFC542"],
+  fallback: ["fallback procedural", "#9AA3B5"],
+};
 const ESTRESSE = ["explosion", "blizzard", "draco-meteor", "hyper-beam", "earthquake", "blast-burn", "hurricane", "fire-blast"];
 
 function lado(id: number, nome: string, status: Status, chave: number): LadoVis {
@@ -42,6 +50,25 @@ function lado(id: number, nome: string, status: Status, chave: number): LadoVis 
 export function MoveLab() {
   const motor = useMemo(() => new MotorGolpes(), []);
   useEffect(() => () => motor.destruir(), [motor]);
+  const [fxPronto, setFxPronto] = useState(false);
+  useEffect(() => {
+    let vivo = true;
+    void spritesFx.iniciar().then(() => spritesFx.preCarregar(CATALOGO.map((l) => l.slug))).then(() => vivo && setFxPronto(!!spritesFx.atlas));
+    return () => {
+      vivo = false;
+      spritesFx.ativo = true;
+    };
+  }, []);
+  const [usarSprites, setUsarSprites] = useState(true);
+  useEffect(() => {
+    spritesFx.ativo = usarSprites;
+  }, [usarSprites]);
+  const [pausado, setPausado] = useState(false);
+  useEffect(() => {
+    motor.pausado = pausado;
+  }, [motor, pausado]);
+  const [verJson, setVerJson] = useState(false);
+  const [modoFiltro, setModoFiltro] = useState<ModoVisual | "">("");
 
   const [busca, setBusca] = useState("");
   const [geracao, setGeracao] = useState<number>(0);
@@ -71,9 +98,13 @@ export function MoveLab() {
       (l) =>
         (!geracao || l.geracao === geracao) &&
         (!arq || l.arquetipo === arq) &&
+        (!modoFiltro || (spritesFx.entrada(l.slug)?.modo ?? "fallback") === modoFiltro) &&
         (!q || l.nome.toLowerCase().includes(q) || l.slug.includes(q) || l.notas.toLowerCase().includes(q) || NOME_TIPO[l.tipo].toLowerCase().includes(q))
     );
-  }, [busca, geracao, arq]);
+  }, [busca, geracao, arq, modoFiltro]);
+  const entrada = spritesFx.entrada(slug);
+  const modo: ModoVisual = entrada?.modo ?? "fallback";
+  const receita = entrada?.receita ? RECEITA_POR_SLUG.get(entrada.receita) : undefined;
 
   // leitura de desempenho
   useEffect(() => {
@@ -172,6 +203,13 @@ export function MoveLab() {
               </option>
             ))}
           </select>
+          <select className="ml__select" value={modoFiltro} onChange={(e) => setModoFiltro(e.target.value as ModoVisual | "")}>
+            <option value="">Todos os visuais</option>
+            <option value="asset">Asset original</option>
+            <option value="approx">Aproximado (combinado)</option>
+            <option value="recolor">Reaproveitado / recolor</option>
+            <option value="fallback">Fallback procedural</option>
+          </select>
           <p className="ml__conta">{lista.length} golpes</p>
           <ul className="ml__itens">
             {lista.map((l) => (
@@ -201,6 +239,12 @@ export function MoveLab() {
           <div className="ml__acoes">
             <button className="ml__tocar" onClick={() => void tocar()} disabled={seq !== null}>
               ▶ Tocar {spec.nome}
+            </button>
+            <button className={`ml__btn ${pausado ? "is-on" : ""}`} onClick={() => setPausado((p) => !p)}>
+              {pausado ? "▶ Continuar" : "❚❚ Pausar"}
+            </button>
+            <button className="ml__btn" onClick={() => motor.passo()} disabled={!pausado}>
+              +1 quadro
             </button>
             <button className="ml__btn" onClick={() => motor.pular()}>
               Pular
@@ -234,6 +278,12 @@ export function MoveLab() {
             {spec.slug} · G{spec.geracao} · <span style={{ color: cor }}>{TIPOS_EN[spec.type]}</span> · {spec.archetype}
           </p>
           <p className="ml__nota">{spec.notes}</p>
+          <p className="ml__selo" style={{ "--selo": SELO[modo][1] } as CSSProperties}>
+            {SELO[modo][0]}
+            {entrada?.receita && entrada.receita !== slug && <span> · receita {entrada.receita}{entrada.tipo !== undefined ? ` em ${TIPOS_EN[entrada.tipo]}` : ""}</span>}
+            {!fxPronto && modo !== "fallback" && <span> · assets ausentes: toca o procedural</span>}
+          </p>
+          {receita?.note && <p className="ml__nota">{receita.note}</p>}
 
           <Campo rotulo="Tier">
             <div className="ml__seg">
@@ -289,6 +339,9 @@ export function MoveLab() {
               <input type="checkbox" checked={rm} onChange={(e) => setRm(e.target.checked)} /> Reduced motion
             </label>
             <label className="ml__check">
+              <input type="checkbox" checked={usarSprites} onChange={(e) => setUsarSprites(e.target.checked)} /> Sprites (desligado = só procedural)
+            </label>
+            <label className="ml__check">
               <input type="checkbox" checked={manterCampo} onChange={(e) => setManterCampo(e.target.checked)} /> Manter campo/clima
             </label>
             <select className="ml__select" value={statusAlvo} onChange={(e) => setStatusAlvo(e.target.value as Status)}>
@@ -325,6 +378,14 @@ export function MoveLab() {
               }
             />
           </dl>
+          {receita && (
+            <>
+              <button className="ml__btn ml__btn--largo" onClick={() => setVerJson((v) => !v)}>
+                {verJson ? "Fechar JSON" : `JSON da receita (${receita.slug})`}
+              </button>
+              {verJson && <pre className="ml__json">{JSON.stringify(receita, null, 1)}</pre>}
+            </>
+          )}
           <button className="ml__btn ml__btn--largo" onClick={() => setGrade((g) => !g)}>
             {grade ? "Fechar grade" : "Grade de pré-visualização"}
           </button>

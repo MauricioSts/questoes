@@ -1,0 +1,43 @@
+{
+ "slug": "giga-impact",
+ "duration": 76,
+ "layers": [],
+ "bg": {
+  "asset": "Giga-Impact",
+  "frames": [
+   0,
+   1
+  ],
+  "fps": 10,
+  "start": 14,
+  "end": 60
+ },
+ "hits": [
+  16
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "dash",
+   "dur": 28
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 16,
+    "dur": 30,
+    "amp": 7
+   }
+  ],
+  "flash": [
+   {
+    "t": 14,
+    "dur": 8,
+    "color": "#FFFFFF",
+    "alpha": 0.6
+   }
+  ]
+ }
+}

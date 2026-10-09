@@ -1,0 +1,54 @@
+{
+ "slug": "shadow-ball",
+ "duration": 100,
+ "layers": [
+  {
+   "asset": "Shadow-Ball",
+   "anchor": "user",
+   "start": 0,
+   "end": 92,
+   "ds": true,
+   "frameSeq": {
+    "frames": [
+     0,
+     2,
+     4,
+     6,
+     8,
+     10,
+     12,
+     14,
+     16,
+     18,
+     20,
+     1,
+     3,
+     5,
+     7,
+     9,
+     11,
+     13,
+     15,
+     17,
+     19,
+     21
+    ],
+    "fps": 15,
+    "loop": false
+   },
+   "keepColor": true
+  }
+ ],
+ "hits": [
+  60
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 60,
+    "dur": 14,
+    "amp": 3
+   }
+  ]
+ }
+}

@@ -1,0 +1,170 @@
+{
+ "slug": "flash-cannon",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Flash-Cannon",
+   "anchor": "user",
+   "start": 0,
+   "end": 22,
+   "frameSeq": {
+    "frames": [
+     3,
+     4,
+     5
+    ],
+    "fps": 8,
+    "loop": false
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.4
+      },
+      {
+       "t": 20,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "blend": "add"
+  },
+  {
+   "asset": "Flash-Cannon",
+   "anchor": "user",
+   "start": 18,
+   "end": 58,
+   "to": "target",
+   "spawn": {
+    "count": 12,
+    "spread": [
+     4,
+     4
+    ],
+    "interval": 2,
+    "frames": [
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "life": 14,
+    "seed": 3
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 12,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Flash-Cannon",
+   "anchor": "target",
+   "start": 30,
+   "end": 54,
+   "frameSeq": {
+    "frames": [
+     16,
+     17,
+     18,
+     19
+    ],
+    "fps": 10,
+    "loop": false
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "blend": "add",
+   "z": 3
+  },
+  {
+   "asset": "Flash-Cannon",
+   "anchor": "target",
+   "start": 52,
+   "end": 70,
+   "frameSeq": {
+    "frames": [
+     20,
+     21,
+     22,
+     23
+    ],
+    "fps": 12,
+    "loop": false
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  32
+ ],
+ "screen": {
+  "flash": [
+   {
+    "t": 30,
+    "dur": 6,
+    "color": "#FFFFFF",
+    "alpha": 0.4
+   }
+  ]
+ }
+}

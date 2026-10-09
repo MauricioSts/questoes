@@ -107,3 +107,7 @@
 @media (prefers-reduced-motion: reduce) {
   .ml__medidor i, .ml__fases li, .ml__titulo::after { transition: none; }
 }
+
+.ml__selo { display: inline-block; margin: 0 0 .6em; padding: .2em .6em; border-radius: 999px; font-size: .78em; font-weight: 700; color: #11131a; background: var(--selo); }
+.ml__selo span { font-weight: 500; }
+.ml__json { max-height: 320px; overflow: auto; margin: .4em 0 .8em; padding: .6em; border-radius: 8px; background: rgba(0, 0, 0, .35); font: 11px/1.35 ui-monospace, monospace; white-space: pre; }

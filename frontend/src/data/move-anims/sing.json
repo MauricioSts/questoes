@@ -1,0 +1,95 @@
+{
+ "slug": "sing",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Notes",
+   "anchor": "user",
+   "start": 0,
+   "end": 72,
+   "to": "target",
+   "spawn": {
+    "count": 6,
+    "spread": [
+     8,
+     8
+    ],
+    "interval": 6,
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "life": 42,
+    "seed": 3
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 40,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 10,
+       "v": -10,
+       "ease": "inout"
+      },
+      {
+       "t": 20,
+       "v": 6,
+       "ease": "inout"
+      },
+      {
+       "t": 30,
+       "v": -10,
+       "ease": "inout"
+      },
+      {
+       "t": 40,
+       "v": 0,
+       "ease": "inout"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 36,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  44
+ ],
+ "react": "status"
+}

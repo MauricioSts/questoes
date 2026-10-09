@@ -1,0 +1,104 @@
+{
+ "slug": "mud-bomb",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Mud-Bomb",
+   "anchor": "user",
+   "start": 0,
+   "end": 22,
+   "to": "target",
+   "frame": 0,
+   "arc": 40,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 1,
+       "ease": "linear"
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 360
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.5
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Mud-Sport",
+   "anchor": "target",
+   "start": 22,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     3,
+     2
+    ],
+    "fps": 10,
+    "loop": false
+   },
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.8
+      },
+      {
+       "t": 28,
+       "v": 1.4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 28,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  22
+ ],
+ "approx": true,
+ "note": "bola de Mud Bomb + respingo de Mud Sport"
+}

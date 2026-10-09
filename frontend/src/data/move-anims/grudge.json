@@ -1,0 +1,78 @@
+{
+ "slug": "grudge",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Grudge",
+   "anchor": "user",
+   "start": 0,
+   "end": 70,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 10,
+    "loop": true
+   },
+   "spawn": {
+    "count": 4,
+    "spread": 0,
+    "interval": 0
+   },
+   "orbit": {
+    "rx": 34,
+    "ry": 14,
+    "speed": 6
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 70,
+       "v": -20
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 58,
+       "v": 1
+      },
+      {
+       "t": 70,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "self",
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 74,
+    "color": "#1A0830",
+    "alpha": 0.4
+   }
+  ]
+ }
+}

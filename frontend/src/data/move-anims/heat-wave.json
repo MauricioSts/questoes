@@ -1,0 +1,86 @@
+{
+ "slug": "heat-wave",
+ "duration": 90,
+ "layers": [
+  {
+   "asset": "Fire-Spin",
+   "anchor": "user",
+   "start": 10,
+   "end": 76,
+   "to": "target",
+   "spawn": {
+    "count": 10,
+    "spread": [
+     30,
+     40
+    ],
+    "interval": 4,
+    "frames": [
+     1,
+     2,
+     3
+    ],
+    "life": 20,
+    "seed": 6
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 20,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.8
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "perTarget": true
+  }
+ ],
+ "bg": {
+  "asset": "Heat-Wave",
+  "frame": 0,
+  "start": 0,
+  "end": 86,
+  "scroll": {
+   "dx": 4,
+   "dy": 0
+  },
+  "alpha": {
+   "keys": [
+    {
+     "t": 0,
+     "v": 0.75
+    }
+   ]
+  }
+ },
+ "hits": [
+  40
+ ],
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 86,
+    "color": "#FF7A20",
+    "alpha": 0.15
+   }
+  ]
+ }
+}

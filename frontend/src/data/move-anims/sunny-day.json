@@ -1,0 +1,85 @@
+{
+ "slug": "sunny-day",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Fire",
+   "anchor": "screen-center",
+   "start": 0,
+   "end": 74,
+   "frameSeq": {
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 4,
+    "loop": true
+   },
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -70
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 16,
+       "v": 1.6,
+       "ease": "out"
+      },
+      {
+       "t": 44,
+       "v": 1.4
+      },
+      {
+       "t": 74,
+       "v": 1.8
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 58,
+       "v": 1
+      },
+      {
+       "t": 74,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "blend": "add"
+  }
+ ],
+ "react": "self",
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 78,
+    "color": "#FFCF6A",
+    "alpha": 0.3
+   }
+  ]
+ },
+ "approx": true,
+ "note": "bola de fogo como sol"
+}

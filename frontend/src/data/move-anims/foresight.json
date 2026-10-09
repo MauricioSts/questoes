@@ -1,0 +1,83 @@
+{
+ "slug": "foresight",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Scope",
+   "anchor": "target",
+   "start": 0,
+   "end": 54,
+   "frame": 0,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -30
+      },
+      {
+       "t": 18,
+       "v": 30,
+       "ease": "inout"
+      },
+      {
+       "t": 36,
+       "v": 0,
+       "ease": "inout"
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -8
+      },
+      {
+       "t": 18,
+       "v": 6,
+       "ease": "inout"
+      },
+      {
+       "t": 36,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 48,
+       "v": 1
+      },
+      {
+       "t": 54,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "hits": [
+  40
+ ],
+ "react": "status"
+}

@@ -1,0 +1,120 @@
+{
+ "slug": "hammer-arm",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Hammer-Arm",
+   "anchor": "target",
+   "start": 0,
+   "end": 22,
+   "frame": 1,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -70
+      },
+      {
+       "t": 10,
+       "v": -12,
+       "ease": "in"
+      },
+      {
+       "t": 22,
+       "v": -12
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -30
+      },
+      {
+       "t": 10,
+       "v": 0
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  },
+  {
+   "asset": "Hammer-Arm",
+   "anchor": "field-target",
+   "start": 10,
+   "end": 40,
+   "frame": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -8
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.5
+      },
+      {
+       "t": 30,
+       "v": 1.6,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 3
+  }
+ ],
+ "hits": [
+  10
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 10,
+    "dur": 14,
+    "amp": 4
+   }
+  ]
+ }
+}
