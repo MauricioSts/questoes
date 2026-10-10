@@ -2987,8 +2987,11 @@ function Lobby({
   const liga = ligaLiberada(perfil);
   // Quem já venceu a Liga da região revê a cerimônia do Hall da Fama ao entrar nela de novo.
   const jaCampeao = campeaoDe(perfil, r) > 0;
-  const [hall, setHall] = useState(false);
-  const timeDoHall = [...(perfil.hallDaFama ?? [])].reverse().find((h) => (h.regiao ?? 0) === r);
+  const [hall, setHall] = useState<number | null>(null); // região cuja cerimônia está aberta
+  const vitoriasNaLiga = (i: number) => [...(perfil.hallDaFama ?? [])].reverse().filter((h) => (h.regiao ?? 0) === i);
+  const titulos = REGIOES.map((reg, i) => ({ i, reg, vezes: campeaoDe(perfil, i), entradas: vitoriasNaLiga(i) })).filter((t) => t.vezes > 0);
+  const diaDe = (iso: string) => (Number.isNaN(Date.parse(iso)) ? null : new Date(iso).toLocaleDateString("pt-BR"));
+  const timeAtualHall = time.map((m) => ({ id: m.id, nivel: nivelDe(m) }));
   const cap = levelCap(perfil);
   const liberado = liderLiberado(perfil);
   const historia = historiaDe(perfil);
@@ -3040,6 +3043,7 @@ function Lobby({
     { id: "jornada", nome: "Jornada", icone: <MapaIcone size={15} /> },
     { id: "time", nome: `Time e PC`, icone: <Users size={15} /> },
     { id: "pokedex", nome: "Pokédex", icone: <BookOpen size={15} /> },
+    { id: "hall", nome: "Hall da Fama", icone: <Trophy size={15} /> },
     { id: "mochila", nome: "Mochila", icone: <Backpack size={15} /> },
     { id: "ajustes", nome: "Treinador e ajustes", icone: <Settings size={15} /> },
     { id: "ajuda", nome: "Como jogar", icone: <HelpCircle size={15} /> },
@@ -3078,10 +3082,10 @@ function Lobby({
               <span className="whitespace-nowrap text-sm font-semibold text-muted">{insignias}/8 insígnias</span>
               {REGIOES.map((x, i) =>
                 campeaoDe(perfil, i) > 0 ? (
-                  <span key={x.nome} title={`Campeão de ${x.nome}`} className="inline-flex items-center gap-0.5 text-xs font-bold text-amber-500">
+                  <button key={x.nome} onClick={() => setAba("hall")} title={`Campeão de ${x.nome}: ver o Hall da Fama`} className="inline-flex items-center gap-0.5 text-xs font-bold text-amber-500 hover:underline">
                     <Crown size={13} /> {x.nome}
                     {campeaoDe(perfil, i) > 1 ? ` ×${campeaoDe(perfil, i)}` : ""}
-                  </span>
+                  </button>
                 ) : null,
               )}
             </p>
@@ -3166,6 +3170,115 @@ function Lobby({
         ))}
       </div>
 
+      {hall !== null && (
+        <HallDaFama
+          time={vitoriasNaLiga(hall)[0]?.time.length ? vitoriasNaLiga(hall)[0].time : timeAtualHall}
+          jogador={jogador}
+          regiao={REGIOES[hall].nome}
+          vezes={campeaoDe(perfil, hall)}
+          data={vitoriasNaLiga(hall)[0]?.data}
+          nome={(id) => dex.especies[id].n}
+          onFim={() => setHall(null)}
+          acoes={
+            <>
+              {hall === r && (
+                <button
+                  className="btn-primary"
+                  disabled={!!emAndamento || !liga}
+                  title={emAndamento ? "Termine a partida em andamento primeiro" : undefined}
+                  onClick={() => {
+                    setHall(null);
+                    onComecar("liga");
+                  }}
+                >
+                  <Crown size={16} className="mr-2 inline" /> Desafiar a Liga de novo
+                </button>
+              )}
+              <button className="pk-hall__voltar" onClick={() => setHall(null)}>
+                Voltar
+              </button>
+            </>
+          }
+        />
+      )}
+
+      {aba === "hall" && (
+        <div className="card space-y-4 p-4 sm:p-5">
+          <div>
+            <p className="flex items-center gap-2 font-display text-lg font-bold text-brand-ink">
+              <Trophy size={18} className="text-amber-500" /> Hall da Fama
+            </p>
+            <p className="text-sm text-muted">Cada Liga vencida fica registrada aqui, com o time que levantou a taça.</p>
+          </div>
+          {titulos.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-hair p-6 text-center text-sm text-muted">
+              <Crown size={22} className="mx-auto mb-2 text-faint" />
+              Nenhum título ainda. Junte as 8 insígnias de {regiao.nome}, vença a Elite dos 4 e o Campeão {regiao.campeao.nome} para entrar no Hall da Fama.
+            </div>
+          )}
+          {titulos.map(({ i, reg, vezes, entradas }) => {
+            const ultima = entradas[0];
+            const primeira = entradas[entradas.length - 1];
+            const timeCampeao = ultima?.time.length ? ultima.time : i === r ? timeAtualHall : [];
+            return (
+              <div key={reg.nome} className="rounded-2xl border border-amber-500/60 bg-surface2 p-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <img src={spriteTreinador(jogador)} alt="" draggable={false} className="h-20 w-20 shrink-0 object-contain [image-rendering:pixelated]" />
+                  <div className="min-w-[170px] flex-1">
+                    <p className="text-[11px] font-bold uppercase tracking-[.16em] text-amber-500">Liga Pokémon de {reg.nome}</p>
+                    <p className="flex flex-wrap items-center gap-x-2 font-display text-xl font-bold text-brand-ink">
+                      <Crown size={18} className="text-amber-500" /> Campeão de {reg.nome}
+                      {vezes > 1 && <span className="text-sm font-semibold text-muted">×{vezes}</span>}
+                    </p>
+                    <p className="text-xs text-muted">
+                      Venceu a Elite dos 4 e {reg.campeao.nome}
+                      {primeira && diaDe(primeira.data) ? ` · título conquistado em ${diaDe(primeira.data)}` : ""}
+                      {vezes > 1 && ultima && diaDe(ultima.data) ? ` · última vitória em ${diaDe(ultima.data)}` : ""}
+                    </p>
+                  </div>
+                  <button onClick={() => setHall(i)} className="inline-flex w-full shrink-0 items-center justify-center gap-1.5 rounded-xl sm:w-auto border border-hair px-3.5 py-2 text-sm font-semibold text-brand-ink transition hover:border-brand-500">
+                    <Sparkles size={15} /> Rever a cerimônia
+                  </button>
+                </div>
+                {timeCampeao.length > 0 && (
+                  <div className="mt-3 border-t border-hair pt-3">
+                    <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-faint">Time campeão</p>
+                    <ul className="flex flex-wrap gap-x-1 gap-y-2">
+                      {timeCampeao.map((m, k) => (
+                        <li key={k} className="flex w-[84px] flex-col items-center text-center">
+                          <span className="flex h-16 items-end">
+                            <img src={spriteFrente(m.id)} onError={(ev) => (ev.currentTarget.src = spriteEstatico(m.id))} alt="" className="pk-mini max-h-16 max-w-[76px] object-contain" />
+                          </span>
+                          <b className="mt-1 max-w-full truncate text-xs text-brand-ink">{dex.especies[m.id].n}</b>
+                          <small className="text-[10px] font-bold text-muted">Nv {m.nivel}</small>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {entradas.length > 1 && (
+                  <div className="mt-3 border-t border-hair pt-3">
+                    <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-faint">Vitórias anteriores</p>
+                    <ul className="space-y-1">
+                      {entradas.slice(1).map((h, k) => (
+                        <li key={k} className="flex items-center gap-2 text-xs text-muted">
+                          <span className="w-20 shrink-0">{diaDe(h.data) ?? "sem data"}</span>
+                          <span className="flex flex-wrap">
+                            {h.time.map((m, j) => (
+                              <img key={j} src={spriteEstatico(m.id)} alt={dex.especies[m.id].n} title={`${dex.especies[m.id].n} Nv${m.nivel}`} className="pk-mini h-8 w-8 object-contain" />
+                            ))}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {aba === "jornada" && (
         <div className="card p-4 sm:p-5">
           {posicaoMapa && (
@@ -3225,37 +3338,8 @@ function Lobby({
                   icone={liga ? <Crown size={16} /> : <Lock size={16} />}
                   destaque={liga}
                   disabled={jaCampeao ? false : !!emAndamento || !liga}
-                  onClick={() => (jaCampeao ? setHall(true) : onComecar("liga"))}
+                  onClick={() => (jaCampeao ? setHall(r) : onComecar("liga"))}
                 />
-                {hall && (
-                  <HallDaFama
-                    time={timeDoHall?.time.length ? timeDoHall.time : time.map((m) => ({ id: m.id, nivel: nivelDe(m) }))}
-                    jogador={jogador}
-                    regiao={regiao.nome}
-                    vezes={campeaoDe(perfil, r)}
-                    data={timeDoHall?.data}
-                    nome={(id) => dex.especies[id].n}
-                    onFim={() => setHall(false)}
-                    acoes={
-                      <>
-                        <button
-                          className="btn-primary"
-                          disabled={!!emAndamento || !liga}
-                          title={emAndamento ? "Termine a partida em andamento primeiro" : undefined}
-                          onClick={() => {
-                            setHall(false);
-                            onComecar("liga");
-                          }}
-                        >
-                          <Crown size={16} className="mr-2 inline" /> Desafiar a Liga de novo
-                        </button>
-                        <button className="pk-hall__voltar" onClick={() => setHall(false)}>
-                          Voltar
-                        </button>
-                      </>
-                    }
-                  />
-                )}
                 <div className="rounded-2xl border border-hair bg-surface2">
                   <Destino
                     titulo={`Zona Safári · ${REGIOES[habitat].nome}${terrenoSel ? ` · ${terrenoSel.nome}` : ""}`}
@@ -3503,7 +3587,7 @@ function Lobby({
   );
 }
 
-type AbaLobby = "jornada" | "time" | "pokedex" | "mochila" | "ajustes" | "ajuda";
+type AbaLobby = "jornada" | "time" | "pokedex" | "hall" | "mochila" | "ajustes" | "ajuda";
 
 // Onde está o jogo: no servidor. Mostra quando ainda falta gravar.
 function IndicadorSave({ estado }: { estado: EstadoSave }) {
