@@ -906,3 +906,13 @@
   .pk-hall__treinador img { height: 160px; }
   .pk-hall__membro { width: 31%; }
 }
+
+/* Cartão da Liga já vencida: placa dourada com um brilho que passa de tempos em tempos. */
+.pk-ouro { position: relative; overflow: hidden; border-color: #C9951A; background: linear-gradient(135deg, #FFF3B8 0%, #FFD84A 30%, #F2B21E 62%, #FFE27A 100%); box-shadow: 0 0 0 1px rgba(255,236,150,.55) inset, 0 6px 18px -8px rgba(214,150,20,.75); }
+.pk-ouro:hover { border-color: #8A5A00; }
+.pk-ouro > * { position: relative; z-index: 1; }
+.pk-ouro span, .pk-ouro svg { color: #3D2600; }
+.pk-ouro span span:last-child { color: #5C3D05; }
+.pk-ouro::after { content: ""; position: absolute; top: -20%; bottom: -20%; left: -40%; width: 32%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.75), transparent); transform: skewX(-18deg); animation: pk-ouro-brilho 4.5s ease-in-out infinite; pointer-events: none; }
+@keyframes pk-ouro-brilho { 0%, 62% { left: -40%; } 100% { left: 125%; } }
+@media (prefers-reduced-motion: reduce) { .pk-ouro::after { animation: none; opacity: 0; } }

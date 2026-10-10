@@ -3334,9 +3334,10 @@ function Lobby({
                 <Destino
                   titulo={`Liga Pokémon de ${regiao.nome}`}
                   texto={jaCampeao ? `Você é Campeão de ${regiao.nome}. Reveja o Hall da Fama e desafie a Elite dos 4 de novo.` : liga ? `Elite dos 4 (${regiao.elite.map((e) => e.nome).join(", ")}) e o Campeão ${regiao.campeao.nome}` : `Precisa das 8 insígnias (${insignias}/8)`}
-                  imagem={spriteTreinador(liga ? regiao.elite[0].sprite : regiao.campeao.sprite)}
+                  imagem={spriteTreinador(jaCampeao ? jogador : liga ? regiao.elite[0].sprite : regiao.campeao.sprite)}
                   icone={liga ? <Crown size={16} /> : <Lock size={16} />}
                   destaque={liga}
+                  ouro={jaCampeao}
                   disabled={jaCampeao ? false : !!emAndamento || !liga}
                   onClick={() => (jaCampeao ? setHall(r) : onComecar("liga"))}
                 />
@@ -3621,6 +3622,7 @@ function Destino({
   selo,
   icone,
   destaque,
+  ouro,
   disabled,
   onClick,
 }: {
@@ -3630,6 +3632,7 @@ function Destino({
   selo?: string;
   icone?: ReactNode;
   destaque?: boolean;
+  ouro?: boolean; // Liga já vencida: cartão dourado
   disabled?: boolean;
   onClick: () => void;
 }) {
@@ -3637,7 +3640,7 @@ function Destino({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`flex w-full items-center gap-3 rounded-2xl border p-2.5 text-left transition hover:border-brand-500 disabled:cursor-not-allowed disabled:opacity-45 ${destaque ? "border-brand-500 bg-surface" : "border-hair bg-surface2"}`}
+      className={`flex w-full items-center gap-3 rounded-2xl border p-2.5 text-left transition hover:border-brand-500 disabled:cursor-not-allowed disabled:opacity-45 ${ouro ? "pk-ouro" : destaque ? "border-brand-500 bg-surface" : "border-hair bg-surface2"}`}
     >
       <img src={imagem} alt="" className="pk-mini h-12 w-12 shrink-0 object-contain" />
       <span className="min-w-0 flex-1">
