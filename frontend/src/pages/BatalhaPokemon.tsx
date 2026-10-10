@@ -42,6 +42,8 @@ import {
   MAX_GOLPES,
   type Dex,
 } from "../lib/poke/dex";
+import { tocarGrito, tocarParabens } from "../lib/poke/som";
+import { HallDaFama } from "../components/poke/HallDaFama";
 import {
   BOLAS,
   BOLAS_SAFARI,
@@ -1514,7 +1516,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
   }
 
   if (fase === "fim") {
-    return <Fim dex={dex} partida={partida} perfil={perfil} activeId={activeId ?? null} onNova={novaPartida} onViajar={() => setViagem(true)} />;
+    return <Fim dex={dex} partida={partida} perfil={perfil} activeId={activeId ?? null} jogador={jogador} onNova={novaPartida} onViajar={() => setViagem(true)} />;
   }
 
   const campo = meusEmCampo(partida);
@@ -2576,47 +2578,6 @@ function EditorItem({
 type FaseEvo = "inicio" | "brilho" | "troca" | "flash" | "fim";
 const TROCAS_EVO = [520, 470, 420, 370, 320, 280, 240, 200, 170, 145, 125, 105, 90, 75, 65, 55, 50, 45, 45, 45, 45, 45];
 
-const nomeDoGrito = (nome: string) =>
-  nome.toLowerCase().replace("♀", "f").replace("♂", "m").normalize("NFD").replace(/[^a-z0-9]/g, "");
-
-function tocarGrito(nome: string) {
-  try {
-    const a = new Audio(`https://play.pokemonshowdown.com/audio/cries/${nomeDoGrito(nome)}.mp3`);
-    a.volume = 0.5;
-    void a.play().catch(() => {});
-  } catch {
-    /* sem áudio */
-  }
-}
-
-// Jingle curto de parabéns (onda quadrada, como o som 8-bit dos jogos).
-function tocarParabens() {
-  try {
-    const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!Ctx) return;
-    const ctx = new Ctx();
-    const notas: [number, number, number][] = [
-      [392, 0, 0.14], [523, 0.15, 0.14], [659, 0.3, 0.14], [784, 0.45, 0.3],
-      [659, 0.8, 0.14], [784, 0.95, 0.14], [1047, 1.1, 0.6],
-    ];
-    for (const [f, t, d] of notas) {
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type = "square";
-      o.frequency.value = f;
-      g.gain.setValueAtTime(0.0001, ctx.currentTime + t);
-      g.gain.exponentialRampToValueAtTime(0.06, ctx.currentTime + t + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t + d);
-      o.connect(g).connect(ctx.destination);
-      o.start(ctx.currentTime + t);
-      o.stop(ctx.currentTime + t + d + 0.05);
-    }
-    setTimeout(() => void ctx.close().catch(() => {}), 2500);
-  } catch {
-    /* sem áudio */
-  }
-}
-
 function EvolucaoPoke({ de, para, nome, onFim }: { de: number; para: number; nome: (id: number) => string; onFim: () => void }) {
   const [fase, setFase] = useState<FaseEvo>("inicio");
   const [novo, setNovo] = useState(false);
@@ -3024,6 +2985,10 @@ function Lobby({
   const insignias = insigniasDe(perfil);
   const proximo = regiao.ginasios[insignias];
   const liga = ligaLiberada(perfil);
+  // Quem já venceu a Liga da região revê a cerimônia do Hall da Fama ao entrar nela de novo.
+  const jaCampeao = campeaoDe(perfil, r) > 0;
+  const [hall, setHall] = useState(false);
+  const timeDoHall = [...(perfil.hallDaFama ?? [])].reverse().find((h) => (h.regiao ?? 0) === r);
   const cap = levelCap(perfil);
   const liberado = liderLiberado(perfil);
   const historia = historiaDe(perfil);
@@ -3255,13 +3220,42 @@ function Lobby({
                 />
                 <Destino
                   titulo={`Liga Pokémon de ${regiao.nome}`}
-                  texto={liga ? `Elite dos 4 (${regiao.elite.map((e) => e.nome).join(", ")}) e o Campeão ${regiao.campeao.nome}` : `Precisa das 8 insígnias (${insignias}/8)`}
+                  texto={jaCampeao ? `Você é Campeão de ${regiao.nome}. Reveja o Hall da Fama e desafie a Elite dos 4 de novo.` : liga ? `Elite dos 4 (${regiao.elite.map((e) => e.nome).join(", ")}) e o Campeão ${regiao.campeao.nome}` : `Precisa das 8 insígnias (${insignias}/8)`}
                   imagem={spriteTreinador(liga ? regiao.elite[0].sprite : regiao.campeao.sprite)}
                   icone={liga ? <Crown size={16} /> : <Lock size={16} />}
                   destaque={liga}
-                  disabled={!!emAndamento || !liga}
-                  onClick={() => onComecar("liga")}
+                  disabled={jaCampeao ? false : !!emAndamento || !liga}
+                  onClick={() => (jaCampeao ? setHall(true) : onComecar("liga"))}
                 />
+                {hall && (
+                  <HallDaFama
+                    time={timeDoHall?.time.length ? timeDoHall.time : time.map((m) => ({ id: m.id, nivel: nivelDe(m) }))}
+                    jogador={jogador}
+                    regiao={regiao.nome}
+                    vezes={campeaoDe(perfil, r)}
+                    data={timeDoHall?.data}
+                    nome={(id) => dex.especies[id].n}
+                    onFim={() => setHall(false)}
+                    acoes={
+                      <>
+                        <button
+                          className="btn-primary"
+                          disabled={!!emAndamento || !liga}
+                          title={emAndamento ? "Termine a partida em andamento primeiro" : undefined}
+                          onClick={() => {
+                            setHall(false);
+                            onComecar("liga");
+                          }}
+                        >
+                          <Crown size={16} className="mr-2 inline" /> Desafiar a Liga de novo
+                        </button>
+                        <button className="pk-hall__voltar" onClick={() => setHall(false)}>
+                          Voltar
+                        </button>
+                      </>
+                    }
+                  />
+                )}
                 <div className="rounded-2xl border border-hair bg-surface2">
                   <Destino
                     titulo={`Zona Safári · ${REGIOES[habitat].nome}${terrenoSel ? ` · ${terrenoSel.nome}` : ""}`}
@@ -3598,6 +3592,7 @@ function Fim({
   partida,
   perfil,
   activeId,
+  jogador,
   onNova,
   onViajar,
 }: {
@@ -3605,6 +3600,7 @@ function Fim({
   partida: PartidaPoke;
   perfil: PerfilPoke;
   activeId: string | null;
+  jogador: string;
   onNova: () => void;
   onViajar: () => void;
 }) {
@@ -3617,6 +3613,7 @@ function Fim({
   const capturados = [...partida.time, ...partida.novos].filter((m) => m.capturadoEm === partida.iniciadaEm);
   const ganhouInsignia = partida.fim === "vitoria" && partida.modo === "ginasio" && partida.ginasio !== undefined ? partida.ginasio : null;
   const campeao = partida.fim === "vitoria" && partida.modo === "liga";
+  const [cerimonia, setCerimonia] = useState(campeao);
   const lenda = partida.modo === "lendario" ? lendaPorId(partida.lenda ?? -1) : undefined;
   const lendaPega = !!lenda && capturados.some((m) => m.id === lenda.id);
   const lendaVista = !!lenda && perfil.vistos.includes(lenda.id);
@@ -3642,6 +3639,21 @@ function Fim({
 
   return (
     <div className="fadeup mx-auto max-w-[760px] space-y-4 pt-4 pb-24">
+      {cerimonia && (
+        <HallDaFama
+          time={partida.time.map((l) => ({ id: l.id, nivel: nivelDe(l) }))}
+          jogador={jogador}
+          regiao={regiao.nome}
+          vezes={campeaoDe(perfil, partida.regiao ?? 0)}
+          nome={(id) => dex.especies[id].n}
+          onFim={() => setCerimonia(false)}
+          acoes={
+            <button className="btn-primary" onClick={() => setCerimonia(false)}>
+              Continuar
+            </button>
+          }
+        />
+      )}
       <div className="card p-6 text-center">
         <div className="flex flex-wrap items-end justify-center gap-1">
           {partida.time.map((l) => (
