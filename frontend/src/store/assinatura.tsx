@@ -3,7 +3,7 @@
 // limite fechar no meio da sessão e não só depois de um F5.
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
-import { EVENTO_RESPOSTAS_SINCRONIZADAS } from "../lib/answers";
+import { EVENTO_LIMITE_DIARIO, EVENTO_RESPOSTAS_SINCRONIZADAS } from "../lib/answers";
 
 export type PlanoId = "mensal" | "anual";
 
@@ -51,8 +51,10 @@ export function AssinaturaProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void recarregar();
     const aoSincronizar = () => void recarregar();
-    window.addEventListener(EVENTO_RESPOSTAS_SINCRONIZADAS, aoSincronizar);
-    return () => window.removeEventListener(EVENTO_RESPOSTAS_SINCRONIZADAS, aoSincronizar);
+    // O servidor recusou uma correção por limite: a contagem daqui estava atrasada.
+    const eventos = [EVENTO_RESPOSTAS_SINCRONIZADAS, EVENTO_LIMITE_DIARIO];
+    eventos.forEach((e) => window.addEventListener(e, aoSincronizar));
+    return () => eventos.forEach((e) => window.removeEventListener(e, aoSincronizar));
   }, [recarregar]);
 
   const premium = dados?.premium ?? true;

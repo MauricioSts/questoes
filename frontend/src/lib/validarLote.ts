@@ -72,7 +72,7 @@ export function validarLote(json: unknown): ResultadoValidacao {
     if (!q?.enunciado) erros.push(`${ref}: sem enunciado.`);
     if (!q?.alternativas || Object.keys(q.alternativas).length < 2)
       erros.push(`${ref}: precisa de ao menos 2 alternativas.`);
-    else if (!q.alternativas[q.gabarito])
+    else if (!q.gabarito || !q.alternativas[q.gabarito])
       erros.push(`${ref}: gabarito "${q.gabarito}" não corresponde a nenhuma alternativa.`);
     if (!q?.explicacao) avisos.push(`${ref}: sem explicação (recomendado).`);
     if (q?.imagens !== undefined) {

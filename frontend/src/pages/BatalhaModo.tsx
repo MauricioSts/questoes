@@ -1,7 +1,8 @@
 // /batalha: escolhe entre a Batalha Pokémon (padrão) e a clássica, com os bonecos
 // articulados. A escolha fica no aparelho (q_batalha_visual); cada modo guarda a sua
 // própria partida e o seu perfil.
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { EVENTO_LIMITE_DIARIO } from "../lib/answers";
 import { useAssinatura } from "../store/assinatura";
 import { AvisoPremium } from "../components/RotaPremium";
 import { Batalha } from "./Batalha";
@@ -20,12 +21,17 @@ function lerVisual(): Visual {
 
 export function BatalhaModo() {
   const [visual, setVisual] = useState<Visual>(lerVisual);
-  // A batalha é grátis, mas gasta o limite diário do plano gratuito. Só a ENTRADA é
-  // barrada: quem bate o limite no meio de uma luta termina a partida em vez de ser
-  // arrancado dela.
+  // A batalha é grátis, mas gasta o limite diário do plano gratuito. Barra a ENTRADA de
+  // quem já chegou sem saldo; quem gasta a última questão no meio de uma luta vê o golpe
+  // até o fim, e o aviso só entra quando o servidor recusa a próxima correção.
   const { dados, limiteAtingido } = useAssinatura();
-  const barrado = useRef<boolean | null>(null);
-  if (barrado.current === null && dados) barrado.current = limiteAtingido;
+  const [barrado, setBarrado] = useState<boolean | null>(null);
+  if (barrado === null && dados) setBarrado(limiteAtingido);
+  useEffect(() => {
+    const barrar = () => setBarrado(true);
+    window.addEventListener(EVENTO_LIMITE_DIARIO, barrar);
+    return () => window.removeEventListener(EVENTO_LIMITE_DIARIO, barrar);
+  }, []);
   const trocar = (v: Visual) => {
     setVisual(v);
     try {
@@ -54,7 +60,7 @@ export function BatalhaModo() {
       ))}
     </div>
   );
-  if (barrado.current) {
+  if (barrado) {
     return (
       <AvisoPremium
         titulo="Limite de hoje atingido"

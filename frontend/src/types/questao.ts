@@ -33,7 +33,9 @@ export interface Questao {
   codigo?: string; // opcional: bloco de código (renderizado monospaço, preserva quebras)
   linguagem?: string; // opcional: rótulo da linguagem do código (ex.: "java", "sql")
   alternativas: Partial<Record<Alternativa, string>>;
-  gabarito: Alternativa;
+  // Ausente no plano gratuito até a questão ser respondida: aí quem corrige é o servidor
+  // (lib/answers.ts, responderQuestao), que devolve gabarito e explicação.
+  gabarito?: Alternativa;
   explicacao: string;
   imagens?: ImagemQuestao[]; // 0, 1 ou 2 figuras; a maioria das questões não tem nenhuma
   origem?: Origem; // ausente = "autoral" (lotes anteriores à procedência)

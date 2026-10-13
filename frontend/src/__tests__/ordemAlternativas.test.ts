@@ -70,7 +70,7 @@ describe("ordemAlternativas", () => {
       }
       // e o gabarito continua sendo a letra do lote
       expect(questao.gabarito).toBe("C");
-      expect(questao.alternativas[questao.gabarito]).toBe("terceira");
+      expect(questao.alternativas[questao.gabarito!]).toBe("terceira");
     }
   });
 

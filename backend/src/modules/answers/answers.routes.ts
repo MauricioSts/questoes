@@ -1,5 +1,8 @@
-// Rotas de respostas. O backend só persiste o RESULTADO (com snapshots); nunca vê
-// enunciado/alternativas/gabarito. A correção (acertou) vem pronta do frontend.
+// Rotas de respostas. O backend persiste o RESULTADO (com snapshots). Quem assina tem o
+// gabarito no aparelho e manda a resposta já corrigida (funciona offline); quem não
+// assina recebe as questões sem gabarito e pede a correção aqui (/answers/corrigir).
+// Em qualquer caso o acerto gravado é conferido com o gabarito do banco, e o plano
+// gratuito para de registrar quando o limite do dia acaba.
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../../prisma.js";
@@ -10,6 +13,7 @@ import { calcularStreakUsuario } from "../../lib/streak.js";
 import { revisoesPendentes } from "../../lib/srs.js";
 import { srsDesde, filtroSrs, marcarSrsReset } from "../../lib/srsReset.js";
 import { startOfToday, startOfWeekWindow } from "../../lib/date.js";
+import { respostasRestantesHoje } from "../../lib/assinatura.js";
 
 export const answersRouter = Router();
 answersRouter.use(requireAuth);
@@ -37,12 +41,65 @@ const answerSchema = z.object({
   contexto: z.enum(["ESTUDO", "FLASH", "SIMULADO", "TOPICO", "BATALHA"]),
 });
 
+type RespostaRecebida = z.infer<typeof answerSchema>;
+
+// O acerto que vale é o do gabarito guardado aqui, não o que o cliente afirma. Questão
+// que não existe mais no banco (lote excluído) fica com o que veio.
+async function conferirAcertos(itens: RespostaRecebida[]): Promise<RespostaRecebida[]> {
+  const gabaritos = new Map(
+    (
+      await prisma.questao.findMany({
+        where: { id: { in: [...new Set(itens.map((i) => i.questaoId))] } },
+        select: { id: true, gabarito: true },
+      })
+    ).map((q) => [q.id, q.gabarito])
+  );
+  return itens.map((i) => {
+    const gabarito = gabaritos.get(i.questaoId);
+    return gabarito === undefined ? i : { ...i, acertou: gabarito === i.alternativaMarcada };
+  });
+}
+
+const LIMITE_ATINGIDO = { error: "Limite diário do plano gratuito atingido.", codigo: "LIMITE" };
+
+// POST /answers/corrigir: corrige e registra uma resposta de quem não tem o gabarito no
+// aparelho, e só então revela gabarito e explicação. É aqui que o limite diário do plano
+// gratuito vale de verdade: sem saldo, não há correção.
+answersRouter.post(
+  "/corrigir",
+  asyncHandler(async (req, res) => {
+    const data = answerSchema.omit({ acertou: true }).parse(req.body);
+    const questao = await prisma.questao.findUnique({
+      where: { id: data.questaoId },
+      select: { gabarito: true, explicacao: true },
+    });
+    if (!questao) return res.status(404).json({ error: "Questão não encontrada." });
+    const revelar = (acertou: boolean) => ({ acertou, gabarito: questao.gabarito, explicacao: questao.explicacao });
+
+    // Reenvio da mesma resposta (a rede caiu antes de a correção chegar): devolve a
+    // correção sem gastar outra questão do dia.
+    if (data.clientId) {
+      const existente = await prisma.answer.findUnique({ where: { clientId: data.clientId } });
+      if (existente && existente.userId === req.userId) return res.json(revelar(existente.acertou));
+    }
+    if ((await respostasRestantesHoje(req.userId!, req.userEmail)) < 1) {
+      return res.status(402).json(LIMITE_ATINGIDO);
+    }
+    const acertou = questao.gabarito === data.alternativaMarcada;
+    await prisma.answer.create({ data: { ...data, acertou, userId: req.userId! } });
+    res.status(201).json(revelar(acertou));
+  })
+);
+
 // POST /answers: registra uma resposta. Idempotente por clientId: um reenvio
 // da fila offline com o mesmo clientId não cria duplicata.
 answersRouter.post(
   "/",
   asyncHandler(async (req, res) => {
-    const data = answerSchema.parse(req.body);
+    const [data] = await conferirAcertos([answerSchema.parse(req.body)]);
+    if ((await respostasRestantesHoje(req.userId!, req.userEmail)) < 1) {
+      return res.status(402).json(LIMITE_ATINGIDO);
+    }
     try {
       const answer = await prisma.answer.create({ data: { ...data, userId: req.userId! } });
       res.status(201).json({ id: answer.id });
@@ -60,15 +117,21 @@ answersRouter.post(
 
 // POST /answers/batch: registra um lote (usado no simulado: 70 de uma vez).
 // skipDuplicates ignora respostas cujo clientId já foi registrado (reenvio offline).
+// No plano gratuito só entra o que cabe no saldo do dia; o resto é descartado, e a
+// resposta é 201 mesmo assim para a fila do cliente não reenviar para sempre.
 answersRouter.post(
   "/batch",
   asyncHandler(async (req, res) => {
     const lote = z.array(answerSchema).min(1).parse(req.body);
-    const created = await prisma.answer.createMany({
-      data: lote.map((a) => ({ ...a, userId: req.userId! })),
-      skipDuplicates: true,
-    });
-    res.status(201).json({ count: created.count });
+    const restantes = await respostasRestantesHoje(req.userId!, req.userEmail);
+    const aceitas = await conferirAcertos(lote.slice(0, Math.min(lote.length, restantes)));
+    const created = aceitas.length
+      ? await prisma.answer.createMany({
+          data: aceitas.map((a) => ({ ...a, userId: req.userId! })),
+          skipDuplicates: true,
+        })
+      : { count: 0 };
+    res.status(201).json({ count: created.count, descartadas: lote.length - aceitas.length });
   })
 );
 

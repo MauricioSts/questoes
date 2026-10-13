@@ -1,7 +1,9 @@
 // Envio de respostas com fila offline. As respostas são enfileiradas em localStorage e
 // sincronizadas (em lote) quando há conexão: permite responder offline (PWA).
-import { api } from "./api";
-import type { ResultadoResposta } from "./correcao";
+import { api, ApiError } from "./api";
+import { montarResultado, type ResultadoResposta } from "./correcao";
+import { getQuestao } from "./questoesRepo";
+import type { Alternativa, Questao } from "../types/questao";
 
 const QUEUE_KEY = "q_answer_queue";
 
@@ -47,6 +49,48 @@ export async function enviarLote(rs: ResultadoResposta[]): Promise<void> {
     writeQueue([...readQueue(), ...rs]);
   }
 }
+
+// O plano gratuito gastou as questões do dia. Quem mostra a tela (sessão, batalha) ouve
+// o evento; quem chamou recebe o erro para desfazer a jogada.
+export const EVENTO_LIMITE_DIARIO = "q:limite-diario";
+export class LimiteDiarioError extends Error {}
+
+// Responde uma questão e diz se acertou. Com o gabarito no aparelho, corrige aqui e
+// enfileira o envio (funciona offline). Sem ele (plano gratuito, questão inédita), pede
+// a correção ao servidor e guarda gabarito e explicação na questão, para a tela mostrar.
+export async function responderQuestao(
+  questao: Questao,
+  marcada: Alternativa,
+  contexto: ResultadoResposta["contexto"],
+  tempoSegundos?: number
+): Promise<boolean> {
+  const resultado = montarResultado(questao, marcada, contexto, tempoSegundos);
+  if (questao.gabarito) {
+    void enviarResposta(resultado);
+    return resultado.acertou;
+  }
+  const { acertou: _semGabarito, ...pedido } = resultado;
+  try {
+    const r = await api<{ acertou: boolean; gabarito: Alternativa; explicacao: string }>("/answers/corrigir", {
+      method: "POST",
+      body: pedido,
+    });
+    // A tela pode estar com uma cópia da questão; o repositório fica certo também.
+    for (const q of [questao, getQuestao(questao.id)]) {
+      if (q) Object.assign(q, { gabarito: r.gabarito, explicacao: r.explicacao });
+    }
+    avisarSincronizacao();
+    return r.acertou;
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 402) {
+      window.dispatchEvent(new CustomEvent(EVENTO_LIMITE_DIARIO));
+      throw new LimiteDiarioError("Limite diário do plano gratuito atingido");
+    }
+    throw e;
+  }
+}
+
+export const SEM_CONEXAO_PARA_CORRIGIR = "Sem conexão. No plano gratuito a correção é feita online: tente de novo.";
 
 // Sincroniza a fila pendente em lote. Silencioso se offline.
 export async function flushQueue(): Promise<void> {

@@ -29,8 +29,7 @@ import type { Alternativa } from "../types/questao";
 import { getQuestao } from "../lib/questoesRepo";
 import { carregarFilaBatalha, novasPorFraqueza, type HistoricoQ } from "../lib/filaBatalha";
 import { api } from "../lib/api";
-import { enviarResposta } from "../lib/answers";
-import { montarResultado } from "../lib/correcao";
+import { LimiteDiarioError, SEM_CONEXAO_PARA_CORRIGIR, responderQuestao } from "../lib/answers";
 import { salvarLicoesNoCaderno, textoCalibragem } from "../lib/licoes";
 import {
   MIN_LICAO,
@@ -331,9 +330,16 @@ export function Batalha({ alternar }: { alternar?: ReactNode } = {}) {
   async function golpe(confianca: Confianca) {
     if (!partida || !questao || !tipo || !selecionada || fase !== "pergunta") return;
     setFase("golpe");
-    const acertou = selecionada === questao.gabarito;
     const tempo = Math.round((Date.now() - inicioQuestao.current) / 1000);
-    void enviarResposta(montarResultado(questao, selecionada, "BATALHA", tempo));
+    let acertou: boolean;
+    try {
+      acertou = await responderQuestao(questao, selecionada, "BATALHA", tempo);
+    } catch (e) {
+      // Sem correção não há golpe: a jogada volta para a pergunta.
+      setFase("pergunta");
+      if (!(e instanceof LimiteDiarioError)) setMensagem(SEM_CONEXAO_PARA_CORRIGIR);
+      return;
+    }
     const { partida: nova, eventos } = responder(partida, acertou, confianca, questao.dificuldade);
     setPartida(nova);
     setDesfecho({ acertou, confianca, eventos, questaoId: questao.id, marcada: selecionada });

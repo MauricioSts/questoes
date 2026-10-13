@@ -1,5 +1,6 @@
 // Banco de questões no servidor: importar lote, listar e limpar.
-// O conteúdo é compartilhado (não por usuário). A correção de acerto segue no frontend.
+// O conteúdo é compartilhado (não por usuário). Assinante recebe o gabarito e corrige no
+// aparelho; no plano gratuito ele só vem das questões já respondidas (ver GET /).
 // Ler é para qualquer conta logada; ESCREVER no acervo é só do admin (requireAdmin),
 // porque um lote importado passa a valer para todo mundo que segue a trilha.
 import { Router } from "express";
@@ -9,6 +10,7 @@ import { requireAuth } from "../../middleware/auth.js";
 import { requireAdmin } from "../../middleware/admin.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { escopoQuestoes } from "../../lib/escopoQuestoes.js";
+import { acessoDoUsuario } from "../../lib/assinatura.js";
 import { HttpError } from "../../middleware/error.js";
 import type { Prisma } from "@prisma/client";
 
@@ -84,6 +86,23 @@ questoesRouter.get(
     // enxerga questões que outro importou.
     const where = await escopoQuestoes(concursoId, req.userId!);
 
+    // Plano gratuito: gabarito e explicação só das questões que a conta já respondeu
+    // (erros, marcadas e revisão continuam funcionando). As demais são corrigidas no
+    // servidor, em POST /answers/corrigir, que é onde o limite diário é cobrado.
+    const completo = (await acessoDoUsuario(req.userId!, req.userEmail)) !== null;
+    const respondidas = completo
+      ? null
+      : new Set(
+          (
+            await prisma.answer.findMany({
+              where: { userId: req.userId! },
+              distinct: ["questaoId"],
+              select: { questaoId: true },
+            })
+          ).map((a) => a.questaoId)
+        );
+    const revela = (id: number) => !respondidas || respondidas.has(id);
+
     const [linhas, textos, provasLinhas] = await Promise.all([
       prisma.questao.findMany({
         where,
@@ -103,8 +122,8 @@ questoesRouter.get(
       codigo: q.codigo ?? undefined,
       linguagem: q.linguagem ?? undefined,
       alternativas: q.alternativas,
-      gabarito: q.gabarito,
-      explicacao: q.explicacao,
+      gabarito: revela(q.id) ? q.gabarito : undefined,
+      explicacao: revela(q.id) ? q.explicacao : "",
       imagens: q.imagens ?? undefined,
       origem: q.origem,
       prova: q.provaChave ?? undefined,

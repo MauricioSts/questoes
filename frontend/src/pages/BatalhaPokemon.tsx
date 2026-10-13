@@ -15,8 +15,7 @@ import { getQuestao } from "../lib/questoesRepo";
 import { carregarFilaBatalha, novasPorFraqueza, type HistoricoQ } from "../lib/filaBatalha";
 import { ITENS, REVIVER, categoriaDe, lojaDe, nomeItem, seguravel, type CategoriaItem } from "../lib/poke/itens";
 import { api } from "../lib/api";
-import { enviarResposta } from "../lib/answers";
-import { montarResultado } from "../lib/correcao";
+import { LimiteDiarioError, SEM_CONEXAO_PARA_CORRIGIR, responderQuestao } from "../lib/answers";
 import { salvarLicoesNoCaderno, textoCalibragem } from "../lib/licoes";
 import { resumir, type Candidata, type Confianca } from "../lib/batalha";
 import { tipoDaMateria } from "../components/batalha/tipos";
@@ -1124,10 +1123,18 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
     setFase("golpe");
     setPainel(null);
     setGolpeSemAlvo(null);
-    const acertou = selecionada === questao.gabarito;
     const confianca: Confianca = certeza ? "certeza" : "duvida";
     const tempo = Math.round((Date.now() - inicioQuestao.current) / 1000);
-    void enviarResposta(montarResultado(questao, selecionada, "BATALHA", tempo));
+    let acertou: boolean;
+    try {
+      acertou = await responderQuestao(questao, selecionada, "BATALHA", tempo);
+    } catch (e) {
+      // Sem correção não há golpe: a jogada volta para a pergunta.
+      setFase("pergunta");
+      if (!(e instanceof LimiteDiarioError)) setMensagem(SEM_CONEXAO_PARA_CORRIGIR);
+      return;
+    }
+    if (!vivo.current) return;
     const { partida: nova, eventos } = responderPoke(dex, partida, { acertou, confianca, acao, acao2 });
     setPartida(nova);
     setDesfecho({ acertou, confianca, questaoId: questao.id, marcada: selecionada, retorno: !!encontro?.retorno, historico: historicoDe(questao.id, !!encontro?.retorno) });

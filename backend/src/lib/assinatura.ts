@@ -3,6 +3,7 @@
 import { prisma } from "../prisma.js";
 import { env } from "../config/env.js";
 import { ehAdmin } from "../middleware/admin.js";
+import { startOfToday } from "./date.js";
 import { buscarPreapproval, type Preapproval } from "./mercadopago.js";
 
 export const PLANOS = {
@@ -54,6 +55,13 @@ export async function acessoDoUsuario(userId: string, email: string | undefined)
   });
   if (user?.cortesia) return "cortesia";
   return assinaturaDaAcesso(user?.assinatura ?? null) ? "assinatura" : null;
+}
+
+// Quantas respostas a conta ainda pode registrar hoje. Assinante não tem teto.
+export async function respostasRestantesHoje(userId: string, email: string | undefined): Promise<number> {
+  if (await acessoDoUsuario(userId, email)) return Infinity;
+  const usadas = await prisma.answer.count({ where: { userId, createdAt: { gte: startOfToday() } } });
+  return Math.max(0, env.LIMITE_GRATIS_DIA - usadas);
 }
 
 // Consulta a assinatura no Mercado Pago e grava o estado dela. É o único caminho que

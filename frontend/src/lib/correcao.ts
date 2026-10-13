@@ -1,4 +1,5 @@
-// Correção de acerto/erro: feita 100% no frontend (o backend não conhece o gabarito).
+// Correção de acerto/erro no aparelho, para quem tem o gabarito (assinante, ou questão
+// já respondida). Sem gabarito, quem corrige é o servidor: ver responderQuestao.
 import type { Questao, Alternativa } from "../types/questao";
 
 export function corrigir(questao: Questao, marcada: Alternativa): boolean {

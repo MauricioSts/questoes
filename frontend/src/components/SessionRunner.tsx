@@ -6,8 +6,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ReactNode } from "react";
 import { ChevronLeft, Bookmark, NotebookPen } from "lucide-react";
 import type { Questao, Alternativa, Contexto } from "../types/questao";
-import { corrigir, montarResultado } from "../lib/correcao";
-import { enviarResposta } from "../lib/answers";
+import { corrigir } from "../lib/correcao";
+import { LimiteDiarioError, SEM_CONEXAO_PARA_CORRIGIR, responderQuestao } from "../lib/answers";
 import { QuestaoView } from "./QuestaoView";
 import { CadernoDrawer } from "./CadernoDrawer";
 import { useMarcadas } from "../hooks/useMarcadas";
@@ -100,6 +100,9 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
     }
   }
   const inicioRef = useRef<number>(Date.now());
+  // Plano gratuito, questão inédita: a correção vem do servidor e leva um instante.
+  const [corrigindo, setCorrigindo] = useState(false);
+  const [erroCorrecao, setErroCorrecao] = useState<string | null>(null);
 
   const marcadas = useMarcadas();
   // Histórico buscado UMA vez no início da sessão: o selo da questão precisa mostrar o
@@ -107,6 +110,8 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   // latência sem trazer nada novo.
   const { mapa: historico } = useHistoricoQuestoes();
   const questao = questoes[idx];
+  const questaoAtualRef = useRef(questao?.id);
+  questaoAtualRef.current = questao?.id;
   // O caderno é de assinante: sem assinatura o painel só abriria para falhar.
   const { premium, limiteAtingido } = useAssinatura();
   const permiteCaderno = cadernoPedido && premium;
@@ -122,6 +127,7 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
     const r = respostas.get(questao.id);
     setSelecionada(r?.marcada);
     setRevelado(feedbackImediato && !!r);
+    setErroCorrecao(null);
     inicioRef.current = Date.now();
     alcancadoRef.current = Math.max(alcancadoRef.current, idx);
     setAlcancado(alcancadoRef.current);
@@ -130,32 +136,38 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   }, [idx]);
 
   if (!questao) return null;
-  // Limite diário do plano gratuito: a questão já respondida continua visível (com a
-  // correção); a próxima, ainda em branco, dá lugar ao convite.
-  if (limiteAtingido && !respostas.has(questao.id)) {
-    return (
-      <AvisoPremium
-        titulo="Limite de hoje atingido"
-        texto="Você respondeu todas as questões do plano gratuito por hoje. Amanhã tem mais, ou assine para estudar sem limite."
-      />
-    );
-  }
 
   const tempoDecorrido = () => Math.round((Date.now() - inicioRef.current) / 1000);
   const ehCompartilhado = (i: number) =>
     i > 0 && questoes[i].texto_base && questoes[i - 1]?.texto_base === questoes[i].texto_base;
 
-  function selecionar(alt: Alternativa) {
-    if (feedbackImediato && revelado) return; // já respondida
+  async function selecionar(alt: Alternativa) {
+    if (feedbackImediato && (revelado || corrigindo)) return; // já respondida
     setSelecionada(alt);
 
     if (feedbackImediato) {
       const tempo = tempoDecorrido();
-      const acertou = corrigir(questao, alt);
-      const resposta: RespostaSessao = { questao, marcada: alt, acertou, tempoSegundos: tempo };
-      setRespostas((prev) => new Map(prev).set(questao.id, resposta));
-      setRevelado(true);
-      void enviarResposta(montarResultado(questao, alt, contexto, tempo));
+      const respondida = questao;
+      setErroCorrecao(null);
+      setCorrigindo(true);
+      let acertou: boolean;
+      try {
+        acertou = await responderQuestao(respondida, alt, contexto, tempo);
+      } catch (e) {
+        // Limite: o aviso do plano toma o lugar da questão assim que a contagem recarrega.
+        if (questaoAtualRef.current === respondida.id) {
+          setSelecionada(undefined);
+          if (!(e instanceof LimiteDiarioError)) setErroCorrecao(SEM_CONEXAO_PARA_CORRIGIR);
+        }
+        return;
+      } finally {
+        setCorrigindo(false);
+      }
+      const resposta: RespostaSessao = { questao: respondida, marcada: alt, acertou, tempoSegundos: tempo };
+      setRespostas((prev) => new Map(prev).set(respondida.id, resposta));
+      // Se a pessoa trocou de questão enquanto a correção vinha, a resposta fica
+      // guardada e reaparece quando ela voltar.
+      if (questaoAtualRef.current === respondida.id) setRevelado(true);
       onProgresso?.();
     }
   }
@@ -197,6 +209,18 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   const ultima = idx + 1 === questoes.length;
   const podeAvancar = feedbackImediato ? revelado || idx < alcancado : true;
   const progresso = ((idx + 1) / questoes.length) * 100;
+
+  // Depois de todos os hooks, senão o React perde a conta deles.
+  // Limite diário do plano gratuito: a questão já respondida continua visível (com a
+  // correção); a próxima, ainda em branco, dá lugar ao convite.
+  if (limiteAtingido && !respostas.has(questao.id)) {
+    return (
+      <AvisoPremium
+        titulo="Limite de hoje atingido"
+        texto="Você respondeu todas as questões do plano gratuito por hoje. Amanhã tem mais, ou assine para estudar sem limite."
+      />
+    );
+  }
 
   return (
     // O caderno é uma coluna irmã da questão (a partir de lg), não uma camada por
@@ -258,6 +282,12 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
             <div className="h-full rounded-full transition-all" style={{ width: `${progresso}%`, background: "var(--accent)" }} />
           </div>
         </div>
+
+        {erroCorrecao && (
+          <p className="card px-4 py-3 text-sm font-semibold text-brand-ink" role="alert">
+            {erroCorrecao}
+          </p>
+        )}
 
         {/* Cartão da questão */}
         <div className="card p-6">
