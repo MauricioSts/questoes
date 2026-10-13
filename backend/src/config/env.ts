@@ -30,6 +30,16 @@ const schema = z.object({
   // mesmo sem servidor de e-mail. Sem os dois, o link só vai para o log.
   TELEGRAM_BOT_TOKEN: z.string().optional(),
   TELEGRAM_CHAT_ID: z.string().optional(),
+  // Assinatura pelo Mercado Pago. Sem MP_ACCESS_TOKEN a cobrança fica desligada: ninguém
+  // é limitado e o registro continua passando pela aprovação do admin.
+  MP_ACCESS_TOKEN: z.string().optional(),
+  // Assinatura secreta do webhook (painel do Mercado Pago). Sem ela a notificação é
+  // aceita sem conferir a assinatura; o estado continua vindo de uma consulta à API.
+  MP_WEBHOOK_SECRET: z.string().optional(),
+  PLANO_MENSAL_VALOR: z.coerce.number().positive().default(19.9),
+  PLANO_ANUAL_VALOR: z.coerce.number().positive().default(179.9),
+  // Questões por dia de quem não assina.
+  LIMITE_GRATIS_DIA: z.coerce.number().int().positive().default(10),
 });
 
 const parsed = schema.safeParse(process.env);

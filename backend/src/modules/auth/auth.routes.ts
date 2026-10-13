@@ -1,5 +1,5 @@
-// Rotas de autenticação: register (conta pendente de aprovação), aprovacao, login,
-// refresh, logout.
+// Rotas de autenticação: register, aprovacao, login, refresh, logout.
+// Com a assinatura ligada a conta entra direto; sem ela, nasce pendente de aprovação.
 // Fluxo de token: access token JWT curto (15m) + refresh token opaco (30d) guardado
 // como hash no banco. O refresh é rotacionado a cada uso e revogado no logout.
 import express, { Router } from "express";
@@ -14,6 +14,7 @@ import { requireAuth } from "../../middleware/auth.js";
 import { ehAdmin } from "../../middleware/admin.js";
 import { enviarEmail, escaparHtml } from "../../lib/email.js";
 import { enviarTelegram } from "../../lib/telegram.js";
+import { pagamentosAtivos } from "../../lib/assinatura.js";
 import {
   signAccessToken,
   generateRefreshToken,
@@ -108,8 +109,9 @@ async function avisarAdmin(user: { nome: string; email: string }, token: string)
   if (!entregue) console.warn(`[aprovacao] nenhum canal configurado. Pedido de ${user.email}: ${link}`);
 }
 
-// Registro: só abre com REGISTRO_ABERTO=true no .env. A conta nasce com aprovado=false
-// e não recebe tokens; o login fica barrado até o admin aprovar pelo link do e-mail.
+// Registro: só abre com REGISTRO_ABERTO=true no .env. Com a assinatura ligada, quem
+// controla o acesso é o plano: a conta já nasce liberada e entra na hora. Sem ela, nasce
+// com aprovado=false e não recebe tokens até o admin aprovar pelo link do e-mail.
 authRouter.post(
   "/register",
   asyncHandler(async (req, res) => {
@@ -127,6 +129,12 @@ authRouter.post(
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
+    if (pagamentosAtivos()) {
+      const user = await prisma.user.create({ data: { email, passwordHash, nome } });
+      const tokens = await issueTokens(user);
+      res.status(201).json({ user: publicUser(user), ...tokens });
+      return;
+    }
     const token = crypto.randomBytes(32).toString("hex");
     const user = await prisma.user.create({
       data: { email, passwordHash, nome, aprovado: false, aprovacaoTokenHash: hashToken(token) },

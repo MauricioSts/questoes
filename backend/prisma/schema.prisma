@@ -198,6 +198,9 @@ model User {
   // pelo link do e-mail. O default true mantém as contas antigas liberadas.
   aprovado           Boolean   @default(true)
   aprovacaoTokenHash String?   @unique // sha256 do token do link de aprovação
+  // Acesso completo sem pagar: contas que já existiam antes da assinatura, e quem o
+  // admin quiser liberar à mão. O admin (ADMIN_EMAIL) tem acesso completo sem isto.
+  cortesia           Boolean   @default(false)
   createdAt          DateTime  @default(now())
 
   answers        Answer[]
@@ -212,6 +215,24 @@ model User {
   metasMateria   MetaMateriaDia[]
   pokeVitrine    PokeVitrine?
   pokeSave       PokeSave?
+  assinatura     Assinatura?
+}
+
+// Assinatura do Mercado Pago (API de preapproval): uma linha por usuário, apontando para
+// a assinatura mais recente dele. O estado vem sempre de uma consulta ao Mercado Pago
+// (lib/assinatura.ts), nunca do corpo do webhook nem do cliente.
+model Assinatura {
+  userId          String    @id
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plano           String // mensal | anual
+  mpPreapprovalId String    @unique
+  status          String // pending | authorized | paused | cancelled (status do Mercado Pago)
+  proximaCobranca DateTime? // next_payment_date enquanto está autorizada
+  // Fim do período já pago. Preenchido quando a assinatura é cancelada ou pausada, para
+  // o acesso valer até o dia em que a próxima cobrança aconteceria.
+  validoAte       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 // Períodos de modo férias (histórico). Cada viagem é uma linha; `fim` null = férias

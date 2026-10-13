@@ -13,6 +13,8 @@ import { CadernoDrawer } from "./CadernoDrawer";
 import { useMarcadas } from "../hooks/useMarcadas";
 import { useHistoricoQuestoes } from "../hooks/useHistoricoQuestoes";
 import { usePausarFundo } from "../store/fundo";
+import { useAssinatura } from "../store/assinatura";
+import { AvisoPremium } from "./RotaPremium";
 
 export interface RespostaSessao {
   questao: Questao;
@@ -59,7 +61,7 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
     questoes,
     contexto,
     feedbackImediato,
-    permiteCaderno,
+    permiteCaderno: cadernoPedido,
     permiteMarcar,
     onFinalizar,
     onProgresso,
@@ -105,6 +107,9 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   // latência sem trazer nada novo.
   const { mapa: historico } = useHistoricoQuestoes();
   const questao = questoes[idx];
+  // O caderno é de assinante: sem assinatura o painel só abriria para falhar.
+  const { premium, limiteAtingido } = useAssinatura();
+  const permiteCaderno = cadernoPedido && premium;
 
   // Resolvendo questão, o relevo animado do Fantasy fica parado: movimento no canto do
   // olho atrapalha a leitura do enunciado.
@@ -125,6 +130,16 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   }, [idx]);
 
   if (!questao) return null;
+  // Limite diário do plano gratuito: a questão já respondida continua visível (com a
+  // correção); a próxima, ainda em branco, dá lugar ao convite.
+  if (limiteAtingido && !respostas.has(questao.id)) {
+    return (
+      <AvisoPremium
+        titulo="Limite de hoje atingido"
+        texto="Você respondeu todas as questões do plano gratuito por hoje. Amanhã tem mais, ou assine para estudar sem limite."
+      />
+    );
+  }
 
   const tempoDecorrido = () => Math.round((Date.now() - inicioRef.current) / 1000);
   const ehCompartilhado = (i: number) =>

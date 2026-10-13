@@ -1,5 +1,6 @@
 // Contexto de autenticação: login/logout, sessão persistida via refresh token.
-// Registro só cria um pedido: a conta não loga até o administrador aprovar por e-mail.
+// O registro entra direto quando o servidor devolve tokens; sem eles, é só um pedido
+// que espera a aprovação do administrador.
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { api, tokenStore } from "../lib/api";
 
@@ -19,7 +20,8 @@ interface AuthContextValue {
   usuario: Usuario | null;
   carregando: boolean;
   login: (email: string, password: string) => Promise<void>;
-  registrar: (nome: string, email: string, password: string) => Promise<void>;
+  /** true = conta criada e já logada; false = pedido aguardando aprovação. */
+  registrar: (nome: string, email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
 
@@ -63,13 +65,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUsuario(data.user);
   }
 
-  // Não recebe tokens: a conta nasce pendente de aprovação.
   async function registrar(nome: string, email: string, password: string) {
-    await api("/auth/register", {
+    const data = await api<Partial<AuthResposta>>("/auth/register", {
       method: "POST",
       body: { nome, email, password },
       auth: false,
     });
+    if (!data.user || !data.accessToken || !data.refreshToken) return false;
+    tokenStore.set(data.accessToken, data.refreshToken);
+    setUsuario(data.user);
+    return true;
   }
 
   async function logout() {

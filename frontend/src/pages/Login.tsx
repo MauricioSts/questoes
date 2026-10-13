@@ -134,8 +134,8 @@ function PainelEditor() {
   );
 }
 
-// /login e /registro são a mesma cena: o registro só acrescenta o campo de nome e,
-// em vez de entrar, termina num aviso de pedido enviado para aprovação.
+// /login e /registro são a mesma cena: o registro só acrescenta o campo de nome. Ele
+// entra direto ou, quando o servidor exige aprovação, termina num aviso de pedido enviado.
 export function Login({ modo = "entrar" }: { modo?: "entrar" | "registro" }) {
   const { login, registrar } = useAuth();
   const navigate = useNavigate();
@@ -160,7 +160,10 @@ export function Login({ modo = "entrar" }: { modo?: "entrar" | "registro" }) {
     setEnviando(true);
     try {
       if (registro) {
-        await registrar(nome.trim(), email, senha);
+        if (await registrar(nome.trim(), email, senha)) {
+          navigate("/", { replace: true });
+          return;
+        }
         setSenha("");
         setPedidoEnviado(true);
       } else {
@@ -189,7 +192,7 @@ export function Login({ modo = "entrar" }: { modo?: "entrar" | "registro" }) {
             </h1>
             <p className="mt-1 text-sm text-faint">
               {registro
-                ? "A conta é liberada depois que o administrador autorizar o pedido."
+                ? "Crie sua conta para começar a estudar."
                 : "Entre para continuar de onde a sua ofensiva parou."}
             </p>
           </div>
@@ -261,7 +264,7 @@ export function Login({ modo = "entrar" }: { modo?: "entrar" | "registro" }) {
 
             <Button type="submit" disabled={enviando} fullWidth size="lg">
               {registro
-                ? enviando ? "Enviando pedido…" : "Pedir conta"
+                ? enviando ? "Criando conta…" : "Criar conta"
                 : enviando ? "Autenticando…" : "Entrar"}
             </Button>
 

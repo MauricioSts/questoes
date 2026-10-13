@@ -3,11 +3,13 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
+import { requirePremium } from "../../middleware/premium.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { HttpError } from "../../middleware/error.js";
 
 export const cadernoRouter = Router();
 cadernoRouter.use(requireAuth);
+cadernoRouter.use(requirePremium);
 
 // Garante que o concurso pertence ao usuário (isolamento entre concursos).
 async function assertConcurso(userId: string, concursoId: string) {

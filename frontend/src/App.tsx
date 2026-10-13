@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./store/auth";
+import { AssinaturaProvider } from "./store/assinatura";
 import { ThemeProvider } from "./store/theme";
 import { ConcursoProvider } from "./store/concurso";
 import { QuestoesProvider } from "./store/questoes";
@@ -29,6 +30,8 @@ import { Trilhas } from "./pages/Trilhas";
 import { ComoFunciona } from "./pages/ComoFunciona";
 import { ExigeTrilha } from "./components/ExigeTrilha";
 import { RotaAdmin } from "./components/RotaAdmin";
+import { RotaPremium } from "./components/RotaPremium";
+import { Assinatura } from "./pages/Assinatura";
 import { FronteiraErro } from "./components/FronteiraErro";
 
 // Bancada dos golpes da Batalha Pokémon: só carrega quem abre.
@@ -46,11 +49,13 @@ export default function App() {
               <Route
                 element={
                   <ProtectedRoute>
-                    <ConcursoProvider>
-                      <QuestoesProvider>
-                        <AppLayout />
-                      </QuestoesProvider>
-                    </ConcursoProvider>
+                    <AssinaturaProvider>
+                      <ConcursoProvider>
+                        <QuestoesProvider>
+                          <AppLayout />
+                        </QuestoesProvider>
+                      </ConcursoProvider>
+                    </AssinaturaProvider>
                   </ProtectedRoute>
                 }
               >
@@ -62,12 +67,19 @@ export default function App() {
                   <Route path="/estudar" element={<Estudar />} />
                   <Route path="/flash" element={<Flash />} />
                   <Route path="/topico" element={<Topico />} />
-                  <Route path="/simulado" element={<Simulado />} />
                   <Route path="/revisar" element={<Revisar />} />
+                  <Route path="/assinatura" element={<Assinatura />} />
+                  <Route element={<RotaPremium recurso="Simulado" />}>
+                    <Route path="/simulado" element={<Simulado />} />
+                  </Route>
                   <Route path="/batalha" element={<BatalhaModo />} />
                   <Route path="/batalha/lab" element={<Suspense fallback={null}><MoveLab /></Suspense>} />
-                  <Route path="/caderno" element={<Caderno />} />
-                  <Route path="/stats" element={<Stats />} />
+                  <Route element={<RotaPremium recurso="Caderno" />}>
+                    <Route path="/caderno" element={<Caderno />} />
+                  </Route>
+                  <Route element={<RotaPremium recurso="Estatísticas" />}>
+                    <Route path="/stats" element={<Stats />} />
+                  </Route>
                   <Route path="/ranking" element={<Ranking />} />
                   <Route path="/marcadas" element={<Marcadas />} />
                   <Route path="/provas" element={<Provas />} />

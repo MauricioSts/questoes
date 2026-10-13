@@ -15,9 +15,11 @@ import {
   LogOut,
   HelpCircle,
   Swords,
+  Crown,
 } from "lucide-react";
 import { useTheme, type Tema } from "../store/theme";
 import { useAuth } from "../store/auth";
+import { useAssinatura } from "../store/assinatura";
 import { ConcursoSwitcher } from "./ConcursoSwitcher";
 import { LineSidebar } from "./LineSidebar";
 import { Logo } from "./Logo";
@@ -75,6 +77,7 @@ function CabecalhoMarca() {
 export function BottomTab() {
   const { tema } = useTheme();
   const { logout, usuario } = useAuth();
+  const { dados: assinatura } = useAssinatura();
   const navigate = useNavigate();
   const linha = CORES_LINHA[tema];
 
@@ -122,6 +125,11 @@ export function BottomTab() {
         <Link to="/como-funciona" className="flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold text-muted transition hover:text-brand-ink">
           <HelpCircle size={15} strokeWidth={1.8} /> Como funciona
         </Link>
+        {assinatura?.pagamentosAtivos && (
+          <Link to="/assinatura" className="flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold text-muted transition hover:text-brand-ink">
+            <Crown size={15} strokeWidth={1.8} /> {assinatura.premium ? "Assinatura" : "Assinar"}
+          </Link>
+        )}
         {/* Importar altera o acervo de todo mundo que segue a trilha: só o admin vê. */}
         {usuario?.admin && (
           <Link to="/importar" className="flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold text-muted transition hover:text-brand-ink">

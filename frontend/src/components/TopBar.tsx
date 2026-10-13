@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, Flame, Upload } from "lucide-react";
+import { LogOut, Flame, Upload, Crown } from "lucide-react";
 import { useAuth } from "../store/auth";
 import { useConcurso } from "../store/concurso";
 import { useMeta } from "../store/meta";
+import { useAssinatura } from "../store/assinatura";
 import { Logo } from "./Logo";
 import { BotaoProximoTema } from "./SeletorTema";
 
@@ -13,6 +14,7 @@ export function TopBar() {
   // A meta vem do provedor: é ele que recarrega quando uma resposta sincroniza, então a
   // ofensiva sobe durante o estudo em vez de esperar um F5.
   const { goal, celebrar } = useMeta();
+  const { dados: assinatura } = useAssinatura();
 
   const handleLogout = () => {
     logout();
@@ -66,6 +68,19 @@ export function TopBar() {
               {streak > 0 ? (streak === 1 ? "dia de ofensiva" : "dias de ofensiva") : "comece hoje"}
             </span>
           </button>
+
+          {/* Assinatura (mobile; no desktop fica no rodapé da barra lateral) */}
+          {assinatura?.pagamentosAtivos && (
+            <Link
+              to="/assinatura"
+              className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-muted transition hover:text-brand-500 lg:hidden"
+              aria-label="Assinatura"
+              title="Assinatura"
+            >
+              <Crown size={18} strokeWidth={1.8} />
+              <span className="hidden md:inline">{assinatura.premium ? "Assinatura" : "Assinar"}</span>
+            </Link>
+          )}
 
           {/* Importar questões (mobile; no desktop fica no rodapé da barra lateral).
               Só o admin: um lote vale para todos os que seguem a trilha. */}
