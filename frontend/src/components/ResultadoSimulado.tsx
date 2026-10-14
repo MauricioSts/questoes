@@ -3,26 +3,25 @@
 import { useMemo, useState } from "react";
 import { Check, TrendingUp, Trophy, X } from "lucide-react";
 import type { RespostaSessao } from "./SessionRunner";
-import { calcularNotaSimulado } from "../lib/sessionBuilder";
-import { NOTA_CORTE_PONTOS, TOTAL_PONTOS } from "../config/prova";
+import { formatarPeso, notaSimulado, type ConfigSimulado } from "../lib/simuladoConfig";
 import { QuestaoView } from "./QuestaoView";
 
 export function ResultadoSimulado({
   respostas,
+  config,
   onSair,
 }: {
   respostas: RespostaSessao[];
+  config: ConfigSimulado;
   onSair: () => void;
 }) {
   const [revisando, setRevisando] = useState(false);
 
   const nota = useMemo(
-    () =>
-      calcularNotaSimulado(
-        respostas.map((r) => ({ modulo: r.questao.modulo, acertou: r.acertou }))
-      ),
-    [respostas]
+    () => notaSimulado(config, respostas.map((r) => ({ materia: r.questao.materia, acertou: r.acertou }))),
+    [respostas, config]
   );
+  const pesosDiferentes = new Set(config.itens.map((i) => i.peso)).size > 1;
 
   // acertos por matéria
   const porMateria = useMemo(() => {
@@ -51,7 +50,7 @@ export function ResultadoSimulado({
     );
   }
 
-  const pctNota = Math.round((nota.pontos / TOTAL_PONTOS) * 100);
+  const pctNota = nota.totalPontosPossivel ? Math.round((nota.pontos / nota.totalPontosPossivel) * 100) : 0;
 
   return (
     <div className="mx-auto max-w-md space-y-5 p-4 text-center">
@@ -64,10 +63,10 @@ export function ResultadoSimulado({
       <h1 className="text-2xl font-bold">Resultado do Simulado</h1>
 
       <div className="card space-y-1 p-6">
-        <p className="text-sm text-slate-400">Nota ponderada (Mód. I ×1, Mód. II ×2,5)</p>
+        <p className="text-sm text-slate-400">{pesosDiferentes ? "Nota ponderada pelos pesos do seu simulado" : "Nota"}</p>
         <p className="text-4xl font-bold tabular-nums">
           {nota.pontos.toFixed(1)}
-          <span className="text-xl text-slate-400"> / {TOTAL_PONTOS}</span>
+          <span className="text-xl text-slate-400"> / {formatarPeso(nota.totalPontosPossivel)}</span>
         </p>
         <p className="text-slate-400">
           {nota.acertos}/{nota.total} acertos · {pctNota}%
@@ -76,7 +75,7 @@ export function ResultadoSimulado({
           {nota.aprovadoEstimado ? <Check size={18} strokeWidth={2.6} /> : <X size={18} strokeWidth={2.6} />}
           {nota.aprovadoEstimado
             ? "Acima do corte estimado"
-            : `Abaixo do corte (${NOTA_CORTE_PONTOS} pts)`}
+            : `Abaixo do corte (${formatarPeso(nota.corte)} pts, ${config.notaCortePct}%)`}
         </p>
       </div>
 

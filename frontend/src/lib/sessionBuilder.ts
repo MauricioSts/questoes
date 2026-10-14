@@ -1,7 +1,8 @@
 // MONTAGEM DE SESSÕES: regra de negócio que roda no FRONTEND (tem o JSON).
 // O backend só fornece IDs (erradas, semana); aqui decidimos a composição final.
 import type { Questao, Dificuldade } from "../types/questao";
-import { PROPORCAO_SIMULADO, PESO_ERRADA, PESO_ORIGEM } from "../config/prova";
+import { PESO_ERRADA, PESO_ORIGEM } from "../config/prova";
+import { configDataprev, type ConfigSimulado } from "./simuladoConfig";
 
 // ---------- utilitários de sorteio ----------
 
@@ -119,6 +120,7 @@ export interface SimuladoInput {
   // Do backend: /answers/ids. Sem eles (offline) o sorteio cai no peso só por semana.
   historico?: HistoricoSimulado;
   rng?: Rng;
+  config?: ConfigSimulado; // sem config: a prova da Dataprev (configDataprev)
 }
 
 export interface HistoricoSimulado {
@@ -145,31 +147,21 @@ export function montarSimulado(input: SimuladoInput): Questao[] {
   const peso = (q: Questao) => pesoSimulado(q, semanaMap, input.historico);
   const jaEscolhidos = new Set<number>();
   const blocos: Questao[][] = [];
+  const config = input.config ?? configDataprev(input.todas);
 
-  // Módulo I: um bloco por matéria, conforme a proporção.
-  for (const [materia, alvo] of Object.entries(PROPORCAO_SIMULADO.moduloI)) {
-    const candidatas = input.todas.filter((q) => q.modulo === "I" && q.materia === materia);
-    const bloco: Questao[] = [];
-    selecionarGrupo(candidatas, alvo, peso, jaEscolhidos, bloco, rng);
-    if (bloco.length) blocos.push(ordenarBloco(bloco, rng));
-  }
-
-  // Módulo II: o total é sorteado livremente entre as matérias específicas (nenhuma
-  // tem cota fixa), mas o resultado é reagrupado por matéria antes de ir para a tela.
-  const candidatasII = input.todas.filter((q) => q.modulo === "II");
-  const sorteadasII: Questao[] = [];
-  selecionarGrupo(
-    candidatasII,
-    PROPORCAO_SIMULADO.moduloIITotal,
-    peso,
-    jaEscolhidos,
-    sorteadasII,
-    rng
-  );
-  for (const materia of [...new Set(sorteadasII.map((q) => q.materia))].sort((a, b) =>
-    a.localeCompare(b, "pt-BR")
-  )) {
-    blocos.push(ordenarBloco(sorteadasII.filter((q) => q.materia === materia), rng));
+  // Um item por vez, na ordem configurada. Item com várias matérias (os específicos da
+  // Dataprev) sorteia livre entre elas e depois reagrupa por matéria.
+  for (const item of config.itens) {
+    const candidatas = input.todas.filter((q) => item.materias.includes(q.materia));
+    const sorteadas: Questao[] = [];
+    selecionarGrupo(candidatas, item.qtd, peso, jaEscolhidos, sorteadas, rng);
+    if (item.materias.length === 1) {
+      if (sorteadas.length) blocos.push(ordenarBloco(sorteadas, rng));
+      continue;
+    }
+    for (const materia of [...new Set(sorteadas.map((q) => q.materia))].sort((a, b) => a.localeCompare(b, "pt-BR"))) {
+      blocos.push(ordenarBloco(sorteadas.filter((q) => q.materia === materia), rng));
+    }
   }
 
   return blocos.flat();

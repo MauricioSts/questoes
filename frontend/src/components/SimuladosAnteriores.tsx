@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { History, ChevronRight } from "lucide-react";
 import { api } from "../lib/api";
 import { getQuestao } from "../lib/questoesRepo";
-import { calcularNotaSimulado } from "../lib/sessionBuilder";
+import { notaSimulado, type ConfigSimulado } from "../lib/simuladoConfig";
 import { ResultadoSimulado } from "./ResultadoSimulado";
 import type { RespostaSessao } from "./SessionRunner";
 import type { Alternativa, Questao } from "../types/questao";
@@ -73,7 +73,7 @@ function formatarData(iso: string): string {
   });
 }
 
-export function SimuladosAnteriores() {
+export function SimuladosAnteriores({ config }: { config: ConfigSimulado }) {
   const [simulados, setSimulados] = useState<SimuladoHist[] | null>(null);
   const [erro, setErro] = useState(false);
   const [aberto, setAberto] = useState<SimuladoHist | null>(null);
@@ -85,7 +85,7 @@ export function SimuladosAnteriores() {
   }, []);
 
   if (aberto) {
-    return <ResultadoSimulado respostas={reconstruir(aberto)} onSair={() => setAberto(null)} />;
+    return <ResultadoSimulado respostas={reconstruir(aberto)} config={config} onSair={() => setAberto(null)} />;
   }
 
   if (erro) {
@@ -117,9 +117,7 @@ export function SimuladosAnteriores() {
   return (
     <div className="space-y-3">
       {simulados.map((s) => {
-        const nota = calcularNotaSimulado(
-          s.respostas.map((r) => ({ modulo: (r.moduloSnapshot === "II" ? "II" : "I") as "I" | "II", acertou: r.acertou }))
-        );
+        const nota = notaSimulado(config, s.respostas.map((r) => ({ materia: r.materiaSnapshot, acertou: r.acertou })));
         const pct = Math.round((s.acertos / s.total) * 100);
         return (
           <button

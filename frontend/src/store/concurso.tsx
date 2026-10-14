@@ -4,6 +4,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { getConcursoId, setConcursoId } from "../lib/concurso";
+import type { ConfigSimulado } from "../lib/simuladoConfig";
 
 export type EstadoConcurso = "EM_CURSO" | "PAUSADO" | "VAZIO";
 
@@ -18,6 +19,7 @@ export interface Concurso {
   metaDiaria: number;
   trilhaId: string | null; // trilha que este concurso segue (null = concurso avulso)
   souDonoTrilha?: boolean; // a trilha foi criada por este usuário (pode gerenciar)
+  simuladoConfig?: ConfigSimulado | null; // null = padrão (lib/simuladoConfig)
   arquivado: boolean;
   noBanco: number;
   respondidas: number;

@@ -18,6 +18,7 @@ import {
 import { ChevronLeft } from "lucide-react";
 import type { Questao, Alternativa } from "../types/questao";
 import { corrigir } from "../lib/correcao";
+import { temModulos } from "../lib/questoesRepo";
 import { QuestaoView } from "./QuestaoView";
 import type { RespostaSessao } from "./SessionRunner";
 import { usePausarFundo } from "../store/fundo";
@@ -283,7 +284,7 @@ export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function Pro
                       {bloco.materia}
                     </h2>
                     <span className="flex-shrink-0 text-[11px] font-bold uppercase tracking-[.14em] text-faint">
-                      Módulo {bloco.modulo} · questões {bloco.inicio + 1}–{bloco.fim + 1}
+                      {temModulos() ? `Módulo ${bloco.modulo} · ` : ""}questões {bloco.inicio + 1}–{bloco.fim + 1}
                     </span>
                   </div>
                 </header>

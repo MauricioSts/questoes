@@ -141,6 +141,9 @@ model Concurso {
   // no agendamento do SRS (a fila volta a zero sem apagar nenhuma resposta, então
   // estatística, ofensiva e histórico de erros continuam intactos).
   srsResetAt DateTime?
+  // Simulado configurado pelo usuário (composição, pesos, duração, corte, dia). null =
+  // padrão calculado no cliente a partir das matérias da trilha.
+  simuladoConfig Json?
   createdAt  DateTime  @default(now())
 
   paginas PaginaCaderno[]

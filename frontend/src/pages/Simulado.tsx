@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Lock, Play } from "lucide-react";
 import { SimuladosAnteriores } from "../components/SimuladosAnteriores";
 import { PageHeader } from "../components/PageHeader";
@@ -14,7 +14,11 @@ import {
   descartarProva,
   type ProvaEmAndamento,
 } from "../lib/provaEmAndamento";
-import { SIMULADO_DURACAO_MIN, TOTAL_SIMULADO } from "../config/prova";
+import { configPadrao, formatarPeso, totalPontos, totalQuestoes, type ConfigSimulado } from "../lib/simuladoConfig";
+import { atualizarConcurso } from "../lib/multiApi";
+import { useConcurso } from "../store/concurso";
+import { useQuestoes } from "../store/questoes";
+import { EditorSimulado } from "../components/EditorSimulado";
 import type { RespostaSessao } from "../components/SessionRunner";
 import { ProvaCompleta, type ProvaCompletaHandle } from "../components/ProvaCompleta";
 import { Cronometro } from "../components/Cronometro";
@@ -28,15 +32,6 @@ import type { Questao, Alternativa } from "../types/questao";
 type Fase = "intro" | "rodando" | "resultado";
 type Aba = "novo" | "anteriores";
 
-const COMPOSICAO = [
-  { nome: "Português", mod: "I", qtd: 12, cor: "brand" },
-  { nome: "Inglês", mod: "I", qtd: 12, cor: "brand" },
-  { nome: "RLM", mod: "I", qtd: 5, cor: "brand" },
-  { nome: "Atualidades + IA", mod: "I", qtd: 6, cor: "brand" },
-  { nome: "Legislação", mod: "I", qtd: 5, cor: "brand" },
-  { nome: "Módulo II", mod: "II", qtd: 30, cor: "success" },
-];
-
 export function Simulado() {
   const [fase, setFase] = useState<Fase>("intro");
   const [aba, setAba] = useState<Aba>("novo");
@@ -46,6 +41,23 @@ export function Simulado() {
   const [carregando, setCarregando] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
   const provaRef = useRef<ProvaCompletaHandle>(null);
+  // Configuração do simulado deste concurso (a do usuário ou o padrão da trilha).
+  const { ativo, refresh: recarregarConcursos } = useConcurso();
+  const { total: totalBanco } = useQuestoes();
+  const padrao = useMemo(() => configPadrao(ativo?.trilhaId, todas()), [ativo?.trilhaId, totalBanco]); // eslint-disable-line react-hooks/exhaustive-deps
+  const config: ConfigSimulado = ativo?.simuladoConfig ?? padrao;
+  const disponivelPorMateria = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const q of todas()) m.set(q.materia, (m.get(q.materia) ?? 0) + 1);
+    return m;
+  }, [totalBanco]); // eslint-disable-line react-hooks/exhaustive-deps
+  const nQuestoes = totalQuestoes(config);
+
+  async function salvarConfig(c: ConfigSimulado | null) {
+    if (!ativo) return;
+    await atualizarConcurso(ativo.id, { simuladoConfig: c });
+    await recarregarConcursos();
+  }
   // Prova guardada de uma sessão anterior (saiu no meio, deu F5, fechou a aba).
   const [emAndamento, setEmAndamento] = useState<ProvaEmAndamento | null>(null);
   const [retomada, setRetomada] = useState<ProvaEmAndamento | null>(null);
@@ -91,17 +103,17 @@ export function Simulado() {
     } catch {
       setAviso("Sem conexão. Montando o simulado sem histórico da semana.");
     }
-    const sim = montarSimulado({ semana, todas: todas(), historico });
-    if (sim.length < TOTAL_SIMULADO) {
+    const sim = montarSimulado({ semana, todas: todas(), historico, config });
+    if (sim.length < nQuestoes) {
       setAviso(
-        `Só foi possível montar ${sim.length}/${TOTAL_SIMULADO} questões. Adicione mais questões ao banco para fechar a proporção.`
+        `Só foi possível montar ${sim.length}/${nQuestoes} questões: o banco não tem o suficiente de alguma matéria.`
       );
     }
     setQuestoes(sim);
     estadoRef.current = {
       marcadas: [],
       tempos: [],
-      restante: usarCronometro ? SIMULADO_DURACAO_MIN * 60 : null,
+      restante: usarCronometro ? config.duracaoMin * 60 : null,
       iniciadaEm: Date.now(),
     };
     setRetomada(null);
@@ -151,7 +163,7 @@ export function Simulado() {
   }
 
   if (fase === "resultado") {
-    return <ResultadoSimulado respostas={resultado} onSair={() => setFase("intro")} />;
+    return <ResultadoSimulado respostas={resultado} config={config} onSair={() => setFase("intro")} />;
   }
 
   if (fase === "rodando") {
@@ -174,7 +186,7 @@ export function Simulado() {
         cabecalho={
           usarCronometro ? (
             <Cronometro
-              minutos={SIMULADO_DURACAO_MIN}
+              minutos={config.duracaoMin}
               segundosIniciais={retomada?.restanteSegundos ?? undefined}
               onTick={(restante) => {
                 estadoRef.current.restante = restante;
@@ -216,99 +228,67 @@ export function Simulado() {
     </Card>
   );
 
-  // Conteúdo da aba "Novo simulado": bloqueado fora de sábado, senão a tela de início.
-  const conteudoNovo = !ehDiaDeSimulado() ? (
-    <Card className="p-10 text-center">
-      <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-hair" style={{ background: "var(--surface2)" }}>
-        <Lock size={26} className="text-faint" strokeWidth={2} />
-      </div>
-      <h2 className="mt-5 font-display font-bold text-brand-ink" style={{ fontSize: 30, fontWeight: "var(--displayWeight)" as never }}>
-        Abre no sábado
-      </h2>
-      <p className="mx-auto mt-3 max-w-md text-sm text-muted">
-        O simulado completo libera aos sábados, sorteado a partir do que você respondeu na semana,
-        com ênfase nas erradas. Nota ponderada de até 115 pontos (Módulo I peso 1, Módulo II peso 2,5).
-      </p>
-      <div className="mx-auto mt-8 flex max-w-sm items-start justify-center gap-10">
-        <StatSimulado n="70" label="questões" />
-        <StatSimulado n="4h" label="cronômetro" />
-        <StatSimulado n="115" label="pontos" />
-      </div>
-    </Card>
-  ) : (
+  const duracao = config.duracaoMin >= 60
+    ? `${Math.floor(config.duracaoMin / 60)}h${config.duracaoMin % 60 ? String(config.duracaoMin % 60).padStart(2, "0") : ""}`
+    : `${config.duracaoMin} min`;
+  const bloqueado = config.soSabado && !ehDiaDeSimulado();
+
+  // Aba "Novo simulado": o editor sempre aparece (é nele que se desliga o "só sábado");
+  // o botão de começar dá lugar ao aviso quando hoje não é dia.
+  const conteudoNovo = (
     <>
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* Composição */}
-        <Card className="p-6 space-y-4">
-          <h2 className="font-display font-extrabold text-brand-ink">Composição</h2>
-
-          {COMPOSICAO.map((item) => {
-            const barWidth = (item.qtd / TOTAL_SIMULADO) * 100;
-            return (
-              <div key={item.nome} className="space-y-1">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-brand-ink">{item.nome}</span>
-                  <span className="text-xs text-faint font-semibold">{item.qtd}</span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-hair overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${
-                      item.cor === "brand"
-                        ? "bg-brand-400"
-                        : "bg-gradient-to-r from-success-from to-success-to"
-                    }`}
-                    style={{ width: `${barWidth}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </Card>
-
-        {/* Pontuação e Cronômetro */}
+      <div className="grid gap-6 lg:grid-cols-[1fr_15rem]">
+        <EditorSimulado
+          key={JSON.stringify(config)}
+          config={config}
+          personalizado={!!ativo?.simuladoConfig}
+          disponivelPorMateria={disponivelPorMateria}
+          onSalvar={salvarConfig}
+          onRestaurar={() => salvarConfig(null)}
+        />
         <div className="space-y-4">
-          {/* Pontuação máxima */}
-          <Card className="bg-gradient-to-br from-brand-900 to-brand-800 text-white p-6 space-y-2">
-            <p className="text-xs font-bold uppercase text-cyan-from opacity-80 tracking-widest">
-              Pontuação Máxima
-            </p>
-            <p className="font-display text-3xl font-extrabold">115 pts</p>
-            <p className="text-xs opacity-80">
-              Mód. I (peso 1) + Mód. II (peso 2,5)
-            </p>
+          <Card className="space-y-3 p-6">
+            <StatSimulado n={String(nQuestoes)} label="questões" />
+            <StatSimulado n={duracao} label="cronômetro" />
+            <StatSimulado n={formatarPeso(totalPontos(config))} label="pontos" />
           </Card>
-
-          {/* Cronômetro */}
           <Card className="p-6">
             <Toggle
               checked={usarCronometro}
               onChange={setUsarCronometro}
-              label="Cronômetro de 4h"
-              ariaLabel="Ativar cronômetro para simular tempo real da prova"
+              label={`Cronômetro de ${duracao}`}
+              ariaLabel="Ativar cronômetro para simular o tempo da prova"
             />
-            <p className="text-xs text-faint mt-3">Pausável, zera e finaliza sozinho</p>
+            <p className="mt-3 text-xs text-faint">Pausável, zera e finaliza sozinho</p>
           </Card>
         </div>
       </div>
 
-      {/* Aviso */}
       {aviso && (
         <div className="rounded-xl border p-4 text-sm" style={{ borderColor: "var(--accentBd)", background: "var(--accentBg)", color: "var(--accentText)" }}>
           {aviso}
         </div>
       )}
 
-      {/* Botão */}
-      <Button onClick={iniciar} disabled={carregando} fullWidth size="lg">
-        {carregando ? (
-          <span className="inline-flex items-center justify-center gap-2">
-            <Spinner className="" />
-            Montando simulado…
-          </span>
-        ) : (
-          "Iniciar simulado"
-        )}
-      </Button>
+      {bloqueado ? (
+        <Card className="flex items-center gap-4 p-6">
+          <Lock size={22} className="flex-shrink-0 text-faint" strokeWidth={2} />
+          <p className="text-sm text-muted">
+            Seu simulado está configurado para abrir só aos sábados. Para fazer hoje, desligue "Liberar só aos sábados" e salve.
+          </p>
+        </Card>
+      ) : (
+        <Button onClick={iniciar} disabled={carregando || nQuestoes === 0} fullWidth size="lg">
+          {carregando ? (
+            <span className="inline-flex items-center justify-center gap-2">
+              <Spinner className="" />
+              Montando simulado…
+            </span>
+          ) : (
+            "Iniciar simulado"
+          )}
+        </Button>
+      )}
     </>
   );
 
@@ -317,7 +297,7 @@ export function Simulado() {
       <PageHeader
         rotulo="Simulado"
         titulo="Prova completa"
-        subtitulo="70 questões na proporção real. Folheie a prova inteira, marque e desmarque; a correção só vem no fim."
+        subtitulo={`${nQuestoes} questões na composição que você escolher. Folheie a prova inteira, marque e desmarque; a correção só vem no fim.`}
       />
 
       {/* Abas (underline) */}
@@ -345,7 +325,7 @@ export function Simulado() {
             {conteudoNovo}
           </>
         ) : (
-          <SimuladosAnteriores />
+          <SimuladosAnteriores config={config} />
         )}
       </div>
     </div>

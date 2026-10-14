@@ -7,7 +7,7 @@ import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { escopoQuestoes } from "../../lib/escopoQuestoes.js";
 import { HttpError } from "../../middleware/error.js";
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 export const concursosRouter = Router();
 concursosRouter.use(requireAuth);
@@ -95,7 +95,28 @@ concursosRouter.post(
   })
 );
 
-const patchSchema = concursoInput.partial().extend({ arquivado: z.boolean().optional() });
+// Simulado do concurso: cada item junta uma ou mais matérias com quantidade e peso.
+const simuladoConfigSchema = z.object({
+  itens: z
+    .array(
+      z.object({
+        nome: z.string().trim().min(1).max(80),
+        materias: z.array(z.string().max(120)).min(1).max(30),
+        qtd: z.number().int().min(1).max(200),
+        peso: z.number().min(0.1).max(10),
+      })
+    )
+    .min(1)
+    .max(30),
+  duracaoMin: z.number().int().min(5).max(600),
+  notaCortePct: z.number().min(0).max(100),
+  soSabado: z.boolean(),
+});
+
+const patchSchema = concursoInput
+  .partial()
+  // null volta ao padrão
+  .extend({ arquivado: z.boolean().optional(), simuladoConfig: simuladoConfigSchema.nullable().optional() });
 
 // PATCH /concursos/:id: atualiza campos (data, meta, arquivar…).
 concursosRouter.patch(
@@ -116,6 +137,9 @@ concursosRouter.patch(
         ...(p.dataProva !== undefined ? { dataProva: parseData(p.dataProva) } : {}),
         ...(p.metaDiaria !== undefined ? { metaDiaria: p.metaDiaria } : {}),
         ...(p.arquivado !== undefined ? { arquivado: p.arquivado } : {}),
+        ...(p.simuladoConfig !== undefined
+          ? { simuladoConfig: p.simuladoConfig === null ? Prisma.DbNull : (p.simuladoConfig as Prisma.InputJsonValue) }
+          : {}),
       },
     });
     res.json({ concurso });

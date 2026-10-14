@@ -1,6 +1,7 @@
 // Chamadas tipadas dos recursos multi-concurso: concursos, caderno, post-its e heatmap.
 import { api } from "./api";
 import type { Concurso } from "../store/concurso";
+import type { ConfigSimulado } from "./simuladoConfig";
 
 export interface NovoConcurso {
   nome: string;
@@ -16,7 +17,10 @@ export function criarConcurso(data: NovoConcurso) {
   return api<{ concurso: Concurso }>("/concursos", { method: "POST", body: data });
 }
 
-export function atualizarConcurso(id: string, data: Partial<NovoConcurso> & { arquivado?: boolean }) {
+export function atualizarConcurso(
+  id: string,
+  data: Partial<NovoConcurso> & { arquivado?: boolean; simuladoConfig?: ConfigSimulado | null }
+) {
   return api<{ concurso: Concurso }>(`/concursos/${id}`, { method: "PATCH", body: data });
 }
 
