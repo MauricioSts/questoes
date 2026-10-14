@@ -86,12 +86,19 @@ model Trilha {
   dataProva DateTime? // usada como data inicial do concurso de quem entra
   publicada Boolean   @default(true) // false = não aparece na escolha
   ordem     Int       @default(0)
+  // Trilha da comunidade: quem criou. null = trilha oficial (do admin). Se o dono apagar
+  // a conta, a trilha fica (quem segue não perde o acervo), só ninguém mais a edita.
+  donoId       String?
+  dono         User?   @relation(fields: [donoId], references: [id], onDelete: SetNull)
+  // "publica" aparece na escolha de trilhas; "privada" só para o dono (recurso Premium).
+  visibilidade String  @default("publica")
   createdAt DateTime  @default(now())
 
   questoes  Questao[]
   concursos Concurso[]
 
   @@index([publicada, ordem])
+  @@index([donoId])
 }
 
 // Prova de concurso de onde uma ou mais questões vieram. Vive fora da Questao porque
@@ -216,6 +223,7 @@ model User {
   pokeVitrine    PokeVitrine?
   pokeSave       PokeSave?
   assinatura     Assinatura?
+  trilhas        Trilha[]
 }
 
 // Assinatura do Mercado Pago (API de preapproval): uma linha por usuário, apontando para

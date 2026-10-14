@@ -15,11 +15,82 @@ export interface Trilha {
   questoes: number;
   materias: number;
   concursoId: string | null; // preenchido quando o usuário já segue esta trilha
+  seguidores: number;
+  oficial: boolean; // criada pelo admin; as demais são da comunidade
+  autor: string | null; // nome público de quem criou ("Ana S."), null nas oficiais
+  visibilidade: Visibilidade;
+  souDono: boolean;
 }
 
-export async function listarTrilhas(): Promise<Trilha[]> {
-  const { trilhas } = await api<{ trilhas: Trilha[] }>("/trilhas");
-  return trilhas;
+export type Visibilidade = "publica" | "privada";
+
+// O que o usuário pode criar: Free cria 1 trilha pública; Premium, quantas quiser.
+export interface RegrasCriacao {
+  premium: boolean;
+  minhas: number;
+  podeCriar: boolean;
+  podePrivada: boolean;
+  limiteFree: number;
+}
+
+export async function listarTrilhas(): Promise<{ trilhas: Trilha[]; criacao: RegrasCriacao }> {
+  return api<{ trilhas: Trilha[]; criacao: RegrasCriacao }>("/trilhas");
+}
+
+// ---- Trilha da comunidade (edição pelo dono) ----
+
+export type Letra = "A" | "B" | "C" | "D" | "E";
+export const LETRAS: Letra[] = ["A", "B", "C", "D", "E"];
+
+export interface DadosTrilha {
+  nome: string;
+  cargo: string;
+  banca: string;
+  orgao: string;
+  ano: number;
+  descricao: string;
+  dataProva: string | null; // YYYY-MM-DD
+  visibilidade: Visibilidade;
+}
+
+export interface QuestaoEditavel {
+  materia: string;
+  assunto: string;
+  dificuldade: "facil" | "media" | "dificil";
+  enunciado: string;
+  alternativas: Partial<Record<Letra, string>>;
+  gabarito: Letra;
+  explicacao: string;
+}
+
+export interface EdicaoTrilha {
+  trilha: DadosTrilha & { id: string };
+  questoes: (QuestaoEditavel & { id: number })[];
+  podePrivada: boolean;
+  minQuestoesVitrine: number;
+  maxQuestoes: number;
+}
+
+export function criarTrilha(dados: DadosTrilha) {
+  return api<{ trilha: { id: string }; concurso: { id: string } }>("/trilhas", { method: "POST", body: dados });
+}
+export function carregarEdicao(id: string) {
+  return api<EdicaoTrilha>(`/trilhas/${id}/editar`);
+}
+export function salvarTrilha(id: string, dados: Partial<DadosTrilha>) {
+  return api(`/trilhas/${id}`, { method: "PATCH", body: dados });
+}
+export function apagarTrilha(id: string) {
+  return api(`/trilhas/${id}`, { method: "DELETE" });
+}
+export function adicionarQuestoes(id: string, questoes: QuestaoEditavel[]) {
+  return api<{ adicionadas: number }>(`/trilhas/${id}/questoes`, { method: "POST", body: { questoes } });
+}
+export function editarQuestao(id: string, qid: number, q: QuestaoEditavel) {
+  return api(`/trilhas/${id}/questoes/${qid}`, { method: "PUT", body: q });
+}
+export function excluirQuestao(id: string, qid: number) {
+  return api(`/trilhas/${id}/questoes/${qid}`, { method: "DELETE" });
 }
 
 // Idempotente no servidor: clicar duas vezes devolve o mesmo concurso.

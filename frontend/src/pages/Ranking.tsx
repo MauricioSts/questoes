@@ -93,7 +93,7 @@ export function Ranking() {
 
   useEffect(() => {
     listarTrilhas()
-      .then((lista) => {
+      .then(({ trilhas: lista }) => {
         setTrilhas(lista);
         // A trilha que o usuário segue é a que interessa; sem nenhuma, a primeira.
         setTrilhaId(lista.find((t) => t.concursoId)?.id ?? lista[0]?.id ?? null);

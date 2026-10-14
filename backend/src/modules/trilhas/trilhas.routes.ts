@@ -2,12 +2,26 @@
 // acervo compartilhado; entrar nela cria o Concurso pessoal (progresso, meta, caderno)
 // apontando para ela. Sem isso, uma conta nova via Concurso vazio.
 import { Router } from "express";
+import { z } from "zod";
+import type { Prisma, Trilha } from "@prisma/client";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { HttpError } from "../../middleware/error.js";
 import { montarRanking, nomeExibicao, VOLUME_MINIMO_TAXA } from "../../lib/ranking.js";
 import type { Vitrine } from "../poke/poke.routes.js";
+import {
+  MAX_QUESTOES_POR_ENVIO,
+  MAX_QUESTOES_TRILHA,
+  MIN_QUESTOES_VITRINE,
+  dadosQuestao,
+  iniciaisTrilha,
+  questaoComunidadeSchema,
+  regrasCriacao,
+  slugTrilha,
+  trilhaSchema,
+  type Visibilidade,
+} from "../../lib/trilhaComunidade.js";
 
 export const trilhasRouter = Router();
 trilhasRouter.use(requireAuth);
@@ -15,48 +29,106 @@ trilhasRouter.use(requireAuth);
 // Meta diária inicial de quem entra numa trilha. O usuário ajusta depois nas metas.
 const META_DIARIA_PADRAO = 30;
 
-// GET /trilhas: as trilhas publicadas, com o tamanho do acervo e se o usuário já entrou.
+// Trilhas que este usuário enxerga: oficiais publicadas, as da comunidade que são
+// públicas e já têm questões suficientes, e as dele (sempre, até as vazias e privadas).
+function trilhasVisiveis(userId: string): Prisma.TrilhaWhereInput {
+  return {
+    publicada: true,
+    OR: [{ donoId: null }, { donoId: userId }, { visibilidade: "publica" }],
+  };
+}
+
+// GET /trilhas: as trilhas visíveis, com o tamanho do acervo, se o usuário já entrou e
+// se ele pode criar mais uma.
 trilhasRouter.get(
   "/",
   asyncHandler(async (req, res) => {
-    const [trilhas, meus] = await Promise.all([
-      prisma.trilha.findMany({ where: { publicada: true }, orderBy: { ordem: "asc" } }),
+    const userId = req.userId!;
+    const [trilhas, meus, criacao] = await Promise.all([
+      prisma.trilha.findMany({
+        where: trilhasVisiveis(userId),
+        orderBy: [{ ordem: "asc" }, { createdAt: "asc" }],
+        include: { dono: { select: { nome: true } } },
+      }),
       prisma.concurso.findMany({
-        where: { userId: req.userId!, trilhaId: { not: null } },
+        where: { userId, trilhaId: { not: null } },
         select: { id: true, trilhaId: true },
       }),
+      regrasCriacao(userId, req.userEmail),
     ]);
 
     const porTrilha = new Map(meus.map((c) => [c.trilhaId!, c.id]));
-    const contagens = await prisma.questao.groupBy({
-      by: ["trilhaId", "materia"],
-      where: { trilhaId: { in: trilhas.map((t) => t.id) } },
-      _count: { _all: true },
-    });
+    const [contagens, seguidores] = await Promise.all([
+      prisma.questao.groupBy({
+        by: ["trilhaId", "materia"],
+        where: { trilhaId: { in: trilhas.map((t) => t.id) } },
+        _count: { _all: true },
+      }),
+      prisma.concurso.groupBy({
+        by: ["trilhaId"],
+        where: { trilhaId: { in: trilhas.map((t) => t.id) } },
+        _count: { userId: true },
+      }),
+    ]);
+    const seguidoresPor = new Map(seguidores.map((g) => [g.trilhaId!, g._count.userId]));
 
-    const lista = trilhas.map((t) => {
-      const linhas = contagens.filter((c) => c.trilhaId === t.id);
-      return {
-        id: t.id,
-        nome: t.nome,
-        cargo: t.cargo,
-        iniciais: t.iniciais,
-        banca: t.banca,
-        orgao: t.orgao,
-        ano: t.ano,
-        descricao: t.descricao,
-        dataProva: t.dataProva?.toISOString() ?? null,
-        questoes: linhas.reduce((s, c) => s + c._count._all, 0),
-        materias: linhas.length,
-        // Concurso do usuário nessa trilha, quando já entrou. O cliente usa para
-        // mostrar "continuar" em vez de "começar" e para não criar duplicata.
-        concursoId: porTrilha.get(t.id) ?? null,
-      };
-    });
+    const lista = trilhas
+      .map((t) => {
+        const linhas = contagens.filter((c) => c.trilhaId === t.id);
+        const souDono = t.donoId === userId;
+        return {
+          id: t.id,
+          nome: t.nome,
+          cargo: t.cargo,
+          iniciais: t.iniciais,
+          banca: t.banca,
+          orgao: t.orgao,
+          ano: t.ano,
+          descricao: t.descricao,
+          dataProva: t.dataProva?.toISOString() ?? null,
+          questoes: linhas.reduce((s, c) => s + c._count._all, 0),
+          materias: linhas.length,
+          seguidores: seguidoresPor.get(t.id) ?? 0,
+          oficial: t.donoId === null,
+          autor: t.dono ? nomeExibicao(t.dono.nome) : null,
+          visibilidade: t.visibilidade as Visibilidade,
+          souDono,
+          // Concurso do usuário nessa trilha, quando já entrou. O cliente usa para
+          // mostrar "continuar" em vez de "começar" e para não criar duplicata.
+          concursoId: porTrilha.get(t.id) ?? null,
+        };
+      })
+      // Da comunidade, só entra na vitrine com acervo mínimo (ou se já sigo / sou dono).
+      .filter((t) => t.oficial || t.souDono || t.concursoId || t.questoes >= MIN_QUESTOES_VITRINE);
 
-    res.json({ trilhas: lista });
+    res.json({ trilhas: lista, criacao });
   })
 );
+
+// Cria o Concurso pessoal de quem entra numa trilha (ou devolve o que já existe).
+async function entrar(userId: string, trilha: Trilha) {
+  const existente = await prisma.concurso.findFirst({ where: { userId, trilhaId: trilha.id } });
+  if (existente) return { concurso: existente, jaSeguia: true };
+
+  // Sem data de prova na trilha, joga um ano à frente: o app conta os dias restantes
+  // em vários lugares e uma data no passado apareceria como prova vencida.
+  const dataProva = trilha.dataProva ?? new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+
+  const concurso = await prisma.concurso.create({
+    data: {
+      userId,
+      trilhaId: trilha.id,
+      nome: `${trilha.nome}: ${trilha.cargo}`,
+      iniciais: trilha.iniciais.toUpperCase(),
+      banca: trilha.banca,
+      ano: trilha.ano,
+      cargo: trilha.cargo,
+      dataProva,
+      metaDiaria: META_DIARIA_PADRAO,
+    },
+  });
+  return { concurso, jaSeguia: false };
+}
 
 // POST /trilhas/:id/entrar: idempotente. Se o usuário já segue a trilha, devolve o
 // concurso que ele já tem — dois cliques no cartão não viram dois concursos.
@@ -64,34 +136,199 @@ trilhasRouter.post(
   "/:id/entrar",
   asyncHandler(async (req, res) => {
     const trilha = await prisma.trilha.findFirst({
-      where: { id: req.params.id, publicada: true },
+      where: { id: req.params.id, ...trilhasVisiveis(req.userId!) },
     });
     if (!trilha) throw new HttpError(404, "Trilha não encontrada.");
+    const r = await entrar(req.userId!, trilha);
+    res.status(r.jaSeguia ? 200 : 201).json(r);
+  })
+);
 
-    const existente = await prisma.concurso.findFirst({
-      where: { userId: req.userId!, trilhaId: trilha.id },
-    });
-    if (existente) return res.json({ concurso: existente, jaSeguia: true });
+// ---- Trilhas da comunidade: criar, editar e escrever no acervo (só o dono) ----
 
-    // Sem data de prova na trilha, joga um ano à frente: o app conta os dias restantes
-    // em vários lugares e uma data no passado apareceria como prova vencida.
-    const dataProva =
-      trilha.dataProva ?? new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-
-    const concurso = await prisma.concurso.create({
+// POST /trilhas: cria a trilha e já entra nela.
+trilhasRouter.post(
+  "/",
+  asyncHandler(async (req, res) => {
+    const dados = trilhaSchema.parse(req.body);
+    const regras = await regrasCriacao(req.userId!, req.userEmail);
+    if (!regras.podeCriar) {
+      throw new HttpError(402, `No plano Free dá para criar ${regras.limiteFree} trilha. Assine o Premium para criar mais.`, "PREMIUM");
+    }
+    if (dados.visibilidade === "privada" && !regras.podePrivada) {
+      throw new HttpError(402, "Trilha privada é um recurso Premium.", "PREMIUM");
+    }
+    const trilha = await prisma.trilha.create({
       data: {
-        userId: req.userId!,
-        trilhaId: trilha.id,
-        nome: `${trilha.nome}: ${trilha.cargo}`,
-        iniciais: trilha.iniciais.toUpperCase(),
-        banca: trilha.banca,
-        ano: trilha.ano,
-        cargo: trilha.cargo,
-        dataProva,
-        metaDiaria: META_DIARIA_PADRAO,
+        id: slugTrilha(dados.nome, dados.cargo),
+        nome: dados.nome,
+        cargo: dados.cargo,
+        iniciais: iniciaisTrilha(dados.nome),
+        banca: dados.banca,
+        orgao: dados.orgao,
+        ano: dados.ano,
+        descricao: dados.descricao,
+        dataProva: dados.dataProva ? new Date(dados.dataProva) : null,
+        visibilidade: dados.visibilidade,
+        donoId: req.userId!,
+        ordem: 1000, // oficiais primeiro
       },
     });
-    res.status(201).json({ concurso, jaSeguia: false });
+    const { concurso } = await entrar(req.userId!, trilha);
+    res.status(201).json({ trilha, concurso });
+  })
+);
+
+async function trilhaDoDono(id: string, userId: string) {
+  const trilha = await prisma.trilha.findFirst({ where: { id, donoId: userId } });
+  if (!trilha) throw new HttpError(404, "Trilha não encontrada.");
+  return trilha;
+}
+
+// GET /trilhas/:id/editar: dados da trilha + questões completas (com gabarito), para o dono.
+trilhasRouter.get(
+  "/:id/editar",
+  asyncHandler(async (req, res) => {
+    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const [questoes, regras] = await Promise.all([
+      prisma.questao.findMany({
+        where: { trilhaId: trilha.id },
+        orderBy: { id: "asc" },
+        select: {
+          id: true, materia: true, assunto: true, dificuldade: true, enunciado: true,
+          alternativas: true, gabarito: true, explicacao: true,
+        },
+      }),
+      regrasCriacao(req.userId!, req.userEmail),
+    ]);
+    res.json({
+      trilha: {
+        id: trilha.id,
+        nome: trilha.nome,
+        cargo: trilha.cargo,
+        banca: trilha.banca,
+        orgao: trilha.orgao,
+        ano: trilha.ano,
+        descricao: trilha.descricao,
+        dataProva: trilha.dataProva?.toISOString().slice(0, 10) ?? null,
+        visibilidade: trilha.visibilidade,
+      },
+      questoes,
+      podePrivada: regras.podePrivada,
+      minQuestoesVitrine: MIN_QUESTOES_VITRINE,
+      maxQuestoes: MAX_QUESTOES_TRILHA,
+    });
+  })
+);
+
+// PATCH /trilhas/:id: edita os dados da trilha (dono).
+trilhasRouter.patch(
+  "/:id",
+  asyncHandler(async (req, res) => {
+    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const dados = trilhaSchema.partial().parse(req.body);
+    if (dados.visibilidade === "privada" && trilha.visibilidade !== "privada") {
+      const { podePrivada } = await regrasCriacao(req.userId!, req.userEmail);
+      if (!podePrivada) throw new HttpError(402, "Trilha privada é um recurso Premium.", "PREMIUM");
+    }
+    const atualizada = await prisma.trilha.update({
+      where: { id: trilha.id },
+      data: {
+        ...dados,
+        ...(dados.nome ? { iniciais: iniciaisTrilha(dados.nome) } : {}),
+        dataProva: dados.dataProva === undefined ? undefined : dados.dataProva ? new Date(dados.dataProva) : null,
+      },
+    });
+    res.json({ trilha: atualizada });
+  })
+);
+
+// DELETE /trilhas/:id: apaga a trilha e o acervo dela. Recusado se outra pessoa já
+// segue: apagar levaria junto o estudo dela.
+trilhasRouter.delete(
+  "/:id",
+  asyncHandler(async (req, res) => {
+    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const outros = await prisma.concurso.count({ where: { trilhaId: trilha.id, userId: { not: req.userId! } } });
+    if (outros > 0) {
+      throw new HttpError(409, `Esta trilha tem ${outros} ${outros === 1 ? "pessoa estudando" : "pessoas estudando"} e não pode ser apagada.`);
+    }
+    const ids = (await prisma.questao.findMany({ where: { trilhaId: trilha.id }, select: { id: true } })).map((q) => q.id);
+    await prisma.$transaction([
+      prisma.answer.deleteMany({ where: { questaoId: { in: ids } } }),
+      prisma.nota.deleteMany({ where: { questaoId: { in: ids } } }),
+      prisma.marcada.deleteMany({ where: { questaoId: { in: ids } } }),
+      prisma.questao.deleteMany({ where: { id: { in: ids } } }),
+      prisma.concurso.deleteMany({ where: { trilhaId: trilha.id, userId: req.userId! } }),
+      prisma.trilha.delete({ where: { id: trilha.id } }),
+    ]);
+    res.status(204).end();
+  })
+);
+
+const envioSchema = z.object({
+  questoes: z.array(questaoComunidadeSchema).min(1).max(MAX_QUESTOES_POR_ENVIO),
+});
+
+// POST /trilhas/:id/questoes: adiciona questões (uma do formulário ou várias do JSON).
+// O id é global (Questao.id é Int compartilhado com o acervo oficial), então a reserva
+// dos ids acontece sob um lock da transação: dois envios ao mesmo tempo não colidem.
+trilhasRouter.post(
+  "/:id/questoes",
+  asyncHandler(async (req, res) => {
+    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const { questoes } = envioSchema.parse(req.body);
+
+    const criadas = await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(7311)`;
+      const total = await tx.questao.count({ where: { trilhaId: trilha.id } });
+      if (total + questoes.length > MAX_QUESTOES_TRILHA) {
+        throw new HttpError(400, `Uma trilha comporta até ${MAX_QUESTOES_TRILHA} questões (esta tem ${total}).`);
+      }
+      const { _max } = await tx.questao.aggregate({ _max: { id: true } });
+      const inicio = (_max.id ?? 0) + 1;
+      await tx.questao.createMany({
+        data: questoes.map((q, i) => ({
+          id: inicio + i,
+          trilhaId: trilha.id,
+          ...dadosQuestao(q),
+          loteNome: "comunidade",
+        })),
+      });
+      return { inicio, n: questoes.length };
+    });
+    res.status(201).json({ adicionadas: criadas.n, ids: Array.from({ length: criadas.n }, (_, i) => criadas.inicio + i) });
+  })
+);
+
+// PUT /trilhas/:id/questoes/:qid: corrige uma questão da trilha.
+trilhasRouter.put(
+  "/:id/questoes/:qid",
+  asyncHandler(async (req, res) => {
+    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const qid = Number(req.params.qid);
+    const q = questaoComunidadeSchema.parse(req.body);
+    const r = await prisma.questao.updateMany({ where: { id: qid, trilhaId: trilha.id }, data: dadosQuestao(q) });
+    if (r.count === 0) throw new HttpError(404, "Questão não encontrada.");
+    res.json({ ok: true });
+  })
+);
+
+// DELETE /trilhas/:id/questoes/:qid: remove uma questão (e as respostas dadas a ela).
+trilhasRouter.delete(
+  "/:id/questoes/:qid",
+  asyncHandler(async (req, res) => {
+    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const qid = Number(req.params.qid);
+    const existe = await prisma.questao.findFirst({ where: { id: qid, trilhaId: trilha.id }, select: { id: true } });
+    if (!existe) throw new HttpError(404, "Questão não encontrada.");
+    await prisma.$transaction([
+      prisma.answer.deleteMany({ where: { questaoId: qid } }),
+      prisma.nota.deleteMany({ where: { questaoId: qid } }),
+      prisma.marcada.deleteMany({ where: { questaoId: qid } }),
+      prisma.questao.delete({ where: { id: qid } }),
+    ]);
+    res.status(204).end();
   })
 );
 

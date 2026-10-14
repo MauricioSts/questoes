@@ -2,9 +2,9 @@
 // o app não tem questões para servir, então esta tela é o portão de entrada — e por isso
 // ela explica o que uma trilha é em vez de só listar cartões.
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowRight, BookOpen, CalendarDays, Layers, Lock, Sparkles } from "lucide-react";
-import { listarTrilhas, entrarNaTrilha, type Trilha } from "../lib/trilhas";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowRight, BookOpen, CalendarDays, Crown, Layers, Lock, Pencil, Plus, Users } from "lucide-react";
+import { listarTrilhas, entrarNaTrilha, type RegrasCriacao, type Trilha } from "../lib/trilhas";
 import { useConcurso } from "../store/concurso";
 import { TituloVivo } from "../components/TituloVivo";
 import { Carregando } from "../components/Spinner";
@@ -17,6 +17,7 @@ function diasAte(iso: string | null): number | null {
 
 export function Trilhas() {
   const [trilhas, setTrilhas] = useState<Trilha[]>([]);
+  const [criacao, setCriacao] = useState<RegrasCriacao | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [entrando, setEntrando] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
@@ -25,7 +26,10 @@ export function Trilhas() {
 
   useEffect(() => {
     listarTrilhas()
-      .then(setTrilhas)
+      .then((r) => {
+        setTrilhas(r.trilhas);
+        setCriacao(r.criacao);
+      })
       .catch(() => setErro("Não foi possível carregar as trilhas. Recarregue a página."))
       .finally(() => setCarregando(false));
   }, []);
@@ -69,19 +73,29 @@ export function Trilhas() {
       {carregando ? (
         <Carregando />
       ) : (
-        <div className="space-y-4">
-          {trilhas.map((t, i) => (
-            <CartaoTrilha
-              key={t.id}
-              trilha={t}
-              indice={i}
-              ocupado={entrando === t.id}
-              desabilitado={entrando !== null}
-              onEscolher={() => escolher(t)}
-            />
-          ))}
-          <CartaoEmBreve />
-        </div>
+        <>
+          {[
+            { titulo: "Trilhas oficiais", lista: trilhas.filter((t) => t.oficial) },
+            { titulo: "Da comunidade", lista: trilhas.filter((t) => !t.oficial) },
+          ]
+            .filter((g) => g.lista.length > 0)
+            .map((g) => (
+              <section key={g.titulo} className="space-y-4">
+                <h2 className="sobre-fundo text-[11px] font-bold uppercase tracking-[.2em] text-faint">{g.titulo}</h2>
+                {g.lista.map((t, i) => (
+                  <CartaoTrilha
+                    key={t.id}
+                    trilha={t}
+                    indice={i}
+                    ocupado={entrando === t.id}
+                    desabilitado={entrando !== null}
+                    onEscolher={() => escolher(t)}
+                  />
+                ))}
+              </section>
+            ))}
+          {criacao && <CartaoCriar criacao={criacao} />}
+        </>
       )}
 
       <p className="sobre-fundo text-center text-sm text-muted">
@@ -141,6 +155,11 @@ function CartaoTrilha({
             <h2 className="font-display text-2xl font-bold leading-tight text-brand-ink">
               {trilha.nome}: {trilha.cargo}
             </h2>
+            {!trilha.oficial && (
+              <span className="meta-pill border border-hair text-faint">
+                {trilha.visibilidade === "privada" ? "Privada" : "Comunidade"}
+              </span>
+            )}
             {jaSegue && (
               <span
                 className="meta-pill border"
@@ -151,7 +170,8 @@ function CartaoTrilha({
             )}
           </div>
           <p className="mt-0.5 text-sm text-faint">
-            {trilha.banca} · {trilha.orgao} · {trilha.ano}
+            {[trilha.banca, trilha.orgao, trilha.ano].filter(Boolean).join(" · ")}
+            {trilha.autor && <> · por {trilha.souDono ? "você" : trilha.autor}</>}
           </p>
 
           <p className="mt-4 text-sm leading-relaxed text-muted">{trilha.descricao}</p>
@@ -160,6 +180,7 @@ function CartaoTrilha({
             <Dado icone={BookOpen} valor={trilha.questoes.toLocaleString("pt-BR")} rotulo="questões" />
             <Dado icone={Layers} valor={trilha.materias} rotulo="matérias" />
             {dias !== null && <Dado icone={CalendarDays} valor={dias} rotulo="dias até a prova" />}
+            {!trilha.oficial && <Dado icone={Users} valor={trilha.seguidores} rotulo="estudando" />}
           </dl>
 
           <button
@@ -170,6 +191,14 @@ function CartaoTrilha({
             {ocupado ? "Entrando…" : jaSegue ? "Continuar estudando" : "Começar esta trilha"}
             {!ocupado && <ArrowRight size={18} strokeWidth={2.4} />}
           </button>
+          {trilha.souDono && (
+            <Link
+              to={`/trilhas/${trilha.id}/editar`}
+              className="ml-4 mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-brand-ink"
+            >
+              <Pencil size={15} /> Editar trilha
+            </Link>
+          )}
         </div>
       </div>
     </article>
@@ -196,21 +225,35 @@ function Dado({
   );
 }
 
-// Dito na cara: hoje existe uma trilha só. Some sozinho quando houver outras, porque
-// aí a lista já explica a si mesma.
-function CartaoEmBreve() {
+// Convite para criar a própria trilha. Free cria 1 (pública); quem já usou a dele vê o
+// motivo e o caminho para o Premium em vez de um botão que só falharia.
+function CartaoCriar({ criacao }: { criacao: RegrasCriacao }) {
+  const pode = criacao.podeCriar;
   return (
-    <div className="flex items-center gap-4 rounded-2xl border-2 border-dashed border-hair bg-surface/70 px-6 py-5 backdrop-blur-sm">
-      <span className="grid h-11 w-11 flex-shrink-0 place-items-center rounded-xl bg-surface2 text-faint">
-        <Sparkles size={20} strokeWidth={1.8} />
+    <Link
+      to={pode ? "/trilhas/nova" : "/assinatura"}
+      className="flex items-center gap-4 rounded-2xl border-2 border-dashed border-hair bg-surface/70 px-6 py-5 backdrop-blur-sm transition hover:border-brand-500/60"
+    >
+      <span className="grid h-11 w-11 flex-shrink-0 place-items-center rounded-xl bg-surface2 text-brand-500">
+        {pode ? <Plus size={20} strokeWidth={2} /> : <Crown size={20} strokeWidth={1.8} />}
       </span>
       <div className="min-w-0">
-        <p className="font-display font-bold text-brand-ink">Outras trilhas vêm por aí</p>
+        <p className="font-display font-bold text-brand-ink">
+          {pode ? "Criar minha trilha" : "Quer criar mais trilhas?"}
+        </p>
         <p className="mt-0.5 text-sm text-faint">
-          Cada nova trilha é um acervo montado a partir das provas daquele concurso.
+          {pode
+            ? criacao.premium
+              ? "Monte o banco de questões do seu concurso, público ou privado."
+              : `Monte o banco de questões do seu concurso. No Free você cria ${criacao.limiteFree} trilha pública.`
+            : `Você já criou ${criacao.minhas} ${criacao.minhas === 1 ? "trilha" : "trilhas"}. Com o Premium cria quantas quiser, inclusive privadas.`}
         </p>
       </div>
-      <Lock size={16} strokeWidth={1.8} className="ml-auto hidden flex-shrink-0 text-faint sm:block" />
-    </div>
+      {pode ? (
+        <ArrowRight size={18} strokeWidth={2} className="ml-auto hidden flex-shrink-0 text-faint sm:block" />
+      ) : (
+        <Lock size={16} strokeWidth={1.8} className="ml-auto hidden flex-shrink-0 text-faint sm:block" />
+      )}
+    </Link>
   );
 }

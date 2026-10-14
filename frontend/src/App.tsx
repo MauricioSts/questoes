@@ -32,6 +32,7 @@ import { ExigeTrilha } from "./components/ExigeTrilha";
 import { RotaAdmin } from "./components/RotaAdmin";
 import { RotaPremium } from "./components/RotaPremium";
 import { Perfil } from "./pages/Perfil";
+import { TrilhaEditor } from "./pages/TrilhaEditor";
 import { Assinatura } from "./pages/Assinatura";
 import { FronteiraErro } from "./components/FronteiraErro";
 
@@ -63,6 +64,8 @@ export default function App() {
                 <Route element={<ExigeTrilha />}>
                   <Route path="/" element={<Home />} />
                   <Route path="/trilhas" element={<Trilhas />} />
+                  <Route path="/trilhas/nova" element={<TrilhaEditor />} />
+                  <Route path="/trilhas/:id/editar" element={<TrilhaEditor />} />
                   <Route path="/como-funciona" element={<ComoFunciona />} />
                   <Route path="/concursos" element={<ConcursoPicker />} />
                   <Route path="/estudar" element={<Estudar />} />

@@ -6,7 +6,8 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useConcurso } from "../store/concurso";
 import { Carregando } from "./Spinner";
 
-const LIBERADAS = ["/trilhas", "/como-funciona"];
+// "/trilhas/nova" também: a primeira trilha de uma conta pode ser uma que ela mesma cria.
+const LIBERADAS = ["/trilhas", "/trilhas/nova", "/como-funciona"];
 
 export function ExigeTrilha() {
   const { concursos, loading } = useConcurso();
