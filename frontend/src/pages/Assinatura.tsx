@@ -10,6 +10,7 @@ import { Button } from "../components/Button";
 import { Carregando } from "../components/Spinner";
 import { TabelaPlanos } from "../components/TabelaPlanos";
 import { TagPlano } from "../components/TagPlano";
+import { MarcaMercadoPago } from "../components/MarcaMercadoPago";
 
 const VANTAGENS = [
   "Questões sem limite diário",
@@ -28,6 +29,8 @@ export function Assinatura() {
   const { usuario } = useAuth();
   const { dados, carregando, recarregar } = useAssinatura();
   const [emailPagador, setEmailPagador] = useState(usuario?.email ?? "");
+  // O e-mail do cadastro é o padrão; o campo só aparece para quem paga com outra conta.
+  const [trocandoEmail, setTrocandoEmail] = useState(false);
   const [ocupado, setOcupado] = useState<PlanoId | "cancelar" | null>(null);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -156,23 +159,52 @@ export function Assinatura() {
                       <Button fullWidth onClick={() => assinar(p.id)} disabled={ocupado !== null}>
                         {ocupado === p.id ? "Abrindo o Mercado Pago…" : `Assinar ${p.nome.toLowerCase()}`}
                       </Button>
+                      <p className="mt-2.5 flex items-center justify-center gap-1.5 text-[11px] font-semibold text-faint">
+                        <MarcaMercadoPago tamanho={16} /> Pague com o Mercado Pago
+                      </p>
                     </div>
                   );
                 })}
               </div>
 
-              <label className="mt-5 block text-sm text-muted">
-                E-mail da sua conta Mercado Pago
-                <input
-                  type="email"
-                  value={emailPagador}
-                  onChange={(e) => setEmailPagador(e.target.value)}
-                  className="mt-1.5 block w-full rounded-xl border border-hair bg-surface px-3.5 py-2.5 text-brand-ink"
-                />
-                <span className="mt-1.5 block text-xs text-faint">
-                  O pagamento é com cartão, feito no Mercado Pago. Se a conta de lá usa outro e-mail, troque aqui.
-                </span>
-              </label>
+              {/* Quem processa o pagamento, com a marca: a pessoa sai daqui para o site
+                  do Mercado Pago e precisa reconhecer para onde está indo. */}
+              <div className="card mt-5 p-5">
+                <div className="flex items-center gap-3.5">
+                  <MarcaMercadoPago tamanho={40} />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-display font-bold text-brand-ink">Pagamento seguro pelo Mercado Pago</p>
+                    <p className="mt-0.5 text-xs text-faint">
+                      Cartão de crédito, cobrança automática. Os dados do cartão ficam só no Mercado Pago.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 border-t border-hair pt-3 text-xs text-faint">
+                  {trocandoEmail ? (
+                    <label className="block">
+                      <span className="font-semibold text-muted">E-mail da sua conta no Mercado Pago</span>
+                      <input
+                        type="email"
+                        value={emailPagador}
+                        onChange={(e) => setEmailPagador(e.target.value)}
+                        autoFocus
+                        className="mt-1.5 block w-full rounded-xl border border-hair bg-surface px-3.5 py-2.5 text-sm text-brand-ink"
+                      />
+                    </label>
+                  ) : (
+                    <p>
+                      Você entra no Mercado Pago com <strong className="text-muted">{emailPagador || "o e-mail do cadastro"}</strong>.{" "}
+                      <button
+                        type="button"
+                        onClick={() => setTrocandoEmail(true)}
+                        className="font-semibold text-brand-500 underline-offset-2 hover:underline"
+                      >
+                        Usa outro e-mail lá?
+                      </button>
+                    </p>
+                  )}
+                </div>
+              </div>
             </>
           )}
         </>
