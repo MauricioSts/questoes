@@ -9,7 +9,6 @@
 // Aplica data-theme na raiz (<html>) e persiste a escolha em localStorage. Os temas
 // escuros também ligam a classe .dark para manter utilitários dark: coerentes.
 import { createContext, lazy, Suspense, useContext, useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
-import { importarChunk } from "../lib/importarChunk";
 
 export type Tema = "fantasy" | "rose" | "cyberpunk";
 
@@ -37,10 +36,26 @@ export interface Origem {
 // Todo tema tem entrada animada. O pedaço de cada animação só desce quando alguém chega
 // perto do botão (preCarregarTransicao) ou, no pior caso, no próprio clique.
 type Transicao = ComponentType<{ origem: Origem; aoCobrir: () => void; aoTerminar: () => void }>;
+//
+// Sem importarChunk aqui de propósito: ele recarrega a página quando o pedaço some (aba
+// aberta antes de um deploy). Numa animação isso era pior que não animar: o hover no
+// botão ou o clique recarregavam a página SEM trocar o tema, e só o segundo clique
+// funcionava. Se a animação não vier, o tema troca na hora, sem ela.
+function SemAnimacao({ aoCobrir, aoTerminar }: { aoCobrir: () => void; aoTerminar: () => void }) {
+  useEffect(() => {
+    aoCobrir();
+    aoTerminar();
+    // Uma vez por montagem, como as animações.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
+}
+const ouSemAnimacao = (carregar: () => Promise<{ default: Transicao }>) => () =>
+  carregar().catch(() => ({ default: SemAnimacao as Transicao }));
 const CARREGAR: Record<Tema, () => Promise<{ default: Transicao }>> = {
-  fantasy: () => importarChunk(() => import("../components/transicoes/TransicaoTopography")),
-  rose: () => importarChunk(() => import("../components/transicoes/TransicaoLugia")),
-  cyberpunk: () => importarChunk(() => import("../components/transicoes/TransicaoCyberpunk")),
+  fantasy: ouSemAnimacao(() => import("../components/transicoes/TransicaoTopography")),
+  rose: ouSemAnimacao(() => import("../components/transicoes/TransicaoLugia")),
+  cyberpunk: ouSemAnimacao(() => import("../components/transicoes/TransicaoCyberpunk")),
 };
 const TRANSICOES = Object.fromEntries(
   (Object.keys(CARREGAR) as Tema[]).map((t) => [t, lazy(CARREGAR[t])])
