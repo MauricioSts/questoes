@@ -5,6 +5,7 @@ import express, { Router } from "express";
 import { z } from "zod";
 import type { Prisma, Trilha } from "@prisma/client";
 import { prisma } from "../../prisma.js";
+import { ehAdmin } from "../../middleware/admin.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { env } from "../../config/env.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
@@ -48,6 +49,7 @@ trilhasRouter.get(
   "/",
   asyncHandler(async (req, res) => {
     const userId = req.userId!;
+    const admin = ehAdmin(req.userEmail);
     const [trilhas, meus, criacao] = await Promise.all([
       prisma.trilha.findMany({
         where: trilhasVisiveis(userId),
@@ -104,7 +106,10 @@ trilhasRouter.get(
         };
       })
       // Da comunidade, só entra na vitrine com acervo mínimo (ou se já sigo / sou dono).
-      .filter((t) => t.oficial || t.souDono || t.concursoId || t.questoes >= MIN_QUESTOES_VITRINE);
+      // O admin vê também as públicas abaixo do mínimo, marcadas como fora da vitrine,
+      // para acompanhar o que está sendo criado (as privadas continuam só do dono).
+      .map((t) => ({ ...t, naVitrine: t.oficial || t.questoes >= MIN_QUESTOES_VITRINE }))
+      .filter((t) => t.naVitrine || t.souDono || t.concursoId || admin);
 
     res.json({ trilhas: lista, criacao });
   })

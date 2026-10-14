@@ -164,6 +164,14 @@ function CartaoTrilha({
               <span className="meta-pill border border-hair text-faint">{TIPOS[trilha.tipo]?.selo ?? trilha.tipo}
               </span>
             )}
+            {trilha.naVitrine === false && trilha.visibilidade !== "privada" && (
+              <span
+                className="meta-pill border border-hair text-faint"
+                title="Trilha pública com menos de 10 questões: ainda não aparece para os outros usuários."
+              >
+                Fora da lista pública
+              </span>
+            )}
             {jaSegue && (
               <span
                 className="meta-pill border"

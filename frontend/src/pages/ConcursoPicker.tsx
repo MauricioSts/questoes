@@ -1,11 +1,9 @@
-// Tela seletora de concursos: grid de cartões (um por concurso) + cartão "Adicionar".
+// Tela seletora de concursos: grid de cartões (um por concurso) + cartão "Adicionar"
+// (entrar numa trilha ou criar a própria).
 // Trocar de concurso muda o escopo de todo o app.
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Compass } from "lucide-react";
+import { ArrowRight, Plus, Compass } from "lucide-react";
 import { useConcurso, type Concurso, type EstadoConcurso } from "../store/concurso";
-import { useAuth } from "../store/auth";
-import { criarConcurso } from "../lib/multiApi";
 import { TituloVivo } from "../components/TituloVivo";
 import { Carregando } from "../components/Spinner";
 
@@ -16,10 +14,8 @@ const BADGE: Record<EstadoConcurso, { texto: string; cls: string }> = {
 };
 
 export function ConcursoPicker() {
-  const { concursos, activeId, setAtivo, refresh, loading } = useConcurso();
-  const { usuario } = useAuth();
+  const { concursos, activeId, setAtivo, loading } = useConcurso();
   const navigate = useNavigate();
-  const [criando, setCriando] = useState(false);
 
   function escolher(c: Concurso) {
     setAtivo(c.id);
@@ -64,42 +60,61 @@ export function ConcursoPicker() {
             </button>
           ))}
 
-          {/* Último cartão. Concurso criado à mão nasce SEM questões: só faz sentido para
-              quem pode importar um lote. Para os demais, o caminho é entrar noutra trilha,
-              que já vem com acervo. */}
-          <button
-            onClick={() => (usuario?.admin ? setCriando(true) : navigate("/trilhas"))}
-            className="grid min-h-[210px] place-items-center rounded-2xl border-2 border-dashed border-hair p-5 text-center transition hover:border-brand-300"
-          >
-            <div>
-              <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-brand-100 text-brand-600">
-                {usuario?.admin ? <Plus size={24} strokeWidth={2} /> : <Compass size={24} strokeWidth={2} />}
-              </span>
-              <p className="mt-3 font-display font-bold text-brand-ink">
-                {usuario?.admin ? "Adicionar concurso" : "Ver outras trilhas"}
-              </p>
-              <p className="mx-auto mt-1 max-w-[220px] text-xs text-faint">
-                {usuario?.admin
-                  ? "Começa vazio. Importe um lote ou reaproveite questões de matérias iguais."
-                  : "Cada trilha já vem com o acervo do concurso pronto."}
-              </p>
+          {/* Último cartão: os dois caminhos para ter mais um concurso. Concurso solto,
+              sem trilha, não existe mais: ele nascia vazio e o app o tratava como a
+              Dataprev antiga (rodízio e simulado dela). */}
+          <div className="card flex flex-col p-5">
+            <p className="legenda text-[11px] font-bold uppercase tracking-[.16em] text-faint">Adicionar</p>
+            <p className="mt-1 font-display text-xl font-bold leading-tight text-brand-ink">Mais um concurso</p>
+            <div className="mt-4 flex flex-1 flex-col gap-2.5">
+              <Atalho
+                onClick={() => navigate("/trilhas")}
+                icone={<Compass size={20} strokeWidth={2} />}
+                titulo="Entrar numa trilha"
+                sub="Já vem com o banco de questões pronto."
+              />
+              <Atalho
+                onClick={() => navigate("/trilhas/nova")}
+                icone={<Plus size={20} strokeWidth={2} />}
+                titulo="Criar minha trilha"
+                sub="Monte com PDF, JSON ou uma a uma."
+              />
             </div>
-          </button>
+          </div>
         </div>
       )}
-
-      {criando && (
-        <NovoConcursoForm
-          onClose={() => setCriando(false)}
-          onCriado={async (id) => {
-            await refresh();
-            setAtivo(id);
-            setCriando(false);
-            navigate("/");
-          }}
-        />
-      )}
     </div>
+  );
+}
+
+function Atalho({
+  onClick,
+  icone,
+  titulo,
+  sub,
+}: {
+  onClick: () => void;
+  icone: React.ReactNode;
+  titulo: string;
+  sub: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="group flex items-center gap-3 rounded-xl border border-hair p-3 text-left transition hover:border-brand-300 hover:bg-brand-500/5"
+    >
+      <span
+        className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-full border"
+        style={{ background: "var(--accentBg)", borderColor: "var(--accentBd)", color: "var(--accentText)" }}
+      >
+        {icone}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-display font-bold text-brand-ink">{titulo}</span>
+        <span className="block text-xs text-faint">{sub}</span>
+      </span>
+      <ArrowRight size={18} strokeWidth={2} className="flex-shrink-0 text-faint transition group-hover:translate-x-0.5 group-hover:text-brand-500" />
+    </button>
   );
 }
 
@@ -109,92 +124,5 @@ function Num({ n, label }: { n: number | string; label: string }) {
       <span className="font-display text-xl font-bold text-brand-ink">{n}</span>
       <span className="text-[10px] uppercase tracking-[.12em] text-faint">{label}</span>
     </span>
-  );
-}
-
-function NovoConcursoForm({ onClose, onCriado }: { onClose: () => void; onCriado: (id: string) => void }) {
-  const [salvando, setSalvando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
-
-  async function submit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    setSalvando(true);
-    setErro(null);
-    try {
-      const { concurso } = await criarConcurso({
-        nome: String(fd.get("nome")),
-        iniciais: String(fd.get("iniciais")),
-        banca: String(fd.get("banca")),
-        ano: Number(fd.get("ano")),
-        cargo: String(fd.get("cargo")),
-        dataProva: String(fd.get("dataProva")),
-        metaDiaria: Number(fd.get("metaDiaria")) || 30,
-      });
-      onCriado(concurso.id);
-    } catch {
-      setErro("Não foi possível criar. Confira os campos.");
-    } finally {
-      setSalvando(false);
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={onClose}>
-      <form
-        onClick={(e) => e.stopPropagation()}
-        onSubmit={submit}
-        className="card w-full max-w-md space-y-3 p-6"
-      >
-        <h2 className="font-display text-2xl font-bold text-brand-ink">Novo concurso</h2>
-        <Campo name="nome" label="Nome" placeholder="Banco do Brasil" required />
-        <div className="grid grid-cols-2 gap-3">
-          <Campo name="iniciais" label="Iniciais" placeholder="BB" required />
-          <Campo name="banca" label="Banca" placeholder="CESGRANRIO" required />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Campo name="ano" label="Ano" type="number" placeholder="2026" required />
-          <Campo name="metaDiaria" label="Meta diária" type="number" placeholder="30" />
-        </div>
-        <Campo name="cargo" label="Cargo" placeholder="Escriturário" required />
-        <Campo name="dataProva" label="Data da prova" type="date" required />
-        {erro && <p className="text-sm text-danger-from">{erro}</p>}
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <button type="button" onClick={onClose} className="text-sm font-semibold text-muted hover:text-brand-ink">
-            Cancelar
-          </button>
-          <button type="submit" disabled={salvando} className="btn-primary text-base disabled:opacity-60">
-            {salvando ? "Criando…" : "Criar concurso"}
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-}
-
-function Campo({
-  name,
-  label,
-  type = "text",
-  placeholder,
-  required,
-}: {
-  name: string;
-  label: string;
-  type?: string;
-  placeholder?: string;
-  required?: boolean;
-}) {
-  return (
-    <label className="block">
-      <span className="filter-label">{label}</span>
-      <input
-        name={name}
-        type={type}
-        placeholder={placeholder}
-        required={required}
-        className="filter-select"
-      />
-    </label>
   );
 }

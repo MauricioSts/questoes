@@ -15,6 +15,7 @@ export interface Trilha {
   questoes: number;
   materias: number;
   concursoId: string | null; // preenchido quando o usuário já segue esta trilha
+  naVitrine?: boolean; // false = pública com menos questões que o mínimo (só dono, quem segue e admin veem)
   seguidores: number;
   oficial: boolean; // criada pelo admin; as demais são da comunidade
   autor: string | null; // nome público de quem criou ("Ana S."), null nas oficiais
