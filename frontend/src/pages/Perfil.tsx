@@ -199,7 +199,7 @@ export function Perfil() {
                 <div className="h-full rounded-full bg-brand-500" style={{ width: `${limite ? (usadas / limite) * 100 : 0}%` }} />
               </div>
               <p className="mt-3 text-sm text-muted">
-                No plano Free você faz até {limite} questões por dia. O Premium tira o limite e libera Caderno, Simulado e Estatísticas.
+                No plano Free você faz até {limite} questões por dia. O Premium tira o limite e libera Batalha, Caderno, Simulado e Estatísticas.
               </p>
               <Link
                 to="/assinatura"

@@ -7,7 +7,7 @@ export interface LinhaPlano {
   premium: string | boolean;
 }
 
-export function linhasPlanos(limiteGratisDia: number): LinhaPlano[] {
+export function linhasPlanos(limiteGratisDia: number, diasBatalhaFree: number): LinhaPlano[] {
   return [
     {
       recurso: "Questões por dia",
@@ -17,7 +17,13 @@ export function linhasPlanos(limiteGratisDia: number): LinhaPlano[] {
     },
     { recurso: "Trilhas, meta diária e data da prova", free: true, premium: true },
     { recurso: "Revisão espaçada e caderno de erros", free: true, premium: true },
-    { recurso: "Batalha e ranking", free: true, premium: true },
+    {
+      recurso: "Batalha",
+      detalhe: "No Free, liberada nos primeiros dias da conta.",
+      free: `${diasBatalhaFree} dias grátis`,
+      premium: true,
+    },
+    { recurso: "Ranking da trilha", free: true, premium: true },
     {
       recurso: "Caderno de anotações",
       detalhe: "Inclusive aberto ao lado da questão.",

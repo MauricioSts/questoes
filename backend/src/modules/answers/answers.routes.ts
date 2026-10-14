@@ -13,7 +13,7 @@ import { calcularStreakUsuario } from "../../lib/streak.js";
 import { revisoesPendentes } from "../../lib/srs.js";
 import { srsDesde, filtroSrs, marcarSrsReset } from "../../lib/srsReset.js";
 import { startOfToday, startOfWeekWindow } from "../../lib/date.js";
-import { respostasRestantesHoje } from "../../lib/assinatura.js";
+import { batalhaLiberada, respostasRestantesHoje } from "../../lib/assinatura.js";
 
 export const answersRouter = Router();
 answersRouter.use(requireAuth);
@@ -61,6 +61,7 @@ async function conferirAcertos(itens: RespostaRecebida[]): Promise<RespostaReceb
 }
 
 const LIMITE_ATINGIDO = { error: "Limite diário do plano gratuito atingido.", codigo: "LIMITE" };
+const BATALHA_PREMIUM = { error: "A Batalha é exclusiva para assinantes.", codigo: "PREMIUM" };
 
 // POST /answers/corrigir: corrige e registra uma resposta de quem não tem o gabarito no
 // aparelho, e só então revela gabarito e explicação. É aqui que o limite diário do plano
@@ -82,6 +83,9 @@ answersRouter.post(
       const existente = await prisma.answer.findUnique({ where: { clientId: data.clientId } });
       if (existente && existente.userId === req.userId) return res.json(revelar(existente.acertou));
     }
+    if (data.contexto === "BATALHA" && !(await batalhaLiberada(req.userId!, req.userEmail))) {
+      return res.status(402).json(BATALHA_PREMIUM);
+    }
     if ((await respostasRestantesHoje(req.userId!, req.userEmail)) < 1) {
       return res.status(402).json(LIMITE_ATINGIDO);
     }
@@ -97,6 +101,9 @@ answersRouter.post(
   "/",
   asyncHandler(async (req, res) => {
     const [data] = await conferirAcertos([answerSchema.parse(req.body)]);
+    if (data.contexto === "BATALHA" && !(await batalhaLiberada(req.userId!, req.userEmail))) {
+      return res.status(402).json(BATALHA_PREMIUM);
+    }
     if ((await respostasRestantesHoje(req.userId!, req.userEmail)) < 1) {
       return res.status(402).json(LIMITE_ATINGIDO);
     }
@@ -122,7 +129,12 @@ answersRouter.post(
 answersRouter.post(
   "/batch",
   asyncHandler(async (req, res) => {
-    const lote = z.array(answerSchema).min(1).parse(req.body);
+    const recebido = z.array(answerSchema).min(1).parse(req.body);
+    // Batalha fora do período grátis é descartada como o que passa do limite.
+    const lote =
+      recebido.some((a) => a.contexto === "BATALHA") && !(await batalhaLiberada(req.userId!, req.userEmail))
+        ? recebido.filter((a) => a.contexto !== "BATALHA")
+        : recebido;
     const restantes = await respostasRestantesHoje(req.userId!, req.userEmail);
     const aceitas = await conferirAcertos(lote.slice(0, Math.min(lote.length, restantes)));
     const created = aceitas.length
@@ -131,7 +143,7 @@ answersRouter.post(
           skipDuplicates: true,
         })
       : { count: 0 };
-    res.status(201).json({ count: created.count, descartadas: lote.length - aceitas.length });
+    res.status(201).json({ count: created.count, descartadas: recebido.length - aceitas.length });
   })
 );
 

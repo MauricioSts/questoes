@@ -57,6 +57,20 @@ export async function acessoDoUsuario(userId: string, email: string | undefined)
   return assinaturaDaAcesso(user?.assinatura ?? null) ? "assinatura" : null;
 }
 
+// Batalha no plano gratuito: liberada só nos primeiros DIAS_BATALHA_FREE dias da conta
+// (é o gancho de quem chega pelo vídeo). Depois, só Premium.
+export const DIAS_BATALHA_FREE = 7;
+
+export function fimBatalhaFree(criadoEm: Date): Date {
+  return new Date(criadoEm.getTime() + DIAS_BATALHA_FREE * 86_400_000);
+}
+
+export async function batalhaLiberada(userId: string, email: string | undefined, agora = new Date()): Promise<boolean> {
+  if (await acessoDoUsuario(userId, email)) return true;
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { createdAt: true } });
+  return !!user && fimBatalhaFree(user.createdAt) > agora;
+}
+
 // Quantas respostas a conta ainda pode registrar hoje. Assinante não tem teto.
 export async function respostasRestantesHoje(userId: string, email: string | undefined): Promise<number> {
   if (await acessoDoUsuario(userId, email)) return Infinity;

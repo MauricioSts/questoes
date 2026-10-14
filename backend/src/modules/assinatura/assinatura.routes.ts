@@ -10,6 +10,8 @@ import { startOfToday } from "../../lib/date.js";
 import {
   PLANOS,
   acessoDoUsuario,
+  DIAS_BATALHA_FREE,
+  fimBatalhaFree,
   assinaturaDaAcesso,
   pagamentosAtivos,
   sincronizarAssinatura,
@@ -74,11 +76,13 @@ assinaturaRouter.use(requireAuth);
 assinaturaRouter.get(
   "/",
   asyncHandler(async (req, res) => {
-    const [motivo, assinatura, usadasHoje] = await Promise.all([
+    const [motivo, assinatura, usadasHoje, user] = await Promise.all([
       acessoDoUsuario(req.userId!, req.userEmail),
       prisma.assinatura.findUnique({ where: { userId: req.userId! } }),
       prisma.answer.count({ where: { userId: req.userId!, createdAt: { gte: startOfToday() } } }),
+      prisma.user.findUnique({ where: { id: req.userId! }, select: { createdAt: true } }),
     ]);
+    const batalhaFreeAte = user ? fimBatalhaFree(user.createdAt) : null;
     res.json({
       pagamentosAtivos: pagamentosAtivos(),
       premium: motivo !== null,
@@ -92,6 +96,10 @@ assinaturaRouter.get(
       planos: Object.entries(PLANOS).map(([id, p]) => ({ id, ...p })),
       limiteGratisDia: env.LIMITE_GRATIS_DIA,
       usadasHoje,
+      // Até quando a Batalha vale no plano gratuito (null = conta sumiu). Para quem tem
+      // acesso completo é só informativo: a Batalha está sempre liberada.
+      batalhaFreeAte,
+      diasBatalhaFree: DIAS_BATALHA_FREE,
     });
   })
 );

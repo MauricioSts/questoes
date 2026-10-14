@@ -32,7 +32,7 @@ export function RotaPremium({ recurso }: { recurso: string }) {
     return (
       <AvisoPremium
         titulo={`${recurso} é para assinantes`}
-        texto="No plano gratuito você estuda, revisa e batalha com um limite diário de questões. Assinando, libera tudo e tira o limite."
+        texto="No plano gratuito você estuda e revisa com um limite diário de questões. Assinando, libera tudo e tira o limite."
       />
     );
   }
