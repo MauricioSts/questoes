@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   BookOpen,
@@ -38,6 +38,8 @@ import { PainelMalha } from "../components/PainelMalha";
 import { useTheme } from "../store/theme";
 import { Spinner } from "../components/Spinner";
 import { CartaoRanking } from "../components/CartaoRanking";
+import { configPadrao, totalQuestoes as questoesDoSimulado } from "../lib/simuladoConfig";
+import { todas } from "../lib/questoesRepo";
 
 
 export function Home() {
@@ -93,7 +95,14 @@ export function Home() {
   const diasProva = dataProva ? Math.max(0, Math.ceil((dataProva.getTime() - Date.now()) / 86400000)) : null;
   const progressoTempo = goal?.progressoTempo ?? null;
   const revisaoPendente = goal?.revisaoPendente ?? 0;
-  const diaSimulado = ehDiaDeSimulado();
+  // Cartão do Simulado segue a configuração da trilha ativa: "70 questões, só aos
+  // sábados" é a prova da Dataprev; nas outras trilhas o padrão libera todo dia.
+  const configSimulado = useMemo(
+    () => ativo?.simuladoConfig ?? configPadrao(ativo?.trilhaId, todas()),
+    [ativo?.simuladoConfig, ativo?.trilhaId]
+  );
+  const simuladoLiberado = !configSimulado.soSabado || ehDiaDeSimulado();
+  const qtdSimulado = questoesDoSimulado(configSimulado);
 
   // Data e saudação por horário.
   const agora = new Date();
@@ -380,8 +389,8 @@ export function Home() {
             to="/simulado"
             icon={FileText}
             titulo="Simulado"
-            sub={diaSimulado ? "70 questões, prova real" : "Disponível aos sábados"}
-            locked={!diaSimulado}
+            sub={simuladoLiberado ? `${qtdSimulado} questões, com cronômetro` : "Disponível aos sábados"}
+            locked={!simuladoLiberado}
           />
         </div>
       </div>
