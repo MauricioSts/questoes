@@ -14,6 +14,7 @@ import { TagPlano } from "../components/TagPlano";
 const VANTAGENS = [
   "Questões sem limite diário",
   "Batalha sem prazo",
+  "Trilhas próprias ilimitadas e privadas",
   "Caderno, Simulado e Estatísticas",
   "Estudar sem internet",
   "Cancele quando quiser",

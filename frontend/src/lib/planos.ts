@@ -15,7 +15,14 @@ export function linhasPlanos(limiteGratisDia: number, diasBatalhaFree: number): 
       free: `${limiteGratisDia} por dia`,
       premium: "Sem limite",
     },
-    { recurso: "Trilhas, meta diária e data da prova", free: true, premium: true },
+    { recurso: "Estudar trilhas, meta diária e data da prova", free: true, premium: true },
+    {
+      recurso: "Criar trilha própria",
+      detalhe: "Monte o banco de questões do seu concurso.",
+      free: "1 pública",
+      premium: "Ilimitadas",
+    },
+    { recurso: "Trilha privada", free: false, premium: true },
     { recurso: "Revisão espaçada e caderno de erros", free: true, premium: true },
     {
       recurso: "Batalha",
