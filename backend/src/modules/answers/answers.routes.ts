@@ -382,7 +382,9 @@ answersRouter.get(
 answersRouter.post(
   "/revisao/reset",
   asyncHandler(async (req, res) => {
-    const concursoId = (req.body as { concursoId?: string } | undefined)?.concursoId ?? cf(req).concursoId;
+    // String(): um objeto no corpo ({"not": ...}) viraria operador do Prisma no where.
+    const doCorpo = (req.body as { concursoId?: unknown } | undefined)?.concursoId;
+    const concursoId = doCorpo != null ? String(doCorpo) : cf(req).concursoId;
     const resetadoEm = await marcarSrsReset(req.userId!, concursoId);
     res.json({ ok: true, resetadoEm });
   })
