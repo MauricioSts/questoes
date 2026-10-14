@@ -212,6 +212,17 @@ export function Perfil() {
         </Bloco>
       )}
 
+      {ativo?.souDonoTrilha && ativo.trilhaId && (
+        <Bloco titulo="Minha trilha">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-muted">Você criou a trilha {ativo.nome}. Adicione lotes de questões, exclua lotes ou a trilha.</p>
+            <Link to={`/trilhas/${ativo.trilhaId}/editar`} className="text-sm font-bold text-brand-500 hover:underline">
+              Gerenciar trilha
+            </Link>
+          </div>
+        </Bloco>
+      )}
+
       <Bloco titulo={ativo ? `Estudo · ${ativo.nome}` : "Estudo"}>
         <form onSubmit={salvarEstudo} className="grid gap-4 sm:grid-cols-2">
           <label className="block text-sm text-muted">

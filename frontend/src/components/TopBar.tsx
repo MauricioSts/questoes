@@ -33,7 +33,7 @@ export function TopBar() {
           </Link>
           {ativo && (
             <span className="hidden truncate md:inline rounded-full bg-brand-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-brand-700">
-              {ativo.iniciais} · {ativo.banca}
+              {[ativo.iniciais, ativo.banca].filter(Boolean).join(" · ")}
             </span>
           )}
         </div>

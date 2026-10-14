@@ -8,6 +8,7 @@ import {
   assuntos as listarAssuntos,
   getQuestoes,
   provasComContagem,
+  temModulos,
 } from "../lib/questoesRepo";
 import { shuffle } from "../lib/sessionBuilder";
 import { useProgresso } from "../hooks/useProgresso";
@@ -214,6 +215,7 @@ export function Estudar() {
 
       {/* Filtros */}
       <Card className="p-6 space-y-4">
+        {temModulos() && (
         <FilterSelect
           label="Módulo"
           value={modulo}
@@ -228,6 +230,7 @@ export function Estudar() {
             { value: "II", label: "II · Específicos" },
           ]}
         />
+        )}
         <FilterSelect
           label="Matéria"
           value={materia}

@@ -234,7 +234,7 @@ function CabecalhoTrilha({ dados }: { dados: RankingTrilha }) {
               {dados.trilha.cargo ? `${dados.trilha.nome}: ${dados.trilha.cargo}` : dados.trilha.nome}
             </h2>
             <p className="mt-0.5 text-xs text-faint">
-              {dados.trilha.banca} · {dados.trilha.orgao}
+              {[dados.trilha.banca, dados.trilha.orgao].filter(Boolean).join(" · ")}
             </p>
           </div>
         </div>

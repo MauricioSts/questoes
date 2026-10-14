@@ -15,6 +15,7 @@ import {
   criarTrilha,
   editarQuestao,
   excluirQuestao,
+  excluirQuestoes,
   lerPdf,
   listarTrilhas,
   salvarTrilha,
@@ -124,6 +125,7 @@ export function TrilhaEditor() {
   const [dados, setDados] = useState<DadosTrilha>(TRILHA_VAZIA);
   const [msgDados, setMsgDados] = useState<{ ok: boolean; texto: string } | null>(null);
   const [salvando, setSalvando] = useState(false);
+  const [msgApagar, setMsgApagar] = useState<string | null>(null);
 
   const carregar = useCallback(async () => {
     if (!id) {
@@ -180,13 +182,14 @@ export function TrilhaEditor() {
   }
 
   async function apagar() {
-    if (!id || !window.confirm("Apagar a trilha e todas as questões dela? Não dá para desfazer.")) return;
+    if (!id || !window.confirm(`Excluir a trilha "${dados.nome}" e todas as questões dela? Não dá para desfazer.`)) return;
+    setMsgApagar(null);
     try {
       await apagarTrilha(id);
       await recarregarConcursos();
       navigate("/trilhas");
     } catch (err) {
-      setMsgDados({ ok: false, texto: erroDe(err, "Não foi possível apagar") });
+      setMsgApagar(erroDe(err, "Não foi possível excluir"));
     }
   }
 
@@ -317,17 +320,29 @@ export function TrilhaEditor() {
             <Button type="submit" size="sm" disabled={salvando}>
               {salvando ? "Salvando…" : nova ? "Criar trilha" : "Salvar dados"}
             </Button>
-            {!nova && (
-              <button type="button" onClick={apagar} className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-[color:rgb(var(--danger-from))]">
-                <Trash2 size={15} /> Apagar trilha
-              </button>
-            )}
           </div>
           {msgDados && <div className="sm:col-span-2"><Mensagem {...msgDados} /></div>}
         </form>
       </Bloco>
 
       {edicao && <Questoes trilhaId={edicao.trilha.id} edicao={edicao} aoMudar={aposMudarQuestoes} />}
+
+      {edicao && (
+        <Bloco titulo="Excluir trilha">
+          <p className="text-sm text-muted">
+            Apaga a trilha, todas as questões dela e o seu progresso nela. Não dá para desfazer. Se outra pessoa já estiver
+            estudando nesta trilha, ela não pode ser apagada.
+          </p>
+          <button
+            type="button"
+            onClick={apagar}
+            className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-[color:rgb(var(--danger-from))] px-4 py-2 text-sm font-bold text-[color:rgb(var(--danger-from))] transition hover:bg-[color:rgb(var(--danger-from)/0.08)]"
+          >
+            <Trash2 size={15} /> Excluir trilha
+          </button>
+          {msgApagar && <Mensagem ok={false} texto={msgApagar} />}
+        </Bloco>
+      )}
     </div>
   );
 }
@@ -412,6 +427,8 @@ function Questoes({ trilhaId, edicao, aoMudar }: { trilhaId: string; edicao: Edi
           {edicao.minQuestoesVitrine} questões.
         </p>
       )}
+
+      <Lotes trilhaId={trilhaId} questoes={edicao.questoes} aoMudar={aoMudar} />
 
       {modo === "pdf" ? (
         <ImportarPdf trilhaId={trilhaId} saldo={edicao.pdf} aoMudar={aoMudar} />
@@ -606,7 +623,8 @@ function ImportarJson({ trilhaId, aoMudar }: { trilhaId: string; aoMudar: () => 
     if (questoes.length > 200) return setMsg({ ok: false, texto: "Mande no máximo 200 questões por vez." });
     setOcupado(true);
     try {
-      const r = await adicionarQuestoes(trilhaId, questoes as QuestaoEditavel[]);
+      const quando = new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+      const r = await adicionarQuestoes(trilhaId, questoes as QuestaoEditavel[], `JSON colado em ${quando}`);
       await aoMudar();
       setTexto("");
       setMsg({ ok: true, texto: `${r.adicionadas} questões adicionadas.` });
@@ -743,7 +761,8 @@ function ImportarPdf({ trilhaId, saldo, aoMudar }: { trilhaId: string; saldo: Sa
           alternativas: q.alternativas,
           gabarito: q.gabarito!,
           explicacao: "",
-        }))
+        })),
+        arquivo ? `PDF: ${arquivo.name}` : "PDF"
       );
       await aoMudar();
       setLidas(null);
@@ -848,6 +867,79 @@ function ImportarPdf({ trilhaId, saldo, aoMudar }: { trilhaId: string; saldo: Sa
           <Crown size={15} /> Ver o Premium
         </Link>
       )}
+    </div>
+  );
+}
+
+// Lotes da trilha: cada envio (um PDF, um JSON colado) é um lote; o que foi digitado no
+// formulário fica junto em "Adicionadas à mão". Excluir o lote apaga as questões dele.
+function Lotes({
+  trilhaId,
+  questoes,
+  aoMudar,
+}: {
+  trilhaId: string;
+  questoes: EdicaoTrilha["questoes"];
+  aoMudar: () => Promise<void>;
+}) {
+  const [excluindo, setExcluindo] = useState<string | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+
+  const lotes = useMemo(() => {
+    const mapa = new Map<string, { chave: string; nome: string; quando: string | null; ids: number[] }>();
+    for (const q of questoes) {
+      const manual = !q.loteNome || q.loteNome === "manual";
+      const antigo = q.loteNome === "comunidade";
+      const chave = manual ? "manual" : antigo ? "antigo" : `${q.loteNome}|${q.createdAt}`;
+      const nome = manual ? "Adicionadas à mão" : antigo ? "Adicionadas antes dos lotes" : q.loteNome!;
+      const l = mapa.get(chave) ?? { chave, nome, quando: manual || antigo ? null : q.createdAt, ids: [] };
+      l.ids.push(q.id);
+      mapa.set(chave, l);
+    }
+    return [...mapa.values()].sort((a, b) => (b.quando ?? "").localeCompare(a.quando ?? ""));
+  }, [questoes]);
+
+  if (lotes.length === 0) return null;
+
+  async function excluir(l: (typeof lotes)[number]) {
+    if (!window.confirm(`Excluir o lote "${l.nome}" (${l.ids.length} questões)? As respostas dadas a elas também somem.`)) return;
+    setErro(null);
+    setExcluindo(l.chave);
+    try {
+      await excluirQuestoes(trilhaId, l.ids);
+      await aoMudar();
+    } catch (err) {
+      setErro(erroDe(err, "Não foi possível excluir o lote"));
+    } finally {
+      setExcluindo(null);
+    }
+  }
+
+  return (
+    <div className="mb-5">
+      <p className="mb-2 text-[11px] font-bold uppercase tracking-[.14em] text-faint">Lotes</p>
+      <ul className="divide-y divide-hair rounded-xl border border-hair">
+        {lotes.map((l) => (
+          <li key={l.chave} className="flex items-center gap-3 px-3.5 py-2.5">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-brand-ink">{l.nome}</p>
+              <p className="text-xs text-faint">
+                {l.ids.length} {l.ids.length === 1 ? "questão" : "questões"}
+                {l.quando ? ` · ${new Date(l.quando).toLocaleDateString("pt-BR")}` : ""}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => excluir(l)}
+              disabled={excluindo !== null}
+              className="inline-flex flex-shrink-0 items-center gap-1 text-xs font-bold text-muted hover:text-[color:rgb(var(--danger-from))] disabled:opacity-50"
+            >
+              <Trash2 size={14} /> {excluindo === l.chave ? "Excluindo…" : "Excluir lote"}
+            </button>
+          </li>
+        ))}
+      </ul>
+      {erro && <Mensagem ok={false} texto={erro} />}
     </div>
   );
 }

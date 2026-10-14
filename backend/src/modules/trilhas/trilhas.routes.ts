@@ -18,6 +18,7 @@ import {
   MIN_QUESTOES_VITRINE,
   dadosQuestao,
   iniciaisTrilha,
+  limparTexto,
   nomeCompleto,
   questaoComunidadeSchema,
   regrasCriacao,
@@ -201,7 +202,7 @@ trilhasRouter.get(
         orderBy: { id: "asc" },
         select: {
           id: true, materia: true, assunto: true, dificuldade: true, enunciado: true,
-          alternativas: true, gabarito: true, explicacao: true,
+          alternativas: true, gabarito: true, explicacao: true, loteNome: true, createdAt: true,
         },
       }),
       regrasCriacao(req.userId!, req.userEmail),
@@ -276,6 +277,9 @@ trilhasRouter.delete(
 
 const envioSchema = z.object({
   questoes: z.array(questaoComunidadeSchema).min(1).max(MAX_QUESTOES_POR_ENVIO),
+  // Nome do lote (ex.: "PDF: prova-2024.pdf"). Questão do formulário vai sem nome e cai
+  // no lote "Adicionadas à mão". O lote é o que se exclui de uma vez na tela da trilha.
+  lote: z.string().transform(limparTexto).pipe(z.string().max(120)).optional(),
 });
 
 // POST /trilhas/:id/questoes: adiciona questões (uma do formulário ou várias do JSON).
@@ -285,7 +289,7 @@ trilhasRouter.post(
   "/:id/questoes",
   asyncHandler(async (req, res) => {
     const trilha = await trilhaDoDono(req.params.id, req.userId!);
-    const { questoes } = envioSchema.parse(req.body);
+    const { questoes, lote } = envioSchema.parse(req.body);
 
     const criadas = await prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(7311)`;
@@ -300,7 +304,7 @@ trilhasRouter.post(
           id: inicio + i,
           trilhaId: trilha.id,
           ...dadosQuestao(q),
-          loteNome: "comunidade",
+          loteNome: lote || "manual",
         })),
       });
       return { inicio, n: questoes.length };
@@ -355,6 +359,30 @@ trilhasRouter.post(
     } finally {
       lendoPdf.delete(req.userId!);
     }
+  })
+);
+
+// POST /trilhas/:id/questoes/excluir: exclui várias de uma vez (um lote inteiro). Só as
+// que são desta trilha; as respostas dadas a elas vão junto.
+const excluirVariasSchema = z.object({ ids: z.array(z.number().int()).min(1).max(MAX_QUESTOES_TRILHA) });
+
+trilhasRouter.post(
+  "/:id/questoes/excluir",
+  asyncHandler(async (req, res) => {
+    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const { ids } = excluirVariasSchema.parse(req.body);
+    const daTrilha = (
+      await prisma.questao.findMany({ where: { id: { in: ids }, trilhaId: trilha.id }, select: { id: true } })
+    ).map((q) => q.id);
+    if (daTrilha.length > 0) {
+      await prisma.$transaction([
+        prisma.answer.deleteMany({ where: { questaoId: { in: daTrilha } } }),
+        prisma.nota.deleteMany({ where: { questaoId: { in: daTrilha } } }),
+        prisma.marcada.deleteMany({ where: { questaoId: { in: daTrilha } } }),
+        prisma.questao.deleteMany({ where: { id: { in: daTrilha } } }),
+      ]);
+    }
+    res.json({ excluidas: daTrilha.length });
   })
 );
 

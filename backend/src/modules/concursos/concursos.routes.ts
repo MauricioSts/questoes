@@ -33,6 +33,7 @@ concursosRouter.get(
     const concursos = await prisma.concurso.findMany({
       where: { userId: req.userId! },
       orderBy: { createdAt: "asc" },
+      include: { trilha: { select: { donoId: true } } },
     });
 
     // Contadores por concurso. O tamanho do banco NÃO sai de um groupBy por concursoId:
@@ -64,7 +65,9 @@ concursosRouter.get(
       const feitas = respMap.get(c.id)?.size ?? 0;
       const diasProva = Math.max(0, Math.ceil((c.dataProva.getTime() - hoje) / 864e5));
       const estado = noBanco === 0 ? "VAZIO" : c.arquivado ? "PAUSADO" : "EM_CURSO";
-      return { ...c, noBanco, respondidas: feitas, diasProva, estado };
+      const { trilha, ...resto } = c;
+      // souDonoTrilha: o atalho "Gerenciar minha trilha" só aparece para quem criou.
+      return { ...resto, noBanco, respondidas: feitas, diasProva, estado, souDonoTrilha: trilha?.donoId === req.userId };
     });
 
     res.json({ concursos: lista });

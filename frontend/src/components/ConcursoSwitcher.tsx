@@ -25,7 +25,7 @@ export function ConcursoSwitcher() {
           {ativo?.nome ?? "Selecionar concurso"}
         </span>
         <span className="block truncate text-[10px] uppercase tracking-[.12em] text-faint">
-          {ativo ? `${ativo.banca} · ${ativo.ano}` : "Nenhum selecionado"}
+          {ativo ? [ativo.banca, ativo.ano].filter(Boolean).join(" · ") : "Nenhum selecionado"}
         </span>
       </span>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"

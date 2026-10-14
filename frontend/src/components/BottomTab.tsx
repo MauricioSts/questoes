@@ -16,11 +16,13 @@ import {
   HelpCircle,
   Swords,
   Crown,
+  FolderCog,
   UserRound,
 } from "lucide-react";
 import { useTheme, type Tema } from "../store/theme";
 import { useAuth } from "../store/auth";
 import { useAssinatura } from "../store/assinatura";
+import { useConcurso } from "../store/concurso";
 import { TagPlano } from "./TagPlano";
 import { ConcursoSwitcher } from "./ConcursoSwitcher";
 import { LineSidebar } from "./LineSidebar";
@@ -80,6 +82,7 @@ export function BottomTab() {
   const { tema } = useTheme();
   const { logout, usuario } = useAuth();
   const { dados: assinatura } = useAssinatura();
+  const { ativo } = useConcurso();
   const navigate = useNavigate();
   const linha = CORES_LINHA[tema];
 
@@ -135,6 +138,12 @@ export function BottomTab() {
         {assinatura?.pagamentosAtivos && (
           <Link to="/assinatura" className="flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold text-muted transition hover:text-brand-ink">
             <Crown size={15} strokeWidth={1.8} /> {assinatura.premium ? "Assinatura" : "Assinar"}
+          </Link>
+        )}
+        {/* Trilha criada por este usuário: atalho para adicionar lotes e gerenciar. */}
+        {ativo?.souDonoTrilha && ativo.trilhaId && (
+          <Link to={`/trilhas/${ativo.trilhaId}/editar`} className="flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold text-muted transition hover:text-brand-ink">
+            <FolderCog size={15} strokeWidth={1.8} /> Minha trilha
           </Link>
         )}
         {/* Importar altera o acervo de todo mundo que segue a trilha: só o admin vê. */}

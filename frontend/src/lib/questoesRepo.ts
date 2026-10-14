@@ -135,6 +135,19 @@ export function anosDeProva(): number[] {
   return [...set].sort((a, b) => b - a);
 }
 
+// O acervo usa a divisão em módulos? Só a Dataprev separa I (gerais) e II (específicos);
+// trilha da comunidade grava tudo como I, e aí filtro e selo de módulo só confundem.
+export function temModulos(): boolean {
+  let i = false;
+  let ii = false;
+  for (const q of _questoes) {
+    if (q.modulo === "II") ii = true;
+    else i = true;
+    if (i && ii) return true;
+  }
+  return false;
+}
+
 // --- listas para filtros da UI ---
 export function materias(modulo?: Modulo): string[] {
   const set = new Set<string>();

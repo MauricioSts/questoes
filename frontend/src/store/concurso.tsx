@@ -17,6 +17,7 @@ export interface Concurso {
   dataProva: string;
   metaDiaria: number;
   trilhaId: string | null; // trilha que este concurso segue (null = concurso avulso)
+  souDonoTrilha?: boolean; // a trilha foi criada por este usuário (pode gerenciar)
   arquivado: boolean;
   noBanco: number;
   respondidas: number;

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Check, X, History, Ban } from "lucide-react";
 import type { Questao, Alternativa } from "../types/questao";
-import { getTextoBase, getProva, origemDe, rotuloOrigem } from "../lib/questoesRepo";
+import { getTextoBase, getProva, origemDe, rotuloOrigem, temModulos } from "../lib/questoesRepo";
 import { ordemAlternativas } from "../lib/ordemAlternativas";
 import { Card } from "./Card";
 import { MetaPill } from "./MetaPill";
@@ -112,7 +112,7 @@ export function QuestaoView({
       <div className="flex flex-wrap gap-2">
         {!soOrigem && (
           <>
-            <MetaPill type="modulo" label={`Módulo ${questao.modulo}`} />
+            {temModulos() && <MetaPill type="modulo" label={`Módulo ${questao.modulo}`} />}
             <MetaPill type="materia" label={questao.materia} />
             <MetaPill
               type={questao.dificuldade === "facil" ? "dificuldade-facil" : questao.dificuldade === "media" ? "dificuldade-media" : "dificuldade-dificil"}

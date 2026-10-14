@@ -124,7 +124,7 @@ export function lerPdf(id: string, arquivo: File, opcoes: { materia: string; gab
 export interface EdicaoTrilha {
   pdf: SaldoPdf;
   trilha: DadosTrilha & { id: string };
-  questoes: (QuestaoEditavel & { id: number })[];
+  questoes: (QuestaoEditavel & { id: number; loteNome: string | null; createdAt: string })[];
   podePrivada: boolean;
   minQuestoesVitrine: number;
   maxQuestoes: number;
@@ -142,8 +142,13 @@ export function salvarTrilha(id: string, dados: Partial<DadosTrilha>) {
 export function apagarTrilha(id: string) {
   return api(`/trilhas/${id}`, { method: "DELETE" });
 }
-export function adicionarQuestoes(id: string, questoes: QuestaoEditavel[]) {
-  return api<{ adicionadas: number }>(`/trilhas/${id}/questoes`, { method: "POST", body: { questoes } });
+// `lote` dá nome ao envio (o que aparece na lista de lotes e se exclui de uma vez).
+// Sem nome, a questão entra no lote "Adicionadas à mão".
+export function adicionarQuestoes(id: string, questoes: QuestaoEditavel[], lote?: string) {
+  return api<{ adicionadas: number }>(`/trilhas/${id}/questoes`, { method: "POST", body: { questoes, lote } });
+}
+export function excluirQuestoes(id: string, ids: number[]) {
+  return api<{ excluidas: number }>(`/trilhas/${id}/questoes/excluir`, { method: "POST", body: { ids } });
 }
 export function editarQuestao(id: string, qid: number, q: QuestaoEditavel) {
   return api(`/trilhas/${id}/questoes/${qid}`, { method: "PUT", body: q });
