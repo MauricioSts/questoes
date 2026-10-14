@@ -36,10 +36,13 @@ const META_DIARIA_PADRAO = 30;
 
 // Trilhas que este usuário enxerga: oficiais publicadas, as da comunidade que são
 // públicas e já têm questões suficientes, e as dele (sempre, até as vazias e privadas).
-function trilhasVisiveis(userId: string): Prisma.TrilhaWhereInput {
+// Trilha oficial (sem dono) marcada como privada é rascunho do admin: só ele enxerga.
+function trilhasVisiveis(userId: string, admin = false): Prisma.TrilhaWhereInput {
   return {
     publicada: true,
-    OR: [{ donoId: null }, { donoId: userId }, { visibilidade: "publica" }],
+    OR: admin
+      ? [{ donoId: null }, { donoId: userId }, { visibilidade: "publica" }]
+      : [{ donoId: userId }, { visibilidade: "publica" }],
   };
 }
 
@@ -52,7 +55,7 @@ trilhasRouter.get(
     const admin = ehAdmin(req.userEmail);
     const [trilhas, meus, criacao] = await Promise.all([
       prisma.trilha.findMany({
-        where: trilhasVisiveis(userId),
+        where: trilhasVisiveis(userId, admin),
         orderBy: [{ ordem: "asc" }, { createdAt: "asc" }],
         include: { dono: { select: { nome: true } } },
       }),
@@ -81,7 +84,8 @@ trilhasRouter.get(
     const lista = trilhas
       .map((t) => {
         const linhas = contagens.filter((c) => c.trilhaId === t.id);
-        const souDono = t.donoId === userId;
+        // O admin cuida das oficiais: para ele, trilha sem dono também é "minha".
+        const souDono = t.donoId === userId || (admin && t.donoId === null);
         return {
           id: t.id,
           nome: t.nome,
@@ -146,7 +150,7 @@ trilhasRouter.post(
   "/:id/entrar",
   asyncHandler(async (req, res) => {
     const trilha = await prisma.trilha.findFirst({
-      where: { id: req.params.id, ...trilhasVisiveis(req.userId!) },
+      where: { id: req.params.id, ...trilhasVisiveis(req.userId!, ehAdmin(req.userEmail)) },
     });
     if (!trilha) throw new HttpError(404, "Trilha não encontrada.");
     const r = await entrar(req.userId!, trilha);
@@ -161,6 +165,7 @@ trilhasRouter.post(
   "/",
   asyncHandler(async (req, res) => {
     const dados = trilhaSchema.parse(req.body);
+    const admin = ehAdmin(req.userEmail);
     const regras = await regrasCriacao(req.userId!, req.userEmail);
     if (!regras.podeCriar) {
       throw new HttpError(402, `No plano Free dá para criar ${regras.limiteFree} trilha. Assine o Premium para criar mais.`, "PREMIUM");
@@ -181,8 +186,10 @@ trilhasRouter.post(
         descricao: dados.descricao,
         dataProva: dados.dataProva ? new Date(dados.dataProva) : null,
         visibilidade: dados.visibilidade,
-        donoId: req.userId!,
-        ordem: 1000, // oficiais primeiro
+        // Trilha criada pelo admin nasce oficial (sem dono): entra entre as oficiais,
+        // com meta fixa e simulado padrão. As dos outros usuários são da comunidade.
+        donoId: admin ? null : req.userId!,
+        ordem: admin ? 100 : 1000, // oficiais primeiro
       },
     });
     const { concurso } = await entrar(req.userId!, trilha);
@@ -190,8 +197,11 @@ trilhasRouter.post(
   })
 );
 
-async function trilhaDoDono(id: string, userId: string) {
-  const trilha = await prisma.trilha.findFirst({ where: { id, donoId: userId } });
+// Dono da trilha, ou o admin quando a trilha é oficial (sem dono).
+async function trilhaDoDono(id: string, userId: string, email?: string) {
+  const trilha = await prisma.trilha.findFirst({
+    where: ehAdmin(email) ? { id, OR: [{ donoId: userId }, { donoId: null }] } : { id, donoId: userId },
+  });
   if (!trilha) throw new HttpError(404, "Trilha não encontrada.");
   return trilha;
 }
@@ -200,7 +210,7 @@ async function trilhaDoDono(id: string, userId: string) {
 trilhasRouter.get(
   "/:id/editar",
   asyncHandler(async (req, res) => {
-    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const trilha = await trilhaDoDono(req.params.id, req.userId!, req.userEmail);
     const [questoes, regras, pdf] = await Promise.all([
       prisma.questao.findMany({
         where: { trilhaId: trilha.id },
@@ -239,7 +249,7 @@ trilhasRouter.get(
 trilhasRouter.patch(
   "/:id",
   asyncHandler(async (req, res) => {
-    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const trilha = await trilhaDoDono(req.params.id, req.userId!, req.userEmail);
     const dados = trilhaSchema.partial().parse(req.body);
     if (dados.visibilidade === "privada" && trilha.visibilidade !== "privada") {
       const { podePrivada } = await regrasCriacao(req.userId!, req.userEmail);
@@ -262,7 +272,7 @@ trilhasRouter.patch(
 trilhasRouter.delete(
   "/:id",
   asyncHandler(async (req, res) => {
-    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const trilha = await trilhaDoDono(req.params.id, req.userId!, req.userEmail);
     const outros = await prisma.concurso.count({ where: { trilhaId: trilha.id, userId: { not: req.userId! } } });
     if (outros > 0) {
       throw new HttpError(409, `Esta trilha tem ${outros} ${outros === 1 ? "pessoa estudando" : "pessoas estudando"} e não pode ser apagada.`);
@@ -293,7 +303,7 @@ const envioSchema = z.object({
 trilhasRouter.post(
   "/:id/questoes",
   asyncHandler(async (req, res) => {
-    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const trilha = await trilhaDoDono(req.params.id, req.userId!, req.userEmail);
     const { questoes, lote } = envioSchema.parse(req.body);
 
     const criadas = await prisma.$transaction(async (tx) => {
@@ -328,7 +338,7 @@ trilhasRouter.post(
   "/:id/pdf",
   express.raw({ type: "application/pdf", limit: MAX_BYTES_PDF }),
   asyncHandler(async (req, res) => {
-    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const trilha = await trilhaDoDono(req.params.id, req.userId!, req.userEmail);
     const saldo = await saldoPdf(req.userId!, req.userEmail);
     if (!saldo.disponivel) throw new HttpError(503, "A leitura de PDF está desligada no momento.");
     if (!Buffer.isBuffer(req.body)) throw new HttpError(400, "Envie o arquivo PDF.");
@@ -374,7 +384,7 @@ const excluirVariasSchema = z.object({ ids: z.array(z.number().int()).min(1).max
 trilhasRouter.post(
   "/:id/questoes/excluir",
   asyncHandler(async (req, res) => {
-    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const trilha = await trilhaDoDono(req.params.id, req.userId!, req.userEmail);
     const { ids } = excluirVariasSchema.parse(req.body);
     const daTrilha = (
       await prisma.questao.findMany({ where: { id: { in: ids }, trilhaId: trilha.id }, select: { id: true } })
@@ -395,7 +405,7 @@ trilhasRouter.post(
 trilhasRouter.put(
   "/:id/questoes/:qid",
   asyncHandler(async (req, res) => {
-    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const trilha = await trilhaDoDono(req.params.id, req.userId!, req.userEmail);
     const qid = Number(req.params.qid);
     const q = questaoComunidadeSchema.parse(req.body);
     const r = await prisma.questao.updateMany({ where: { id: qid, trilhaId: trilha.id }, data: dadosQuestao(q) });
@@ -408,7 +418,7 @@ trilhasRouter.put(
 trilhasRouter.delete(
   "/:id/questoes/:qid",
   asyncHandler(async (req, res) => {
-    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const trilha = await trilhaDoDono(req.params.id, req.userId!, req.userEmail);
     const qid = Number(req.params.qid);
     const existe = await prisma.questao.findFirst({ where: { id: qid, trilhaId: trilha.id }, select: { id: true } });
     if (!existe) throw new HttpError(404, "Questão não encontrada.");

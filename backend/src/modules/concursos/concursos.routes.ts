@@ -4,6 +4,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
+import { ehAdmin } from "../../middleware/admin.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { escopoQuestoes } from "../../lib/escopoQuestoes.js";
 import { HttpError } from "../../middleware/error.js";
@@ -30,6 +31,7 @@ function parseData(v: string): Date {
 concursosRouter.get(
   "/",
   asyncHandler(async (req, res) => {
+    const admin = ehAdmin(req.userEmail);
     const concursos = await prisma.concurso.findMany({
       where: { userId: req.userId! },
       orderBy: { createdAt: "asc" },
@@ -67,7 +69,7 @@ concursosRouter.get(
       const estado = noBanco === 0 ? "VAZIO" : c.arquivado ? "PAUSADO" : "EM_CURSO";
       const { trilha, ...resto } = c;
       // souDonoTrilha: o atalho "Gerenciar minha trilha" só aparece para quem criou.
-      return { ...resto, noBanco, respondidas: feitas, diasProva, estado, souDonoTrilha: trilha?.donoId === req.userId };
+      return { ...resto, noBanco, respondidas: feitas, diasProva, estado, souDonoTrilha: !!trilha && (trilha.donoId === req.userId || (admin && trilha.donoId === null)) };
     });
 
     res.json({ concursos: lista });
