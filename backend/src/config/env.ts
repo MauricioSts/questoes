@@ -40,6 +40,13 @@ const schema = z.object({
   PLANO_ANUAL_VALOR: z.coerce.number().positive().default(179.9),
   // Questões por dia de quem não assina.
   LIMITE_GRATIS_DIA: z.coerce.number().int().positive().default(10),
+  // Leitura de prova em PDF por IA (Groq). Sem a chave o recurso fica desligado.
+  GROQ_API_KEY: z.string().optional(),
+  GROQ_MODELO: z.string().default("openai/gpt-oss-120b"),
+  // Páginas é a moeda: quantas páginas de PDF cada plano lê por mês, e o teto por arquivo.
+  PDF_PAGINAS_MES_FREE: z.coerce.number().int().min(0).default(5),
+  PDF_PAGINAS_MES_PREMIUM: z.coerce.number().int().min(0).default(100),
+  PDF_MAX_PAGINAS: z.coerce.number().int().positive().default(10),
 });
 
 const parsed = schema.safeParse(process.env);

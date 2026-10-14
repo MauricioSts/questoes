@@ -100,6 +100,7 @@ assinaturaRouter.get(
       // acesso completo é só informativo: a Batalha está sempre liberada.
       batalhaFreeAte,
       diasBatalhaFree: DIAS_BATALHA_FREE,
+      pdfPaginasMes: { free: env.PDF_PAGINAS_MES_FREE, premium: env.PDF_PAGINAS_MES_PREMIUM },
     });
   })
 );

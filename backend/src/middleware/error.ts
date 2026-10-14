@@ -14,6 +14,10 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   if (err instanceof ZodError) {
     return res.status(400).json({ error: "Dados inválidos", detalhes: err.flatten().fieldErrors });
   }
+  // Corpo acima do limite do express (PDF grande demais, por exemplo).
+  if ((err as { type?: string })?.type === "entity.too.large") {
+    return res.status(413).json({ error: "Arquivo grande demais." });
+  }
   if (err instanceof HttpError) {
     return res.status(err.status).json({ error: err.message, ...(err.codigo ? { codigo: err.codigo } : {}) });
   }

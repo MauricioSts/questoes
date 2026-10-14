@@ -97,7 +97,32 @@ export interface QuestaoEditavel {
   explicacao: string;
 }
 
+// Saldo de páginas de PDF lidas por IA no mês.
+export interface SaldoPdf {
+  disponivel: boolean;
+  premium: boolean;
+  limiteMes: number;
+  usadasMes: number;
+  restantes: number;
+  maxPorPdf: number;
+}
+
+// Questão como a IA leu do PDF: prévia para revisar (o gabarito pode faltar).
+export interface QuestaoLida extends Omit<QuestaoEditavel, "gabarito" | "dificuldade" | "explicacao"> {
+  numero: number | null;
+  gabarito: Letra | null;
+}
+
+export function lerPdf(id: string, arquivo: File, opcoes: { materia: string; gabarito: string }) {
+  const q = new URLSearchParams({ materia: opcoes.materia, gabarito: opcoes.gabarito });
+  return api<{ questoes: QuestaoLida[]; paginas: number; restantes: number }>(`/trilhas/${id}/pdf?${q}`, {
+    method: "POST",
+    arquivo,
+  });
+}
+
 export interface EdicaoTrilha {
+  pdf: SaldoPdf;
   trilha: DadosTrilha & { id: string };
   questoes: (QuestaoEditavel & { id: number })[];
   podePrivada: boolean;

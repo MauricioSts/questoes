@@ -24,6 +24,7 @@ export interface DadosAssinatura {
   // A Batalha vale no plano gratuito só até esta data (os primeiros dias da conta).
   batalhaFreeAte: string | null;
   diasBatalhaFree: number;
+  pdfPaginasMes?: { free: number; premium: number };
 }
 
 interface AssinaturaContextValue {

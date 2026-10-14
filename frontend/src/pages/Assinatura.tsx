@@ -15,6 +15,7 @@ const VANTAGENS = [
   "Questões sem limite diário",
   "Batalha sem prazo",
   "Trilhas próprias ilimitadas e privadas",
+  "Mais páginas de PDF lidas por IA",
   "Caderno, Simulado e Estatísticas",
   "Estudar sem internet",
   "Cancele quando quiser",
@@ -180,7 +181,7 @@ export function Assinatura() {
       {dados.pagamentosAtivos && (
         <section className="mt-8">
           <h2 className="mb-3 font-display text-lg font-extrabold text-brand-ink">Free × Premium</h2>
-          <TabelaPlanos limiteGratisDia={dados.limiteGratisDia} diasBatalhaFree={dados.diasBatalhaFree ?? 7} />
+          <TabelaPlanos limiteGratisDia={dados.limiteGratisDia} diasBatalhaFree={dados.diasBatalhaFree ?? 7} pdfPaginasMes={dados.pdfPaginasMes} />
           <p className="mt-3 text-xs text-faint">
             O pagamento é recorrente no cartão, pelo Mercado Pago. Ao cancelar, as cobranças param e o Premium continua até o fim do período já pago.
           </p>

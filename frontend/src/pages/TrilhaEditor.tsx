@@ -4,7 +4,7 @@
 // injeta como HTML.
 import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Crown, FileText, Globe, Lock, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, Check, Crown, FileText, Globe, Lock, Pencil, Plus, Trash2, Upload } from "lucide-react";
 import { ApiError } from "../lib/api";
 import {
   LETRAS,
@@ -15,12 +15,15 @@ import {
   criarTrilha,
   editarQuestao,
   excluirQuestao,
+  lerPdf,
   listarTrilhas,
   salvarTrilha,
   type DadosTrilha,
   type EdicaoTrilha,
   type Letra,
   type QuestaoEditavel,
+  type QuestaoLida,
+  type SaldoPdf,
   type TipoTrilha,
 } from "../lib/trilhas";
 import { useConcurso } from "../store/concurso";
@@ -232,7 +235,9 @@ export function TrilhaEditor() {
         }
       />
 
-      <Bloco titulo="Dados da trilha">
+      <Passos total={edicao?.questoes.length ?? 0} minimo={edicao?.minQuestoesVitrine ?? 10} criada={!nova} />
+
+      <Bloco titulo="1 · Dados da trilha">
         <form onSubmit={salvarDados} className="grid gap-4 sm:grid-cols-2">
           <fieldset className="sm:col-span-2">
             <legend className="text-sm text-muted">Para que é esta trilha?</legend>
@@ -365,8 +370,8 @@ function OpcaoVisibilidade({
 
 function Questoes({ trilhaId, edicao, aoMudar }: { trilhaId: string; edicao: EdicaoTrilha; aoMudar: () => Promise<void> }) {
   const [editando, setEditando] = useState<number | "nova" | null>(edicao.questoes.length === 0 ? "nova" : null);
-  const [modo, setModo] = useState<"lista" | "json">("lista");
   const total = edicao.questoes.length;
+  const [modo, setModo] = useState<"pdf" | "lista" | "json">(edicao.pdf.disponivel && total < edicao.minQuestoesVitrine ? "pdf" : "lista");
   const faltamVitrine = Math.max(0, edicao.minQuestoesVitrine - total);
   const materias = useMemo(() => [...new Set(edicao.questoes.map((q) => q.materia))].sort(), [edicao.questoes]);
 
@@ -378,34 +383,39 @@ function Questoes({ trilhaId, edicao, aoMudar }: { trilhaId: string; edicao: Edi
 
   return (
     <Bloco
-      titulo={`Questões · ${total}`}
+      titulo={`2 · Questões · ${total}`}
       direita={
         <div className="flex gap-1 rounded-xl border border-hair p-0.5 text-xs font-bold">
-          <button type="button" onClick={() => setModo("lista")} className={`rounded-lg px-2.5 py-1 ${modo === "lista" ? "bg-brand-500 text-[color:var(--onAccent)]" : "text-muted"}`}>
-            Uma a uma
-          </button>
-          <button type="button" onClick={() => setModo("json")} className={`rounded-lg px-2.5 py-1 ${modo === "json" ? "bg-brand-500 text-[color:var(--onAccent)]" : "text-muted"}`}>
-            Colar JSON
-          </button>
+          {(
+            [
+              ...(edicao.pdf.disponivel ? [["pdf", "PDF com IA"] as const] : []),
+              ["lista", "Uma a uma"] as const,
+              ["json", "JSON"] as const,
+            ]
+          ).map(([m, rotulo]) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setModo(m)}
+              className={`rounded-lg px-2.5 py-1 ${modo === m ? "bg-brand-500 text-[color:var(--onAccent)]" : "text-muted"}`}
+            >
+              {rotulo}
+            </button>
+          ))}
         </div>
       }
     >
-      {edicao.trilha.visibilidade === "publica" && faltamVitrine > 0 && (
+      {faltamVitrine > 0 && (
         <p className="mb-4 rounded-xl bg-brand-100/60 px-3.5 py-2.5 text-sm text-brand-700">
-          Faltam {faltamVitrine} {faltamVitrine === 1 ? "questão" : "questões"} para a trilha aparecer na lista pública.
-          Até lá, só você a vê.
+          Faltam {faltamVitrine} {faltamVitrine === 1 ? "questão" : "questões"} para a trilha ficar pronta
+          {edicao.trilha.visibilidade === "publica" ? " e aparecer na lista pública" : ""}. Uma trilha precisa de pelo menos{" "}
+          {edicao.minQuestoesVitrine} questões.
         </p>
       )}
 
-      <div className="mb-4 flex items-center gap-3 rounded-xl border border-dashed border-hair px-3.5 py-3 text-sm text-faint">
-        <FileText size={18} className="flex-shrink-0" />
-        <span>
-          <strong className="text-muted">Importar prova em PDF com IA</strong> — em breve. Você manda o PDF da prova e do
-          gabarito, e as questões entram aqui sozinhas.
-        </span>
-      </div>
-
-      {modo === "json" ? (
+      {modo === "pdf" ? (
+        <ImportarPdf trilhaId={trilhaId} saldo={edicao.pdf} aoMudar={aoMudar} />
+      ) : modo === "json" ? (
         <ImportarJson trilhaId={trilhaId} aoMudar={aoMudar} />
       ) : (
         <>
@@ -629,6 +639,215 @@ function ImportarJson({ trilhaId, aoMudar }: { trilhaId: string; aoMudar: () => 
         <span className="inline-flex items-center gap-1.5"><Upload size={16} /> {ocupado ? "Importando…" : "Importar questões"}</span>
       </Button>
       {msg && <Mensagem {...msg} />}
+    </div>
+  );
+}
+
+// Passo a passo da criação: 1 dados → 2 questões (mínimo para a trilha valer) → 3 pronta.
+function Passos({ total, minimo, criada }: { total: number; minimo: number; criada: boolean }) {
+  const navigate = useNavigate();
+  const pronta = criada && total >= minimo;
+  const passos = [
+    { n: 1, titulo: "Dados", feito: criada, atual: !criada, detalhe: criada ? "ok" : "agora" },
+    { n: 2, titulo: "Questões", feito: pronta, atual: criada && !pronta, detalhe: `${Math.min(total, minimo)}/${minimo}` },
+    { n: 3, titulo: "Pronta", feito: pronta, atual: false, detalhe: pronta ? "ok" : "" },
+  ];
+  return (
+    <section className="card p-4 sm:p-5">
+      <ol className="grid grid-cols-3 gap-2">
+        {passos.map((p) => (
+          <li key={p.n} className="flex items-center gap-2.5">
+            <span
+              className={`grid h-8 w-8 flex-shrink-0 place-items-center rounded-full text-sm font-extrabold ${
+                p.feito
+                  ? "bg-brand-500 text-[color:var(--onAccent)]"
+                  : p.atual
+                    ? "border-2 border-brand-500 text-brand-500"
+                    : "border border-hair text-faint"
+              }`}
+            >
+              {p.feito ? <Check size={16} strokeWidth={3} /> : p.n}
+            </span>
+            <span className="min-w-0 leading-tight">
+              <span className={`block text-sm font-bold ${p.feito || p.atual ? "text-brand-ink" : "text-faint"}`}>{p.titulo}</span>
+              {p.detalhe && <span className="block text-xs tabular-nums text-faint">{p.detalhe}</span>}
+            </span>
+          </li>
+        ))}
+      </ol>
+      {criada && (
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[color:var(--track)]">
+          <div className="h-full rounded-full bg-brand-500 transition-all" style={{ width: `${Math.min(100, (total / minimo) * 100)}%` }} />
+        </div>
+      )}
+      {pronta && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-muted">Sua trilha está pronta. Dá para continuar adicionando questões quando quiser.</p>
+          <Button size="sm" onClick={() => navigate("/estudar")}>
+            Começar a estudar
+          </Button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+type Revisao = QuestaoLida & { incluir: boolean };
+
+function ImportarPdf({ trilhaId, saldo, aoMudar }: { trilhaId: string; saldo: SaldoPdf; aoMudar: () => Promise<void> }) {
+  const [arquivo, setArquivo] = useState<File | null>(null);
+  const [materia, setMateria] = useState("");
+  const [gabarito, setGabarito] = useState("");
+  const [lendo, setLendo] = useState(false);
+  const [restantes, setRestantes] = useState(saldo.restantes);
+  const [lidas, setLidas] = useState<Revisao[] | null>(null);
+  const [msg, setMsg] = useState<{ ok: boolean; texto: string; premium?: boolean } | null>(null);
+  const [salvando, setSalvando] = useState(false);
+
+  async function ler() {
+    if (!arquivo) return;
+    setMsg(null);
+    setLendo(true);
+    try {
+      const r = await lerPdf(trilhaId, arquivo, { materia: materia.trim(), gabarito: gabarito.trim() });
+      setRestantes(r.restantes);
+      if (r.questoes.length === 0) {
+        setMsg({ ok: false, texto: "A IA não encontrou questões de múltipla escolha nesse PDF." });
+      } else {
+        setLidas(r.questoes.map((q) => ({ ...q, incluir: true })));
+      }
+    } catch (err) {
+      const premium = err instanceof ApiError && (err.body as { codigo?: string } | undefined)?.codigo === "PREMIUM";
+      setMsg({ ok: false, texto: erroDe(err, "Não foi possível ler o PDF"), premium });
+    } finally {
+      setLendo(false);
+    }
+  }
+
+  const incluidas = lidas?.filter((q) => q.incluir) ?? [];
+  const semGabarito = incluidas.filter((q) => !q.gabarito).length;
+  const muda = (i: number, parte: Partial<Revisao>) => setLidas((l) => l && l.map((q, j) => (j === i ? { ...q, ...parte } : q)));
+
+  async function adicionar() {
+    if (semGabarito > 0 || incluidas.length === 0) return;
+    setSalvando(true);
+    setMsg(null);
+    try {
+      const r = await adicionarQuestoes(
+        trilhaId,
+        incluidas.map((q) => ({
+          materia: q.materia,
+          assunto: q.assunto,
+          dificuldade: "media",
+          enunciado: q.enunciado,
+          alternativas: q.alternativas,
+          gabarito: q.gabarito!,
+          explicacao: "",
+        }))
+      );
+      await aoMudar();
+      setLidas(null);
+      setArquivo(null);
+      setMsg({ ok: true, texto: `${r.adicionadas} questões adicionadas à trilha.` });
+    } catch (err) {
+      setMsg({ ok: false, texto: erroDe(err, "Não foi possível adicionar") });
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+  if (lidas) {
+    return (
+      <div className="space-y-3">
+        <p className="text-sm text-muted">
+          A IA leu <strong className="text-brand-ink">{lidas.length} questões</strong>. Confira antes de adicionar: desmarque o que
+          veio errado e marque o gabarito das que vieram sem.
+        </p>
+        <ol className="space-y-2">
+          {lidas.map((q, i) => (
+            <li key={i} className={`rounded-xl border p-3.5 ${q.incluir && !q.gabarito ? "border-[color:rgb(var(--danger-from))]" : "border-hair"} ${q.incluir ? "" : "opacity-50"}`}>
+              <div className="flex items-start gap-3">
+                <input type="checkbox" aria-label="Incluir questão" checked={q.incluir} onChange={(e) => muda(i, { incluir: e.target.checked })} className="mt-1 accent-[color:var(--accent)]" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-faint">
+                    {q.numero ? `Questão ${q.numero} · ` : ""}
+                    {q.materia}
+                    {q.assunto ? ` · ${q.assunto}` : ""}
+                  </p>
+                  <p className="mt-1 whitespace-pre-line text-sm text-brand-ink">{q.enunciado}</p>
+                  <ul className="mt-2 space-y-1">
+                    {LETRAS.filter((l) => q.alternativas[l]).map((l) => (
+                      <li key={l}>
+                        <label className="flex cursor-pointer items-start gap-2 text-sm text-muted">
+                          <input type="radio" name={`gab-${i}`} checked={q.gabarito === l} onChange={() => muda(i, { gabarito: l })} className="mt-1 accent-[color:var(--accent)]" />
+                          <span>
+                            <strong className="text-brand-ink">{l})</strong> {q.alternativas[l]}
+                          </span>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                  {q.incluir && !q.gabarito && <p className="mt-2 text-xs font-semibold text-[color:rgb(var(--danger-from))]">Marque o gabarito desta questão.</p>}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button size="sm" onClick={adicionar} disabled={salvando || incluidas.length === 0 || semGabarito > 0}>
+            {salvando ? "Adicionando…" : `Adicionar ${incluidas.length} ${incluidas.length === 1 ? "questão" : "questões"}`}
+          </Button>
+          <button type="button" onClick={() => setLidas(null)} className="text-sm font-semibold text-muted hover:text-brand-ink">
+            Descartar leitura
+          </button>
+          {semGabarito > 0 && <span className="text-xs text-faint">{semGabarito} sem gabarito</span>}
+        </div>
+        {msg && <Mensagem {...msg} />}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted">
+        Envie o PDF da prova e a IA separa as questões para você revisar. Funciona com PDF de texto (não com foto ou prova
+        escaneada).
+      </p>
+      <p className="text-xs text-faint">
+        Saldo: <strong className="tabular-nums text-muted">{restantes}</strong> de {saldo.limiteMes} páginas neste mês · até {saldo.maxPorPdf} páginas por
+        PDF{saldo.premium ? "" : " · no Premium são mais páginas por mês"}.
+      </p>
+      <label className={rotulo}>
+        Arquivo PDF
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={(e) => setArquivo(e.target.files?.[0] ?? null)}
+          className="mt-1.5 block w-full text-sm text-muted file:mr-3 file:rounded-xl file:border-0 file:bg-brand-100 file:px-4 file:py-2 file:font-bold file:text-brand-700"
+        />
+      </label>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className={rotulo}>
+          Matéria <span className="text-faint">(se a prova não separar por matéria)</span>
+          <input maxLength={80} value={materia} onChange={(e) => setMateria(e.target.value)} className={campo} />
+        </label>
+        <label className={rotulo}>
+          Gabarito <span className="text-faint">(se não estiver no PDF)</span>
+          <input maxLength={2000} placeholder="1-A 2-C 3-B…" value={gabarito} onChange={(e) => setGabarito(e.target.value)} className={campo} />
+        </label>
+      </div>
+      <Button size="sm" onClick={ler} disabled={!arquivo || lendo || restantes === 0}>
+        <span className="inline-flex items-center gap-1.5">
+          <FileText size={16} /> {lendo ? "Lendo o PDF… (pode levar até 1 minuto)" : "Ler questões do PDF"}
+        </span>
+      </Button>
+      {restantes === 0 && <p className="text-sm text-muted">Seu saldo de páginas deste mês acabou.</p>}
+      {msg && <Mensagem {...msg} />}
+      {msg?.premium && (
+        <Link to="/assinatura" className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-500 hover:underline">
+          <Crown size={15} /> Ver o Premium
+        </Link>
+      )}
     </div>
   );
 }

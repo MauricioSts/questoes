@@ -226,6 +226,7 @@ model User {
   pokeSave       PokeSave?
   assinatura     Assinatura?
   trilhas        Trilha[]
+  importacoesPdf ImportacaoPdf[]
 }
 
 // Assinatura do Mercado Pago (API de preapproval): uma linha por usuário, apontando para
@@ -371,4 +372,17 @@ model PokeSave {
   partida   Json?
   jogador   String?
   updatedAt DateTime @updatedAt
+}
+
+// Cada PDF lido pela IA: é daqui que sai o saldo de páginas do mês.
+model ImportacaoPdf {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trilhaId  String?
+  paginas   Int
+  questoes  Int // quantas a IA devolveu (antes da revisão do usuário)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }

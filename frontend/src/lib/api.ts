@@ -95,22 +95,24 @@ export interface ApiOptions {
   body?: unknown;
   auth?: boolean; // default true
   keepalive?: boolean; // continua depois que a página fecha (corpo até 64 KB)
+  arquivo?: Blob; // corpo binário (ex.: PDF), enviado como está, com o tipo do próprio arquivo
 }
 
 export async function api<T = unknown>(path: string, opts: ApiOptions = {}): Promise<T> {
-  const { method = "GET", body, auth = true, keepalive } = opts;
+  const { method = "GET", body, auth = true, keepalive, arquivo } = opts;
 
   const scopedPath = scopePath(path, method);
   const scopedBody = scopeBody(path, method, body);
 
   const doFetch = () => {
     const headers: Record<string, string> = {};
-    if (scopedBody !== undefined) headers["Content-Type"] = "application/json";
+    if (arquivo) headers["Content-Type"] = arquivo.type || "application/octet-stream";
+    else if (scopedBody !== undefined) headers["Content-Type"] = "application/json";
     if (auth && tokenStore.access) headers["Authorization"] = `Bearer ${tokenStore.access}`;
     return fetch(`${BASE}${scopedPath}`, {
       method,
       headers,
-      body: scopedBody !== undefined ? JSON.stringify(scopedBody) : undefined,
+      body: arquivo ?? (scopedBody !== undefined ? JSON.stringify(scopedBody) : undefined),
       keepalive,
     });
   };

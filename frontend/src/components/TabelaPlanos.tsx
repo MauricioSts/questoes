@@ -8,7 +8,15 @@ function Celula({ valor, destaque }: { valor: string | boolean; destaque?: boole
   return <span className={`text-xs font-bold ${destaque ? "text-brand-700" : "text-muted"}`}>{valor}</span>;
 }
 
-export function TabelaPlanos({ limiteGratisDia, diasBatalhaFree }: { limiteGratisDia: number; diasBatalhaFree: number }) {
+export function TabelaPlanos({
+  limiteGratisDia,
+  diasBatalhaFree,
+  pdfPaginasMes,
+}: {
+  limiteGratisDia: number;
+  diasBatalhaFree: number;
+  pdfPaginasMes?: { free: number; premium: number };
+}) {
   return (
     <div className="card overflow-hidden">
       <table className="w-full text-sm">
@@ -20,7 +28,7 @@ export function TabelaPlanos({ limiteGratisDia, diasBatalhaFree }: { limiteGrati
           </tr>
         </thead>
         <tbody>
-          {linhasPlanos(limiteGratisDia, diasBatalhaFree).map((l) => (
+          {linhasPlanos(limiteGratisDia, diasBatalhaFree, pdfPaginasMes).map((l) => (
             <tr key={l.recurso} className="border-b border-hair/60 last:border-0">
               <td className="px-4 py-3">
                 <span className="font-semibold text-brand-ink">{l.recurso}</span>

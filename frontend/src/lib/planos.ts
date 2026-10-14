@@ -7,7 +7,11 @@ export interface LinhaPlano {
   premium: string | boolean;
 }
 
-export function linhasPlanos(limiteGratisDia: number, diasBatalhaFree: number): LinhaPlano[] {
+export function linhasPlanos(
+  limiteGratisDia: number,
+  diasBatalhaFree: number,
+  pdf: { free: number; premium: number } = { free: 5, premium: 100 }
+): LinhaPlano[] {
   return [
     {
       recurso: "Questões por dia",
@@ -45,6 +49,11 @@ export function linhasPlanos(limiteGratisDia: number, diasBatalhaFree: number): 
       free: false,
       premium: true,
     },
-    { recurso: "Importar provas em PDF com IA", free: false, premium: "Em breve" },
+    {
+      recurso: "Ler provas em PDF com IA",
+      detalhe: "A IA separa as questões do PDF e você revisa antes de salvar.",
+      free: `${pdf.free} páginas/mês`,
+      premium: `${pdf.premium} páginas/mês`,
+    },
   ];
 }

@@ -1,15 +1,17 @@
 // Trilhas: o que o usuário escolhe antes de começar a estudar. A trilha é dona do
 // acervo compartilhado; entrar nela cria o Concurso pessoal (progresso, meta, caderno)
 // apontando para ela. Sem isso, uma conta nova via Concurso vazio.
-import { Router } from "express";
+import express, { Router } from "express";
 import { z } from "zod";
 import type { Prisma, Trilha } from "@prisma/client";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
+import { env } from "../../config/env.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { HttpError } from "../../middleware/error.js";
 import { montarRanking, nomeExibicao, VOLUME_MINIMO_TAXA } from "../../lib/ranking.js";
 import type { Vitrine } from "../poke/poke.routes.js";
+import { MAX_BYTES_PDF, lerQuestoesDoPdf, paginasDoPdf, pareceEscaneado, saldoPdf } from "../../lib/pdfQuestoes.js";
 import {
   MAX_QUESTOES_POR_ENVIO,
   MAX_QUESTOES_TRILHA,
@@ -193,7 +195,7 @@ trilhasRouter.get(
   "/:id/editar",
   asyncHandler(async (req, res) => {
     const trilha = await trilhaDoDono(req.params.id, req.userId!);
-    const [questoes, regras] = await Promise.all([
+    const [questoes, regras, pdf] = await Promise.all([
       prisma.questao.findMany({
         where: { trilhaId: trilha.id },
         orderBy: { id: "asc" },
@@ -203,8 +205,10 @@ trilhasRouter.get(
         },
       }),
       regrasCriacao(req.userId!, req.userEmail),
+      saldoPdf(req.userId!, req.userEmail),
     ]);
     res.json({
+      pdf,
       trilha: {
         id: trilha.id,
         nome: trilha.nome,
@@ -302,6 +306,55 @@ trilhasRouter.post(
       return { inicio, n: questoes.length };
     });
     res.status(201).json({ adicionadas: criadas.n, ids: Array.from({ length: criadas.n }, (_, i) => criadas.inicio + i) });
+  })
+);
+
+// Uma leitura por vez por conta: um clique duplo não gasta o saldo duas vezes.
+const lendoPdf = new Set<string>();
+
+// POST /trilhas/:id/pdf: lê uma prova em PDF com IA e devolve a PRÉVIA das questões
+// (nada é gravado aqui; o usuário revisa e envia pelo POST /:id/questoes). O corpo é o
+// próprio arquivo (application/pdf); matéria padrão e gabarito digitado vão na query.
+trilhasRouter.post(
+  "/:id/pdf",
+  express.raw({ type: "application/pdf", limit: MAX_BYTES_PDF }),
+  asyncHandler(async (req, res) => {
+    const trilha = await trilhaDoDono(req.params.id, req.userId!);
+    const saldo = await saldoPdf(req.userId!, req.userEmail);
+    if (!saldo.disponivel) throw new HttpError(503, "A leitura de PDF está desligada no momento.");
+    if (!Buffer.isBuffer(req.body)) throw new HttpError(400, "Envie o arquivo PDF.");
+    const opcoes = z
+      .object({ materia: z.string().max(80).default(""), gabarito: z.string().max(2000).default("") })
+      .parse(req.query);
+
+    if (lendoPdf.has(req.userId!)) throw new HttpError(409, "Já tem um PDF sendo lido. Espere terminar.");
+    lendoPdf.add(req.userId!);
+    try {
+      const paginas = await paginasDoPdf(req.body);
+      if (paginas.length > saldo.maxPorPdf) {
+        throw new HttpError(400, `O PDF tem ${paginas.length} páginas; o máximo por arquivo é ${saldo.maxPorPdf}. Separe as páginas das questões e envie de novo.`);
+      }
+      if (paginas.length > saldo.restantes) {
+        throw new HttpError(
+          402,
+          saldo.premium
+            ? `O PDF tem ${paginas.length} páginas e restam ${saldo.restantes} no seu saldo deste mês.`
+            : `O PDF tem ${paginas.length} páginas e restam ${saldo.restantes} das ${saldo.limiteMes} do plano Free neste mês. No Premium são ${env.PDF_PAGINAS_MES_PREMIUM} por mês.`,
+          "PREMIUM"
+        );
+      }
+      if (pareceEscaneado(paginas)) {
+        throw new HttpError(400, "Este PDF parece ser imagem (prova escaneada ou foto). Por enquanto só lemos PDF com texto selecionável.");
+      }
+      const questoes = await lerQuestoesDoPdf(paginas, { materiaPadrao: opcoes.materia, gabarito: opcoes.gabarito });
+      // Só cobra o saldo quando a leitura deu certo.
+      await prisma.importacaoPdf.create({
+        data: { userId: req.userId!, trilhaId: trilha.id, paginas: paginas.length, questoes: questoes.length },
+      });
+      res.json({ questoes, paginas: paginas.length, restantes: saldo.restantes - paginas.length });
+    } finally {
+      lendoPdf.delete(req.userId!);
+    }
   })
 );
 
