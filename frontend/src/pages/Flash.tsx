@@ -24,10 +24,10 @@ export function Flash() {
     setAviso(null);
     try {
       const { ids } = await api<{ ids: number[] }>(`/answers/wrong?${soModuloII ? "modulo=II&" : ""}limit=10`);
-      const todasII = filtrar(soModuloII ? { modulo: "II" } : {});
+      const elegiveis = filtrar(soModuloII ? { modulo: "II" } : {});
       const r = montarFlash({
         idsErradosPriorizados: ids,
-        todasModuloII: todasII,
+        acervo: elegiveis,
         respondidasIds: progresso.respondidas,
         quantidade: 10,
       });
@@ -41,10 +41,10 @@ export function Flash() {
       }
       setSessao(r.questoes);
     } catch {
-      const todasII = filtrar(soModuloII ? { modulo: "II" } : {});
+      const elegiveis = filtrar(soModuloII ? { modulo: "II" } : {});
       const r = montarFlash({
         idsErradosPriorizados: [...progresso.erradas],
-        todasModuloII: todasII,
+        acervo: elegiveis,
         respondidasIds: progresso.respondidas,
         quantidade: 10,
       });
@@ -123,7 +123,11 @@ export function Flash() {
 
       {/* Aviso */}
       {aviso && (
-        <div className="rounded-xl bg-yellow-100 border border-yellow-300 p-4 text-sm text-yellow-800">
+        <div
+          className="w-full rounded-xl border p-4 text-sm font-semibold"
+          style={{ background: "var(--accentBg)", borderColor: "var(--accentBd)", color: "var(--accentText)" }}
+          role="status"
+        >
           {aviso}
         </div>
       )}

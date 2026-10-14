@@ -37,7 +37,7 @@ describe("montarFlash (10 erradas do Módulo II)", () => {
   it("usa as erradas priorizadas na ordem do backend", () => {
     const r = montarFlash({
       idsErradosPriorizados: [105, 103, 101],
-      todasModuloII: todasII,
+      acervo: todasII,
       respondidasIds: new Set([105, 103, 101]),
       quantidade: 10,
     });
@@ -51,7 +51,7 @@ describe("montarFlash (10 erradas do Módulo II)", () => {
   it("nunca quebra: completa e sinaliza quando faltam erradas", () => {
     const r = montarFlash({
       idsErradosPriorizados: [100],
-      todasModuloII: todasII,
+      acervo: todasII,
       respondidasIds: new Set([100]),
       quantidade: 10,
     });
@@ -64,7 +64,7 @@ describe("montarFlash (10 erradas do Módulo II)", () => {
   it("ignora ids errados que não existem no JSON", () => {
     const r = montarFlash({
       idsErradosPriorizados: [999, 100],
-      todasModuloII: todasII,
+      acervo: todasII,
       respondidasIds: new Set([100]),
       quantidade: 3,
     });

@@ -44,8 +44,8 @@ export function sampleWeighted<T>(
 // ---------- FLASH: 10 questões do Módulo II já erradas ----------
 
 export interface FlashInput {
-  idsErradosPriorizados: number[]; // do backend: /answers/wrong?modulo=II (ordem = prioridade)
-  todasModuloII: Questao[]; // do JSON
+  idsErradosPriorizados: number[]; // do backend: /answers/wrong (ordem = prioridade)
+  acervo: Questao[]; // questões elegíveis da trilha ativa (só Módulo II na Dataprev)
   respondidasIds: Set<number>; // para saber quais ainda não foram respondidas
   quantidade?: number; // default 10
 }
@@ -60,11 +60,11 @@ export interface FlashResult {
 // não respondidas; se ainda faltar, completa com qualquer Módulo II. Nunca quebra.
 export function montarFlash(input: FlashInput): FlashResult {
   const n = input.quantidade ?? 10;
-  const porId = new Map(input.todasModuloII.map((q) => [q.id, q]));
+  const porId = new Map(input.acervo.map((q) => [q.id, q]));
   const escolhidas: Questao[] = [];
   const usados = new Set<number>();
 
-  // 1) erradas priorizadas (que existem no JSON e são Módulo II)
+  // 1) erradas priorizadas (que existem no acervo elegível)
   for (const id of input.idsErradosPriorizados) {
     if (escolhidas.length >= n) break;
     const q = porId.get(id);
@@ -76,10 +76,10 @@ export function montarFlash(input: FlashInput): FlashResult {
 
   let completadoComNaoRespondidas = false;
 
-  // 2) completar com Módulo II não respondidas
+  // 2) completar com não respondidas
   if (escolhidas.length < n) {
     const naoRespondidas = shuffle(
-      input.todasModuloII.filter((q) => !usados.has(q.id) && !input.respondidasIds.has(q.id))
+      input.acervo.filter((q) => !usados.has(q.id) && !input.respondidasIds.has(q.id))
     );
     for (const q of naoRespondidas) {
       if (escolhidas.length >= n) break;
@@ -89,9 +89,9 @@ export function montarFlash(input: FlashInput): FlashResult {
     }
   }
 
-  // 3) completar com qualquer Módulo II restante
+  // 3) completar com qualquer questão restante
   if (escolhidas.length < n) {
-    const resto = shuffle(input.todasModuloII.filter((q) => !usados.has(q.id)));
+    const resto = shuffle(input.acervo.filter((q) => !usados.has(q.id)));
     for (const q of resto) {
       if (escolhidas.length >= n) break;
       escolhidas.push(q);

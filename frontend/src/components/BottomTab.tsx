@@ -19,6 +19,7 @@ import {
   Crown,
   FolderCog,
   UserRound,
+  Zap,
   Menu,
   X,
   Compass,
@@ -65,6 +66,7 @@ const desktopExtra = [
   { to: "/provas", label: "Provas e origens", icon: ClipboardList },
   { to: "/simulado", label: "Simulado", icon: FileText },
   { to: "/erros", label: "Meus erros", icon: Target },
+  { to: "/flash", label: "Flash", icon: Zap },
 ];
 
 // Batalha: no desktop logo abaixo da Revisão (é a mesma fila, jogada).
