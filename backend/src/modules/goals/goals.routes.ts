@@ -191,17 +191,18 @@ goalsRouter.get(
     // O rodízio é DESTE concurso: a trilha dele e as matérias que ela tem.
     const [concurso, contagem] = await Promise.all([
       concursoId
-        ? prisma.concurso.findFirst({ where: { id: concursoId, userId: req.userId! }, select: { trilhaId: true } })
+        ? prisma.concurso.findFirst({ where: { id: concursoId, userId: req.userId! }, select: { trilhaId: true, trilha: { select: { donoId: true } } } })
         : null,
       prisma.questao.groupBy({ by: ["materia"], where: qf, _count: { _all: true } }),
     ]);
     const materiasDoBanco = contagem.map((c) => c.materia);
     const rodizio = rodizioDoConcurso(
       concurso?.trilhaId,
-      contagem.map((c) => ({ materia: c.materia, total: c._count._all }))
+      contagem.map((c) => ({ materia: c.materia, total: c._count._all })),
+      !!concurso?.trilha?.donoId
     );
     if (rodizio.length === 0) {
-      // Trilha ainda sem questões: não há meta fixa para mostrar.
+      // Trilha da comunidade ou ainda sem questões: não há meta fixa para mostrar.
       res.json({ diaIndex, materia: null, extra: false, meta: 0, questaoIds: [], feitas: 0, acertos: 0, concluida: false, semQuestoes: true });
       return;
     }

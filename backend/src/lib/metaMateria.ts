@@ -129,11 +129,14 @@ export function rodizioAutomatico(materias: { materia: string; total: number }[]
 }
 
 // Rodízio do concurso: o feito à mão quando a trilha tem um (ou concurso antigo sem
-// trilha, que é a Dataprev de antes das trilhas), senão o automático.
+// trilha, que é a Dataprev de antes das trilhas), senão o automático. Meta fixa é coisa
+// das trilhas oficiais: trilha da comunidade (com dono) não tem rodízio.
 export function rodizioDoConcurso(
   trilhaId: string | null | undefined,
-  materias: { materia: string; total: number }[]
+  materias: { materia: string; total: number }[],
+  daComunidade = false
 ): Rodizio {
+  if (daComunidade) return [];
   if (!trilhaId) return RODIZIO;
   return RODIZIO_POR_TRILHA[trilhaId] ?? rodizioAutomatico(materias);
 }

@@ -168,7 +168,11 @@ describe("rodízio por trilha", () => {
     expect(rodizioDoConcurso(null, [])).toBe(RODIZIO);
   });
 
-  it("outra trilha usa as próprias matérias, da maior para a menor", () => {
+  it("trilha da comunidade não tem meta fixa", () => {
+    expect(rodizioDoConcurso("biologia-x", [{ materia: "Ecologia", total: 30 }], true)).toEqual([]);
+  });
+
+  it("outra trilha oficial usa as próprias matérias, da maior para a menor", () => {
     const r = rodizioDoConcurso("biologia-x", [
       { materia: "Genética", total: 10 },
       { materia: "Ecologia", total: 30 },
