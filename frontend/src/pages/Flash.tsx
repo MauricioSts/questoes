@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Zap } from "lucide-react";
 import { api } from "../lib/api";
-import { filtrar } from "../lib/questoesRepo";
+import { filtrar, temModulos } from "../lib/questoesRepo";
 import { montarFlash } from "../lib/sessionBuilder";
 import { useProgresso } from "../hooks/useProgresso";
 import { SessionRunner, type RespostaSessao } from "../components/SessionRunner";
@@ -11,6 +11,9 @@ import type { Questao } from "../types/questao";
 
 export function Flash() {
   const progresso = useProgresso();
+  // Só a Dataprev separa Módulo I/II; nas outras trilhas o Flash usa o acervo inteiro.
+  const soModuloII = temModulos();
+  const recorte = soModuloII ? " no Módulo II" : "";
   const [sessao, setSessao] = useState<Questao[] | null>(null);
   const [resultado, setResultado] = useState<RespostaSessao[] | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
@@ -20,8 +23,8 @@ export function Flash() {
     setCarregando(true);
     setAviso(null);
     try {
-      const { ids } = await api<{ ids: number[] }>("/answers/wrong?modulo=II&limit=10");
-      const todasII = filtrar({ modulo: "II" });
+      const { ids } = await api<{ ids: number[] }>(`/answers/wrong?${soModuloII ? "modulo=II&" : ""}limit=10`);
+      const todasII = filtrar(soModuloII ? { modulo: "II" } : {});
       const r = montarFlash({
         idsErradosPriorizados: ids,
         todasModuloII: todasII,
@@ -29,12 +32,16 @@ export function Flash() {
         quantidade: 10,
       });
       if (r.completadoComNaoRespondidas) {
-        setAviso("Você tem menos de 10 erradas no Módulo II, completamos com questões novas.");
+        setAviso(`Você tem menos de 10 erradas${recorte}, completamos com questões novas.`);
       }
       setResultado(null);
+      if (r.questoes.length === 0) {
+        setAviso("Esta trilha ainda não tem questões para montar o Flash.");
+        return;
+      }
       setSessao(r.questoes);
     } catch {
-      const todasII = filtrar({ modulo: "II" });
+      const todasII = filtrar(soModuloII ? { modulo: "II" } : {});
       const r = montarFlash({
         idsErradosPriorizados: [...progresso.erradas],
         todasModuloII: todasII,
@@ -42,7 +49,7 @@ export function Flash() {
         quantidade: 10,
       });
       setAviso("Sem conexão. Montamos o Flash com os dados locais.");
-      setSessao(r.questoes);
+      if (r.questoes.length > 0) setSessao(r.questoes);
     } finally {
       setCarregando(false);
     }
@@ -94,7 +101,7 @@ export function Flash() {
 
           {/* Descrição */}
           <p className="text-sm leading-relaxed opacity-95">
-            10 questões do <strong>Módulo II</strong> que você já errou. Revisão espaçada em 5 minutos
+            10 questões{soModuloII ? <> do <strong>Módulo II</strong></> : ""} que você já errou. Revisão espaçada em 5 minutos
           </p>
 
           {/* Badges */}
@@ -102,9 +109,11 @@ export function Flash() {
             <span className="inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">
               10 questões
             </span>
-            <span className="inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">
-              Módulo II
-            </span>
+            {soModuloII && (
+              <span className="inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">
+                Módulo II
+              </span>
+            )}
             <span className="inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">
               Prioriza erradas
             </span>

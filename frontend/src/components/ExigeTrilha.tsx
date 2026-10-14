@@ -7,7 +7,8 @@ import { useConcurso } from "../store/concurso";
 import { Carregando } from "./Spinner";
 
 // "/trilhas/nova" também: a primeira trilha de uma conta pode ser uma que ela mesma cria.
-const LIBERADAS = ["/trilhas", "/trilhas/nova", "/como-funciona"];
+// "/assinatura" e "/perfil": conta nova pode assinar antes de escolher trilha.
+const LIBERADAS = ["/trilhas", "/trilhas/nova", "/como-funciona", "/assinatura", "/perfil"];
 
 export function ExigeTrilha() {
   const { concursos, loading } = useConcurso();

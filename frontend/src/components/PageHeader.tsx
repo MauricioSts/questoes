@@ -15,7 +15,9 @@ export function PageHeader({
   right?: ReactNode;
 }) {
   return (
-    <div className="sobre-fundo mb-5 flex items-start justify-between gap-3">
+    <div className="sobre-fundo mb-5 flex flex-wrap items-start justify-between gap-3">
+      {/* flex-wrap: no celular a ação da direita desce para baixo do título em vez de
+          empurrar a página para o lado. */}
       {/* cabecalho-texto: no Fantasy vira min-w-0 flex-1 (index.css) — o título é um
           canvas sem largura própria e mede o pai */}
       <div className="cabecalho-texto">
@@ -23,7 +25,7 @@ export function PageHeader({
         <TituloVivo texto={titulo} tamanho={40} className="mt-1 leading-none" />
         {subtitulo && <p className="mt-2 text-muted">{subtitulo}</p>}
       </div>
-      {right && <div className="flex-shrink-0">{right}</div>}
+      {right && <div className="max-w-full flex-shrink-0">{right}</div>}
     </div>
   );
 }

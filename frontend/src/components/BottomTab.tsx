@@ -1,4 +1,5 @@
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
   BookOpen,
@@ -18,6 +19,9 @@ import {
   Crown,
   FolderCog,
   UserRound,
+  Menu,
+  X,
+  Compass,
 } from "lucide-react";
 import { useTheme, type Tema } from "../store/theme";
 import { useAuth } from "../store/auth";
@@ -36,8 +40,16 @@ const CORES_LINHA: Record<Tema, { destaque: string; texto: string; marcador: str
   cyberpunk: { destaque: "#FCEE0A", texto: "#8EA0B8", marcador: "#2A2940" },
 };
 
-// Itens principais (mobile exibe 6 itens na barra inferior)
-const navItems = [
+interface ItemNav {
+  to: string;
+  label: string;
+  labelCurto?: string;
+  icon: typeof Home;
+  end?: boolean;
+}
+
+// Itens principais
+const navItems: ItemNav[] = [
   { to: "/", label: "Início", icon: Home, end: true },
   { to: "/estudar", label: "Estudar", icon: BookOpen },
   { to: "/revisar", label: "Revisão espaçada", labelCurto: "Revisão", icon: RefreshCw },
@@ -55,10 +67,15 @@ const desktopExtra = [
   { to: "/erros", label: "Meus erros", icon: Target },
 ];
 
-// Batalha: no desktop logo abaixo da Revisão (é a mesma fila, jogada); no celular a barra
-// inferior já está cheia e a entrada fica no cartão da tela de Revisão.
+// Batalha: no desktop logo abaixo da Revisão (é a mesma fila, jogada).
 const itemBatalha = { to: "/batalha", label: "Batalha", icon: Swords };
 const allSidebarItems = [...navItems.slice(0, 3), itemBatalha, ...navItems.slice(3), ...desktopExtra];
+
+// Celular: a barra inferior tem espaço para 5. Ficam os 4 de uso diário (a Batalha é a
+// porta de entrada de quem chega pelo vídeo) e o resto da barra lateral vai para "Mais",
+// para o celular alcançar exatamente as mesmas telas que o computador.
+const itensCelular: ItemNav[] = [navItems[0], navItems[1], navItems[2], itemBatalha];
+const itensMais: ItemNav[] = [...navItems.slice(3), ...desktopExtra];
 
 // Cabeçalho da sidebar: marca e concurso ativo num bloco só. Eram dois cartões soltos
 // empilhados — a marca solta em cima e o trocador com borda própria embaixo. Agora o
@@ -85,6 +102,11 @@ export function BottomTab() {
   const { ativo } = useConcurso();
   const navigate = useNavigate();
   const linha = CORES_LINHA[tema];
+  const { pathname } = useLocation();
+  const [maisAberto, setMaisAberto] = useState(false);
+  // Fecha o menu ao navegar (inclusive pelo voltar do celular).
+  useEffect(() => setMaisAberto(false), [pathname]);
+  const rotaNoMais = !itensCelular.some((i) => (i.end ? pathname === i.to : pathname.startsWith(i.to)));
 
   function sair() {
     logout();
@@ -117,12 +139,36 @@ export function BottomTab() {
         />
       </div>
 
-      {/* Mobile: Barra inferior de 6 itens */}
+      {/* Mobile: 4 atalhos + "Mais", que abre tudo o que a barra lateral do desktop tem. */}
       <ul className="flex items-stretch justify-around lg:hidden">
-        {navItems.map((item) => (
+        {itensCelular.map((item) => (
           <MobileNavItem key={item.to} {...item} />
         ))}
+        <li className="flex-1">
+          <button
+            type="button"
+            onClick={() => setMaisAberto((v) => !v)}
+            aria-expanded={maisAberto}
+            aria-controls="menu-mais"
+            className={`flex min-h-[56px] w-full flex-col items-center justify-center gap-1 py-3 text-[11px] font-semibold transition ${
+              maisAberto || rotaNoMais ? "text-brand-500" : "text-faint hover:text-brand-ink"
+            }`}
+          >
+            {maisAberto ? <X size={22} strokeWidth={2.2} /> : <Menu size={22} strokeWidth={rotaNoMais ? 2.2 : 1.8} />}
+            <span>Mais</span>
+          </button>
+        </li>
       </ul>
+      {maisAberto && (
+        <MenuMais
+          onFechar={() => setMaisAberto(false)}
+          onSair={sair}
+          admin={!!usuario?.admin}
+          assinar={assinatura?.pagamentosAtivos ? (assinatura.premium ? "Assinatura" : "Assinar") : null}
+          minhaTrilha={ativo?.souDonoTrilha && ativo.trilhaId ? ativo.trilhaId : null}
+          nome={usuario?.nome ?? "Perfil"}
+        />
+      )}
 
       {/* Rodapé (desktop): trocar tema + importar + sair */}
       <div className="hidden lg:block px-3 pb-3 pt-2 border-t border-hair/50">
@@ -193,5 +239,103 @@ function MobileNavItem({
         )}
       </NavLink>
     </li>
+  );
+}
+
+// Folha do "Mais" (só celular): trilha ativa, as telas que não cabem na barra inferior e
+// o rodapé da barra lateral (perfil, tema, ajuda, assinatura, importar, sair).
+function MenuMais({
+  onFechar,
+  onSair,
+  admin,
+  assinar,
+  minhaTrilha,
+  nome,
+}: {
+  onFechar: () => void;
+  onSair: () => void;
+  admin: boolean;
+  assinar: string | null;
+  minhaTrilha: string | null;
+  nome: string;
+}) {
+  useEffect(() => {
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && onFechar();
+    window.addEventListener("keydown", esc);
+    return () => window.removeEventListener("keydown", esc);
+  }, [onFechar]);
+
+  const extra = "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-muted transition hover:text-brand-ink";
+  return (
+    <>
+      <button
+        type="button"
+        aria-label="Fechar menu"
+        onClick={onFechar}
+        className="fixed inset-0 bottom-[calc(56px+env(safe-area-inset-bottom))] z-[-1] bg-black/40 lg:hidden"
+      />
+      <div
+        id="menu-mais"
+        role="dialog"
+        aria-label="Mais opções"
+        className="nav-app absolute inset-x-0 bottom-full max-h-[calc(100dvh-140px)] overflow-y-auto rounded-t-2xl border-t border-hair px-3 pb-3 pt-2 lg:hidden"
+      >
+        <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-hair" aria-hidden />
+        <div className="mb-3 overflow-hidden rounded-2xl border border-hair" style={{ background: "var(--surface2)" }}>
+          <ConcursoSwitcher />
+        </div>
+        <ul className="grid grid-cols-3 gap-2">
+          {itensMais.map(({ to, label, labelCurto, icon: Icon }) => (
+            <li key={to}>
+              <NavLink
+                to={to}
+                className={({ isActive }) =>
+                  `flex min-h-[72px] flex-col items-center justify-center gap-1.5 rounded-xl border px-1 py-2 text-center text-[11.5px] font-semibold leading-tight transition ${
+                    isActive ? "border-brand-300 text-brand-500" : "border-hair text-muted hover:text-brand-ink"
+                  }`
+                }
+              >
+                <Icon size={20} strokeWidth={1.8} />
+                <span>{labelCurto ?? label.replace(" da trilha", "")}</span>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-3 border-t border-hair pt-2">
+          <Link to="/perfil" className={extra}>
+            <UserRound size={17} strokeWidth={1.8} />
+            <span className="min-w-0 flex-1 truncate text-brand-ink">{nome}</span>
+            <TagPlano />
+          </Link>
+          <Link to="/trilhas" className={extra}>
+            <Compass size={17} strokeWidth={1.8} /> Explorar trilhas
+          </Link>
+          {minhaTrilha && (
+            <Link to={`/trilhas/${minhaTrilha}/editar`} className={extra}>
+              <FolderCog size={17} strokeWidth={1.8} /> Minha trilha
+            </Link>
+          )}
+          {assinar && (
+            <Link to="/assinatura" className={extra}>
+              <Crown size={17} strokeWidth={1.8} /> {assinar}
+            </Link>
+          )}
+          <Link to="/como-funciona" className={extra}>
+            <HelpCircle size={17} strokeWidth={1.8} /> Como funciona
+          </Link>
+          {admin && (
+            <Link to="/importar" className={extra}>
+              <Upload size={17} strokeWidth={1.8} /> Importar lote
+            </Link>
+          )}
+          <div className="px-1 pt-2">
+            <SeletorTema />
+          </div>
+          <button onClick={onSair} className={`${extra} w-full`}>
+            <LogOut size={17} strokeWidth={1.8} /> Sair
+          </button>
+        </div>
+      </div>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 // Lista e alterna questões marcadas "revisar depois".
 import { useEffect, useState, useCallback, useRef } from "react";
 import { api } from "../lib/api";
+import { getQuestao } from "../lib/questoesRepo";
 
 export function useMarcadas() {
   const [ids, setIds] = useState<Set<number>>(new Set());
@@ -13,7 +14,9 @@ export function useMarcadas() {
   const recarregar = useCallback(() => {
     setCarregando(true);
     api<{ ids: number[] }>("/marcadas")
-      .then((d) => setIds(new Set(d.ids)))
+      // Marcada é por usuário, não por concurso: só conta o que existe na trilha ativa
+      // (senão a Home mostra marcadas de outra trilha que a lista nem consegue abrir).
+      .then((d) => setIds(new Set(d.ids.filter((id) => getQuestao(id)))))
       .catch(() => setIds(new Set()))
       .finally(() => setCarregando(false));
   }, []);

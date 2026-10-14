@@ -20,7 +20,9 @@ export function AppLayout() {
     // (ver components/Movimento.tsx): animação de opacidade/transform, nada além.
     <ProvedorMovimento>
       <MetaProvider>
-        <div className="app-root min-h-full">
+        {/* overflow-x-clip: brilhos e fundos decorativos passam da borda e, no celular,
+            criavam rolagem lateral. clip (e não hidden) não quebra o sticky do topo. */}
+        <div className="app-root min-h-full overflow-x-clip">
           {/* Fundo WebGL Molten Metal com as cores relativas do site */}
           <Atmosfera />
 

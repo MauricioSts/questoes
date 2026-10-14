@@ -7,7 +7,8 @@
 // quer só a fila do que falta recuperar usa o filtro "pendentes".
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown, Copy, Download, Check } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { useAuth } from "../store/auth";
 import { api } from "../lib/api";
 import { getQuestao, rotuloOrigem } from "../lib/questoesRepo";
 import { useConcurso } from "../store/concurso";
@@ -78,6 +79,7 @@ function lerPreferencia<T extends string>(chave: string, valores: readonly T[], 
 
 export function Erros() {
   const { ativo } = useConcurso();
+  const { usuario } = useAuth();
   const [metas, setMetas] = useState<MetaErro[]>([]);
   const [taxas, setTaxas] = useState<TaxasPorChave>({});
   const [carregando, setCarregando] = useState(true);
@@ -429,9 +431,25 @@ export function Erros() {
             })}
           </div>
 
+          {/* Onde o JSON devolvido entra depende de quem pode escrever no acervo desta trilha:
+              admin pelo importador, dono pela tela da trilha; os outros criam uma trilha própria. */}
           <p className="mt-5 text-center text-xs text-faint">
-            O arquivo exportado já vem com o pedido pronto: cole no Claude, ele devolve um JSON de questões novas
-            que você importa em “Importar lote”.
+            O arquivo exportado já vem com o pedido pronto: cole no Claude e ele devolve um JSON de questões novas
+            {usuario?.admin ? (
+              <>
+                {" "}que você importa em <Link to="/importar" className="font-semibold underline">Importar lote</Link>.
+              </>
+            ) : ativo?.souDonoTrilha && ativo.trilhaId ? (
+              <>
+                {" "}que você cola em{" "}
+                <Link to={`/trilhas/${ativo.trilhaId}/editar`} className="font-semibold underline">Minha trilha</Link>.
+              </>
+            ) : (
+              <>
+                {" "}que você pode colar numa{" "}
+                <Link to="/trilhas/nova" className="font-semibold underline">trilha sua</Link>.
+              </>
+            )}
           </p>
         </>
       )}

@@ -73,7 +73,11 @@ export function TopBar() {
               title="Assinatura"
             >
               <Crown size={18} strokeWidth={1.8} />
-              <span className="hidden md:inline">{assinatura.premium ? "Assinatura" : "Assinar"}</span>
+              {/* Free vê "Assinar" escrito também no celular: é o caminho para assinar antes
+                  mesmo de escolher trilha. Assinante só precisa do ícone. */}
+              <span className={assinatura.premium ? "hidden md:inline" : "inline"}>
+                {assinatura.premium ? "Assinatura" : "Assinar"}
+              </span>
             </Link>
           )}
 
