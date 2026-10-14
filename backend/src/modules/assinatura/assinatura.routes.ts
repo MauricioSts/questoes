@@ -32,6 +32,7 @@ assinaturaRouter.post(
   asyncHandler(async (req, res) => {
     const tipo = String(req.body?.type ?? req.query.type ?? req.query.topic ?? "");
     const id = String(req.body?.data?.id ?? req.query["data.id"] ?? req.query.id ?? "");
+    console.log(`[assinatura] webhook tipo=${tipo || "-"} id=${id || "-"}`);
     if (!id) return res.status(200).end();
 
     if (env.MP_WEBHOOK_SECRET) {
@@ -41,7 +42,14 @@ assinaturaRouter.post(
         xRequestId: req.header("x-request-id"),
         dataId: String(req.query["data.id"] ?? id),
       });
-      if (!valida) return res.status(401).end();
+      if (!valida) {
+        console.warn("[assinatura] webhook com assinatura inválida", {
+          query: req.query,
+          xSignature: req.header("x-signature"),
+          xRequestId: req.header("x-request-id"),
+        });
+        return res.status(401).end();
+      }
     }
 
     try {
