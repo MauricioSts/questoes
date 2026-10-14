@@ -164,8 +164,15 @@ assinaturaRouter.post(
   asyncHandler(async (req, res) => {
     const atual = await prisma.assinatura.findUnique({ where: { userId: req.userId! } });
     if (!atual || atual.status !== "authorized") throw new HttpError(409, "Não há assinatura ativa para cancelar");
-    await cancelarPreapproval(atual.mpPreapprovalId);
-    await sincronizarAssinatura(atual.mpPreapprovalId);
+    try {
+      await cancelarPreapproval(atual.mpPreapprovalId);
+      await sincronizarAssinatura(atual.mpPreapprovalId);
+    } catch (err) {
+      // Sem isso a pessoa via "Erro interno" e não sabia se as cobranças tinham parado.
+      if (!(err instanceof MercadoPagoError)) throw err;
+      console.error(`[assinatura] falha ao cancelar ${atual.mpPreapprovalId} no Mercado Pago`, err);
+      throw new HttpError(502, "O Mercado Pago não confirmou o cancelamento. Tente de novo em instantes ou cancele pelo app do Mercado Pago");
+    }
     const depois = await prisma.assinatura.findUnique({ where: { userId: req.userId! } });
     res.json({ premium: assinaturaDaAcesso(depois), validoAte: depois?.validoAte ?? null });
   })
