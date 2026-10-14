@@ -16,6 +16,7 @@ import {
   MIN_QUESTOES_VITRINE,
   dadosQuestao,
   iniciaisTrilha,
+  nomeCompleto,
   questaoComunidadeSchema,
   regrasCriacao,
   slugTrilha,
@@ -89,6 +90,7 @@ trilhasRouter.get(
           questoes: linhas.reduce((s, c) => s + c._count._all, 0),
           materias: linhas.length,
           seguidores: seguidoresPor.get(t.id) ?? 0,
+          tipo: t.tipo,
           oficial: t.donoId === null,
           autor: t.dono ? nomeExibicao(t.dono.nome) : null,
           visibilidade: t.visibilidade as Visibilidade,
@@ -118,7 +120,7 @@ async function entrar(userId: string, trilha: Trilha) {
     data: {
       userId,
       trilhaId: trilha.id,
-      nome: `${trilha.nome}: ${trilha.cargo}`,
+      nome: nomeCompleto(trilha),
       iniciais: trilha.iniciais.toUpperCase(),
       banca: trilha.banca,
       ano: trilha.ano,
@@ -161,6 +163,7 @@ trilhasRouter.post(
     const trilha = await prisma.trilha.create({
       data: {
         id: slugTrilha(dados.nome, dados.cargo),
+        tipo: dados.tipo,
         nome: dados.nome,
         cargo: dados.cargo,
         iniciais: iniciaisTrilha(dados.nome),
@@ -212,6 +215,7 @@ trilhasRouter.get(
         descricao: trilha.descricao,
         dataProva: trilha.dataProva?.toISOString().slice(0, 10) ?? null,
         visibilidade: trilha.visibilidade,
+        tipo: trilha.tipo,
       },
       questoes,
       podePrivada: regras.podePrivada,

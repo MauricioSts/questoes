@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, BookOpen, CalendarDays, Crown, Layers, Lock, Pencil, Plus, Users } from "lucide-react";
-import { listarTrilhas, entrarNaTrilha, type RegrasCriacao, type Trilha } from "../lib/trilhas";
+import { TIPOS, listarTrilhas, entrarNaTrilha, nomeCompleto, type RegrasCriacao, type Trilha } from "../lib/trilhas";
 import { useConcurso } from "../store/concurso";
 import { TituloVivo } from "../components/TituloVivo";
 import { Carregando } from "../components/Spinner";
@@ -153,11 +153,15 @@ function CartaoTrilha({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="font-display text-2xl font-bold leading-tight text-brand-ink">
-              {trilha.nome}: {trilha.cargo}
+              {nomeCompleto(trilha)}
             </h2>
             {!trilha.oficial && (
               <span className="meta-pill border border-hair text-faint">
                 {trilha.visibilidade === "privada" ? "Privada" : "Comunidade"}
+              </span>
+            )}
+            {trilha.tipo !== "concurso" && (
+              <span className="meta-pill border border-hair text-faint">{TIPOS[trilha.tipo]?.selo ?? trilha.tipo}
               </span>
             )}
             {jaSegue && (
@@ -244,8 +248,8 @@ function CartaoCriar({ criacao }: { criacao: RegrasCriacao }) {
         <p className="mt-0.5 text-sm text-faint">
           {pode
             ? criacao.premium
-              ? "Monte o banco de questões do seu concurso, público ou privado."
-              : `Monte o banco de questões do seu concurso. No Free você cria ${criacao.limiteFree} trilha pública.`
+              ? "Monte o banco de questões do seu concurso, da escola ou do que estiver estudando."
+              : `Concurso, escola, vestibular ou o que estiver estudando. No Free você cria ${criacao.limiteFree} trilha pública.`
             : `Você já criou ${criacao.minhas} ${criacao.minhas === 1 ? "trilha" : "trilhas"}. Com o Premium cria quantas quiser, inclusive privadas.`}
         </p>
       </div>

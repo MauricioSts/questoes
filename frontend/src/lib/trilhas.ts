@@ -19,10 +19,43 @@ export interface Trilha {
   oficial: boolean; // criada pelo admin; as demais são da comunidade
   autor: string | null; // nome público de quem criou ("Ana S."), null nas oficiais
   visibilidade: Visibilidade;
+  tipo: TipoTrilha;
   souDono: boolean;
 }
 
 export type Visibilidade = "publica" | "privada";
+export type TipoTrilha = "concurso" | "escola" | "vestibular" | "outro";
+
+// Rótulos do formulário e selo do cartão por tipo. Só "nome" é obrigatório; campo com
+// rótulo null não aparece naquele tipo (escola não tem banca nem órgão).
+export const TIPOS: Record<
+  TipoTrilha,
+  { nome: string; selo: string; campos: { nome: string; exNome: string; cargo: string | null; exCargo: string; banca: string | null; orgao: string | null; data: string } }
+> = {
+  concurso: {
+    nome: "Concurso",
+    selo: "Concurso",
+    campos: { nome: "Concurso ou órgão", exNome: "Banco do Brasil", cargo: "Cargo", exCargo: "Escriturário", banca: "Banca", orgao: "Órgão", data: "Data da prova (se já saiu)" },
+  },
+  escola: {
+    nome: "Escola ou faculdade",
+    selo: "Escola",
+    campos: { nome: "Matéria ou disciplina", exNome: "Biologia", cargo: "Turma ou série", exCargo: "3º ano do ensino médio", banca: null, orgao: "Escola", data: "Data da prova" },
+  },
+  vestibular: {
+    nome: "Vestibular ou ENEM",
+    selo: "Vestibular",
+    campos: { nome: "Vestibular", exNome: "ENEM", cargo: "Curso desejado", exCargo: "Medicina", banca: "Organizadora", orgao: null, data: "Data da prova" },
+  },
+  outro: {
+    nome: "Outro",
+    selo: "Estudo livre",
+    campos: { nome: "Nome da trilha", exNome: "Inglês para viagem", cargo: "Subtítulo", exCargo: "Vocabulário básico", banca: null, orgao: null, data: "Data alvo" },
+  },
+};
+
+// "Banco do Brasil: Escriturário", ou só o nome quando não há cargo.
+export const nomeCompleto = (t: { nome: string; cargo: string }) => (t.cargo ? `${t.nome}: ${t.cargo}` : t.nome);
 
 // O que o usuário pode criar: Free cria 1 trilha pública; Premium, quantas quiser.
 export interface RegrasCriacao {
@@ -43,6 +76,7 @@ export type Letra = "A" | "B" | "C" | "D" | "E";
 export const LETRAS: Letra[] = ["A", "B", "C", "D", "E"];
 
 export interface DadosTrilha {
+  tipo: TipoTrilha;
   nome: string;
   cargo: string;
   banca: string;

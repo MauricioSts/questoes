@@ -92,6 +92,8 @@ model Trilha {
   dono         User?   @relation(fields: [donoId], references: [id], onDelete: SetNull)
   // "publica" aparece na escolha de trilhas; "privada" só para o dono (recurso Premium).
   visibilidade String  @default("publica")
+  // concurso | escola | vestibular | outro: só muda rótulos e o selo; o resto é igual.
+  tipo         String  @default("concurso")
   createdAt DateTime  @default(now())
 
   questoes  Questao[]

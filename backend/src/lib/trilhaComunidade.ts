@@ -33,9 +33,13 @@ const textoOpcional = (max: number) => z.string().transform(limparTexto).pipe(z.
 
 export const LETRAS = ["A", "B", "C", "D", "E"] as const;
 
+export const TIPOS_TRILHA = ["concurso", "escola", "vestibular", "outro"] as const;
+
+// Só o nome é obrigatório: estudante de escola não tem cargo, banca nem órgão.
 export const trilhaSchema = z.object({
+  tipo: z.enum(TIPOS_TRILHA).default("concurso"),
   nome: texto(60),
-  cargo: texto(80),
+  cargo: textoOpcional(80).default(""),
   banca: textoOpcional(40).default(""),
   orgao: textoOpcional(80).default(""),
   ano: z.number().int().min(2000).max(2100),
@@ -85,6 +89,11 @@ export function dadosQuestao(q: QuestaoComunidade) {
     explicacao: q.explicacao,
     origem: "autoral",
   };
+}
+
+// Nome de exibição: "Banco do Brasil: Escriturário", ou só o nome quando não há cargo.
+export function nomeCompleto(t: { nome: string; cargo: string }): string {
+  return t.cargo ? `${t.nome}: ${t.cargo}` : t.nome;
 }
 
 // Pode criar mais uma trilha? Free: até LIMITE_TRILHAS_FREE. Premium (ou cobrança

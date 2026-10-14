@@ -245,7 +245,7 @@ function CabecalhoTrilha({ dados }: { dados: RankingTrilha }) {
           </span>
           <div className="min-w-0">
             <h2 className="font-display text-xl font-bold leading-tight text-brand-ink">
-              {dados.trilha.nome}: {dados.trilha.cargo}
+              {dados.trilha.cargo ? `${dados.trilha.nome}: ${dados.trilha.cargo}` : dados.trilha.nome}
             </h2>
             <p className="mt-0.5 text-xs text-faint">
               {dados.trilha.banca} · {dados.trilha.orgao}

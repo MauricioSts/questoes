@@ -8,6 +8,7 @@ import { ArrowLeft, Crown, FileText, Globe, Lock, Pencil, Plus, Trash2, Upload }
 import { ApiError } from "../lib/api";
 import {
   LETRAS,
+  TIPOS,
   adicionarQuestoes,
   apagarTrilha,
   carregarEdicao,
@@ -20,6 +21,7 @@ import {
   type EdicaoTrilha,
   type Letra,
   type QuestaoEditavel,
+  type TipoTrilha,
 } from "../lib/trilhas";
 import { useConcurso } from "../store/concurso";
 import { useQuestoes } from "../store/questoes";
@@ -41,6 +43,7 @@ const erroDe = (err: unknown, padrao: string) => {
 };
 
 const TRILHA_VAZIA: DadosTrilha = {
+  tipo: "concurso",
   nome: "",
   cargo: "",
   banca: "",
@@ -139,22 +142,30 @@ export function TrilhaEditor() {
   }, [carregar]);
 
   const podePrivada = nova ? podePrivadaNova : !!edicao?.podePrivada;
+  const c = TIPOS[dados.tipo].campos;
   const set = <K extends keyof DadosTrilha>(k: K, v: DadosTrilha[K]) => setDados((d) => ({ ...d, [k]: v }));
 
   async function salvarDados(e: FormEvent) {
     e.preventDefault();
     setMsgDados(null);
     setSalvando(true);
+    // Campo que o tipo esconde não leva valor antigo (trocou de Concurso para Escola).
+    const payload: DadosTrilha = {
+      ...dados,
+      cargo: c.cargo ? dados.cargo : "",
+      banca: c.banca ? dados.banca : "",
+      orgao: c.orgao ? dados.orgao : "",
+    };
     try {
       if (nova) {
-        const r = await criarTrilha(dados);
+        const r = await criarTrilha(payload);
         // Entra na trilha recém-criada: o concurso ativo precisa estar salvo antes do
         // refresh, senão a lista escolhe outro ativo sozinha (mesma regra de Trilhas).
         setAtivo(r.concurso.id);
         await recarregarConcursos();
         navigate(`/trilhas/${r.trilha.id}/editar`, { replace: true });
       } else {
-        await salvarTrilha(id!, dados);
+        await salvarTrilha(id!, payload);
         await recarregarConcursos();
         setMsgDados({ ok: true, texto: "Dados salvos." });
       }
@@ -216,35 +227,59 @@ export function TrilhaEditor() {
         titulo={nova ? "Criar trilha" : dados.nome || "Trilha"}
         subtitulo={
           nova
-            ? "Monte o banco de questões do seu concurso. Depois de criar, você adiciona as questões."
+            ? "Monte o banco de questões do seu concurso, da sua matéria da escola ou do que estiver estudando. Depois de criar, você adiciona as questões."
             : undefined
         }
       />
 
       <Bloco titulo="Dados da trilha">
         <form onSubmit={salvarDados} className="grid gap-4 sm:grid-cols-2">
+          <fieldset className="sm:col-span-2">
+            <legend className="text-sm text-muted">Para que é esta trilha?</legend>
+            <div className="mt-1.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {(Object.keys(TIPOS) as TipoTrilha[]).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  aria-pressed={dados.tipo === t}
+                  onClick={() => set("tipo", t)}
+                  className={`rounded-xl border px-3 py-2.5 text-sm font-bold transition ${
+                    dados.tipo === t ? "border-brand-500 bg-brand-100/60 text-brand-ink" : "border-hair text-muted hover:border-brand-500/50"
+                  }`}
+                >
+                  {TIPOS[t].nome}
+                </button>
+              ))}
+            </div>
+          </fieldset>
           <label className={rotulo}>
-            Concurso ou órgão
-            <input required maxLength={60} placeholder="Banco do Brasil" value={dados.nome} onChange={(e) => set("nome", e.target.value)} className={campo} />
+            {c.nome}
+            <input required maxLength={60} placeholder={c.exNome} value={dados.nome} onChange={(e) => set("nome", e.target.value)} className={campo} />
           </label>
-          <label className={rotulo}>
-            Cargo
-            <input required maxLength={80} placeholder="Escriturário" value={dados.cargo} onChange={(e) => set("cargo", e.target.value)} className={campo} />
-          </label>
-          <label className={rotulo}>
-            Banca
-            <input maxLength={40} placeholder="Cesgranrio" value={dados.banca} onChange={(e) => set("banca", e.target.value)} className={campo} />
-          </label>
-          <label className={rotulo}>
-            Órgão
-            <input maxLength={80} value={dados.orgao} onChange={(e) => set("orgao", e.target.value)} className={campo} />
-          </label>
+          {c.cargo && (
+            <label className={rotulo}>
+              {c.cargo} <span className="text-faint">(opcional)</span>
+              <input maxLength={80} placeholder={c.exCargo} value={dados.cargo} onChange={(e) => set("cargo", e.target.value)} className={campo} />
+            </label>
+          )}
+          {c.banca && (
+            <label className={rotulo}>
+              {c.banca} <span className="text-faint">(opcional)</span>
+              <input maxLength={40} value={dados.banca} onChange={(e) => set("banca", e.target.value)} className={campo} />
+            </label>
+          )}
+          {c.orgao && (
+            <label className={rotulo}>
+              {c.orgao} <span className="text-faint">(opcional)</span>
+              <input maxLength={80} value={dados.orgao} onChange={(e) => set("orgao", e.target.value)} className={campo} />
+            </label>
+          )}
           <label className={rotulo}>
             Ano
             <input type="number" min={2000} max={2100} value={dados.ano} onChange={(e) => set("ano", Number(e.target.value))} className={campo} />
           </label>
           <label className={rotulo}>
-            Data da prova (se já saiu)
+            {c.data} <span className="text-faint">(opcional)</span>
             <input type="date" value={dados.dataProva ?? ""} onChange={(e) => set("dataProva", e.target.value || null)} className={campo} />
           </label>
           <label className={`${rotulo} sm:col-span-2`}>
