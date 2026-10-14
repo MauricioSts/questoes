@@ -8,12 +8,14 @@ import { useAssinatura, type PlanoId } from "../store/assinatura";
 import { PageHeader } from "../components/PageHeader";
 import { Button } from "../components/Button";
 import { Carregando } from "../components/Spinner";
+import { TabelaPlanos } from "../components/TabelaPlanos";
+import { TagPlano } from "../components/TagPlano";
 
 const VANTAGENS = [
   "Questões sem limite diário",
-  "Caderno, inclusive dentro da questão",
-  "Simulado cronometrado",
-  "Estatísticas por matéria e assunto",
+  "Caderno, Simulado e Estatísticas",
+  "Estudar sem internet",
+  "Cancele quando quiser",
 ];
 
 const reais = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -74,12 +76,13 @@ export function Assinatura() {
     <div className="fadeup mx-auto max-w-3xl pt-4 pb-14">
       <PageHeader
         rotulo="Assinatura"
-        titulo={dados.premium ? "Acesso completo" : "Plano gratuito"}
+        titulo={dados.premium ? "Você é Premium" : "Plano Free"}
         subtitulo={
           dados.premium
             ? undefined
-            : `Hoje você usou ${Math.min(dados.usadasHoje, dados.limiteGratisDia)} de ${dados.limiteGratisDia} questões do plano gratuito.`
+            : `Hoje você usou ${Math.min(dados.usadasHoje, dados.limiteGratisDia)} de ${dados.limiteGratisDia} questões do plano Free.`
         }
+        right={<TagPlano />}
       />
 
       {dados.motivo === "admin" || dados.motivo === "cortesia" || dados.motivo === "desligado" ? (
@@ -170,6 +173,16 @@ export function Assinatura() {
             </>
           )}
         </>
+      )}
+
+      {dados.pagamentosAtivos && (
+        <section className="mt-8">
+          <h2 className="mb-3 font-display text-lg font-extrabold text-brand-ink">Free × Premium</h2>
+          <TabelaPlanos limiteGratisDia={dados.limiteGratisDia} />
+          <p className="mt-3 text-xs text-faint">
+            O pagamento é recorrente no cartão, pelo Mercado Pago. Ao cancelar, as cobranças param e o Premium continua até o fim do período já pago.
+          </p>
+        </section>
       )}
 
       {erro && (

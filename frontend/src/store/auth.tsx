@@ -14,6 +14,7 @@ export interface Usuario {
   admin: boolean;
   // Batalha Pokémon: perfil local criado antes desta data é descartado (reset pedido pelo dono).
   pokeResetAt?: string | null;
+  criadoEm?: string | null;
 }
 
 interface AuthContextValue {
@@ -23,6 +24,8 @@ interface AuthContextValue {
   /** true = conta criada e já logada; false = pedido aguardando aprovação. */
   registrar: (nome: string, email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
+  /** Troca o usuário em memória depois de editar o perfil (o servidor devolve o novo). */
+  atualizarUsuario: (u: Usuario) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -93,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ usuario, carregando, login, registrar, logout }}>
+    <AuthContext.Provider value={{ usuario, carregando, login, registrar, logout, atualizarUsuario: setUsuario }}>
       {children}
     </AuthContext.Provider>
   );

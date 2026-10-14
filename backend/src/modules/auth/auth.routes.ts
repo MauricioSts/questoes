@@ -43,10 +43,18 @@ const refreshSchema = z.object({
   refreshToken: z.string().min(1),
 });
 
-function publicUser(u: { id: string; email: string; nome: string; metaDiaria: number; pokeResetAt?: Date | null }) {
+function publicUser(u: { id: string; email: string; nome: string; metaDiaria: number; pokeResetAt?: Date | null; createdAt?: Date }) {
   // `admin` decide o que o cliente mostra (botão de importar). Quem manda de verdade
   // é o requireAdmin no servidor: esconder o botão é conveniência, não segurança.
-  return { id: u.id, email: u.email, nome: u.nome, metaDiaria: u.metaDiaria, admin: ehAdmin(u.email), pokeResetAt: u.pokeResetAt?.toISOString() ?? null };
+  return {
+    id: u.id,
+    email: u.email,
+    nome: u.nome,
+    metaDiaria: u.metaDiaria,
+    admin: ehAdmin(u.email),
+    pokeResetAt: u.pokeResetAt?.toISOString() ?? null,
+    criadoEm: u.createdAt?.toISOString() ?? null,
+  };
 }
 
 // Emite um par access+refresh e persiste o hash do refresh.
@@ -283,5 +291,50 @@ authRouter.get(
     const user = await prisma.user.findUnique({ where: { id: req.userId! } });
     if (!user) throw new HttpError(404, "Usuário não encontrado");
     res.json({ user: publicUser(user) });
+  })
+);
+
+// PATCH /auth/me: o que a pessoa pode mudar no próprio perfil. O e-mail fica de fora:
+// ele é o login e o pagador padrão da assinatura.
+const perfilSchema = z.object({
+  nome: z.string().trim().min(1).max(80),
+});
+
+authRouter.patch(
+  "/me",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { nome } = perfilSchema.parse(req.body);
+    const user = await prisma.user.update({ where: { id: req.userId! }, data: { nome } });
+    res.json({ user: publicUser(user) });
+  })
+);
+
+// POST /auth/senha: troca a senha conferindo a atual. Derruba as outras sessões (os
+// refresh tokens antigos), menos a deste aparelho, que o cliente informa.
+const senhaSchema = z.object({
+  senhaAtual: z.string().min(1),
+  novaSenha: z.string().min(6).max(200),
+  refreshToken: z.string().min(1).optional(),
+});
+
+authRouter.post(
+  "/senha",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { senhaAtual, novaSenha, refreshToken } = senhaSchema.parse(req.body);
+    const user = await prisma.user.findUnique({ where: { id: req.userId! } });
+    if (!user) throw new HttpError(404, "Usuário não encontrado");
+    if (!(await bcrypt.compare(senhaAtual, user.passwordHash))) {
+      throw new HttpError(400, "A senha atual não confere");
+    }
+    const passwordHash = await bcrypt.hash(novaSenha, 10);
+    await prisma.$transaction([
+      prisma.user.update({ where: { id: user.id }, data: { passwordHash } }),
+      prisma.refreshToken.deleteMany({
+        where: { userId: user.id, ...(refreshToken ? { tokenHash: { not: hashToken(refreshToken) } } : {}) },
+      }),
+    ]);
+    res.status(204).end();
   })
 );

@@ -1,25 +1,20 @@
-import { Link, useNavigate } from "react-router-dom";
-import { LogOut, Flame, Upload, Crown } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Flame, Upload, Crown, UserRound } from "lucide-react";
 import { useAuth } from "../store/auth";
 import { useConcurso } from "../store/concurso";
 import { useMeta } from "../store/meta";
 import { useAssinatura } from "../store/assinatura";
 import { Logo } from "./Logo";
 import { BotaoProximoTema } from "./SeletorTema";
+import { TagPlano } from "./TagPlano";
 
 export function TopBar() {
-  const navigate = useNavigate();
   const { ativo } = useConcurso();
-  const { logout, usuario } = useAuth();
+  const { usuario } = useAuth();
   // A meta vem do provedor: é ele que recarrega quando uma resposta sincroniza, então a
   // ofensiva sobe durante o estudo em vez de esperar um F5.
   const { goal, celebrar } = useMeta();
   const { dados: assinatura } = useAssinatura();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
 
   const streak = goal?.streak ?? 0;
 
@@ -96,15 +91,16 @@ export function TopBar() {
             </Link>
           )}
 
-          {/* Sair (mobile; no desktop fica no rodapé da barra lateral) */}
-          <button
-            onClick={handleLogout}
+          {/* Perfil (mobile; no desktop fica no rodapé da barra lateral). Sair mora lá. */}
+          <Link
+            to="/perfil"
             className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-muted transition hover:text-brand-500 lg:hidden"
-            aria-label="Sair"
+            aria-label="Perfil"
+            title="Perfil"
           >
-            <LogOut size={18} strokeWidth={1.8} />
-            <span className="hidden md:inline">Sair</span>
-          </button>
+            <UserRound size={18} strokeWidth={1.8} />
+            <TagPlano className="hidden sm:inline-flex" />
+          </Link>
 
           {/* Trocar de tema (no celular; no desktop fica na barra lateral) */}
           <BotaoProximoTema className="flex items-center rounded-lg px-2 py-1.5 text-muted hover:text-brand-500 transition lg:hidden" />

@@ -31,6 +31,7 @@ import { ComoFunciona } from "./pages/ComoFunciona";
 import { ExigeTrilha } from "./components/ExigeTrilha";
 import { RotaAdmin } from "./components/RotaAdmin";
 import { RotaPremium } from "./components/RotaPremium";
+import { Perfil } from "./pages/Perfil";
 import { Assinatura } from "./pages/Assinatura";
 import { FronteiraErro } from "./components/FronteiraErro";
 
@@ -69,6 +70,7 @@ export default function App() {
                   <Route path="/topico" element={<Topico />} />
                   <Route path="/revisar" element={<Revisar />} />
                   <Route path="/assinatura" element={<Assinatura />} />
+                  <Route path="/perfil" element={<Perfil />} />
                   <Route element={<RotaPremium recurso="Simulado" />}>
                     <Route path="/simulado" element={<Simulado />} />
                   </Route>

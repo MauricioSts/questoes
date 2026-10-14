@@ -16,10 +16,12 @@ import {
   HelpCircle,
   Swords,
   Crown,
+  UserRound,
 } from "lucide-react";
 import { useTheme, type Tema } from "../store/theme";
 import { useAuth } from "../store/auth";
 import { useAssinatura } from "../store/assinatura";
+import { TagPlano } from "./TagPlano";
 import { ConcursoSwitcher } from "./ConcursoSwitcher";
 import { LineSidebar } from "./LineSidebar";
 import { Logo } from "./Logo";
@@ -121,6 +123,11 @@ export function BottomTab() {
 
       {/* Rodapé (desktop): trocar tema + importar + sair */}
       <div className="hidden lg:block px-3 pb-3 pt-2 border-t border-hair/50">
+        <Link to="/perfil" className="mb-1 flex items-center gap-2.5 rounded-xl px-3 py-2 transition hover:bg-brand-50">
+          <UserRound size={15} strokeWidth={1.8} className="flex-shrink-0 text-muted" />
+          <span className="min-w-0 flex-1 truncate text-xs font-bold text-brand-ink">{usuario?.nome ?? "Perfil"}</span>
+          <TagPlano />
+        </Link>
         <SeletorTema />
         <Link to="/como-funciona" className="flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold text-muted transition hover:text-brand-ink">
           <HelpCircle size={15} strokeWidth={1.8} /> Como funciona
