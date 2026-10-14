@@ -40,7 +40,11 @@ export const DIAS_DESCANSO_META = 7;
 // Rodízio: índice do dia (0=segunda … 6=domingo) → pedaços do nome da matéria, já sem
 // acento e em minúsculas. É busca por pedaço porque o nome vem do lote e varia entre
 // concursos ("Legislação (SI e Proteção de Dados)", "Legislação Específica", …).
-const RODIZIO: { rotulo: string; termos: string[] }[] = [
+export type Rodizio = { rotulo: string; termos: string[] }[];
+
+// Rodízio feito à mão para a trilha da Dataprev (a original). Só vale para ela e para
+// concurso antigo sem trilha; as outras montam o rodízio com as próprias matérias.
+export const RODIZIO: Rodizio = [
   { rotulo: "Língua Portuguesa", termos: ["portugu"] },
   { rotulo: "Legislação", termos: ["legisl"] },
   { rotulo: "Raciocínio Lógico-Matemático", termos: ["logic", "raciocinio", "matematic"] },
@@ -67,9 +71,9 @@ export interface MateriaDoDia {
 // do rodízio, calculada por quem chama; segunda por padrão) com `extra: true`: o sábado é
 // de simulado e o domingo de folga, mas a meta continua à mão para quem quiser adiantar.
 // Nunca devolve null: a tela sempre tem o que mostrar.
-export function materiaDoDia(diaIndex: number, extraIndex = 0): MateriaDoDia {
+export function materiaDoDia(diaIndex: number, extraIndex = 0, rodizio: Rodizio = RODIZIO): MateriaDoDia {
   const extra = diaIndex > 4;
-  const item = RODIZIO[extra ? extraIndex : diaIndex] ?? RODIZIO[0];
+  const item = rodizio[extra ? extraIndex : diaIndex] ?? rodizio[0];
   return { diaIndex, rotulo: item.rotulo, termos: item.termos, extra };
 }
 
@@ -88,11 +92,12 @@ export function casarMaterias(materiasDoBanco: string[], termos: string[]): stri
 // nenhuma elegível, devolve 0 (segunda).
 export function piorDoRodizio(
   desempenho: { materia: string; total: number; acertos: number }[],
-  minimo = 5
+  minimo = 5,
+  rodizio: Rodizio = RODIZIO
 ): number {
   let pior = 0;
   let piorTaxa = Infinity;
-  RODIZIO.forEach((item, i) => {
+  rodizio.forEach((item, i) => {
     const doItem = desempenho.filter((d) => casarMaterias([d.materia], item.termos).length > 0);
     const total = doItem.reduce((s, d) => s + d.total, 0);
     if (total < minimo) return;
@@ -103,6 +108,34 @@ export function piorDoRodizio(
     }
   });
   return pior;
+}
+
+// Trilhas com rodízio escrito à mão. As demais usam rodizioAutomatico.
+const RODIZIO_POR_TRILHA: Record<string, Rodizio> = {
+  "dataprev-analista-ti": RODIZIO,
+};
+
+// Rodízio de uma trilha qualquer, com as matérias que ELA tem: as 5 com mais questões,
+// uma por dia útil, da maior para a menor. Com menos de 5 matérias o ciclo se repete na
+// semana (2 matérias = A, B, A, B, A). Sem matéria nenhuma, rodízio vazio = sem meta fixa.
+// O termo é o nome inteiro normalizado, então casa só com a própria matéria.
+export function rodizioAutomatico(materias: { materia: string; total: number }[]): Rodizio {
+  const ordenadas = [...materias].sort((a, b) => b.total - a.total || a.materia.localeCompare(b.materia)).slice(0, 5);
+  if (ordenadas.length === 0) return [];
+  return Array.from({ length: 5 }, (_, i) => {
+    const m = ordenadas[i % ordenadas.length];
+    return { rotulo: m.materia, termos: [normalizar(m.materia)] };
+  });
+}
+
+// Rodízio do concurso: o feito à mão quando a trilha tem um (ou concurso antigo sem
+// trilha, que é a Dataprev de antes das trilhas), senão o automático.
+export function rodizioDoConcurso(
+  trilhaId: string | null | undefined,
+  materias: { materia: string; total: number }[]
+): Rodizio {
+  if (!trilhaId) return RODIZIO;
+  return RODIZIO_POR_TRILHA[trilhaId] ?? rodizioAutomatico(materias);
 }
 
 export interface CandidataMeta {

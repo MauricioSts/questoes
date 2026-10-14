@@ -15,6 +15,7 @@ import {
   materiaDoDia,
   sortearMeta,
   piorDoRodizio,
+  rodizioDoConcurso,
   type CandidataMeta,
 } from "../../lib/metaMateria.js";
 
@@ -186,6 +187,25 @@ goalsRouter.get(
     const qf = await escopoQuestoes(concursoId, req.userId!); // ver nota no GET /goals
     const inicioHoje = startOfToday();
     const diaIndex = localWeekdayIndex(new Date());
+
+    // O rodízio é DESTE concurso: a trilha dele e as matérias que ela tem.
+    const [concurso, contagem] = await Promise.all([
+      concursoId
+        ? prisma.concurso.findFirst({ where: { id: concursoId, userId: req.userId! }, select: { trilhaId: true } })
+        : null,
+      prisma.questao.groupBy({ by: ["materia"], where: qf, _count: { _all: true } }),
+    ]);
+    const materiasDoBanco = contagem.map((c) => c.materia);
+    const rodizio = rodizioDoConcurso(
+      concurso?.trilhaId,
+      contagem.map((c) => ({ materia: c.materia, total: c._count._all }))
+    );
+    if (rodizio.length === 0) {
+      // Trilha ainda sem questões: não há meta fixa para mostrar.
+      res.json({ diaIndex, materia: null, extra: false, meta: 0, questaoIds: [], feitas: 0, acertos: 0, concluida: false, semQuestoes: true });
+      return;
+    }
+
     // Fim de semana: o extra vai para a matéria do rodízio com pior acerto nos últimos 30
     // dias. Só consulta quando é fim de semana (dia útil tem matéria fixa).
     let extraIndex = 0;
@@ -202,14 +222,11 @@ goalsRouter.get(
         if (d.acertou) cur.acertos += d._count._all;
         porMateria.set(d.materiaSnapshot, cur);
       }
-      extraIndex = piorDoRodizio([...porMateria.values()]);
+      extraIndex = piorDoRodizio([...porMateria.values()], 5, rodizio);
     }
-    const doDia = materiaDoDia(diaIndex, extraIndex);
+    const doDia = materiaDoDia(diaIndex, extraIndex, rodizio);
 
     // Nomes de matéria que existem NESTE concurso e casam com o rodízio do dia.
-    const materiasDoBanco = (
-      await prisma.questao.findMany({ where: qf, distinct: ["materia"], select: { materia: true } })
-    ).map((q) => q.materia);
     const materias = casarMaterias(materiasDoBanco, doDia.termos);
 
     if (materias.length === 0) {

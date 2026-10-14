@@ -163,15 +163,21 @@ questoesRouter.post(
     // (GET /questoes filtra pelo concurso ativo). Por isso, quando o cliente não manda o
     // campo, caímos no concurso mais antigo do usuário em vez de gravar null.
     let concursoId: string | null = concursoEnviado ?? null;
+    // Trilha do concurso: o lote entra no acervo dela, para valer para todo mundo que a
+    // segue (e para a contagem da tela de trilhas bater). Sem isso o lote ficava preso ao
+    // concurso de quem importou.
+    let trilhaId: string | null = null;
     if (concursoId) {
       const dono = await prisma.concurso.findFirst({ where: { id: concursoId, userId: req.userId! } });
       if (!dono) throw new HttpError(404, "Concurso não encontrado.");
+      trilhaId = dono.trilhaId;
     } else {
       const padrao = await prisma.concurso.findFirst({
         where: { userId: req.userId! },
         orderBy: { createdAt: "asc" },
       });
       concursoId = padrao?.id ?? null;
+      trilhaId = padrao?.trilhaId ?? null;
     }
 
     // valida gabarito ↔ alternativas (defesa extra além do frontend)
@@ -247,6 +253,7 @@ questoesRouter.post(
         data: aGravar.map((q) => ({
           id: q.id,
           concursoId,
+          trilhaId,
           modulo: q.modulo,
           materia: q.materia,
           assunto: q.assunto,

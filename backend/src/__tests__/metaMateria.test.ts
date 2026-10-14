@@ -7,6 +7,9 @@ import {
   piorDoRodizio,
   sortearMeta,
   normalizar,
+  RODIZIO,
+  rodizioAutomatico,
+  rodizioDoConcurso,
 } from "../lib/metaMateria.js";
 
 // rng determinístico para o sorteio (mesma sequência sempre).
@@ -156,5 +159,31 @@ describe("recência e pior matéria", () => {
     const i = piorDoRodizio(desempenho);
     expect(materiaDoDia(5, i).rotulo).toBe("Língua Inglesa");
     expect(piorDoRodizio([])).toBe(0);
+  });
+});
+
+describe("rodízio por trilha", () => {
+  it("Dataprev e concurso sem trilha usam o rodízio feito à mão", () => {
+    expect(rodizioDoConcurso("dataprev-analista-ti", [])).toBe(RODIZIO);
+    expect(rodizioDoConcurso(null, [])).toBe(RODIZIO);
+  });
+
+  it("outra trilha usa as próprias matérias, da maior para a menor", () => {
+    const r = rodizioDoConcurso("biologia-x", [
+      { materia: "Genética", total: 10 },
+      { materia: "Ecologia", total: 30 },
+    ]);
+    expect(r.map((i) => i.rotulo)).toEqual(["Ecologia", "Genética", "Ecologia", "Genética", "Ecologia"]);
+    expect(materiaDoDia(1, 0, r).rotulo).toBe("Genética");
+    expect(casarMaterias(["Ecologia", "Genética"], r[0].termos)).toEqual(["Ecologia"]);
+  });
+
+  it("trilha sem questões não tem rodízio", () => {
+    expect(rodizioAutomatico([])).toEqual([]);
+  });
+
+  it("no máximo 5 matérias, uma por dia útil", () => {
+    const r = rodizioAutomatico(Array.from({ length: 8 }, (_, i) => ({ materia: `M${i}`, total: 100 - i })));
+    expect(r.map((i) => i.rotulo)).toEqual(["M0", "M1", "M2", "M3", "M4"]);
   });
 });

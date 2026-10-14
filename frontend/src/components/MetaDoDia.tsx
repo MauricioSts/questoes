@@ -21,7 +21,8 @@ export function MetaDoDia() {
     carregarMetaMateria().then(setMeta).catch(() => setMeta(null));
   }, [activeId]);
 
-  if (!meta) return null;
+  // Trilha sem questões ainda: não há rodízio, então não há meta fixa para mostrar.
+  if (!meta || !meta.materia) return null;
 
   const dia = DIAS[meta.diaIndex] ?? "";
 

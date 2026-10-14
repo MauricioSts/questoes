@@ -10,15 +10,13 @@ import {
   carregarPerfilRanking,
   carregarRanking,
   type PerfilRanking,
-  listarTrilhas,
   type LinhaRanking,
   type RankingTrilha,
-  type Trilha,
 } from "../lib/trilhas";
+import { useConcurso } from "../store/concurso";
 import { PageHeader } from "../components/PageHeader";
 import { Card } from "../components/Card";
 import { Skeleton } from "../components/Skeleton";
-import { FilterSelect } from "../components/FilterSelect";
 
 type Criterio = "acertos" | "taxa";
 
@@ -82,24 +80,16 @@ function desdeUltima(iso: string | null): string {
 }
 
 export function Ranking() {
-  const [trilhas, setTrilhas] = useState<Trilha[]>([]);
-  const [trilhaId, setTrilhaId] = useState<string | null>(null);
+  // Um ranking por trilha: o da trilha do concurso ativo. Trocar de trilha no seletor de
+  // concurso troca o ranking junto (antes pegava a primeira trilha seguida da lista).
+  const { ativo } = useConcurso();
+  const trilhaId = ativo?.trilhaId ?? null;
   const [dados, setDados] = useState<RankingTrilha | null>(null);
   const [criterio, setCriterio] = useState<Criterio>("acertos");
   const [erro, setErro] = useState(false);
   // As barras só crescem depois da primeira pintura: largura 0 → largura real.
   const [montado, setMontado] = useState(false);
   const [aberto, setAberto] = useState<LinhaRanking | null>(null);
-
-  useEffect(() => {
-    listarTrilhas()
-      .then(({ trilhas: lista }) => {
-        setTrilhas(lista);
-        // A trilha que o usuário segue é a que interessa; sem nenhuma, a primeira.
-        setTrilhaId(lista.find((t) => t.concursoId)?.id ?? lista[0]?.id ?? null);
-      })
-      .catch(() => setErro(true));
-  }, []);
 
   useEffect(() => {
     if (!trilhaId) return;
@@ -133,6 +123,13 @@ export function Ranking() {
   const voce = dados ? dados.linhas.find((l) => l.userId === dados.voceId) ?? null : null;
   const voceNaLista = linhas.some((l) => l.userId === dados?.voceId);
 
+  if (!trilhaId)
+    return (
+      <div className="mx-auto max-w-4xl p-6 text-center">
+        <p className="text-muted">Este concurso não segue uma trilha, então não tem ranking.</p>
+      </div>
+    );
+
   if (erro)
     return (
       <div className="mx-auto max-w-4xl p-6 text-center">
@@ -145,18 +142,7 @@ export function Ranking() {
       <PageHeader
         rotulo="Comunidade"
         titulo="Ranking da trilha"
-        subtitulo="Quem mais acerta no acervo que vocês estudam juntos."
-        right={
-          trilhas.length > 1 && trilhaId ? (
-            <FilterSelect
-              label=""
-              value={trilhaId}
-              onChange={(v) => setTrilhaId(String(v))}
-              options={trilhas.map((t) => ({ value: t.id, label: t.nome }))}
-              className="w-44"
-            />
-          ) : undefined
-        }
+        subtitulo={ativo ? `${ativo.nome} · quem mais acerta no acervo que vocês estudam juntos.` : "Quem mais acerta no acervo que vocês estudam juntos."}
       />
 
       {!dados ? (
