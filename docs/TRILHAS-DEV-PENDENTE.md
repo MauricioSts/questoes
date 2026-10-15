@@ -1,15 +1,16 @@
 # Trilhas de desenvolvimento + sandbox: o que falta
 
-Status em 2026-10-15. Etapas 1–4 feitas e no GitHub; etapas 5 e 6 pendentes. Nada do
-código novo da API está no ar ainda (o pm2 `questoes-api` roda o dist anterior).
+Status em 2026-10-15. Etapas 1–4 feitas, no GitHub e **no ar** (API redeployada em
+2026-10-15 com helmet, `/exercicios`, `/execucoes` e escopo por vínculo). Etapas 5 e 6
+pendentes; as 9 trilhas `dev-*` seguem ocultas e vazias de questões autorais.
 
 ## Feito
 
 | Etapa | Commit | Estado em produção |
 |---|---|---|
 | 2. Schema | `549e50a` | migração `20261015c_trilhas_dev_sandbox` **aplicada** (backup `~/questoes_backup_pretrilhasdev_20261015_190501.sql`). 9 trilhas `dev-*` com `publicada=false` |
-| 3. Sandbox | `be97f89` | gVisor instalado, imagens buildadas, worker **rodando** (`systemctl status questoes-sandbox`). Rotas `/exercicios` e `/execucoes` + helmet só no repo |
-| 4. Vínculos Dataprev | `f5b498c` | 242 vínculos **aplicados** (backup `~/questoes_backup_previnculos_20261015_192618.sql`). Escopo/matéria por vínculo só no repo |
+| 3. Sandbox | `be97f89` | gVisor instalado, imagens buildadas, worker **rodando** (`systemctl status questoes-sandbox`). Rotas `/exercicios` e `/execucoes` + helmet no ar |
+| 4. Vínculos Dataprev | `f5b498c` | 242 vínculos **aplicados** (backup `~/questoes_backup_previnculos_20261015_192618.sql`). Escopo/matéria por vínculo no ar |
 
 Decisões aprovadas: herdadas da Dataprev **não** contam para o mínimo de 50; SQL em
 SQLite; gVisor; trilha Testes = aluno escreve testes que pegam mutantes; Git/DevOps =
