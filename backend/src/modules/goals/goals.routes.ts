@@ -4,7 +4,7 @@ import { z } from "zod";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
-import { escopoQuestoes } from "../../lib/escopoQuestoes.js";
+import { escopoQuestoes, questoesComMateria } from "../../lib/escopoQuestoes.js";
 import { startOfToday, weekDayKeys, localWeekdayIndex } from "../../lib/date.js";
 import { contarPorDia, calcularStreak, carregarFeriasPeriodos } from "../../lib/streak.js";
 import { revisoesPendentes } from "../../lib/srs.js";
@@ -193,12 +193,15 @@ goalsRouter.get(
       concursoId
         ? prisma.concurso.findFirst({ where: { id: concursoId, userId: req.userId! }, select: { trilhaId: true, trilha: { select: { donoId: true } } } })
         : null,
-      prisma.questao.groupBy({ by: ["materia"], where: qf, _count: { _all: true } }),
+      // Matéria já resolvida para a trilha (vínculo pode renomear a de outra trilha).
+      questoesComMateria(concursoId, req.userId!, qf),
     ]);
-    const materiasDoBanco = contagem.map((c) => c.materia);
+    const totalPorMateria = new Map<string, number>();
+    for (const q of contagem) totalPorMateria.set(q.materia, (totalPorMateria.get(q.materia) ?? 0) + 1);
+    const materiasDoBanco = [...totalPorMateria.keys()];
     const rodizio = rodizioDoConcurso(
       concurso?.trilhaId,
-      contagem.map((c) => ({ materia: c.materia, total: c._count._all })),
+      [...totalPorMateria].map(([materia, total]) => ({ materia, total })),
       !!concurso?.trilha?.donoId
     );
     if (rodizio.length === 0) {
@@ -253,10 +256,7 @@ goalsRouter.get(
     if (!registro) {
       // Candidatas: todas as questões das matérias do dia, com o nº de erros ANTERIORES a
       // hoje (o peso do sorteio não pode depender do que eu responder hoje).
-      const candidatasBrutas = await prisma.questao.findMany({
-        where: { ...qf, materia: { in: materias } },
-        select: { id: true, origem: true },
-      });
+      const candidatasBrutas = contagem.filter((q) => materias.includes(q.materia));
       const erradasAntes = await prisma.answer.groupBy({
         by: ["questaoId"],
         where: { userId: req.userId!, ...cf, acertou: false, createdAt: { lt: inicioHoje } },

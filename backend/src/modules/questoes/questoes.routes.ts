@@ -9,7 +9,7 @@ import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { requireAdmin } from "../../middleware/admin.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
-import { escopoQuestoes } from "../../lib/escopoQuestoes.js";
+import { escopoQuestoes, materiasDoVinculo } from "../../lib/escopoQuestoes.js";
 import { acessoDoUsuario } from "../../lib/assinatura.js";
 import { HttpError } from "../../middleware/error.js";
 import type { Prisma } from "@prisma/client";
@@ -103,24 +103,30 @@ questoesRouter.get(
         );
     const revela = (id: number) => !respondidas || respondidas.has(id);
 
-    const [linhas, textos, provasLinhas] = await Promise.all([
+    // Questão vinculada de outra trilha aparece com a matéria que tem NESTA trilha.
+    const trilhaDoConcurso = concursoId
+      ? (await prisma.concurso.findFirst({ where: { id: concursoId, userId: req.userId! }, select: { trilhaId: true } }))?.trilhaId
+      : null;
+    const [linhas, textos, provasLinhas, renomeadas] = await Promise.all([
       prisma.questao.findMany({
         where,
         orderBy: { id: "asc" },
       }),
       prisma.textoBase.findMany(),
       prisma.prova.findMany(),
+      materiasDoVinculo(trilhaDoConcurso),
     ]);
     const questoes = linhas.map((q) => ({
       id: q.id,
       modulo: q.modulo,
-      materia: q.materia,
+      materia: renomeadas.get(q.id) ?? q.materia,
       assunto: q.assunto,
       dificuldade: q.dificuldade,
       texto_base: q.textoBaseKey ?? undefined,
       enunciado: q.enunciado,
       codigo: q.codigo ?? undefined,
       linguagem: q.linguagem ?? undefined,
+      tipo: q.tipo,
       alternativas: q.alternativas,
       gabarito: revela(q.id) ? q.gabarito : undefined,
       explicacao: revela(q.id) ? q.explicacao : "",

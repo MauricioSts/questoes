@@ -11,7 +11,8 @@
     "prisma:generate": "prisma generate",
     "migrate": "prisma migrate deploy",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "vinculos:aplicar": "tsx scripts/aplicarVinculos.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

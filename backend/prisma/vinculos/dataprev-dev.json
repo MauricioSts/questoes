@@ -1,0 +1,1216 @@
+{
+ "descricao": "Questões da trilha Dataprev que também valem nas trilhas oficiais de desenvolvimento (QuestaoTrilha). A matéria dentro da trilha é o próprio tópico. Gerado na reclassificação de 2026-10-15; aplicar com npm run vinculos:aplicar.",
+ "origem": "dataprev-analista-ti",
+ "vinculos": [
+  {
+   "questaoId": 114,
+   "trilhaId": "dev-arquitetura",
+   "topico": "APIs REST"
+  },
+  {
+   "questaoId": 240,
+   "trilhaId": "dev-arquitetura",
+   "topico": "APIs REST"
+  },
+  {
+   "questaoId": 245,
+   "trilhaId": "dev-arquitetura",
+   "topico": "APIs REST"
+  },
+  {
+   "questaoId": 308,
+   "trilhaId": "dev-arquitetura",
+   "topico": "APIs REST"
+  },
+  {
+   "questaoId": 395,
+   "trilhaId": "dev-arquitetura",
+   "topico": "APIs REST"
+  },
+  {
+   "questaoId": 406,
+   "trilhaId": "dev-arquitetura",
+   "topico": "APIs REST"
+  },
+  {
+   "questaoId": 407,
+   "trilhaId": "dev-arquitetura",
+   "topico": "APIs REST"
+  },
+  {
+   "questaoId": 615,
+   "trilhaId": "dev-arquitetura",
+   "topico": "APIs REST"
+  },
+  {
+   "questaoId": 689,
+   "trilhaId": "dev-arquitetura",
+   "topico": "APIs REST"
+  },
+  {
+   "questaoId": 757,
+   "trilhaId": "dev-arquitetura",
+   "topico": "APIs REST"
+  },
+  {
+   "questaoId": 766,
+   "trilhaId": "dev-arquitetura",
+   "topico": "APIs REST"
+  },
+  {
+   "questaoId": 839,
+   "trilhaId": "dev-arquitetura",
+   "topico": "APIs REST"
+  },
+  {
+   "questaoId": 840,
+   "trilhaId": "dev-arquitetura",
+   "topico": "APIs REST"
+  },
+  {
+   "questaoId": 43,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Acoplamento e coesão"
+  },
+  {
+   "questaoId": 301,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Acoplamento e coesão"
+  },
+  {
+   "questaoId": 404,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Acoplamento e coesão"
+  },
+  {
+   "questaoId": 405,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Acoplamento e coesão"
+  },
+  {
+   "questaoId": 482,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Camadas e MVC"
+  },
+  {
+   "questaoId": 553,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Camadas e MVC"
+  },
+  {
+   "questaoId": 613,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Camadas e MVC"
+  },
+  {
+   "questaoId": 688,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Camadas e MVC"
+  },
+  {
+   "questaoId": 819,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Camadas e MVC"
+  },
+  {
+   "questaoId": 820,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Camadas e MVC"
+  },
+  {
+   "questaoId": 821,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Camadas e MVC"
+  },
+  {
+   "questaoId": 612,
+   "trilhaId": "dev-arquitetura",
+   "topico": "DDD"
+  },
+  {
+   "questaoId": 696,
+   "trilhaId": "dev-arquitetura",
+   "topico": "DDD"
+  },
+  {
+   "questaoId": 831,
+   "trilhaId": "dev-arquitetura",
+   "topico": "DDD"
+  },
+  {
+   "questaoId": 832,
+   "trilhaId": "dev-arquitetura",
+   "topico": "DDD"
+  },
+  {
+   "questaoId": 57,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Hexagonal e clean architecture"
+  },
+  {
+   "questaoId": 234,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Hexagonal e clean architecture"
+  },
+  {
+   "questaoId": 554,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Hexagonal e clean architecture"
+  },
+  {
+   "questaoId": 837,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Hexagonal e clean architecture"
+  },
+  {
+   "questaoId": 45,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Integração e web services"
+  },
+  {
+   "questaoId": 309,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Integração e web services"
+  },
+  {
+   "questaoId": 410,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Integração e web services"
+  },
+  {
+   "questaoId": 411,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Integração e web services"
+  },
+  {
+   "questaoId": 614,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Integração e web services"
+  },
+  {
+   "questaoId": 685,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Integração e web services"
+  },
+  {
+   "questaoId": 833,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Integração e web services"
+  },
+  {
+   "questaoId": 834,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Integração e web services"
+  },
+  {
+   "questaoId": 113,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Mensageria"
+  },
+  {
+   "questaoId": 618,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Mensageria"
+  },
+  {
+   "questaoId": 693,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Mensageria"
+  },
+  {
+   "questaoId": 695,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Mensageria"
+  },
+  {
+   "questaoId": 756,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Mensageria"
+  },
+  {
+   "questaoId": 847,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Mensageria"
+  },
+  {
+   "questaoId": 848,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Mensageria"
+  },
+  {
+   "questaoId": 123,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Microsserviços"
+  },
+  {
+   "questaoId": 394,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Microsserviços"
+  },
+  {
+   "questaoId": 477,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Microsserviços"
+  },
+  {
+   "questaoId": 616,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Microsserviços"
+  },
+  {
+   "questaoId": 617,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Microsserviços"
+  },
+  {
+   "questaoId": 640,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Microsserviços"
+  },
+  {
+   "questaoId": 690,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Microsserviços"
+  },
+  {
+   "questaoId": 838,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Microsserviços"
+  },
+  {
+   "questaoId": 682,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Orientação a objetos"
+  },
+  {
+   "questaoId": 116,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Padrões de projeto"
+  },
+  {
+   "questaoId": 241,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Padrões de projeto"
+  },
+  {
+   "questaoId": 683,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Padrões de projeto"
+  },
+  {
+   "questaoId": 759,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Padrões de projeto"
+  },
+  {
+   "questaoId": 828,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Padrões de projeto"
+  },
+  {
+   "questaoId": 829,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Padrões de projeto"
+  },
+  {
+   "questaoId": 830,
+   "trilhaId": "dev-arquitetura",
+   "topico": "Padrões de projeto"
+  },
+  {
+   "questaoId": 49,
+   "trilhaId": "dev-arquitetura",
+   "topico": "SOLID"
+  },
+  {
+   "questaoId": 125,
+   "trilhaId": "dev-arquitetura",
+   "topico": "SOLID"
+  },
+  {
+   "questaoId": 379,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Chaves e integridade"
+  },
+  {
+   "questaoId": 632,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Chaves e integridade"
+  },
+  {
+   "questaoId": 771,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Chaves e integridade"
+  },
+  {
+   "questaoId": 880,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Chaves e integridade"
+  },
+  {
+   "questaoId": 881,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Chaves e integridade"
+  },
+  {
+   "questaoId": 557,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Distribuição e escala"
+  },
+  {
+   "questaoId": 558,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Distribuição e escala"
+  },
+  {
+   "questaoId": 126,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Modelagem e arquitetura de SGBD"
+  },
+  {
+   "questaoId": 246,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Modelagem e arquitetura de SGBD"
+  },
+  {
+   "questaoId": 321,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Modelagem e arquitetura de SGBD"
+  },
+  {
+   "questaoId": 485,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Modelagem e arquitetura de SGBD"
+  },
+  {
+   "questaoId": 767,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Modelagem e arquitetura de SGBD"
+  },
+  {
+   "questaoId": 770,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Modelagem e arquitetura de SGBD"
+  },
+  {
+   "questaoId": 66,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 128,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 247,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 383,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 384,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 388,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 423,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 424,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 425,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 426,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 486,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 560,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 855,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 856,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 857,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 868,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 869,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 874,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 875,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 884,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "NoSQL"
+  },
+  {
+   "questaoId": 130,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Normalização"
+  },
+  {
+   "questaoId": 249,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Normalização"
+  },
+  {
+   "questaoId": 556,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Normalização"
+  },
+  {
+   "questaoId": 698,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Normalização"
+  },
+  {
+   "questaoId": 863,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Normalização"
+  },
+  {
+   "questaoId": 864,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Normalização"
+  },
+  {
+   "questaoId": 127,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — DDL e DML"
+  },
+  {
+   "questaoId": 316,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — DDL e DML"
+  },
+  {
+   "questaoId": 387,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — DDL e DML"
+  },
+  {
+   "questaoId": 701,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — DDL e DML"
+  },
+  {
+   "questaoId": 768,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — DDL e DML"
+  },
+  {
+   "questaoId": 769,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — DDL e DML"
+  },
+  {
+   "questaoId": 849,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — DDL e DML"
+  },
+  {
+   "questaoId": 850,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — DDL e DML"
+  },
+  {
+   "questaoId": 851,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — DDL e DML"
+  },
+  {
+   "questaoId": 248,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — agregação"
+  },
+  {
+   "questaoId": 317,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — consultas"
+  },
+  {
+   "questaoId": 385,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — consultas"
+  },
+  {
+   "questaoId": 427,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — consultas"
+  },
+  {
+   "questaoId": 428,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — consultas"
+  },
+  {
+   "questaoId": 630,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — consultas"
+  },
+  {
+   "questaoId": 783,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — consultas"
+  },
+  {
+   "questaoId": 878,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — consultas"
+  },
+  {
+   "questaoId": 879,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "SQL — consultas"
+  },
+  {
+   "questaoId": 631,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Subconsultas, CTE e janelas"
+  },
+  {
+   "questaoId": 386,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Transações e ACID"
+  },
+  {
+   "questaoId": 477,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Transações e ACID"
+  },
+  {
+   "questaoId": 484,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Transações e ACID"
+  },
+  {
+   "questaoId": 318,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Índices e desempenho"
+  },
+  {
+   "questaoId": 481,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Índices e desempenho"
+  },
+  {
+   "questaoId": 483,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Índices e desempenho"
+  },
+  {
+   "questaoId": 619,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Índices e desempenho"
+  },
+  {
+   "questaoId": 702,
+   "trilhaId": "dev-banco-de-dados",
+   "topico": "Índices e desempenho"
+  },
+  {
+   "questaoId": 472,
+   "trilhaId": "dev-git-devops",
+   "topico": "Build e dependências"
+  },
+  {
+   "questaoId": 55,
+   "trilhaId": "dev-git-devops",
+   "topico": "CI/CD"
+  },
+  {
+   "questaoId": 124,
+   "trilhaId": "dev-git-devops",
+   "topico": "CI/CD"
+  },
+  {
+   "questaoId": 310,
+   "trilhaId": "dev-git-devops",
+   "topico": "CI/CD"
+  },
+  {
+   "questaoId": 372,
+   "trilhaId": "dev-git-devops",
+   "topico": "CI/CD"
+  },
+  {
+   "questaoId": 373,
+   "trilhaId": "dev-git-devops",
+   "topico": "CI/CD"
+  },
+  {
+   "questaoId": 622,
+   "trilhaId": "dev-git-devops",
+   "topico": "CI/CD"
+  },
+  {
+   "questaoId": 807,
+   "trilhaId": "dev-git-devops",
+   "topico": "CI/CD"
+  },
+  {
+   "questaoId": 813,
+   "trilhaId": "dev-git-devops",
+   "topico": "CI/CD"
+  },
+  {
+   "questaoId": 814,
+   "trilhaId": "dev-git-devops",
+   "topico": "CI/CD"
+  },
+  {
+   "questaoId": 815,
+   "trilhaId": "dev-git-devops",
+   "topico": "CI/CD"
+  },
+  {
+   "questaoId": 312,
+   "trilhaId": "dev-git-devops",
+   "topico": "Containers"
+  },
+  {
+   "questaoId": 694,
+   "trilhaId": "dev-git-devops",
+   "topico": "Containers"
+  },
+  {
+   "questaoId": 238,
+   "trilhaId": "dev-git-devops",
+   "topico": "Git — conceitos"
+  },
+  {
+   "questaoId": 473,
+   "trilhaId": "dev-git-devops",
+   "topico": "Git — conceitos"
+  },
+  {
+   "questaoId": 555,
+   "trilhaId": "dev-git-devops",
+   "topico": "Git — conceitos"
+  },
+  {
+   "questaoId": 686,
+   "trilhaId": "dev-git-devops",
+   "topico": "Git — desfazer mudanças"
+  },
+  {
+   "questaoId": 798,
+   "trilhaId": "dev-git-devops",
+   "topico": "Infraestrutura como código"
+  },
+  {
+   "questaoId": 900,
+   "trilhaId": "dev-git-devops",
+   "topico": "Infraestrutura como código"
+  },
+  {
+   "questaoId": 374,
+   "trilhaId": "dev-git-devops",
+   "topico": "Kubernetes"
+  },
+  {
+   "questaoId": 552,
+   "trilhaId": "dev-git-devops",
+   "topico": "Kubernetes"
+  },
+  {
+   "questaoId": 684,
+   "trilhaId": "dev-java",
+   "topico": "Coleções"
+  },
+  {
+   "questaoId": 620,
+   "trilhaId": "dev-java",
+   "topico": "Concorrência"
+  },
+  {
+   "questaoId": 41,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 120,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 235,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 242,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 308,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 406,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 407,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 472,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 480,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 481,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 616,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 619,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 621,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 691,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 692,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 816,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 817,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 818,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 845,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 846,
+   "trilhaId": "dev-java",
+   "topico": "Ecossistema Java"
+  },
+  {
+   "questaoId": 49,
+   "trilhaId": "dev-java",
+   "topico": "Orientação a objetos"
+  },
+  {
+   "questaoId": 376,
+   "trilhaId": "dev-java",
+   "topico": "Records e classes seladas"
+  },
+  {
+   "questaoId": 232,
+   "trilhaId": "dev-java",
+   "topico": "Sobrecarga, sobrescrita e dispatch"
+  },
+  {
+   "questaoId": 835,
+   "trilhaId": "dev-java",
+   "topico": "Sobrecarga, sobrescrita e dispatch"
+  },
+  {
+   "questaoId": 836,
+   "trilhaId": "dev-java",
+   "topico": "Sobrecarga, sobrescrita e dispatch"
+  },
+  {
+   "questaoId": 471,
+   "trilhaId": "dev-java",
+   "topico": "Streams e lambdas"
+  },
+  {
+   "questaoId": 306,
+   "trilhaId": "dev-javascript-typescript",
+   "topico": "Arrays e objetos"
+  },
+  {
+   "questaoId": 239,
+   "trilhaId": "dev-javascript-typescript",
+   "topico": "Exceções"
+  },
+  {
+   "questaoId": 117,
+   "trilhaId": "dev-javascript-typescript",
+   "topico": "Módulos e ferramentas"
+  },
+  {
+   "questaoId": 760,
+   "trilhaId": "dev-javascript-typescript",
+   "topico": "Módulos e ferramentas"
+  },
+  {
+   "questaoId": 703,
+   "trilhaId": "dev-seguranca",
+   "topico": "Autenticação e sessão"
+  },
+  {
+   "questaoId": 805,
+   "trilhaId": "dev-seguranca",
+   "topico": "Autenticação e sessão"
+  },
+  {
+   "questaoId": 323,
+   "trilhaId": "dev-seguranca",
+   "topico": "CSRF e CORS"
+  },
+  {
+   "questaoId": 62,
+   "trilhaId": "dev-seguranca",
+   "topico": "Controle de acesso"
+  },
+  {
+   "questaoId": 134,
+   "trilhaId": "dev-seguranca",
+   "topico": "Controle de acesso"
+  },
+  {
+   "questaoId": 253,
+   "trilhaId": "dev-seguranca",
+   "topico": "Controle de acesso"
+  },
+  {
+   "questaoId": 399,
+   "trilhaId": "dev-seguranca",
+   "topico": "Controle de acesso"
+  },
+  {
+   "questaoId": 567,
+   "trilhaId": "dev-seguranca",
+   "topico": "Controle de acesso"
+  },
+  {
+   "questaoId": 808,
+   "trilhaId": "dev-seguranca",
+   "topico": "Controle de acesso"
+  },
+  {
+   "questaoId": 902,
+   "trilhaId": "dev-seguranca",
+   "topico": "Controle de acesso"
+  },
+  {
+   "questaoId": 900,
+   "trilhaId": "dev-seguranca",
+   "topico": "Gestão de segredos"
+  },
+  {
+   "questaoId": 133,
+   "trilhaId": "dev-seguranca",
+   "topico": "Injeção e inclusão de arquivos"
+  },
+  {
+   "questaoId": 255,
+   "trilhaId": "dev-seguranca",
+   "topico": "Injeção e inclusão de arquivos"
+  },
+  {
+   "questaoId": 775,
+   "trilhaId": "dev-seguranca",
+   "topico": "Injeção e inclusão de arquivos"
+  },
+  {
+   "questaoId": 497,
+   "trilhaId": "dev-seguranca",
+   "topico": "Integridade e assinaturas"
+  },
+  {
+   "questaoId": 635,
+   "trilhaId": "dev-seguranca",
+   "topico": "Integridade e assinaturas"
+  },
+  {
+   "questaoId": 256,
+   "trilhaId": "dev-seguranca",
+   "topico": "OAuth, OpenID Connect e SSO"
+  },
+  {
+   "questaoId": 398,
+   "trilhaId": "dev-seguranca",
+   "topico": "OAuth, OpenID Connect e SSO"
+  },
+  {
+   "questaoId": 566,
+   "trilhaId": "dev-seguranca",
+   "topico": "OAuth, OpenID Connect e SSO"
+  },
+  {
+   "questaoId": 634,
+   "trilhaId": "dev-seguranca",
+   "topico": "OAuth, OpenID Connect e SSO"
+  },
+  {
+   "questaoId": 704,
+   "trilhaId": "dev-seguranca",
+   "topico": "OAuth, OpenID Connect e SSO"
+  },
+  {
+   "questaoId": 810,
+   "trilhaId": "dev-seguranca",
+   "topico": "OAuth, OpenID Connect e SSO"
+  },
+  {
+   "questaoId": 63,
+   "trilhaId": "dev-seguranca",
+   "topico": "OWASP Top 10"
+  },
+  {
+   "questaoId": 135,
+   "trilhaId": "dev-seguranca",
+   "topico": "SDLC seguro, SAST e DAST"
+  },
+  {
+   "questaoId": 326,
+   "trilhaId": "dev-seguranca",
+   "topico": "SDLC seguro, SAST e DAST"
+  },
+  {
+   "questaoId": 327,
+   "trilhaId": "dev-seguranca",
+   "topico": "SDLC seguro, SAST e DAST"
+  },
+  {
+   "questaoId": 564,
+   "trilhaId": "dev-seguranca",
+   "topico": "SDLC seguro, SAST e DAST"
+  },
+  {
+   "questaoId": 705,
+   "trilhaId": "dev-seguranca",
+   "topico": "SDLC seguro, SAST e DAST"
+  },
+  {
+   "questaoId": 776,
+   "trilhaId": "dev-seguranca",
+   "topico": "SDLC seguro, SAST e DAST"
+  },
+  {
+   "questaoId": 807,
+   "trilhaId": "dev-seguranca",
+   "topico": "SDLC seguro, SAST e DAST"
+  },
+  {
+   "questaoId": 796,
+   "trilhaId": "dev-seguranca",
+   "topico": "Senhas e hashing"
+  },
+  {
+   "questaoId": 46,
+   "trilhaId": "dev-seguranca",
+   "topico": "TLS e criptografia"
+  },
+  {
+   "questaoId": 119,
+   "trilhaId": "dev-seguranca",
+   "topico": "TLS e criptografia"
+  },
+  {
+   "questaoId": 132,
+   "trilhaId": "dev-seguranca",
+   "topico": "TLS e criptografia"
+  },
+  {
+   "questaoId": 254,
+   "trilhaId": "dev-seguranca",
+   "topico": "TLS e criptografia"
+  },
+  {
+   "questaoId": 325,
+   "trilhaId": "dev-seguranca",
+   "topico": "TLS e criptografia"
+  },
+  {
+   "questaoId": 774,
+   "trilhaId": "dev-seguranca",
+   "topico": "TLS e criptografia"
+  },
+  {
+   "questaoId": 802,
+   "trilhaId": "dev-seguranca",
+   "topico": "TLS e criptografia"
+  },
+  {
+   "questaoId": 803,
+   "trilhaId": "dev-seguranca",
+   "topico": "TLS e criptografia"
+  },
+  {
+   "questaoId": 131,
+   "trilhaId": "dev-seguranca",
+   "topico": "XSS"
+  },
+  {
+   "questaoId": 565,
+   "trilhaId": "dev-seguranca",
+   "topico": "XSS"
+  },
+  {
+   "questaoId": 773,
+   "trilhaId": "dev-seguranca",
+   "topico": "XSS"
+  },
+  {
+   "questaoId": 809,
+   "trilhaId": "dev-seguranca",
+   "topico": "XSS"
+  },
+  {
+   "questaoId": 480,
+   "trilhaId": "dev-testes",
+   "topico": "Frameworks de teste"
+  },
+  {
+   "questaoId": 52,
+   "trilhaId": "dev-testes",
+   "topico": "Níveis de teste"
+  },
+  {
+   "questaoId": 687,
+   "trilhaId": "dev-testes",
+   "topico": "Níveis de teste"
+  },
+  {
+   "questaoId": 843,
+   "trilhaId": "dev-testes",
+   "topico": "Níveis de teste"
+  },
+  {
+   "questaoId": 844,
+   "trilhaId": "dev-testes",
+   "topico": "Níveis de teste"
+  },
+  {
+   "questaoId": 311,
+   "trilhaId": "dev-testes",
+   "topico": "Pirâmide de testes"
+  },
+  {
+   "questaoId": 624,
+   "trilhaId": "dev-testes",
+   "topico": "Pirâmide de testes"
+  },
+  {
+   "questaoId": 305,
+   "trilhaId": "dev-testes",
+   "topico": "Qualidade e análise estática"
+  },
+  {
+   "questaoId": 762,
+   "trilhaId": "dev-testes",
+   "topico": "Qualidade e análise estática"
+  },
+  {
+   "questaoId": 122,
+   "trilhaId": "dev-testes",
+   "topico": "TDD e BDD"
+  },
+  {
+   "questaoId": 231,
+   "trilhaId": "dev-testes",
+   "topico": "TDD e BDD"
+  },
+  {
+   "questaoId": 548,
+   "trilhaId": "dev-testes",
+   "topico": "TDD e BDD"
+  },
+  {
+   "questaoId": 623,
+   "trilhaId": "dev-testes",
+   "topico": "TDD e BDD"
+  },
+  {
+   "questaoId": 310,
+   "trilhaId": "dev-testes",
+   "topico": "Testes na integração contínua"
+  },
+  {
+   "questaoId": 372,
+   "trilhaId": "dev-testes",
+   "topico": "Testes na integração contínua"
+  }
+ ]
+}

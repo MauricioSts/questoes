@@ -67,9 +67,16 @@ trilhasRouter.get(
     ]);
 
     const porTrilha = new Map(meus.map((c) => [c.trilhaId!, c.id]));
-    const [contagens, seguidores] = await Promise.all([
+    const [contagensDonas, contagensVinculos, seguidores] = await Promise.all([
       prisma.questao.groupBy({
         by: ["trilhaId", "materia"],
+        where: { trilhaId: { in: trilhas.map((t) => t.id) } },
+        _count: { _all: true },
+      }),
+      // Questões de outra trilha vinculadas a esta (sem duplicar a linha): contam aqui
+      // também, com a matéria que têm nesta trilha.
+      prisma.questaoTrilha.groupBy({
+        by: ["trilhaId", "materia", "topico"],
         where: { trilhaId: { in: trilhas.map((t) => t.id) } },
         _count: { _all: true },
       }),
@@ -79,6 +86,10 @@ trilhasRouter.get(
         _count: { userId: true },
       }),
     ]);
+    const contagens = [
+      ...contagensDonas.map((c) => ({ trilhaId: c.trilhaId, materia: c.materia, n: c._count._all })),
+      ...contagensVinculos.map((c) => ({ trilhaId: c.trilhaId, materia: c.materia ?? c.topico, n: c._count._all })),
+    ];
     const seguidoresPor = new Map(seguidores.map((g) => [g.trilhaId!, g._count.userId]));
 
     const lista = trilhas
@@ -96,8 +107,8 @@ trilhasRouter.get(
           ano: t.ano,
           descricao: t.descricao,
           dataProva: t.dataProva?.toISOString() ?? null,
-          questoes: linhas.reduce((s, c) => s + c._count._all, 0),
-          materias: linhas.length,
+          questoes: linhas.reduce((s, c) => s + c.n, 0),
+          materias: new Set(linhas.map((c) => c.materia)).size,
           seguidores: seguidoresPor.get(t.id) ?? 0,
           tipo: t.tipo,
           oficial: t.donoId === null,
