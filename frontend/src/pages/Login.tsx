@@ -4,7 +4,8 @@
 // cartão genérico. O fundo WebGL continua rodando atrás dos dois painéis.
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../store/auth";
+import { useAuth, type DesafioCodigo } from "../store/auth";
+import { api } from "../lib/api";
 import { Button } from "../components/Button";
 import { Logo } from "../components/Logo";
 import { Atmosfera } from "../components/Atmosfera";
@@ -137,7 +138,7 @@ function PainelEditor() {
 // /login e /registro são a mesma cena: o registro só acrescenta o campo de nome. Ele
 // entra direto ou, quando o servidor exige aprovação, termina num aviso de pedido enviado.
 export function Login({ modo = "entrar" }: { modo?: "entrar" | "registro" }) {
-  const { login, registrar } = useAuth();
+  const { login, confirmarCodigo, registrar } = useAuth();
   const navigate = useNavigate();
   const registro = modo === "registro";
   const [nome, setNome] = useState("");
@@ -146,13 +147,37 @@ export function Login({ modo = "entrar" }: { modo?: "entrar" | "registro" }) {
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [pedidoEnviado, setPedidoEnviado] = useState(false);
+  // Segunda etapa: conta com verificação em duas etapas recebe um código no e-mail.
+  const [desafio, setDesafio] = useState<DesafioCodigo | null>(null);
+  const [codigo, setCodigo] = useState("");
+  const [reenvio, setReenvio] = useState<string | null>(null);
 
   // As duas rotas reaproveitam o mesmo componente: trocar de uma para a outra mantém
   // o que foi digitado, mas não o erro nem o aviso da outra tela.
   useEffect(() => {
     setErro(null);
     setPedidoEnviado(false);
+    setDesafio(null);
   }, [modo]);
+
+  function voltarDoCodigo() {
+    setDesafio(null);
+    setCodigo("");
+    setErro(null);
+    setReenvio(null);
+  }
+
+  async function reenviar() {
+    if (!desafio) return;
+    setErro(null);
+    setReenvio(null);
+    try {
+      await api("/auth/codigo/reenviar", { method: "POST", body: { desafio: desafio.desafio }, auth: false });
+      setReenvio("Código novo enviado.");
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : "Falha ao reenviar");
+    }
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -166,8 +191,17 @@ export function Login({ modo = "entrar" }: { modo?: "entrar" | "registro" }) {
         }
         setSenha("");
         setPedidoEnviado(true);
+      } else if (desafio) {
+        await confirmarCodigo(desafio.desafio, codigo);
+        navigate("/", { replace: true });
       } else {
-        await login(email, senha);
+        const pedido = await login(email, senha);
+        if (pedido) {
+          setDesafio(pedido);
+          setCodigo("");
+          setReenvio(null);
+          return;
+        }
         navigate("/", { replace: true });
       }
     } catch (err) {
@@ -188,12 +222,14 @@ export function Login({ modo = "entrar" }: { modo?: "entrar" | "registro" }) {
           <div>
             <Logo tamanho={34} fonte={19} />
             <h1 className="mt-5 font-display text-[26px] font-extrabold leading-tight text-brand-ink">
-              {registro ? "Criar conta" : "Bem-vindo de volta"}
+              {registro ? "Criar conta" : desafio ? "Confirme que é você" : "Bem-vindo de volta"}
             </h1>
             <p className="mt-1 text-sm text-faint">
               {registro
                 ? "Crie sua conta para começar a estudar."
-                : "Entre para continuar de onde a sua ofensiva parou."}
+                : desafio
+                  ? `Mandamos um código de 6 dígitos para ${desafio.email}.`
+                  : "Entre para continuar de onde a sua ofensiva parou."}
             </p>
           </div>
 
@@ -210,6 +246,51 @@ export function Login({ modo = "entrar" }: { modo?: "entrar" | "registro" }) {
                 Voltar para o login
               </Link>
             </div>
+          ) : desafio ? (
+            <form onSubmit={onSubmit} className="space-y-4">
+              <label className="login-campo">
+                <span className="login-campo__rotulo">código</span>
+                <input
+                  type="text"
+                  required
+                  autoFocus
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  pattern="\d{6}"
+                  maxLength={6}
+                  value={codigo}
+                  onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder="000000"
+                  className="login-campo__entrada tracking-[.4em]"
+                />
+              </label>
+
+              {erro && (
+                <p className="login-erro" role="alert">
+                  <span className="login-erro__marca">✕</span>
+                  <span>{erro}</span>
+                </p>
+              )}
+              {reenvio && !erro && (
+                <p className="login-ok" role="status">
+                  <span className="login-erro__marca">✓</span>
+                  <span>{reenvio}</span>
+                </p>
+              )}
+
+              <Button type="submit" disabled={enviando || codigo.length !== 6} fullWidth size="lg">
+                {enviando ? "Conferindo…" : "Entrar"}
+              </Button>
+
+              <p className="flex justify-between text-sm text-faint">
+                <button type="button" onClick={voltarDoCodigo} className="login-troca">
+                  Voltar
+                </button>
+                <button type="button" onClick={reenviar} className="login-troca">
+                  Reenviar código
+                </button>
+              </p>
+            </form>
           ) : (
           <form onSubmit={onSubmit} className="space-y-4">
             {registro && (

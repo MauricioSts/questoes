@@ -1,4 +1,4 @@
-// Rotas de autenticação: register, aprovacao, login, refresh, logout.
+// Rotas de autenticação: register, aprovacao, login (+ código no e-mail), refresh, logout.
 // Com a assinatura ligada a conta entra direto; sem ela, nasce pendente de aprovação.
 // Fluxo de token: access token JWT curto (15m) + refresh token opaco (30d) guardado
 // como hash no banco. O refresh é rotacionado a cada uso e revogado no logout.
@@ -15,6 +15,7 @@ import { ehAdmin } from "../../middleware/admin.js";
 import { enviarEmail, escaparHtml } from "../../lib/email.js";
 import { enviarTelegram } from "../../lib/telegram.js";
 import { pagamentosAtivos } from "../../lib/assinatura.js";
+import { emitirCodigo, reenviarCodigo, conferirCodigo } from "../../lib/codigoEmail.js";
 import {
   signAccessToken,
   generateRefreshToken,
@@ -43,7 +44,22 @@ const refreshSchema = z.object({
   refreshToken: z.string().min(1),
 });
 
-function publicUser(u: { id: string; email: string; nome: string; metaDiaria: number; pokeResetAt?: Date | null; createdAt?: Date }) {
+const codigoSchema = z.object({
+  desafio: z.string().min(1).max(200),
+  codigo: z.string().trim().regex(/^\d{6}$/, "O código tem 6 dígitos"),
+});
+
+const desafioSchema = z.object({ desafio: z.string().min(1).max(200) });
+
+function publicUser(u: {
+  id: string;
+  email: string;
+  nome: string;
+  metaDiaria: number;
+  doisFatores?: boolean;
+  pokeResetAt?: Date | null;
+  createdAt?: Date;
+}) {
   // `admin` decide o que o cliente mostra (botão de importar). Quem manda de verdade
   // é o requireAdmin no servidor: esconder o botão é conveniência, não segurança.
   return {
@@ -52,6 +68,7 @@ function publicUser(u: { id: string; email: string; nome: string; metaDiaria: nu
     nome: u.nome,
     metaDiaria: u.metaDiaria,
     admin: ehAdmin(u.email),
+    doisFatores: u.doisFatores ?? false,
     pokeResetAt: u.pokeResetAt?.toISOString() ?? null,
     criadoEm: u.createdAt?.toISOString() ?? null,
   };
@@ -72,13 +89,17 @@ async function issueTokens(user: { id: string; email: string }) {
 const JANELA_PEDIDOS_MS = 60 * 60 * 1000;
 const MAX_PEDIDOS_POR_JANELA = 5;
 const pedidosPorIp = new Map<string, number[]>();
+// Códigos de login por conta: cada código aceita 5 palpites, então sem este teto quem
+// tem a senha poderia pedir códigos sem fim até acertar um.
+const MAX_CODIGOS_LOGIN_POR_JANELA = 8;
+const codigosPorUsuario = new Map<string, number[]>();
 
-function excedeuLimite(ip: string): boolean {
+function excedeuLimite(chave: string, mapa = pedidosPorIp, max = MAX_PEDIDOS_POR_JANELA): boolean {
   const agora = Date.now();
-  const recentes = (pedidosPorIp.get(ip) ?? []).filter((t) => agora - t < JANELA_PEDIDOS_MS);
-  const excedeu = recentes.length >= MAX_PEDIDOS_POR_JANELA;
+  const recentes = (mapa.get(chave) ?? []).filter((t) => agora - t < JANELA_PEDIDOS_MS);
+  const excedeu = recentes.length >= max;
   if (!excedeu) recentes.push(agora);
-  pedidosPorIp.set(ip, recentes);
+  mapa.set(chave, recentes);
   return excedeu;
 }
 
@@ -241,8 +262,41 @@ authRouter.post(
     // Checado depois da senha para não revelar a quem não sabe a senha que a conta existe.
     if (!user.aprovado) throw new HttpError(403, "Conta aguardando autorização do administrador");
 
+    // Duas etapas: a senha certa só rende um desafio; os tokens saem em /login/codigo.
+    if (user.doisFatores) {
+      if (excedeuLimite(user.id, codigosPorUsuario, MAX_CODIGOS_LOGIN_POR_JANELA)) {
+        throw new HttpError(429, "Muitos códigos pedidos. Tente de novo mais tarde");
+      }
+      const { desafio, email: emailMascarado } = await emitirCodigo(user, "login");
+      res.json({ doisFatores: true, desafio, email: emailMascarado });
+      return;
+    }
+
     const tokens = await issueTokens(user);
     res.json({ user: publicUser(user), ...tokens });
+  })
+);
+
+// Segunda etapa do login: o código que chegou no e-mail troca o desafio pelos tokens.
+authRouter.post(
+  "/login/codigo",
+  asyncHandler(async (req, res) => {
+    const { desafio, codigo } = codigoSchema.parse(req.body);
+    const userId = await conferirCodigo(desafio, codigo, "login");
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.aprovado) throw new HttpError(401, "Credenciais inválidas");
+    const tokens = await issueTokens(user);
+    res.json({ user: publicUser(user), ...tokens });
+  })
+);
+
+// Reenvio do código (login ou ativação), no máximo um por minuto por desafio.
+authRouter.post(
+  "/codigo/reenviar",
+  asyncHandler(async (req, res) => {
+    const { desafio } = desafioSchema.parse(req.body);
+    await reenviarCodigo(desafio);
+    res.status(204).end();
   })
 );
 
@@ -336,5 +390,52 @@ authRouter.post(
       }),
     ]);
     res.status(204).end();
+  })
+);
+
+// Verificação em duas etapas. Ligar exige confirmar um código mandado ao e-mail: assim
+// ninguém liga a proteção num e-mail que não recebe e fica trancado para fora.
+authRouter.post(
+  "/2fa/ativar",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const user = await prisma.user.findUnique({ where: { id: req.userId! } });
+    if (!user) throw new HttpError(404, "Usuário não encontrado");
+    if (user.doisFatores) throw new HttpError(409, "A verificação em duas etapas já está ligada");
+    if (excedeuLimite(user.id, codigosPorUsuario, MAX_CODIGOS_LOGIN_POR_JANELA)) {
+      throw new HttpError(429, "Muitos códigos pedidos. Tente de novo mais tarde");
+    }
+    const { desafio, email } = await emitirCodigo(user, "ativar");
+    res.json({ desafio, email });
+  })
+);
+
+authRouter.post(
+  "/2fa/confirmar",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { desafio, codigo } = codigoSchema.parse(req.body);
+    const userId = await conferirCodigo(desafio, codigo, "ativar");
+    if (userId !== req.userId) throw new HttpError(400, "Código expirado. Comece de novo");
+    const user = await prisma.user.update({ where: { id: userId }, data: { doisFatores: true } });
+    res.json({ user: publicUser(user) });
+  })
+);
+
+// Desligar pede a senha: com a sessão aberta num aparelho esquecido, alguém não
+// consegue tirar a proteção sem saber a senha.
+const desativarSchema = z.object({ senha: z.string().min(1) });
+
+authRouter.post(
+  "/2fa/desativar",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { senha } = desativarSchema.parse(req.body);
+    const user = await prisma.user.findUnique({ where: { id: req.userId! } });
+    if (!user) throw new HttpError(404, "Usuário não encontrado");
+    if (!(await bcrypt.compare(senha, user.passwordHash))) throw new HttpError(400, "A senha não confere");
+    const atualizado = await prisma.user.update({ where: { id: user.id }, data: { doisFatores: false } });
+    await prisma.codigoEmail.deleteMany({ where: { userId: user.id } });
+    res.json({ user: publicUser(atualizado) });
   })
 );

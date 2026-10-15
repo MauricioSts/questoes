@@ -1,5 +1,5 @@
 // Perfil da conta: quem é, em que plano está, a meta e a data da prova do concurso ativo
-// e a troca de senha. Meta e data são as mesmas que a Home edita (/goals/meta e
+// a troca de senha e a verificação em duas etapas. Meta e data são as mesmas que a Home edita (/goals/meta e
 // /goals/prova), só que reunidas num lugar que a pessoa acha sem caçar o lápis.
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -66,7 +66,13 @@ export function Perfil() {
   const [novaSenha, setNovaSenha] = useState("");
   const [msgSenha, setMsgSenha] = useState<{ ok: boolean; texto: string } | null>(null);
 
-  const [ocupado, setOcupado] = useState<"nome" | "estudo" | "senha" | null>(null);
+  // Verificação em duas etapas: ligar = pedir código e confirmar; desligar = senha.
+  const [desafio2fa, setDesafio2fa] = useState<{ desafio: string; email: string } | null>(null);
+  const [codigo2fa, setCodigo2fa] = useState("");
+  const [senha2fa, setSenha2fa] = useState("");
+  const [msg2fa, setMsg2fa] = useState<{ ok: boolean; texto: string } | null>(null);
+
+  const [ocupado, setOcupado] = useState<"nome" | "estudo" | "senha" | "2fa" | null>(null);
 
   // Meta e data chegam depois do primeiro desenho (goal e concurso carregam à parte).
   useEffect(() => setMeta(String(metaAtual)), [metaAtual]);
@@ -140,6 +146,55 @@ export function Perfil() {
       setMsgSenha({ ok: true, texto: "Senha trocada. Os outros aparelhos vão precisar entrar de novo." });
     } catch (err) {
       setMsgSenha({ ok: false, texto: erroDe(err, "Não foi possível trocar a senha") });
+    } finally {
+      setOcupado(null);
+    }
+  }
+
+  async function pedirCodigo2fa() {
+    setMsg2fa(null);
+    setOcupado("2fa");
+    try {
+      setDesafio2fa(await api<{ desafio: string; email: string }>("/auth/2fa/ativar", { method: "POST" }));
+      setCodigo2fa("");
+    } catch (err) {
+      setMsg2fa({ ok: false, texto: erroDe(err, "Não foi possível mandar o código") });
+    } finally {
+      setOcupado(null);
+    }
+  }
+
+  async function confirmar2fa(e: FormEvent) {
+    e.preventDefault();
+    if (!desafio2fa) return;
+    setMsg2fa(null);
+    setOcupado("2fa");
+    try {
+      const { user } = await api<{ user: typeof usuario }>("/auth/2fa/confirmar", {
+        method: "POST",
+        body: { desafio: desafio2fa.desafio, codigo: codigo2fa },
+      });
+      if (user) atualizarUsuario(user);
+      setDesafio2fa(null);
+      setMsg2fa({ ok: true, texto: "Verificação em duas etapas ligada." });
+    } catch (err) {
+      setMsg2fa({ ok: false, texto: erroDe(err, "Não foi possível confirmar") });
+    } finally {
+      setOcupado(null);
+    }
+  }
+
+  async function desligar2fa(e: FormEvent) {
+    e.preventDefault();
+    setMsg2fa(null);
+    setOcupado("2fa");
+    try {
+      const { user } = await api<{ user: typeof usuario }>("/auth/2fa/desativar", { method: "POST", body: { senha: senha2fa } });
+      if (user) atualizarUsuario(user);
+      setSenha2fa("");
+      setMsg2fa({ ok: true, texto: "Verificação em duas etapas desligada." });
+    } catch (err) {
+      setMsg2fa({ ok: false, texto: erroDe(err, "Não foi possível desligar") });
     } finally {
       setOcupado(null);
     }
@@ -281,6 +336,55 @@ export function Perfil() {
             {msgSenha && <Aviso {...msgSenha} />}
           </div>
         </form>
+      </Bloco>
+
+      <Bloco titulo="Verificação em duas etapas">
+        {usuario.doisFatores ? (
+          <form onSubmit={desligar2fa}>
+            <p className="text-sm text-muted">
+              Ligada: toda vez que você entra com a senha, pedimos também um código mandado para {usuario.email}.
+            </p>
+            <label className="mt-4 block text-sm text-muted">
+              Senha para desligar
+              <input type="password" autoComplete="current-password" value={senha2fa} onChange={(e) => setSenha2fa(e.target.value)} className={campo} />
+            </label>
+            <Button type="submit" size="sm" variant="outline" className="mt-4" disabled={ocupado !== null || !senha2fa}>
+              {ocupado === "2fa" ? "Desligando…" : "Desligar"}
+            </Button>
+          </form>
+        ) : desafio2fa ? (
+          <form onSubmit={confirmar2fa}>
+            <p className="text-sm text-muted">Digite o código de 6 dígitos que mandamos para {desafio2fa.email}.</p>
+            <input
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
+              autoFocus
+              value={codigo2fa}
+              onChange={(e) => setCodigo2fa(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              placeholder="000000"
+              className={`${campo} max-w-[12rem] tracking-[.4em]`}
+            />
+            <div className="mt-4 flex flex-wrap items-center gap-4">
+              <Button type="submit" size="sm" disabled={ocupado !== null || codigo2fa.length !== 6}>
+                {ocupado === "2fa" ? "Conferindo…" : "Confirmar e ligar"}
+              </Button>
+              <button type="button" onClick={() => setDesafio2fa(null)} className="text-sm font-semibold text-muted hover:text-brand-ink">
+                Cancelar
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div>
+            <p className="text-sm text-muted">
+              Além da senha, o login passa a pedir um código mandado para o seu e-mail. Quem descobrir a sua senha não entra sem acesso ao e-mail.
+            </p>
+            <Button type="button" size="sm" className="mt-4" onClick={pedirCodigo2fa} disabled={ocupado !== null}>
+              {ocupado === "2fa" ? "Mandando código…" : "Ligar"}
+            </Button>
+          </div>
+        )}
+        {msg2fa && <Aviso {...msg2fa} />}
       </Bloco>
 
       <button

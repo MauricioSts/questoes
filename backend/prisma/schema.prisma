@@ -75,26 +75,26 @@ model Questao {
 // vazio. A trilha é o dono compartilhado do conteúdo; o Concurso continua sendo a cópia
 // pessoal (progresso, meta, caderno) de cada um que a segue.
 model Trilha {
-  id        String    @id // slug, ex.: "dataprev-analista-ti"
-  nome      String // "Dataprev"
-  cargo     String // "Analista de TI"
-  iniciais  String // "DTPV" (selo do cartão)
-  banca     String
-  orgao     String
-  ano       Int
-  descricao String // parágrafo do cartão de escolha
-  dataProva DateTime? // usada como data inicial do concurso de quem entra
-  publicada Boolean   @default(true) // false = não aparece na escolha
-  ordem     Int       @default(0)
+  id           String    @id // slug, ex.: "dataprev-analista-ti"
+  nome         String // "Dataprev"
+  cargo        String // "Analista de TI"
+  iniciais     String // "DTPV" (selo do cartão)
+  banca        String
+  orgao        String
+  ano          Int
+  descricao    String // parágrafo do cartão de escolha
+  dataProva    DateTime? // usada como data inicial do concurso de quem entra
+  publicada    Boolean   @default(true) // false = não aparece na escolha
+  ordem        Int       @default(0)
   // Trilha da comunidade: quem criou. null = trilha oficial (do admin). Se o dono apagar
   // a conta, a trilha fica (quem segue não perde o acervo), só ninguém mais a edita.
   donoId       String?
-  dono         User?   @relation(fields: [donoId], references: [id], onDelete: SetNull)
+  dono         User?     @relation(fields: [donoId], references: [id], onDelete: SetNull)
   // "publica" aparece na escolha de trilhas; "privada" só para o dono (recurso Premium).
-  visibilidade String  @default("publica")
+  visibilidade String    @default("publica")
   // concurso | escola | vestibular | outro: só muda rótulos e o selo; o resto é igual.
-  tipo         String  @default("concurso")
-  createdAt DateTime  @default(now())
+  tipo         String    @default("concurso")
+  createdAt    DateTime  @default(now())
 
   questoes  Questao[]
   concursos Concurso[]
@@ -123,28 +123,28 @@ model Prova {
 // Concurso do usuário. O app é multi-concurso: cada concurso tem seu próprio conjunto de
 // questões, respostas, anotações e caderno. Nenhum dado atravessa concursos.
 model Concurso {
-  id         String    @id @default(cuid())
-  userId     String
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  nome       String // "Banco do Brasil"
-  iniciais   String // "BB"
-  banca      String // "CESGRANRIO"
-  ano        Int
-  cargo      String
-  dataProva  DateTime
-  metaDiaria Int       @default(30)
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nome           String // "Banco do Brasil"
+  iniciais       String // "BB"
+  banca          String // "CESGRANRIO"
+  ano            Int
+  cargo          String
+  dataProva      DateTime
+  metaDiaria     Int       @default(30)
   // Trilha que este concurso segue. Define o banco de questões que o usuário enxerga.
-  trilhaId   String?
-  trilha     Trilha?   @relation(fields: [trilhaId], references: [id], onDelete: SetNull)
-  arquivado  Boolean   @default(false)
+  trilhaId       String?
+  trilha         Trilha?   @relation(fields: [trilhaId], references: [id], onDelete: SetNull)
+  arquivado      Boolean   @default(false)
   // Marco de reinício da revisão espaçada: respostas anteriores a esta data não contam
   // no agendamento do SRS (a fila volta a zero sem apagar nenhuma resposta, então
   // estatística, ofensiva e histórico de erros continuam intactos).
-  srsResetAt DateTime?
+  srsResetAt     DateTime?
   // Simulado configurado pelo usuário (composição, pesos, duração, corte, dia). null =
   // padrão calculado no cliente a partir das matérias da trilha.
   simuladoConfig Json?
-  createdAt  DateTime  @default(now())
+  createdAt      DateTime  @default(now())
 
   paginas PaginaCaderno[]
   postits PostIt[]
@@ -213,6 +213,9 @@ model User {
   // Acesso completo sem pagar: contas que já existiam antes da assinatura, e quem o
   // admin quiser liberar à mão. O admin (ADMIN_EMAIL) tem acesso completo sem isto.
   cortesia           Boolean   @default(false)
+  // Verificação em duas etapas: com isto ligado, o login só emite tokens depois do
+  // código de 6 dígitos mandado para o e-mail da conta (ver CodigoEmail).
+  doisFatores        Boolean   @default(false)
   createdAt          DateTime  @default(now())
 
   answers        Answer[]
@@ -230,6 +233,7 @@ model User {
   assinatura     Assinatura?
   trilhas        Trilha[]
   importacoesPdf ImportacaoPdf[]
+  codigosEmail   CodigoEmail[]
 }
 
 // Assinatura do Mercado Pago (API de preapproval): uma linha por usuário, apontando para
@@ -345,6 +349,23 @@ model Marcada {
 }
 
 // Refresh tokens persistidos (hash) para permitir logout/revogação.
+// Código de 6 dígitos mandado por e-mail. finalidade "login" = segunda etapa do login
+// (o cliente guarda o desafio, que amarra o código à tentativa de login); "ativar" =
+// confirmação de que o e-mail recebe antes de ligar a verificação em duas etapas.
+model CodigoEmail {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  finalidade  String
+  desafioHash String   @unique
+  codigoHash  String
+  tentativas  Int      @default(0)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
 model RefreshToken {
   id        String   @id @default(cuid())
   userId    String

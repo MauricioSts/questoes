@@ -12,6 +12,8 @@ export interface Usuario {
   // Vem do servidor (não é comparação de e-mail no cliente): governa o que aparece
   // de administração. O bloqueio de verdade é o requireAdmin da API.
   admin: boolean;
+  // Verificação em duas etapas: o login pede o código mandado ao e-mail.
+  doisFatores?: boolean;
   // Batalha Pokémon: perfil local criado antes desta data é descartado (reset pedido pelo dono).
   pokeResetAt?: string | null;
   criadoEm?: string | null;
@@ -20,12 +22,20 @@ export interface Usuario {
 interface AuthContextValue {
   usuario: Usuario | null;
   carregando: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  /** null = entrou; desafio = a conta pede o código mandado ao e-mail (ver confirmarCodigo). */
+  login: (email: string, password: string) => Promise<DesafioCodigo | null>;
+  confirmarCodigo: (desafio: string, codigo: string) => Promise<void>;
   /** true = conta criada e já logada; false = pedido aguardando aprovação. */
   registrar: (nome: string, email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   /** Troca o usuário em memória depois de editar o perfil (o servidor devolve o novo). */
   atualizarUsuario: (u: Usuario) => void;
+}
+
+export interface DesafioCodigo {
+  desafio: string;
+  /** E-mail mascarado para onde o código foi (ex.: co••••@gmail.com). */
+  email: string;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -58,14 +68,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
+  function entrar(data: AuthResposta) {
+    tokenStore.set(data.accessToken, data.refreshToken);
+    setUsuario(data.user);
+  }
+
   async function login(email: string, password: string) {
-    const data = await api<AuthResposta>("/auth/login", {
+    const data = await api<AuthResposta | (DesafioCodigo & { doisFatores: true })>("/auth/login", {
       method: "POST",
       body: { email, password },
       auth: false,
     });
-    tokenStore.set(data.accessToken, data.refreshToken);
-    setUsuario(data.user);
+    if ("doisFatores" in data) return { desafio: data.desafio, email: data.email };
+    entrar(data);
+    return null;
+  }
+
+  async function confirmarCodigo(desafio: string, codigo: string) {
+    entrar(
+      await api<AuthResposta>("/auth/login/codigo", {
+        method: "POST",
+        body: { desafio, codigo },
+        auth: false,
+      })
+    );
   }
 
   async function registrar(nome: string, email: string, password: string) {
@@ -96,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ usuario, carregando, login, registrar, logout, atualizarUsuario: setUsuario }}>
+    <AuthContext.Provider value={{ usuario, carregando, login, confirmarCodigo, registrar, logout, atualizarUsuario: setUsuario }}>
       {children}
     </AuthContext.Provider>
   );
