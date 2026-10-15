@@ -1,0 +1,23 @@
+{
+  "name": "questoes-sandbox",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Worker do sandbox de código: pega execuções da fila no Postgres e roda cada uma num container efêmero.",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/src/index.js",
+    "test": "vitest run test/unit",
+    "test:fuga": "tsx test/fuga.ts"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@types/pg": "^8.11.10",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}

@@ -1,0 +1,35 @@
+# Worker do sandbox de código do app de questões. Serviço separado da API (pm2
+# questoes-api): roda como qsandbox, único usuário com acesso ao docker, e fala com o
+# Postgres por uma role que só enxerga Execucao, Exercicio e TesteExercicio.
+[Unit]
+Description=questoes - worker do sandbox de codigo
+After=docker.service postgresql.service
+Requires=docker.service
+
+[Service]
+User=qsandbox
+Group=qsandbox
+SupplementaryGroups=docker
+EnvironmentFile=/etc/questoes-sandbox/env
+# qsandbox não tem home: sem isto o docker CLI escreve um aviso no stderr do programa.
+Environment=DOCKER_CONFIG=/tmp/docker-config HOME=/tmp
+WorkingDirectory=/opt/questoes-sandbox
+ExecStart=/usr/bin/node dist/src/index.js
+Restart=always
+RestartSec=3
+KillSignal=SIGTERM
+TimeoutStopSec=30
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryMax=256M
+
+[Install]
+WantedBy=multi-user.target

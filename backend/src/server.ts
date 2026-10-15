@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import { env } from "./config/env.js";
 import { errorHandler } from "./middleware/error.js";
 import { authRouter } from "./modules/auth/auth.routes.js";
@@ -16,10 +17,29 @@ import { postitsRouter } from "./modules/postits/postits.routes.js";
 import { statsRouter } from "./modules/stats/stats.routes.js";
 import { pokeRouter } from "./modules/poke/poke.routes.js";
 import { assinaturaRouter } from "./modules/assinatura/assinatura.routes.js";
+import { exerciciosRouter, execucoesRouter } from "./modules/codigo/codigo.routes.js";
 
 const app = express();
 // Atrás do Caddy local: req.ip vira o IP real do cliente (usado no limite do registro).
 app.set("trust proxy", "loopback");
+
+// Headers de segurança. A API só responde JSON (fora a página de aprovação de conta, que
+// define a própria CSP), então a política padrão não libera nada. CORP "same-site" porque
+// o front (questoes.) e a API (questoesapi.) são o mesmo site.
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: false,
+      directives: {
+        defaultSrc: ["'none'"],
+        baseUri: ["'none'"],
+        formAction: ["'self'"],
+        frameAncestors: ["'none'"],
+      },
+    },
+    crossOriginResourcePolicy: { policy: "same-site" },
+  })
+);
 
 app.use(
   cors({
@@ -45,6 +65,8 @@ app.use("/postits", postitsRouter);
 app.use("/stats", statsRouter);
 app.use("/poke", pokeRouter);
 app.use("/assinatura", assinaturaRouter);
+app.use("/exercicios", exerciciosRouter);
+app.use("/execucoes", execucoesRouter);
 
 app.use(errorHandler);
 

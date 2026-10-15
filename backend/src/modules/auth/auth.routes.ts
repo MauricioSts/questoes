@@ -185,20 +185,31 @@ authRouter.post(
   })
 );
 
-// Página HTML mínima servida pela própria API para o link do e-mail.
-function pagina(titulo: string, corpo: string): string {
-  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
-<title>${titulo} · devconcursado</title>
-<style>
+// Página HTML mínima servida pela própria API para o link do e-mail. O CSS é fixo, então
+// a CSP libera exatamente ele pelo hash, sem 'unsafe-inline' (e nenhum script).
+const ESTILO_PAGINA = `
 body{margin:0;min-height:100vh;display:grid;place-items:center;padding:16px;box-sizing:border-box;background:#0f0b1f;color:#ece8ff;font:15px/1.5 system-ui,sans-serif}
 main{width:100%;max-width:420px;box-sizing:border-box;background:#1a1430;border:1px solid #2e2650;border-radius:16px;padding:28px}
 h1{margin:0 0 14px;font-size:20px}.m{color:#9d95c0;font-size:13px}a{color:#b3a8ff}
 form{display:flex;gap:10px;margin-top:22px}
 button{flex:1;padding:12px;border-radius:10px;font:600 15px system-ui,sans-serif;cursor:pointer;border:0;background:#6d5cff;color:#fff}
 button.r{background:transparent;border:1px solid #7a3a58;color:#ffa3bd}
-</style></head><body><main><h1>${titulo}</h1>${corpo}</main></body></html>`;
+`;
+const CSP_PAGINA =
+  `default-src 'none'; style-src 'sha256-${crypto.createHash("sha256").update(ESTILO_PAGINA).digest("base64")}'; ` +
+  `form-action 'self'; base-uri 'none'; frame-ancestors 'none'`;
+
+function pagina(titulo: string, corpo: string): string {
+  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>${titulo} · devconcursado</title>
+<style>${ESTILO_PAGINA}</style></head><body><main><h1>${titulo}</h1>${corpo}</main></body></html>`;
 }
+
+authRouter.use("/aprovacao", (_req, res, next) => {
+  res.setHeader("Content-Security-Policy", CSP_PAGINA);
+  next();
+});
 
 const LINK_INVALIDO = pagina(
   "Link inválido",
