@@ -25,7 +25,7 @@ export function mascararEmail(email: string): string {
 }
 
 async function mandar(email: string, codigo: string, finalidade: Finalidade) {
-  const motivo = finalidade === "login" ? "entrar no devconcursado" : "ligar a verificação em duas etapas";
+  const motivo = finalidade === "login" ? "entrar no devconcursado" : "confirmar o seu e-mail";
   let enviado: boolean;
   try {
     enviado = await enviarEmail({

@@ -4,6 +4,7 @@ import { TopBar } from "./TopBar";
 import { Atmosfera } from "./Atmosfera";
 import { ProvedorMovimento } from "./Movimento";
 import { ComemoracaoMeta } from "./ComemoracaoMeta";
+import { BoasVindas } from "./BoasVindas";
 import { MetaProvider, useMeta } from "../store/meta";
 
 // A comemoração vive no layout, e não numa página: a meta costuma cair no meio do
@@ -38,6 +39,7 @@ export function AppLayout() {
           </div>
 
           <FestaDaMeta />
+          <BoasVindas />
         </div>
       </MetaProvider>
     </ProvedorMovimento>

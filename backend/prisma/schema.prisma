@@ -216,6 +216,9 @@ model User {
   // Verificação em duas etapas: com isto ligado, o login só emite tokens depois do
   // código de 6 dígitos mandado para o e-mail da conta (ver CodigoEmail).
   doisFatores        Boolean   @default(false)
+  // E-mail confirmado por código (CodigoEmail finalidade "ativar"). Ligar as duas etapas
+  // também confirma, porque passa pelo mesmo código.
+  emailVerificado    Boolean   @default(false)
   createdAt          DateTime  @default(now())
 
   answers        Answer[]

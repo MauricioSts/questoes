@@ -57,6 +57,7 @@ function publicUser(u: {
   nome: string;
   metaDiaria: number;
   doisFatores?: boolean;
+  emailVerificado?: boolean;
   pokeResetAt?: Date | null;
   createdAt?: Date;
 }) {
@@ -69,9 +70,20 @@ function publicUser(u: {
     metaDiaria: u.metaDiaria,
     admin: ehAdmin(u.email),
     doisFatores: u.doisFatores ?? false,
+    emailVerificado: u.emailVerificado ?? false,
+    // Se o código consegue chegar neste e-mail: com o remetente de teste do Resend
+    // (onboarding@resend.dev) só a dona da conta Resend recebe. O cliente esconde o
+    // convite para validar enquanto for false, em vez de oferecer um código que não chega.
+    emailValidavel: emailChega(u.email),
     pokeResetAt: u.pokeResetAt?.toISOString() ?? null,
     criadoEm: u.createdAt?.toISOString() ?? null,
   };
+}
+
+function emailChega(email: string): boolean {
+  if (!env.SMTP_HOST) return false;
+  if ((env.SMTP_FROM ?? "").includes("@resend.dev")) return ehAdmin(email);
+  return true;
 }
 
 // Emite um par access+refresh e persiste o hash do refresh.
@@ -417,7 +429,40 @@ authRouter.post(
     const { desafio, codigo } = codigoSchema.parse(req.body);
     const userId = await conferirCodigo(desafio, codigo, "ativar");
     if (userId !== req.userId) throw new HttpError(400, "Código expirado. Comece de novo");
-    const user = await prisma.user.update({ where: { id: userId }, data: { doisFatores: true } });
+    const user = await prisma.user.update({ where: { id: userId }, data: { doisFatores: true, emailVerificado: true } });
+    res.json({ user: publicUser(user) });
+  })
+);
+
+// Validar o e-mail: o mesmo código da ativação ("ativar"), sem obrigar as duas etapas.
+// O convite da entrada usa esta rota; `doisFatores: true` liga a proteção junto.
+const validarSchema = codigoSchema.extend({ doisFatores: z.boolean().default(false) });
+
+authRouter.post(
+  "/email/codigo",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const user = await prisma.user.findUnique({ where: { id: req.userId! } });
+    if (!user) throw new HttpError(404, "Usuário não encontrado");
+    if (excedeuLimite(user.id, codigosPorUsuario, MAX_CODIGOS_LOGIN_POR_JANELA)) {
+      throw new HttpError(429, "Muitos códigos pedidos. Tente de novo mais tarde");
+    }
+    const { desafio, email } = await emitirCodigo(user, "ativar");
+    res.json({ desafio, email });
+  })
+);
+
+authRouter.post(
+  "/email/confirmar",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { desafio, codigo, doisFatores } = validarSchema.parse(req.body);
+    const userId = await conferirCodigo(desafio, codigo, "ativar");
+    if (userId !== req.userId) throw new HttpError(400, "Código expirado. Comece de novo");
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { emailVerificado: true, ...(doisFatores ? { doisFatores: true } : {}) },
+    });
     res.json({ user: publicUser(user) });
   })
 );

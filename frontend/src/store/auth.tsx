@@ -14,6 +14,9 @@ export interface Usuario {
   admin: boolean;
   // Verificação em duas etapas: o login pede o código mandado ao e-mail.
   doisFatores?: boolean;
+  emailVerificado?: boolean;
+  /** false = o código não tem como chegar neste e-mail; o convite para validar fica escondido. */
+  emailValidavel?: boolean;
   // Batalha Pokémon: perfil local criado antes desta data é descartado (reset pedido pelo dono).
   pokeResetAt?: string | null;
   criadoEm?: string | null;

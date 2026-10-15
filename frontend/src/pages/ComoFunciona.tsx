@@ -137,8 +137,33 @@ export function ComoFunciona() {
           As questões vêm de provas oficiais da banca, de adaptações dessas provas e de questões
           escritas para reforçar os pontos que mais derrubam. Cada questão diz de onde veio, e
           você pode filtrar por isso em <strong className="text-brand-ink">Provas e origens</strong>.
-          Quem mantém o acervo é a administração do site: você não precisa (nem consegue) importar
-          questões, só estudar as que estão lá.
+          Quem mantém o acervo das trilhas oficiais é a administração do site.
+        </p>
+      </section>
+
+      <section className="card p-6 sm:p-7">
+        <h2 className="font-display text-xl font-bold text-brand-ink">Criar as suas questões</h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted">
+          Você também pode montar a sua trilha: em <strong className="text-brand-ink">Trilhas</strong>, toque em{" "}
+          <strong className="text-brand-ink">Criar minha trilha</strong>, dê um nome e, em{" "}
+          <strong className="text-brand-ink">Questões</strong>, adicione de três jeitos:
+        </p>
+        <ul className="mt-3 space-y-1.5 text-sm leading-relaxed text-muted">
+          <li>
+            <strong className="text-brand-ink">PDF com IA:</strong> envie o PDF (de texto, não foto) de uma prova; a
+            IA separa as questões e você revisa e marca o gabarito das que vierem sem.
+          </li>
+          <li>
+            <strong className="text-brand-ink">Uma a uma:</strong> formulário com matéria, enunciado, alternativas de
+            A a E e gabarito.
+          </li>
+          <li>
+            <strong className="text-brand-ink">JSON:</strong> cole uma lista pronta, até 200 questões por envio.
+          </li>
+        </ul>
+        <p className="mt-3 text-sm leading-relaxed text-muted">
+          No Free você cria 1 trilha pública; no Premium, quantas quiser, públicas ou privadas. A pública aparece para
+          outras pessoas quando chega a 10 questões.
         </p>
       </section>
 
