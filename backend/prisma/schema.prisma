@@ -23,7 +23,7 @@ enum Contexto {
 // Banco de questões (conteúdo). Compartilhado entre usuários (não é escopo por userId).
 // A correção de acerto continua no frontend; o backend só guarda e serve o conteúdo.
 model Questao {
-  id             Int      @id // ID definido no lote (usado como questaoId em Answer)
+  id             Int             @id // ID definido no lote (usado como questaoId em Answer)
   concursoId     String? // concurso ao qual a questão pertence (multi-concurso). null = legado
   modulo         String // "I" | "II"
   materia        String
@@ -42,23 +42,31 @@ model Questao {
   // Trilha dona do conteúdo: é por ela que as questões chegam a QUALQUER usuário que
   // siga a trilha. null = questão importada direto num concurso, visível só nele.
   trilhaId       String?
-  trilha         Trilha?  @relation(fields: [trilhaId], references: [id], onDelete: SetNull)
+  trilha         Trilha?         @relation(fields: [trilhaId], references: [id], onDelete: SetNull)
   loteNome       String? // rótulo do lote (nome do arquivo importado); null p/ imports antigos
   // Procedência da questão: "oficial" (texto igual ao da prova), "adaptada" (baseada numa
   // prova, com texto alterado), "gerada" (criada como reforço a partir dos meus erros) ou
   // "autoral" (escrita sem prova de referência). Legado importado antes disso = "autoral".
-  origem         String   @default("autoral")
+  origem         String          @default("autoral")
   provaChave     String? // prova de onde veio (oficial/adaptada); null nas demais origens
-  prova          Prova?   @relation("QuestaoOrigem", fields: [provaChave], references: [chave], onDelete: SetNull)
+  prova          Prova?          @relation("QuestaoOrigem", fields: [provaChave], references: [chave], onDelete: SetNull)
   // Prova de que o LOTE foi montado. Vale para todas as questões dele, inclusive as
   // autorais escritas junto — por isso é separada de provaChave, que afirma que o texto
   // saiu da prova. Estatística por prova usa provaChave; "de que lote veio" usa esta.
   provaBaseChave String?
-  provaBase      Prova?   @relation("QuestaoLoteBase", fields: [provaBaseChave], references: [chave], onDelete: SetNull)
+  provaBase      Prova?          @relation("QuestaoLoteBase", fields: [provaBaseChave], references: [chave], onDelete: SetNull)
   numeroOriginal Int? // número que a questão tinha na prova de origem
   // Reforço: IDs das questões erradas que motivaram a geração desta. [] / null nas demais.
   geradaDe       Json?
-  createdAt      DateTime @default(now()) // idêntico p/ toda questão de um mesmo import → chave do lote
+  // conceitual = pergunta comum (com ou sem código ilustrativo); saida = "qual a saída deste
+  // código"; erro = "qual o erro deste código". As duas últimas só entram no banco com a
+  // execução no sandbox que confirmou o gabarito (execucaoId).
+  tipo           String          @default("conceitual")
+  execucaoId     String?
+  execucao       Execucao?       @relation(fields: [execucaoId], references: [id], onDelete: SetNull)
+  // Trilhas além da dona (trilhaId) em que a questão também aparece, sem duplicar a linha.
+  vinculos       QuestaoTrilha[]
+  createdAt      DateTime        @default(now()) // idêntico p/ toda questão de um mesmo import → chave do lote
 
   @@index([modulo, materia])
   @@index([createdAt])
@@ -96,8 +104,10 @@ model Trilha {
   tipo         String    @default("concurso")
   createdAt    DateTime  @default(now())
 
-  questoes  Questao[]
-  concursos Concurso[]
+  questoes   Questao[]
+  concursos  Concurso[]
+  vinculos   QuestaoTrilha[]
+  exercicios Exercicio[]
 
   @@index([publicada, ordem])
   @@index([donoId])
@@ -237,6 +247,7 @@ model User {
   trilhas        Trilha[]
   importacoesPdf ImportacaoPdf[]
   codigosEmail   CodigoEmail[]
+  execucoes      Execucao[]
 }
 
 // Assinatura do Mercado Pago (API de preapproval): uma linha por usuário, apontando para
@@ -412,4 +423,92 @@ model ImportacaoPdf {
   createdAt DateTime @default(now())
 
   @@index([userId, createdAt])
+}
+
+// Questão que também pertence a outra trilha além da dona (Questao.trilhaId). É assim que
+// uma questão da Dataprev aparece na trilha de Banco de Dados sem virar duas linhas: a
+// resposta, a nota e a marcação continuam apontando para o mesmo questaoId.
+model QuestaoTrilha {
+  questaoId Int
+  questao   Questao  @relation(fields: [questaoId], references: [id], onDelete: Cascade)
+  trilhaId  String
+  trilha    Trilha   @relation(fields: [trilhaId], references: [id], onDelete: Cascade)
+  // Nome da matéria dentro desta trilha. null = usa Questao.materia. Existe porque na
+  // Dataprev a questão é "Desenvolvimento de Software" e na trilha Python é outra coisa.
+  materia   String?
+  topico    String // item da ementa da trilha (relatório de cobertura)
+  createdAt DateTime @default(now())
+
+  @@id([questaoId, trilhaId])
+  @@index([trilhaId])
+}
+
+// Exercício prático de código: o usuário escreve e o sandbox corre contra os testes.
+model Exercicio {
+  id            String   @id // slug, ex.: "py-soma-pares"
+  trilhaId      String
+  trilha        Trilha   @relation(fields: [trilhaId], references: [id], onDelete: Cascade)
+  titulo        String
+  enunciado     String
+  linguagem     String // python | javascript | typescript | java | cpp | sql | shell
+  // io = stdin → stdout; sql = consulta sobre seedSql; testes = o usuário escreve testes
+  // que precisam pegar implementações com bug; shell = comandos sobre um repositório git.
+  modo          String   @default("io")
+  codigoInicial String   @default("")
+  seedSql       String? // banco de partida (modo sql) ou script de preparo (modo shell)
+  dificuldade   String // facil | media | dificil
+  topico        String
+  origem        String   @default("autoral")
+  publicado     Boolean  @default(true)
+  ordem         Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  testes    TesteExercicio[]
+  execucoes Execucao[]
+
+  @@index([trilhaId, ordem])
+}
+
+// Caso de teste. Os ocultos NUNCA saem da API: o cliente só recebe passou/falhou deles,
+// sem a entrada, a saída esperada nem o stdout produzido.
+model TesteExercicio {
+  id            String    @id @default(cuid())
+  exercicioId   String
+  exercicio     Exercicio @relation(fields: [exercicioId], references: [id], onDelete: Cascade)
+  ordem         Int       @default(0)
+  oculto        Boolean   @default(false)
+  nome          String    @default("")
+  entrada       String    @default("") // stdin (io), ou o código-alvo no modo testes
+  saidaEsperada String
+  comparacao    String    @default("exata") // exata | linhas | conjunto
+
+  @@index([exercicioId, ordem])
+}
+
+// Fila do sandbox. A API só insere a linha e lê o resultado; o worker (serviço separado)
+// pega a próxima com FOR UPDATE SKIP LOCKED, roda num container efêmero e grava aqui.
+// Também serve de rate limit (execuções por usuário no último minuto) e de prova de que
+// uma questão de código foi executada (Questao.execucaoId, finalidade "verificacao").
+model Execucao {
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercicioId String?
+  exercicio   Exercicio? @relation(fields: [exercicioId], references: [id], onDelete: SetNull)
+  finalidade  String // exercicio | verificacao
+  linguagem   String
+  codigo      String
+  hash        String // sha256 de linguagem + código: casa a verificação com a questão
+  status      String     @default("fila") // fila | rodando | concluida | falhou
+  // { compilacao, testes: [{ nome, oculto, passou, stdout?, stderr?, tempoMs }], ... }
+  resultado   Json?
+  createdAt   DateTime   @default(now())
+  iniciadoEm  DateTime?
+  concluidoEm DateTime?
+
+  questoes Questao[]
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@index([hash])
 }
