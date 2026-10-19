@@ -57,3 +57,23 @@ describe("filtroFerias", () => {
     expect(filtroFerias("u1")).toEqual({ userId: "u1" });
   });
 });
+
+describe("calcularMaiorStreak", () => {
+  it("sem respostas é 0", async () => {
+    const { calcularMaiorStreak } = await import("../lib/streak.js");
+    expect(calcularMaiorStreak(new Map(), 1)).toBe(0);
+  });
+
+  it("guarda a maior sequência mesmo depois de quebrar, e nunca fica abaixo da atual", async () => {
+    const { calcularMaiorStreak } = await import("../lib/streak.js");
+    // 30 dias seguidos há 60–31 dias (fins de semana inclusos), depois nada até hoje
+    const antigo = porDiaComMetaEm(Array.from({ length: 30 }, (_, i) => 31 + i));
+    expect(calcularMaiorStreak(antigo, 1)).toBe(30);
+    expect(calcularStreak(antigo, 1)).toBe(0);
+    for (let semente = 1; semente < 40; semente++) {
+      const offsets = Array.from({ length: 50 }, (_, i) => i).filter((i) => (i * semente * 7919) % 5 !== 0);
+      const m = porDiaComMetaEm(offsets);
+      expect(calcularMaiorStreak(m, 1)).toBeGreaterThanOrEqual(calcularStreak(m, 1));
+    }
+  });
+});

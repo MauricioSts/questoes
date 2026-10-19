@@ -9,6 +9,19 @@ export interface SavePoke {
   perfil: PerfilPoke | null;
   partida: PartidaPoke | null;
   jogador: string | null;
+  // "compartilhada" = a mesma jornada em todas as trilhas que escolheram continuar;
+  // "separada" = a jornada desta trilha, que começou do zero.
+  jornada?: "compartilhada" | "separada";
+  // Já existe jornada de outra trilha e esta ainda não escolheu: continuar ou zerar.
+  perguntar?: boolean;
+}
+
+// ?trilhaId= das rotas do save: é a trilha que decide qual jornada vale.
+const comTrilha = (trilhaId?: string | null) => (trilhaId ? `/poke/save?trilhaId=${encodeURIComponent(trilhaId)}` : "/poke/save");
+
+// Escolha da jornada desta trilha (ver POST /poke/jornada no backend).
+export async function escolherJornada(trilhaId: string, separada: boolean): Promise<void> {
+  await api("/poke/jornada", { method: "POST", body: { trilhaId, separada } });
 }
 export type EstadoSave = "salvo" | "salvando" | "erro";
 
@@ -30,8 +43,10 @@ function apagarLegado() {
   }
 }
 
-export async function carregarSave(): Promise<SavePoke> {
-  const s = await api<SavePoke>("/poke/save");
+export async function carregarSave(trilhaId?: string | null): Promise<SavePoke> {
+  const s = await api<SavePoke>(comTrilha(trilhaId));
+  // O jogo antigo do aparelho só sobe para a jornada compartilhada.
+  if (s.jornada === "separada") return s;
   const local: SavePoke = {
     perfil: lerLegado<PerfilPoke>(LEGADO.perfil),
     partida: lerLegado<PartidaPoke>(LEGADO.partida),
@@ -40,12 +55,12 @@ export async function carregarSave(): Promise<SavePoke> {
   if (!s.perfil && local.perfil) {
     // Primeira vez com o jogo no servidor: sobe o que estava neste aparelho.
     const subir = { perfil: local.perfil, partida: local.partida, jogador: s.jogador ?? local.jogador ?? undefined };
-    await api("/poke/save", { method: "PUT", body: subir });
+    await api(comTrilha(trilhaId), { method: "PUT", body: subir });
     apagarLegado();
-    return { perfil: local.perfil, partida: local.partida, jogador: subir.jogador ?? null };
+    return { ...s, perfil: local.perfil, partida: local.partida, jogador: subir.jogador ?? null };
   }
   if (!s.jogador && local.jogador) {
-    await api("/poke/save", { method: "PUT", body: { jogador: local.jogador } });
+    await api(comTrilha(trilhaId), { method: "PUT", body: { jogador: local.jogador } });
     s.jogador = local.jogador;
   }
   apagarLegado();
@@ -57,7 +72,7 @@ export interface Salvador {
   enviarAgora: (saindo?: boolean) => void;
 }
 
-export function criarSalvador(aoMudar: (e: EstadoSave) => void, folgaMs = 800): Salvador {
+export function criarSalvador(aoMudar: (e: EstadoSave) => void, trilhaId?: string | null, folgaMs = 800): Salvador {
   let pendente: Partial<SavePoke> = {};
   let timer: ReturnType<typeof setTimeout> | null = null;
   let enviando = false;
@@ -76,7 +91,7 @@ export function criarSalvador(aoMudar: (e: EstadoSave) => void, folgaMs = 800): 
     aoMudar("salvando");
     // keepalive só aceita corpo pequeno; perfil grande sai como requisição comum.
     const keepalive = saindo && JSON.stringify(corpo).length < 60_000;
-    api("/poke/save", { method: "PUT", body: corpo, keepalive })
+    api(comTrilha(trilhaId), { method: "PUT", body: corpo, keepalive })
       .then(() => {
         enviando = false;
         aoMudar(Object.keys(pendente).length ? "salvando" : "salvo");

@@ -134,7 +134,7 @@ import { spritesFx } from "../components/poke/golpes/sprites/fx";
 import { TimeGba, useTemaGba } from "../components/poke/TimeGba";
 import { specDoGolpe } from "../components/poke/golpes/spec";
 import type { Ancora, Resultado } from "../components/poke/golpes/tipos";
-import { carregarSave, criarSalvador, type EstadoSave, type SavePoke } from "../lib/poke/save";
+import { carregarSave, criarSalvador, escolherJornada, type EstadoSave, type SavePoke } from "../lib/poke/save";
 import { lendaPorId } from "../lib/poke/lendas";
 import { RastroLendario } from "../components/poke/RastroLendario";
 import { Pokedex } from "../components/poke/Pokedex";
@@ -191,12 +191,26 @@ export function BatalhaPokemon({ alternar }: { alternar?: ReactNode }) {
   const [erroDex, setErroDex] = useState(false);
   const [save, setSave] = useState<SavePoke | null>(null);
   const [erroSave, setErroSave] = useState(false);
+  // A trilha decide a jornada: a compartilhada entre trilhas ou a desta, do zero.
+  const { ativo } = useConcurso();
+  const trilhaId = ativo?.trilhaId ?? null;
+  const [versao, setVersao] = useState(0);
   const buscarSave = useCallback(() => {
     setErroSave(false);
-    carregarSave()
+    setSave(null);
+    carregarSave(trilhaId)
       .then(setSave)
       .catch(() => setErroSave(true));
-  }, []);
+  }, [trilhaId]);
+  const trocarJornada = useCallback(
+    async (separada: boolean) => {
+      if (!trilhaId) return;
+      await escolherJornada(trilhaId, separada);
+      setVersao((v) => v + 1);
+      buscarSave();
+    },
+    [trilhaId, buscarSave]
+  );
   useEffect(() => {
     carregarDex()
       .then(setDex)
@@ -214,10 +228,82 @@ export function BatalhaPokemon({ alternar }: { alternar?: ReactNode }) {
       </div>
     );
   if (!dex || !save) return <Carregando texto={dex ? "Buscando seu jogo salvo…" : "Abrindo a Pokédex…"} />;
-  return <Jogo dex={dex} save={save} alternar={alternar} />;
+  if (save.perguntar && trilhaId) return <EscolherJornada nomeTrilha={ativo?.nome ?? "esta trilha"} onEscolher={trocarJornada} />;
+  return (
+    <Jogo
+      key={`${trilhaId}-${save.jornada}-${versao}`}
+      dex={dex}
+      save={save}
+      alternar={alternar}
+      trilhaId={trilhaId}
+      nomeTrilha={ativo?.nome ?? null}
+      onJornada={trocarJornada}
+    />
+  );
 }
 
-function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: ReactNode }) {
+// Primeira vez numa trilha, com jornada de outra: continuar a mesma ou zerar aqui.
+function EscolherJornada({ nomeTrilha, onEscolher }: { nomeTrilha: string; onEscolher: (separada: boolean) => Promise<void> }) {
+  const [enviando, setEnviando] = useState<boolean | null>(null);
+  const [erro, setErro] = useState(false);
+  const escolher = async (separada: boolean) => {
+    setEnviando(separada);
+    setErro(false);
+    try {
+      await onEscolher(separada);
+    } catch {
+      setErro(true);
+      setEnviando(null);
+    }
+  };
+  return (
+    <div className="mx-auto max-w-lg space-y-4 p-4 pt-8">
+      <div className="card space-y-4 p-6">
+        <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Nova trilha</p>
+        <h2 className="font-display text-xl font-extrabold text-brand-ink">Sua jornada em {nomeTrilha}</h2>
+        <p className="text-sm text-muted">
+          Você já tem uma jornada Pokémon de outra trilha. Aqui as questões são as de {nomeTrilha}. Como quer jogar?
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <button
+            onClick={() => escolher(false)}
+            disabled={enviando !== null}
+            className="card tap space-y-1 border border-hair p-4 text-left transition hover:border-brand-400 disabled:opacity-50"
+          >
+            <span className="block font-display font-bold text-brand-ink">Continuar a jornada</span>
+            <span className="block text-xs text-muted">Mesmo time, insígnias e Pokédex. Você segue pulando de trilha em trilha.</span>
+          </button>
+          <button
+            onClick={() => escolher(true)}
+            disabled={enviando !== null}
+            className="card tap space-y-1 border border-hair p-4 text-left transition hover:border-brand-400 disabled:opacity-50"
+          >
+            <span className="block font-display font-bold text-brand-ink">Começar do zero aqui</span>
+            <span className="block text-xs text-muted">Uma jornada nova só desta trilha. A outra fica guardada nas outras trilhas.</span>
+          </button>
+        </div>
+        {erro && <p className="text-sm text-erro">Não consegui salvar a escolha. Tente de novo.</p>}
+        <p className="text-[11px] text-faint">Dá para trocar depois, na aba "Treinador e ajustes" da batalha.</p>
+      </div>
+    </div>
+  );
+}
+
+function Jogo({
+  dex,
+  save,
+  alternar,
+  trilhaId,
+  nomeTrilha,
+  onJornada,
+}: {
+  dex: Dex;
+  save: SavePoke;
+  alternar?: ReactNode;
+  trilhaId: string | null;
+  nomeTrilha: string | null;
+  onJornada: (separada: boolean) => Promise<void>;
+}) {
   usePausarFundo();
   const { activeId } = useConcurso();
   const { goal } = useMeta();
@@ -225,7 +311,7 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
   const { usuario } = useAuth();
 
   const [estadoSave, setEstadoSave] = useState<EstadoSave>("salvo");
-  const salvador = useMemo(() => criarSalvador(setEstadoSave), []);
+  const salvador = useMemo(() => criarSalvador(setEstadoSave, trilhaId), [trilhaId]);
   useEffect(() => {
     const sair = () => salvador.enviarAgora(true);
     const esconder = () => document.visibilityState === "hidden" && sair();
@@ -1514,6 +1600,12 @@ function Jogo({ dex, save, alternar }: { dex: Dex; save: SavePoke; alternar?: Re
         onRetomar={() => partida && entrarNaLuta(partida)}
         onViajar={() => setViagem(true)}
         onRecomecar={recomecar}
+        jornada={trilhaId ? (save.jornada ?? "compartilhada") : null}
+        nomeTrilha={nomeTrilha}
+        onJornada={async (separada) => {
+          salvador.enviarAgora();
+          await onJornada(separada);
+        }}
         jogador={jogador}
         onJogador={setJogador}
         estadoSave={estadoSave}
@@ -2941,6 +3033,9 @@ function Lobby({
   onRetomar,
   onViajar,
   onRecomecar,
+  jornada,
+  nomeTrilha,
+  onJornada,
   jogador,
   onJogador,
   estadoSave,
@@ -2968,6 +3063,9 @@ function Lobby({
   onRetomar: () => void;
   onViajar: () => void;
   onRecomecar: () => void;
+  jornada: "compartilhada" | "separada" | null; // null = concurso sem trilha
+  nomeTrilha: string | null;
+  onJornada: (separada: boolean) => Promise<void>;
   jogador: string;
   onJogador: (sprite: string) => void;
   alternar?: ReactNode;
@@ -3011,6 +3109,8 @@ function Lobby({
   const ajud = proximo ? ajudantesVencidos(perfil) : 0;
   const naCidade = concluido || (!proximo && liga);
   const [confirmarReset, setConfirmarReset] = useState(false);
+  const [confirmarJornada, setConfirmarJornada] = useState(false);
+  const [trocandoJornada, setTrocandoJornada] = useState(false);
   const [aba, setAba] = useState<AbaLobby>("jornada");
   const posicaoMapa = useMemo(() => posicaoNoMapa(perfil, emAndamento), [perfil, emAndamento]);
   const [dandoItem, setDandoItem] = useState<string | null>(null);
@@ -3540,6 +3640,49 @@ function Lobby({
             )}
             {emAndamento && <p className="text-[11px] text-faint">Termine ou abandone a partida pausada antes.</p>}
           </div>
+          {jornada && (
+            <div className="card space-y-2 self-start p-4 sm:p-5 lg:col-start-2">
+              <p className="text-xs font-bold uppercase tracking-[.16em] text-faint">Jornada {nomeTrilha ? `em ${nomeTrilha}` : "nesta trilha"}</p>
+              <p className="text-xs text-muted">
+                {jornada === "compartilhada"
+                  ? "Esta trilha continua a jornada compartilhada: o mesmo time e as mesmas insígnias de todas as trilhas que escolheram continuar."
+                  : "Esta trilha tem uma jornada própria, que começou do zero. A compartilhada continua guardada nas outras trilhas."}
+              </p>
+              {confirmarJornada ? (
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="text-muted">
+                    {jornada === "compartilhada" ? "Começar do zero só aqui?" : "Apagar a jornada desta trilha e voltar à compartilhada?"}
+                  </span>
+                  <button
+                    disabled={trocandoJornada || !!emAndamento}
+                    onClick={async () => {
+                      setTrocandoJornada(true);
+                      try {
+                        await onJornada(jornada === "compartilhada");
+                      } finally {
+                        setTrocandoJornada(false);
+                        setConfirmarJornada(false);
+                      }
+                    }}
+                    className="font-bold text-danger-from disabled:opacity-40"
+                  >
+                    Sim
+                  </button>
+                  <button onClick={() => setConfirmarJornada(false)} className="font-semibold text-muted">
+                    Não
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmarJornada(true)}
+                  disabled={!!emAndamento}
+                  className="rounded-xl border border-hair px-3 py-1.5 text-sm font-semibold text-muted transition hover:border-brand-400 hover:text-brand-500 disabled:opacity-40"
+                >
+                  {jornada === "compartilhada" ? "Começar do zero nesta trilha" : "Voltar para a jornada compartilhada"}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
 

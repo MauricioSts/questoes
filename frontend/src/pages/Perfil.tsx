@@ -3,7 +3,7 @@
 // /goals/prova), só que reunidas num lugar que a pessoa acha sem caçar o lápis.
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Crown, LogOut } from "lucide-react";
+import { Crown, Flame, LogOut } from "lucide-react";
 import { api, tokenStore } from "../lib/api";
 import { getConcursoId } from "../lib/concurso";
 import { useAuth } from "../store/auth";
@@ -73,6 +73,15 @@ export function Perfil() {
   const [msg2fa, setMsg2fa] = useState<{ ok: boolean; texto: string } | null>(null);
 
   const [ocupado, setOcupado] = useState<"nome" | "estudo" | "senha" | "2fa" | null>(null);
+
+  // Ofensiva atual e a maior de todos os tempos, por trilha (a ofensiva é por trilha).
+  const [ofensivas, setOfensivas] = useState<{ concursoId: string; nome: string; atual: number; maior: number }[] | null>(null);
+  useEffect(() => {
+    api<{ ofensivas: { concursoId: string; nome: string; atual: number; maior: number }[] }>("/goals/ofensivas")
+      .then((r) => setOfensivas(r.ofensivas))
+      .catch(() => setOfensivas([]));
+  }, []);
+  const recorde = ofensivas?.reduce((m, o) => Math.max(m, o.maior), 0) ?? 0;
 
   // Meta e data chegam depois do primeiro desenho (goal e concurso carregam à parte).
   useEffect(() => setMeta(String(metaAtual)), [metaAtual]);
@@ -275,6 +284,33 @@ export function Perfil() {
               Gerenciar trilha
             </Link>
           </div>
+        </Bloco>
+      )}
+
+      {ofensivas && ofensivas.length > 0 && (
+        <Bloco titulo="Ofensiva">
+          <div className="mb-4 flex items-center gap-3">
+            <Flame size={26} strokeWidth={2} style={{ color: "var(--accent)" }} />
+            <div>
+              <p className="font-display text-2xl font-extrabold tabular-nums text-brand-ink">
+                {recorde} {recorde === 1 ? "dia" : "dias"}
+              </p>
+              <p className="text-xs text-faint">Maior ofensiva de todos os tempos</p>
+            </div>
+          </div>
+          <ul className="divide-y divide-hair text-sm">
+            {ofensivas.map((o) => (
+              <li key={o.concursoId} className="flex items-baseline justify-between gap-3 py-2">
+                <span className={`min-w-0 truncate ${o.concursoId === ativo?.id ? "font-semibold text-brand-ink" : "text-muted"}`}>{o.nome}</span>
+                <span className="flex-shrink-0 tabular-nums text-muted">
+                  atual <b className="text-brand-ink">{o.atual}</b> · maior <b className="text-brand-ink">{o.maior}</b>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-xs text-faint">
+            Cada trilha tem a sua ofensiva. Conta o dia em que você bateu a meta da trilha; fim de semana e férias não quebram.
+          </p>
         </Bloco>
       )}
 

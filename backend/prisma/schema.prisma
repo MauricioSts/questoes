@@ -309,6 +309,7 @@ model User {
   metasMateria    MetaMateriaDia[]
   pokeVitrine     PokeVitrine?
   pokeSave        PokeSave?
+  pokeSaveTrilhas PokeSaveTrilha[]
   assinatura      Assinatura?
   trilhas         Trilha[]
   importacoesPdf  ImportacaoPdf[]
@@ -475,12 +476,30 @@ model PokeVitrine {
 // Jogo inteiro da Batalha Pokémon (perfil, partida em andamento e sprite do treinador),
 // no formato do frontend (lib/poke/motor.ts). O servidor só guarda e devolve.
 model PokeSave {
-  userId    String   @id
+  userId         String   @id
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  perfil         Json?
+  partida        Json?
+  jogador        String?
+  // Trilha em que a jornada compartilhada foi jogada por último. Entrar em OUTRA trilha
+  // pergunta se a jornada continua ali ou recomeça (ver PokeSaveTrilha).
+  ultimaTrilhaId String?
+  updatedAt      DateTime @updatedAt
+}
+
+// Escolha da jornada numa trilha. separada=false: a trilha usa a jornada compartilhada
+// (PokeSave). separada=true: a trilha tem a própria jornada, que começou do zero, em
+// perfil/partida daqui. Sem linha: ainda não escolheu (pergunta ao entrar).
+model PokeSaveTrilha {
+  userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trilhaId  String
+  separada  Boolean  @default(false)
   perfil    Json?
   partida   Json?
-  jogador   String?
   updatedAt DateTime @updatedAt
+
+  @@id([userId, trilhaId])
 }
 
 // Cada PDF lido pela IA: é daqui que sai o saldo de páginas do mês.

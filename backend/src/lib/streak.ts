@@ -6,10 +6,15 @@ import { localDateKey, startOfToday, localWeekdayIndex } from "./date.js";
 // Mapa "YYYY-MM-DD" (fuso do usuário) → nº de questões respondidas naquele dia.
 // Janela de 120 dias é suficiente para streak e para a semana atual.
 // Com concursoId, só as respostas daquele concurso: a ofensiva é por pessoa E por trilha.
-export async function contarPorDia(userId: string, concursoId?: string): Promise<Map<string, number>> {
+// historicoCompleto: sem a janela (para a maior ofensiva de todos os tempos).
+export async function contarPorDia(
+  userId: string,
+  concursoId?: string,
+  historicoCompleto = false
+): Promise<Map<string, number>> {
   const desde = new Date(Date.now() - 120 * 864e5);
   const answers = await prisma.answer.findMany({
-    where: { userId, createdAt: { gte: desde }, ...(concursoId ? { concursoId } : {}) },
+    where: { userId, ...(historicoCompleto ? {} : { createdAt: { gte: desde } }), ...(concursoId ? { concursoId } : {}) },
     select: { createdAt: true },
   });
   const porDia = new Map<string, number>();
@@ -82,6 +87,35 @@ export function calcularStreak(
 // antes da ofensiva por trilha (concursoId null), que valem para todos.
 export function filtroFerias(userId: string, concursoId?: string) {
   return concursoId ? { userId, OR: [{ concursoId }, { concursoId: null }] } : { userId };
+}
+
+// Maior ofensiva de todos os tempos, com as mesmas regras de calcularStreak: bateu a meta
+// conta, fim de semana ou férias sem meta é pulado, dia útil sem meta zera. Usa a meta de
+// hoje para o histórico inteiro (a meta antiga de cada dia não fica guardada).
+export function calcularMaiorStreak(
+  porDia: Map<string, number>,
+  meta: number,
+  periodos: FeriasPeriodo[] = []
+): number {
+  const dias = [...porDia.keys()].sort();
+  if (dias.length === 0) return 0;
+  const ferias = periodos.map((p) => ({ inicio: localDateKey(p.inicio), fim: p.fim ? localDateKey(p.fim) : null }));
+  const ehFerias = (k: string) => ferias.some((p) => k >= p.inicio && (p.fim ? k <= p.fim : true));
+  let maior = 0;
+  let atual = 0;
+  const hoje = startOfToday();
+  // Do primeiro dia com resposta até hoje, um dia por vez (meio-dia evita a borda do fuso).
+  for (let cursor = new Date(`${dias[0]}T12:00:00`); cursor.getTime() <= hoje.getTime() + 864e5; cursor = new Date(cursor.getTime() + 864e5)) {
+    const k = localDateKey(cursor);
+    if (k > localDateKey(hoje)) break;
+    if ((porDia.get(k) ?? 0) >= meta) atual++;
+    else {
+      const wd = localWeekdayIndex(cursor);
+      if (!(wd === 5 || wd === 6 || ehFerias(k)) && k !== localDateKey(hoje)) atual = 0; // hoje ainda está em aberto
+    }
+    if (atual > maior) maior = atual;
+  }
+  return maior;
 }
 
 // Carrega os períodos de férias do usuário do banco.

@@ -6,7 +6,7 @@ import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { escopoQuestoes, questoesComMateria } from "../../lib/escopoQuestoes.js";
 import { startOfToday, weekDayKeys, localWeekdayIndex } from "../../lib/date.js";
-import { contarPorDia, calcularStreak, carregarFeriasPeriodos } from "../../lib/streak.js";
+import { contarPorDia, calcularStreak, calcularMaiorStreak, carregarFeriasPeriodos } from "../../lib/streak.js";
 import { revisoesPendentes } from "../../lib/srs.js";
 import { srsDesde, filtroSrs } from "../../lib/srsReset.js";
 import {
@@ -171,6 +171,36 @@ goalsRouter.get(
       portuguesFeitasHoje,
       revisaoPendente, // nº de questões prontas para revisão espaçada (SRS)
     });
+  })
+);
+
+// GET /goals/ofensivas: ofensiva atual e a maior de todos os tempos de cada concurso do
+// usuário (a ofensiva é por trilha), para o perfil.
+goalsRouter.get(
+  "/ofensivas",
+  asyncHandler(async (req, res) => {
+    const concursos = await prisma.concurso.findMany({
+      where: { userId: req.userId!, arquivado: false },
+      orderBy: { createdAt: "asc" },
+      select: { id: true, nome: true, iniciais: true, metaDiaria: true },
+    });
+    const ofensivas = await Promise.all(
+      concursos.map(async (c) => {
+        const [porDia, periodos] = await Promise.all([
+          contarPorDia(req.userId!, c.id, true),
+          carregarFeriasPeriodos(req.userId!, c.id),
+        ]);
+        return {
+          concursoId: c.id,
+          nome: c.nome,
+          iniciais: c.iniciais,
+          meta: c.metaDiaria,
+          atual: calcularStreak(porDia, c.metaDiaria, periodos),
+          maior: calcularMaiorStreak(porDia, c.metaDiaria, periodos),
+        };
+      })
+    );
+    res.json({ ofensivas });
   })
 );
 
