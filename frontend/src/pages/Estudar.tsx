@@ -10,7 +10,7 @@ import {
   provasComContagem,
   temModulos,
 } from "../lib/questoesRepo";
-import { juntarPorComando, shuffle } from "../lib/sessionBuilder";
+import { contarDificuldades, filtrarDificuldade, juntarPorComando, shuffle } from "../lib/sessionBuilder";
 import { useProgresso } from "../hooks/useProgresso";
 import { SessionRunner, type RespostaSessao } from "../components/SessionRunner";
 import { ResumoSessao } from "../components/ResumoSessao";
@@ -25,6 +25,8 @@ import { Carregando } from "../components/Spinner";
 
 // Quanto tempo uma questão respondida fica fora das sessões do Estudar.
 const DESCANSO_MS = 20 * 3600e3;
+
+const ROTULO_DIFICULDADE: Record<Dificuldade, string> = { facil: "Fácil", media: "Média", dificil: "Difícil" };
 
 export function Estudar() {
   const progresso = useProgresso();
@@ -115,19 +117,33 @@ export function Estudar() {
   // Pool = tudo que bate com os filtros atuais. Calculado aqui (e não só ao começar) para
   // a tela dizer ANTES quantas questões existem: pedir 20 e receber 3 sem aviso é o jeito
   // mais rápido de achar que o filtro está quebrado.
-  const pool = useMemo(() => {
+  // Em dois passos: primeiro todos os filtros menos a dificuldade, que é o pool de onde
+  // sai a lista de dificuldades disponíveis (com a contagem de cada uma).
+  const poolSemDificuldade = useMemo(() => {
     let lista = filtrar({
       modulo: modulo || undefined,
       materia: materia || undefined,
       assunto: assunto || undefined,
-      dificuldade: dificuldade || undefined,
       origem: origem || undefined,
       prova: prova || undefined,
     });
     if (soNaoRespondidas) lista = lista.filter((q) => !progresso.respondidas.has(q.id));
     if (soErradas) lista = lista.filter((q) => progresso.erradas.has(q.id));
     return lista;
-  }, [modulo, materia, assunto, dificuldade, origem, prova, soNaoRespondidas, soErradas, progresso]);
+  }, [modulo, materia, assunto, origem, prova, soNaoRespondidas, soErradas, progresso]);
+
+  // Dificuldades que o pool realmente tem. Trilha sem classificação (lotes da Dataprev
+  // podem vir sem dificuldade) fica sem o filtro, em vez de oferecer opções que zeram.
+  const dificuldadesDisp = useMemo(() => contarDificuldades(poolSemDificuldade), [poolSemDificuldade]);
+  // A dificuldade escolhida sumiu do pool (trocou a matéria, por exemplo): volta a "Todas".
+  useEffect(() => {
+    if (dificuldade && !dificuldadesDisp.has(dificuldade)) setDificuldade("");
+  }, [dificuldade, dificuldadesDisp]);
+
+  const pool = useMemo(
+    () => filtrarDificuldade(poolSemDificuldade, dificuldade),
+    [poolSemDificuldade, dificuldade]
+  );
 
   // Descanso: o que foi respondido nas últimas 20h fica fora da sessão. Refazer em seguida
   // dá acerto de memória da letra (85% no mesmo dia contra 19% duas semanas depois, nos
@@ -280,17 +296,17 @@ export function Estudar() {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <FilterSelect
-            label="Dificuldade"
-            value={dificuldade}
-            onChange={(v) => setDificuldade(v as Dificuldade | "")}
-            options={[
-              { value: "", label: "Qualquer" },
-              { value: "facil", label: "Fácil" },
-              { value: "media", label: "Média" },
-              { value: "dificil", label: "Difícil" },
-            ]}
-          />
+          {dificuldadesDisp.size > 0 && (
+            <FilterSelect
+              label="Dificuldade"
+              value={dificuldade}
+              onChange={(v) => setDificuldade(v as Dificuldade | "")}
+              options={[
+                { value: "", label: "Todas" },
+                ...[...dificuldadesDisp].map(([d, n]) => ({ value: d, label: `${ROTULO_DIFICULDADE[d]} (${n})` })),
+              ]}
+            />
+          )}
           <div>
             <label className="filter-label">Quantidade</label>
             <input

@@ -8,6 +8,7 @@ import { MetaPill } from "./MetaPill";
 import { comRealce } from "./Realce";
 import { ImagensQuestao } from "./ImagemQuestao";
 import { EfeitoEliminar } from "./EfeitoEliminar";
+import { BlocoCodigo } from "./CodigoRealcado";
 import { useTheme } from "../store/theme";
 
 // Histórico da questão ANTES desta tentativa: quantas vezes ela já foi respondida e
@@ -34,22 +35,6 @@ interface Props {
   emBranco?: boolean;
   // Certo/errado: o comando aparece só no primeiro item dele (igual ao texto base).
   mostrarComando?: boolean;
-}
-
-// Bloco de código com o rótulo da linguagem (usado na questão e no comando).
-function BlocoCodigo({ codigo, linguagem }: { codigo: string; linguagem?: string }) {
-  return (
-    <div className="overflow-hidden rounded-xl border border-hair">
-      {linguagem && (
-        <div className="border-b border-hair bg-brand-100 px-4 py-2 text-xs font-mono font-bold text-brand-700">
-          {linguagem}
-        </div>
-      )}
-      <pre className="overflow-x-auto p-4 text-sm leading-relaxed font-mono text-brand-ink" style={{ background: "var(--surface2)" }}>
-        <code>{codigo}</code>
-      </pre>
-    </div>
-  );
 }
 
 const ROTULO_CE: Record<string, string> = { C: "Certo", E: "Errado" };

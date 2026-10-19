@@ -262,6 +262,29 @@ function selecionarGrupo(
   }
 }
 
+// ---------- DIFICULDADE: filtro das sessões ----------
+
+export const DIFICULDADES: Dificuldade[] = ["facil", "media", "dificil"];
+
+// Quantas questões de cada dificuldade o pool tem. Só entram valores válidos: questões
+// sem dificuldade (ou com lixo no campo, como as que vêm de fora sem classificação) não
+// contam. Mapa vazio = o filtro de dificuldade não tem o que filtrar e nem aparece.
+export function contarDificuldades(pool: Questao[]): Map<Dificuldade, number> {
+  const contagem = new Map<Dificuldade, number>();
+  for (const q of pool) {
+    const d = q.dificuldade as Dificuldade | null | undefined;
+    if (d && DIFICULDADES.includes(d)) contagem.set(d, (contagem.get(d) ?? 0) + 1);
+  }
+  // Na ordem fácil → difícil, para a lista de opções sair sempre igual.
+  return new Map(DIFICULDADES.filter((d) => contagem.has(d)).map((d) => [d, contagem.get(d)!]));
+}
+
+// Sem dificuldade escolhida ("todas"), o pool passa inteiro.
+export function filtrarDificuldade(pool: Questao[], dificuldade?: Dificuldade | ""): Questao[] {
+  if (!dificuldade) return pool;
+  return pool.filter((q) => q.dificuldade === dificuldade);
+}
+
 // ---------- TÓPICO: estudo dirigido ----------
 
 export interface TopicoInput {

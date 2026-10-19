@@ -6,6 +6,9 @@ import {
   montarSimulado,
   pesoSimulado,
   calcularNotaSimulado,
+  contarDificuldades,
+  filtrarDificuldade,
+  montarTopico,
   sampleWeighted,
 } from "../lib/sessionBuilder";
 import type { Questao } from "../types/questao";
@@ -291,5 +294,44 @@ describe("juntarPorComando", () => {
   it("não puxa item que não está na lista (filtro ou descanso) e não muda múltipla escolha", () => {
     expect(juntarPorComando([ce(1), ce(2), ce(10, "a")], 3).map((q) => q.id)).toEqual([1, 2, 10]);
     expect(juntarPorComando([ce(3), ce(1), ce(2)], 2).map((q) => q.id)).toEqual([3, 1]);
+  });
+});
+
+describe("filtro de dificuldade", () => {
+  const comDif = (id: number, dificuldade: Questao["dificuldade"]) => ({ ...q(id, "II", "BD"), dificuldade });
+  // Como chegam as questões sem classificação (ex.: lote da Dataprev): campo ausente/nulo.
+  const semDif = (id: number) => ({ ...q(id, "II", "BD"), dificuldade: undefined }) as unknown as Questao;
+
+  it("conta só as dificuldades presentes, na ordem fácil → difícil", () => {
+    const pool = [comDif(1, "dificil"), comDif(2, "facil"), comDif(3, "dificil"), semDif(4)];
+    expect([...contarDificuldades(pool)]).toEqual([
+      ["facil", 1],
+      ["dificil", 2],
+    ]);
+  });
+
+  it("pool sem dificuldade nenhuma não tem o que filtrar (o filtro some)", () => {
+    const lixo = { ...q(9, "II", "BD"), dificuldade: "?" } as unknown as Questao;
+    expect(contarDificuldades([semDif(1), semDif(2), lixo]).size).toBe(0);
+    expect(contarDificuldades([]).size).toBe(0);
+  });
+
+  it("filtra pela dificuldade escolhida; 'todas' devolve o pool inteiro", () => {
+    const pool = [comDif(1, "facil"), comDif(2, "media"), comDif(3, "dificil"), semDif(4)];
+    expect(filtrarDificuldade(pool, "media").map((x) => x.id)).toEqual([2]);
+    expect(filtrarDificuldade(pool, "").map((x) => x.id)).toEqual([1, 2, 3, 4]);
+    expect(filtrarDificuldade(pool, undefined)).toBe(pool);
+  });
+
+  it("montarTopico respeita a dificuldade", () => {
+    const todas = [comDif(1, "facil"), comDif(2, "dificil"), comDif(3, "dificil"), semDif(4)];
+    const sel = montarTopico({
+      dificuldade: "dificil",
+      quantidade: 10,
+      incluirRespondidas: true,
+      todas,
+      respondidasIds: new Set(),
+    });
+    expect(sel.map((x) => x.id).sort()).toEqual([2, 3]);
   });
 });

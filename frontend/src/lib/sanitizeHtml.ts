@@ -2,18 +2,23 @@
 // para a tela via innerHTML, então tudo que entra passa por aqui: colagem vinda do
 // Word/Docs/web, o que o editor produz e o que é lido do servidor.
 //
-// A regra é lista de permissão: tag fora da lista é desembrulhada (o texto de dentro
-// sobrevive), atributo fora da lista some, e `style` é reescrito propriedade a
-// propriedade. Nada de <script>, <iframe>, on*= ou url() dentro de estilo.
+// Quem faz o trabalho pesado é o DOMPurify (parser do próprio navegador, mantido contra
+// mXSS e truques de namespace). Por cima dele vai a nossa lista de permissão: tag fora
+// da lista é desembrulhada (o texto de dentro sobrevive), atributo fora da lista some, e
+// `style` é reescrito propriedade a propriedade. Nada de <script>, <iframe>, on*= ou url()
+// dentro de estilo.
+import DOMPurify, { type DOMPurify as InstanciaPurify } from "dompurify";
 
-const TAGS_OK = new Set([
+const TAGS_OK = [
   "p", "br", "div", "span", "b", "strong", "i", "em", "u", "s", "strike", "del", "mark",
   "h1", "h2", "h3", "h4", "ul", "ol", "li", "blockquote", "pre", "code", "hr", "a",
   "table", "thead", "tbody", "tr", "td", "th", "sub", "sup", "font",
-]);
+];
 
-// Tags que somem inteiras (conteúdo junto) em vez de serem desembrulhadas.
-const TAGS_FORA = new Set(["script", "style", "iframe", "object", "embed", "link", "meta", "noscript", "svg", "form", "input", "button"]);
+// Tags que somem inteiras (conteúdo junto) em vez de serem desembrulhadas. O DOMPurify
+// já faz isso com script/style/iframe/svg/noscript (e áudio, vídeo, math...); aqui vão
+// as que ele desembrulharia.
+const TAGS_FORA = ["script", "style", "iframe", "object", "embed", "link", "meta", "noscript", "svg", "form", "input", "button"];
 
 const ATTRS_OK: Record<string, Set<string>> = {
   "*": new Set(["style"]),
@@ -23,6 +28,7 @@ const ATTRS_OK: Record<string, Set<string>> = {
   ul: new Set(["data-todo"]),
   li: new Set(["data-done"]),
 };
+const TODOS_ATTRS = [...new Set(Object.values(ATTRS_OK).flatMap((s) => [...s]))];
 
 const CSS_OK = new Set([
   "color", "background-color", "font-family", "font-size", "font-weight", "font-style",
@@ -54,57 +60,58 @@ function hrefSeguro(href: string): string | null {
   return null;
 }
 
-function limparNo(el: Element) {
-  const tag = el.tagName.toLowerCase();
+// Instância própria (os hooks do DOMPurify são por instância) e criada na primeira
+// chamada: o módulo pode ser importado fora do navegador sem quebrar.
+let purify: InstanciaPurify | null = null;
 
-  if (TAGS_FORA.has(tag)) {
-    el.remove();
-    return;
-  }
+function instancia(): InstanciaPurify {
+  if (purify) return purify;
+  const p = DOMPurify(window);
 
-  // Filhos primeiro: assim desembrulhar o pai não deixa nada sujo para trás.
-  for (const filho of [...el.children]) limparNo(filho);
-
-  if (!TAGS_OK.has(tag)) {
-    // Desembrulha: mantém o texto, joga a tag fora.
-    const pai = el.parentNode;
-    if (!pai) return;
-    while (el.firstChild) pai.insertBefore(el.firstChild, el);
-    el.remove();
-    return;
-  }
-
-  const permitidos = ATTRS_OK[tag];
-  for (const attr of [...el.attributes]) {
-    const nome = attr.name.toLowerCase();
-    const ok = ATTRS_OK["*"].has(nome) || permitidos?.has(nome);
-    if (!ok) {
-      el.removeAttribute(attr.name);
-      continue;
+  // Atributo: lista por tag (o ALLOWED_ATTR do DOMPurify é global), style reescrito e
+  // href só com esquema seguro.
+  p.addHook("uponSanitizeAttribute", (no, dados) => {
+    const tag = no.nodeName.toLowerCase();
+    const nome = dados.attrName;
+    if (!ATTRS_OK["*"].has(nome) && !ATTRS_OK[tag]?.has(nome)) {
+      dados.keepAttr = false;
+      return;
     }
     if (nome === "style") {
-      const limpo = limparStyle(attr.value);
-      if (limpo) el.setAttribute("style", limpo);
-      else el.removeAttribute("style");
+      const limpo = limparStyle(dados.attrValue);
+      if (limpo) dados.attrValue = limpo;
+      else dados.keepAttr = false;
     }
     if (nome === "href") {
-      const seguro = hrefSeguro(attr.value);
-      if (seguro) el.setAttribute("href", seguro);
-      else el.removeAttribute("href");
+      const seguro = hrefSeguro(dados.attrValue);
+      if (seguro) dados.attrValue = seguro;
+      else dados.keepAttr = false;
     }
-  }
+  });
 
-  if (tag === "a" && el.getAttribute("href")) {
-    el.setAttribute("target", "_blank");
-    el.setAttribute("rel", "noopener noreferrer");
-  }
+  // Link com destino sempre abre fora, sem dar à página aberta acesso a esta.
+  p.addHook("afterSanitizeAttributes", (no) => {
+    if (no.nodeName.toLowerCase() === "a" && (no as Element).getAttribute("href")) {
+      (no as Element).setAttribute("target", "_blank");
+      (no as Element).setAttribute("rel", "noopener noreferrer");
+    }
+  });
+
+  purify = p;
+  return p;
 }
 
 export function sanitizeHtml(html: string): string {
   if (!html) return "";
-  const doc = new DOMParser().parseFromString(`<body>${html}</body>`, "text/html");
-  for (const filho of [...doc.body.children]) limparNo(filho);
-  return doc.body.innerHTML;
+  return instancia().sanitize(html, {
+    ALLOWED_TAGS: TAGS_OK,
+    ALLOWED_ATTR: TODOS_ATTRS,
+    ALLOW_DATA_ATTR: false,
+    ALLOW_ARIA_ATTR: false,
+    KEEP_CONTENT: true,
+    ADD_FORBID_CONTENTS: TAGS_FORA,
+    RETURN_TRUSTED_TYPE: false,
+  }) as string;
 }
 
 export function escaparTexto(txt: string): string {
