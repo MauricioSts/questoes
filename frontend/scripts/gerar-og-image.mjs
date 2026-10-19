@@ -2,7 +2,7 @@
 //
 //   node scripts/gerar-og-image.mjs
 //
-// 1. Monta public/og-image.svg (1200×630): fundo "atlas noturno" do tema fantasy, com curvas
+// 1. Monta scripts/og-image.svg (1200×630): fundo "atlas noturno" do tema fantasy, com curvas
 //    de nível calculadas aqui (marching squares sobre um relevo determinístico), o selo `>_`
 //    e o nome. As fontes (Fraunces + JetBrains Mono) vêm do Google Fonts por @import.
 // 2. Renderiza public/og-image.png e public/apple-touch-icon.png com o Chromium headless.
@@ -189,7 +189,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
 </svg>
 `;
 
-writeFileSync(join(PUBLIC, "og-image.svg"), svg);
+writeFileSync(join(RAIZ, "scripts", "og-image.svg"), svg);
 
 // ---------- render ----------
 function render(svgTexto, largura, altura, saida) {
@@ -239,6 +239,6 @@ const icone = `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" 
 </svg>`;
 render(icone, 180, 180, join(PUBLIC, "apple-touch-icon.png"));
 
-for (const f of ["og-image.svg", "og-image.png", "apple-touch-icon.png"]) {
+for (const f of ["og-image.png", "apple-touch-icon.png"]) {
   console.log(f, (statSync(join(PUBLIC, f)).size / 1024).toFixed(1), "KB");
 }
