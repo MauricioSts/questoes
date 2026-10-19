@@ -55,7 +55,9 @@ export function QuestaoView({
   const ehCE = questao.formato === "CERTO_ERRADO";
   const soOrigem = metadados === "origem";
   const { tema } = useTheme();
-  // Questão de programação: colchetes de código ("[1, 2, 3]", "arr[0]") ficam literais.
+  // Questão de programação: colchetes de código ("[1, 2, 3]", "arr[0]") ficam literais
+  // no enunciado e nas alternativas. Explicação e comando do CE ficam SEMPRE no modo
+  // padrão: o formato dos lotes (docs/formato-lote-ce.md) marca destaques em prosa ali.
   const trilhaAtiva = useTrilhaAtiva();
   const realce = { codigo: questaoEmModoCodigo(questao, trilhaAtiva) };
 
@@ -120,7 +122,7 @@ export function QuestaoView({
       {/* Comando do certo/errado: o texto comum aos itens, com o código dele */}
       {ehCE && questao.comando && mostrarComando && (
         <Card className="space-y-3 border-l-4 border-brand-500 p-4">
-          <p className="text-sm text-brand-ink leading-relaxed whitespace-pre-wrap">{comRealce(questao.comando.texto, realce)}</p>
+          <p className="text-sm text-brand-ink leading-relaxed whitespace-pre-wrap">{comRealce(questao.comando.texto)}</p>
           <ImagensQuestao imagens={questao.comando.imagens} posicao="enunciado" />
           {questao.comando.codigo && <BlocoCodigo codigo={questao.comando.codigo} linguagem={questao.comando.linguagem} />}
         </Card>
@@ -367,7 +369,7 @@ export function QuestaoView({
 
           {/* Explicação */}
           <div className="text-sm leading-relaxed whitespace-pre-wrap text-brand-ink">
-            {comRealce(questao.explicacao, realce)}
+            {comRealce(questao.explicacao)}
           </div>
 
         </Card>

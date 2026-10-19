@@ -137,7 +137,9 @@ const TRILHA_DATAPREV_TI = "dataprev-analista-ti";
 // - a trilha do concurso ativo é de desenvolvimento (`dev-*`): todas as questões são de
 //   programação, e a `materia` lá é o tópico da ementa, não um nome fixo;
 // - trilha Dataprev TI, módulo II (Eng. de Software, BD, Infra, Segurança). O módulo I
-//   (Português, Inglês...) fica no modo padrão.
+//   (Português, Inglês...) fica no modo padrão. Concurso sem trilha conta como Dataprev,
+//   como no resto do app (configPadrao, rodizioDoConcurso).
+// Vale só para enunciado e alternativas: explicação e comando do CE usam o modo padrão.
 export function questaoEmModoCodigo(
   q: Pick<Questao, "codigo" | "linguagem" | "tipo" | "comando" | "modulo">,
   trilhaId: string | null | undefined
@@ -145,5 +147,5 @@ export function questaoEmModoCodigo(
   if (q.codigo || q.linguagem || q.comando?.codigo || q.comando?.linguagem) return true;
   if (q.tipo === "saida" || q.tipo === "erro") return true;
   if (trilhaId?.startsWith("dev-")) return true;
-  return trilhaId === TRILHA_DATAPREV_TI && q.modulo === "II";
+  return (!trilhaId || trilhaId === TRILHA_DATAPREV_TI) && q.modulo === "II";
 }

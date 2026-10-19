@@ -56,6 +56,8 @@ describe("modo padrão: igual ao de sempre", () => {
     expect(comRealce("sem colchetes")).toBe("sem colchetes");
   });
 
+  // Guarda-chuva textual: só confere por regex que as páginas chamam comRealce sem
+  // segundo argumento; não renderiza as páginas.
   it("Anotações e Marcadas continuam chamando o modo padrão", () => {
     for (const pagina of ["Anotacoes.tsx", "Marcadas.tsx"]) {
       const src = readFileSync(join(__dirname, "..", "pages", pagina), "utf8");
@@ -138,10 +140,14 @@ describe("questaoEmModoCodigo", () => {
   it("liga nas trilhas dev-* e no módulo II da Dataprev TI", () => {
     expect(questaoEmModoCodigo({ ...base, tipo: "conceitual" }, "dev-python")).toBe(true);
     expect(questaoEmModoCodigo({ modulo: "II" }, "dataprev-analista-ti")).toBe(true);
+    // Concurso sem trilha conta como Dataprev, como em configPadrao/rodizioDoConcurso.
+    expect(questaoEmModoCodigo({ modulo: "II" }, null)).toBe(true);
+    expect(questaoEmModoCodigo({ modulo: "II" }, undefined)).toBe(true);
   });
   it("fica desligado no resto", () => {
     expect(questaoEmModoCodigo(base, "dataprev-analista-ti")).toBe(false);
     expect(questaoEmModoCodigo({ modulo: "II" }, "cgu-2026")).toBe(false);
     expect(questaoEmModoCodigo({ ...base, tipo: "conceitual" }, null)).toBe(false);
+    expect(questaoEmModoCodigo({ ...base, tipo: "conceitual" }, "cgu-2026")).toBe(false);
   });
 });
