@@ -27,8 +27,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,json}"],
-        // gráficos de golpes (public/fx, ~3 MB): baixados sob demanda, fora do precache
-        globIgnores: ["fx/**"],
+        // gráficos de golpes (public/fx, ~3 MB): baixados sob demanda, fora do precache;
+        // a imagem de preview de links só serve aos robôs de redes sociais
+        globIgnores: ["fx/**", "og-image.*"],
         // Deploy novo com a aba aberta: sem isso o cache antigo sobrevive e o app fica
         // pedindo pedaços de código que já não existem no servidor (tela branca).
         cleanupOutdatedCaches: true,
