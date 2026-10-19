@@ -142,12 +142,14 @@ trilhas que passaram no validador.
   polling de `GET /execucoes/:id` (mostrar posição na fila), resultado por teste
   (visível: entrada/esperado/stdout/stderr; oculto: só passou/falhou), tempo, 429/503
   com mensagem. Tudo renderizado como **texto** (nada de `dangerouslySetInnerHTML`).
-- CSP no `frontend/vercel.json` (`headers`): `default-src 'self'; script-src 'self';
-  connect-src 'self' https://questoesapi.mauriciosts.com; img-src 'self' data: blob:;
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self'
-  https://fonts.gstatic.com; worker-src 'self' blob:; frame-ancestors 'none';
-  base-uri 'none'; object-src 'none'` — conferir no navegador (Mercado Pago, fontes,
-  WebGL, PWA) antes de subir.
+- ~~CSP no `frontend/vercel.json`~~ — feito (branch agente/csp), aplicada (não report-only).
+  Além do proposto: `img-src`/`media-src`/`connect-src` liberam raw.githubusercontent.com
+  e play.pokemonshowdown.com (sprites, cenários, insígnias, gritos da Batalha; o SW do PWA
+  busca esses sprites, por isso estão em connect-src), `worker-src 'self'` (sem blob:),
+  `manifest-src`, `form-action 'self'`, `frame-src 'none'`. Mercado Pago é só redirect
+  (`location.href = init_point`), sem script/iframe. Headers extras: nosniff,
+  X-Frame-Options DENY, Referrer-Policy, Permissions-Policy, COOP. Se `VITE_FX_BASE`
+  apontar para um CDN, incluir o host em img-src/connect-src.
 - Trocar `frontend/src/lib/sanitizeHtml.ts` (Caderno) por DOMPurify.
 - Testes vitest + jsdom com payloads (`<script>`, `<img onerror>`, `javascript:`,
   `<svg onload>`) em enunciado, explicação, código, stdout/stderr: nenhum elemento
