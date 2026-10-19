@@ -117,6 +117,23 @@ model PerfilProva {
   trilhas   Trilha[]
 }
 
+// Resultado de um simulado certo/errado. Fica numa tabela própria porque o item deixado em
+// branco não grava Answer, e sem ele não dá para refazer a nota (branco ≠ erro). Os itens
+// marcados também viram Answer (contexto SIMULADO), como no simulado de múltipla escolha.
+model ResultadoProva {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concursoId    String
+  perfilProvaId String
+  // { grupos: [{ grupo, acertos, erros, brancos, pontos, minimo, ... }], total, aprovado,
+  //   motivos, itens: [{ questaoId, marcada|null }], duracaoSegundos }
+  dados         Json
+  createdAt     DateTime @default(now())
+
+  @@index([userId, concursoId, createdAt])
+}
+
 // Trilha de estudo: um conjunto de questões que vários usuários podem seguir. É o que
 // o usuário escolhe ao entrar no app. Existe porque Questao.concursoId aponta para o
 // Concurso de UM usuário: sem a trilha, quem cria o próprio concurso começa com o banco
@@ -278,23 +295,24 @@ model User {
   emailVerificado    Boolean   @default(false)
   createdAt          DateTime  @default(now())
 
-  answers        Answer[]
-  notas          Nota[]
-  marcadas       Marcada[]
-  concursos      Concurso[]
-  paginas        PaginaCaderno[]
-  postits        PostIt[]
-  feriasPeriodos FeriasPeriodo[]
-  refreshTokens  RefreshToken[]
-  sessaoAtiva    SessaoAtiva?
-  metasMateria   MetaMateriaDia[]
-  pokeVitrine    PokeVitrine?
-  pokeSave       PokeSave?
-  assinatura     Assinatura?
-  trilhas        Trilha[]
-  importacoesPdf ImportacaoPdf[]
-  codigosEmail   CodigoEmail[]
-  execucoes      Execucao[]
+  answers         Answer[]
+  notas           Nota[]
+  marcadas        Marcada[]
+  concursos       Concurso[]
+  paginas         PaginaCaderno[]
+  postits         PostIt[]
+  feriasPeriodos  FeriasPeriodo[]
+  refreshTokens   RefreshToken[]
+  sessaoAtiva     SessaoAtiva?
+  metasMateria    MetaMateriaDia[]
+  pokeVitrine     PokeVitrine?
+  pokeSave        PokeSave?
+  assinatura      Assinatura?
+  trilhas         Trilha[]
+  importacoesPdf  ImportacaoPdf[]
+  codigosEmail    CodigoEmail[]
+  execucoes       Execucao[]
+  resultadosProva ResultadoProva[]
 }
 
 // Assinatura do Mercado Pago (API de preapproval): uma linha por usuário, apontando para

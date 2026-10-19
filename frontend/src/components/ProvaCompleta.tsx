@@ -65,6 +65,8 @@ export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function Pro
 
   const total = questoes.length;
   const respondidas = marcadas.size;
+  // Certo/errado: em branco não soma nem desconta, e um erro anula um acerto.
+  const ehCE = questoes.length > 0 && questoes.every((q) => q.formato === "CERTO_ERRADO");
 
   // Prova em andamento: o relevo animado do fundo congela. Movimento no canto do olho
   // atrapalha a leitura, e numa prova de 70 questões atrapalha por horas.
@@ -273,6 +275,7 @@ export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function Pro
           // Texto base compartilhado (inglês): só aparece na primeira questão do grupo.
           const compartilhado =
             i > 0 && !!questao.texto_base && questoes[i - 1]?.texto_base === questao.texto_base;
+          const mesmoComando = i > 0 && !!questao.comando && questoes[i - 1]?.comando?.id === questao.comando.id;
           const bloco = blocoQueComeca.get(i);
           return (
             <Fragment key={questao.id}>
@@ -296,7 +299,7 @@ export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function Pro
                 className="card scroll-mt-32 p-6"
               >
                 <p className="mb-3 text-xs font-bold uppercase tracking-[.16em] text-muted">
-                  Questão {i + 1} de {total}
+                  {ehCE ? "Item" : "Questão"} {i + 1} de {total}
                 </p>
                 <QuestaoView
                   questao={questao}
@@ -304,6 +307,7 @@ export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function Pro
                   revelado={false}
                   metadados="origem"
                   mostrarTextoBase={!compartilhado}
+                  mostrarComando={!mesmoComando}
                   onSelecionar={(alt) => alternar(questao, alt)}
                 />
               </section>
@@ -378,7 +382,9 @@ export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function Pro
             <p className="text-sm text-muted">
               {respondidas === total
                 ? `Todas as ${total} questões respondidas${decorridoMin > 0 ? ` em ${decorridoMin} min` : ""}. O gabarito aparece na correção.`
-                : `Faltam ${total - respondidas} questões em branco. Em branco conta como erro.`}
+                : ehCE
+                  ? `${total - respondidas} itens em branco. Em branco não soma nem desconta; cada erro anula um acerto.`
+                  : `Faltam ${total - respondidas} questões em branco. Em branco conta como erro.`}
             </p>
             <div className="flex flex-col gap-2">
               <button onClick={finalizar} className="btn-primary w-full">
@@ -392,7 +398,7 @@ export const ProvaCompleta = forwardRef<ProvaCompletaHandle, Props>(function Pro
                   }}
                   className="tap rounded-xl px-4 py-2 text-sm font-semibold text-brand-500"
                 >
-                  Ir para a questão {primeiraEmBranco + 1} (primeira em branco)
+                  {ehCE ? `Ir para o item ${primeiraEmBranco + 1} (primeiro em branco)` : `Ir para a questão ${primeiraEmBranco + 1} (primeira em branco)`}
                 </button>
               )}
               <button

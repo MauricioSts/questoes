@@ -22,8 +22,10 @@ import { EditorSimulado } from "../components/EditorSimulado";
 import type { RespostaSessao } from "../components/SessionRunner";
 import { ProvaCompleta, type ProvaCompletaHandle } from "../components/ProvaCompleta";
 import { Cronometro } from "../components/Cronometro";
-import { Spinner } from "../components/Spinner";
+import { Carregando, Spinner } from "../components/Spinner";
 import { ResultadoSimulado } from "../components/ResultadoSimulado";
+import { SimuladoCE } from "../components/SimuladoCE";
+import type { PerfilProva } from "../lib/notaCE";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { Toggle } from "../components/Toggle";
@@ -32,7 +34,32 @@ import type { Questao, Alternativa } from "../types/questao";
 type Fase = "intro" | "rodando" | "resultado";
 type Aba = "novo" | "anteriores";
 
+// Trilha com perfil de prova certo/errado (CGU, Bacen) usa o simulado C/E; as demais,
+// o de múltipla escolha configurável por matéria.
 export function Simulado() {
+  const { ativo } = useConcurso();
+  const [perfil, setPerfil] = useState<{ id: string; dados: PerfilProva } | null | undefined>(undefined);
+  useEffect(() => {
+    if (!ativo?.trilhaId) {
+      setPerfil(null);
+      return;
+    }
+    setPerfil(undefined);
+    let vivo = true;
+    api<{ perfil: { id: string; dados: PerfilProva } | null }>(`/provas/perfil?concursoId=${encodeURIComponent(ativo.id)}`)
+      .then((r) => vivo && setPerfil(r.perfil))
+      .catch(() => vivo && setPerfil(null)); // offline: cai no simulado de sempre
+    return () => {
+      vivo = false;
+    };
+  }, [ativo?.id, ativo?.trilhaId]);
+
+  if (perfil === undefined) return <Carregando />;
+  if (perfil && ativo) return <SimuladoCE perfil={perfil.dados} perfilId={perfil.id} concursoId={ativo.id} />;
+  return <SimuladoMultiplaEscolha />;
+}
+
+function SimuladoMultiplaEscolha() {
   const [fase, setFase] = useState<Fase>("intro");
   const [aba, setAba] = useState<Aba>("novo");
   const [questoes, setQuestoes] = useState<Questao[]>([]);

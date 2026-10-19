@@ -18,6 +18,7 @@ import { statsRouter } from "./modules/stats/stats.routes.js";
 import { pokeRouter } from "./modules/poke/poke.routes.js";
 import { assinaturaRouter } from "./modules/assinatura/assinatura.routes.js";
 import { exerciciosRouter, execucoesRouter } from "./modules/codigo/codigo.routes.js";
+import { provasRouter } from "./modules/provas/provas.routes.js";
 
 const app = express();
 // Atrás do Caddy local: req.ip vira o IP real do cliente (usado no limite do registro).
@@ -67,6 +68,7 @@ app.use("/poke", pokeRouter);
 app.use("/assinatura", assinaturaRouter);
 app.use("/exercicios", exerciciosRouter);
 app.use("/execucoes", execucoesRouter);
+app.use("/provas", provasRouter);
 
 app.use(errorHandler);
 
