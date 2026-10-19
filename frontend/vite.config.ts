@@ -35,7 +35,8 @@ export default defineConfig({
         clientsClaim: true,
         skipWaiting: true,
         // O index.html nunca deve responder no lugar de um asset que sumiu.
-        navigateFallbackDenylist: [/^\/assets\//],
+        // robots.txt e sitemap.xml também: são arquivos, não rotas do app.
+        navigateFallbackDenylist: [/^\/assets\//, /^\/(robots\.txt|sitemap\.xml)$/],
         runtimeCaching: [
           {
             // API: network-first para dados frescos, cai no cache offline.

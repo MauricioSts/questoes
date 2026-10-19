@@ -1,8 +1,9 @@
 import express from "express";
 import cors from "cors";
-import helmet from "helmet";
 import { env } from "./config/env.js";
 import { errorHandler } from "./middleware/error.js";
+import { seguranca } from "./middleware/seguranca.js";
+import { raizRouter } from "./modules/raiz/raiz.routes.js";
 import { authRouter } from "./modules/auth/auth.routes.js";
 import { questoesRouter } from "./modules/questoes/questoes.routes.js";
 import { answersRouter } from "./modules/answers/answers.routes.js";
@@ -24,23 +25,7 @@ const app = express();
 // Atrás do Caddy local: req.ip vira o IP real do cliente (usado no limite do registro).
 app.set("trust proxy", "loopback");
 
-// Headers de segurança. A API só responde JSON (fora a página de aprovação de conta, que
-// define a própria CSP), então a política padrão não libera nada. CORP "same-site" porque
-// o front (questoes.) e a API (questoesapi.) são o mesmo site.
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      useDefaults: false,
-      directives: {
-        defaultSrc: ["'none'"],
-        baseUri: ["'none'"],
-        formAction: ["'self'"],
-        frameAncestors: ["'none'"],
-      },
-    },
-    crossOriginResourcePolicy: { policy: "same-site" },
-  })
-);
+app.use(seguranca);
 
 app.use(
   cors({
@@ -51,6 +36,8 @@ app.use(
 app.use(express.json({ limit: "1mb" }));
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
+
+app.use("/", raizRouter);
 
 app.use("/auth", authRouter);
 app.use("/questoes", questoesRouter);

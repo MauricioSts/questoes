@@ -6,12 +6,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#5B4FE0" />
     <title>devconcursado — banco de questões</title>
+    <meta name="description" content="Banco de questões para concursos públicos, com foco em carreiras de TI e desenvolvimento: questões de provas oficiais com explicação, simulados cronometrados e revisão espaçada dos erros." />
+    <link rel="canonical" href="https://questoes.mauriciosts.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="devconcursado" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:url" content="https://questoes.mauriciosts.com/" />
+    <meta property="og:title" content="devconcursado — banco de questões para concursos de TI" />
+    <meta property="og:description" content="Questões de provas oficiais com explicação, simulados cronometrados e revisão espaçada para quem estuda para concursos públicos na área de TI." />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="devconcursado — banco de questões para concursos de TI" />
+    <meta name="twitter:description" content="Questões de provas oficiais com explicação, simulados cronometrados e revisão espaçada para quem estuda para concursos públicos na área de TI." />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://questoes.mauriciosts.com/#site",
+            "name": "devconcursado",
+            "url": "https://questoes.mauriciosts.com/",
+            "inLanguage": "pt-BR",
+            "description": "Banco de questões para concursos públicos, com foco em carreiras de TI e desenvolvimento.",
+            "publisher": { "@id": "https://questoes.mauriciosts.com/#org" }
+          },
+          {
+            "@type": "EducationalOrganization",
+            "@id": "https://questoes.mauriciosts.com/#org",
+            "name": "devconcursado",
+            "url": "https://questoes.mauriciosts.com/",
+            "description": "Plataforma de estudo por questões para concursos públicos de TI: questões de provas oficiais com explicação, simulados e revisão espaçada."
+          }
+        ]
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:wght@500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@500&family=Chakra+Petch:wght@500;600;700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="root"></div>
+    <!--
+      Conteúdo estático para quem lê o HTML sem JavaScript (robôs de busca, classificadores
+      de filtro web). Fica no <noscript> e não dentro do #root: com JS ligado o navegador nem
+      desenha isto, então não há texto piscando antes do React montar.
+    -->
+    <noscript>
+      <main style="max-width:720px;margin:0 auto;padding:32px 16px;font:16px/1.6 system-ui,sans-serif">
+        <h1>devconcursado — banco de questões para concursos públicos de TI</h1>
+        <p>
+          O devconcursado é uma plataforma de estudo por questões para quem se prepara para
+          concursos públicos, com foco em carreiras de tecnologia da informação e
+          desenvolvimento de software.
+        </p>
+        <p>
+          O estudo é montado em volta da repetição: você responde, vê o gabarito e a explicação
+          logo depois, e o que errou volta em intervalos crescentes, no momento em que está
+          prestes a ser esquecido.
+        </p>
+        <p>
+          As questões vêm de provas oficiais das bancas, de adaptações dessas provas e de
+          questões escritas para reforçar os pontos que mais derrubam. Cada questão diz de onde veio.
+        </p>
+        <h2>O que a plataforma oferece</h2>
+        <ul>
+          <li>Trilhas por concurso, cada uma com o seu banco de questões.</li>
+          <li>Estudo livre com filtro por matéria, assunto e dificuldade.</li>
+          <li>Revisão espaçada: a fila do dia com as questões que você errou.</li>
+          <li>Simulados cronometrados, com correção só no fim.</li>
+          <li>Caderno de anotações por matéria e questões marcadas para rever.</li>
+          <li>Estatísticas de acerto por matéria e por assunto.</li>
+          <li>Meta diária de questões e contagem de dias seguidos de estudo.</li>
+        </ul>
+        <p>
+          Para usar a plataforma, ative o JavaScript e <a href="/login">entre na sua conta</a>
+          ou <a href="/registro">crie uma</a>.
+        </p>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
