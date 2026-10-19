@@ -82,3 +82,10 @@ export function useConcurso() {
   if (!ctx) throw new Error("useConcurso precisa estar dentro de <ConcursoProvider>");
   return ctx;
 }
+
+// Trilha do concurso ativo, ou null. Não exige <ConcursoProvider> (componentes de
+// exibição, como o QuestaoView, também são montados fora dele).
+// eslint-disable-next-line react-refresh/only-export-components
+export function useTrilhaAtiva(): string | null {
+  return useContext(ConcursoContext)?.ativo?.trilhaId ?? null;
+}

@@ -48,6 +48,8 @@ export interface Questao {
   enunciado: string;
   codigo?: string; // opcional: bloco de código (renderizado monospaço, preserva quebras)
   linguagem?: string; // opcional: rótulo da linguagem do código (ex.: "java", "sql")
+  // Vem do GET /questoes (Questao.tipo no banco). "saida"/"erro" = questão sobre código.
+  tipo?: "conceitual" | "saida" | "erro";
   alternativas: Partial<Record<Alternativa, string>>;
   // Ausente no plano gratuito até a questão ser respondida: aí quem corrige é o servidor
   // (lib/answers.ts, responderQuestao), que devolve gabarito e explicação.

@@ -5,7 +5,8 @@ import { getTextoBase, getProva, origemDe, rotuloOrigem, temModulos } from "../l
 import { ordemAlternativas } from "../lib/ordemAlternativas";
 import { Card } from "./Card";
 import { MetaPill } from "./MetaPill";
-import { comRealce } from "./Realce";
+import { comRealce, questaoEmModoCodigo } from "./Realce";
+import { useTrilhaAtiva } from "../store/concurso";
 import { ImagensQuestao } from "./ImagemQuestao";
 import { EfeitoEliminar } from "./EfeitoEliminar";
 import { BlocoCodigo } from "./CodigoRealcado";
@@ -54,6 +55,9 @@ export function QuestaoView({
   const ehCE = questao.formato === "CERTO_ERRADO";
   const soOrigem = metadados === "origem";
   const { tema } = useTheme();
+  // Questão de programação: colchetes de código ("[1, 2, 3]", "arr[0]") ficam literais.
+  const trilhaAtiva = useTrilhaAtiva();
+  const realce = { codigo: questaoEmModoCodigo(questao, trilhaAtiva) };
 
   // Ordem de exibição: embaralhada a cada repetição da questão (ver lib/ordemAlternativas).
   // A letra de cada alternativa NÃO muda, só a posição, então gabarito, explicação e
@@ -116,7 +120,7 @@ export function QuestaoView({
       {/* Comando do certo/errado: o texto comum aos itens, com o código dele */}
       {ehCE && questao.comando && mostrarComando && (
         <Card className="space-y-3 border-l-4 border-brand-500 p-4">
-          <p className="text-sm text-brand-ink leading-relaxed whitespace-pre-wrap">{comRealce(questao.comando.texto)}</p>
+          <p className="text-sm text-brand-ink leading-relaxed whitespace-pre-wrap">{comRealce(questao.comando.texto, realce)}</p>
           <ImagensQuestao imagens={questao.comando.imagens} posicao="enunciado" />
           {questao.comando.codigo && <BlocoCodigo codigo={questao.comando.codigo} linguagem={questao.comando.linguagem} />}
         </Card>
@@ -173,7 +177,7 @@ export function QuestaoView({
 
       {/* Enunciado */}
       <h2 className="font-semibold leading-relaxed text-brand-ink whitespace-pre-wrap" style={{ fontSize: "16.5px" }}>
-        {comRealce(questao.enunciado)}
+        {comRealce(questao.enunciado, realce)}
       </h2>
 
       {/* Imagens do enunciado (antes do código, que costuma ser o "modelo a seguir") */}
@@ -284,7 +288,7 @@ export function QuestaoView({
                   className="alt-texto whitespace-pre-wrap pt-1 text-sm"
                   style={isEliminada ? { textDecoration: "line-through" } : undefined}
                 >
-                  {comRealce(questao.alternativas[letra]!)}
+                  {comRealce(questao.alternativas[letra]!, realce)}
                 </span>
 
               </button>
@@ -363,7 +367,7 @@ export function QuestaoView({
 
           {/* Explicação */}
           <div className="text-sm leading-relaxed whitespace-pre-wrap text-brand-ink">
-            {comRealce(questao.explicacao)}
+            {comRealce(questao.explicacao, realce)}
           </div>
 
         </Card>
