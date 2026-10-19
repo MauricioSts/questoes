@@ -92,6 +92,8 @@ em branco.
 | `origem` | sim | `"oficial"`, `"adaptada"`, `"gerada"` ou `"autoral"` |
 | `prova` | condicional | obrigatória quando `origem` é `oficial` ou `adaptada`; chave existente em `provas` (ou já no banco) |
 | `numero` | opcional | número do item na prova de origem |
+| `topico` | recomendado | número do tópico do conteúdo programático do edital, dentro da disciplina do item (ex.: `"2.3"`). O perfil traz o conteúdo (`docs/perfis/*.json`); tópico inexistente bloqueia, item sem tópico gera aviso |
+| `disciplina` | opcional | só quando o item é de outra disciplina do **mesmo grupo** do comando |
 | `gabarito_conferir` | opcional | `true` quando o gabarito é duvidoso; o feedback mostra "gabarito a conferir". Omitir nos demais |
 | `geradaDe` | opcional | ids dos itens errados que motivaram este reforço (`origem: "gerada"`) |
 | `codigo` + `linguagem`, `imagens` | opcional | como no comando |
@@ -103,7 +105,8 @@ Bloqueiam a importação:
 - item sem `afirmacao` ou `explicacao`; comando sem `texto` ou sem itens;
 - `origem` inválida, `oficial`/`adaptada` sem `prova`, `prova` inexistente, `ano` não inteiro;
 - ids de item ou de comando duplicados ou fora da sequência;
-- `grupo`/`disciplina` que não existem no perfil.
+- `grupo`/`disciplina` que não existem no perfil (no comando ou no item);
+- `topico` que não existe no conteúdo programático da disciplina.
 
 Importam com aviso:
 - proporção de C fora de 40–60% no lote;

@@ -409,7 +409,7 @@ questoesRouter.post(
             formato: "CERTO_ERRADO",
             comandoId: c.uuid,
             modulo: moduloDoGrupo(perfil, c.grupo),
-            materia: c.disciplina,
+            materia: i.disciplina ?? c.disciplina,
             assunto: i.assunto,
             dificuldade: i.dificuldade,
             enunciado: i.afirmacao,

@@ -64,19 +64,39 @@ describe("validarLoteCE", () => {
     ).toThrow();
   });
 
+  it("confere o tópico com o conteúdo do edital", () => {
+    const l = lote();
+    l.comandos[0].itens[0].topico = "2.3";
+    l.comandos[0].itens[1].topico = "9.9";
+    const r = validarLoteCE(l, perfil, new Set());
+    expect(r.erros).toEqual([expect.stringContaining("tópico 9.9")]);
+  });
+
+  it("avisa item sem tópico e aceita disciplina do item no mesmo grupo", () => {
+    const l = lote();
+    l.comandos[0].itens[1].disciplina = "Engenharia de Software e Programação";
+    l.comandos[0].itens[1].topico = "2.1";
+    const r = validarLoteCE(l, perfil, new Set());
+    expect(r.erros).toEqual([]);
+    expect(r.avisos.some((a) => a.startsWith("1 item(ns) sem"))).toBe(true);
+    l.comandos[0].itens[1].disciplina = "Ética Pública e Responsabilidade Profissional";
+    expect(validarLoteCE(l, perfil, new Set()).erros).toEqual([expect.stringContaining("não existe no grupo P3")]);
+  });
+
   it("P3 é módulo II e os demais, I", () => {
     expect(moduloDoGrupo(perfil, "P3")).toBe("II");
     expect(moduloDoGrupo(perfil, "P1")).toBe("I");
   });
 
   // O lote real fica fora do repositório (~/procedencia); só roda na VM.
-  const LOTE_REAL = "/home/ubuntu/procedencia/lote-cgu-v1.json";
-  it.skipIf(!existsSync(LOTE_REAL))("o lote cgu-v1 passa sem erros", () => {
+  const LOTE_REAL = "/home/ubuntu/procedencia/lote-cgu-v2.json";
+  it.skipIf(!existsSync(LOTE_REAL))("o lote cgu-v2 passa sem erros e com tópico em todos os itens", () => {
     const real = loteCESchema.parse(
       JSON.parse(readFileSync(LOTE_REAL, "utf8"))
     );
     const r = validarLoteCE(real, perfil, new Set());
     expect(r.erros).toEqual([]);
-    expect(r.itens).toBe(75);
+    expect(r.itens).toBe(58);
+    expect(r.avisos.some((a) => a.includes("sem \"topico\""))).toBe(false);
   });
 });

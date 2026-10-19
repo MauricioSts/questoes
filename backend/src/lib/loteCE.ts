@@ -31,6 +31,10 @@ const itemSchema = z.object({
   prova: z.string().optional(),
   numero: z.number().int().positive().optional(),
   gabarito_conferir: z.boolean().optional(),
+  // Tópico do conteúdo programático ("2.3"), dentro da disciplina do item.
+  topico: z.string().regex(/^\d+(\.\d+)*$/, "topico é o número do edital, ex.: \"2.3\"").optional(),
+  // Disciplina do item quando difere da do comando (mesmo grupo).
+  disciplina: z.string().min(1).optional(),
   geradaDe: z.array(z.number().int()).optional(),
   codigo: z.string().optional(),
   linguagem: z.string().optional(),
@@ -68,7 +72,12 @@ export type LoteCE = z.infer<typeof loteCESchema>;
 // O que o validador precisa do perfil (docs/perfis/*.json).
 export interface PerfilProvaDados {
   perfil: string;
-  grupos: { grupo: string; nome: string; disciplinas: { nome: string }[] }[];
+  grupos: {
+    grupo: string;
+    nome: string;
+    // topicos = conteúdo programático do edital; sem ele, o tópico do item não é conferido.
+    disciplinas: { nome: string; topicos?: { numero: string; texto: string }[] }[];
+  }[];
 }
 
 export interface RelatorioLoteCE {
@@ -95,6 +104,15 @@ export function validarLoteCE(
   if (lote.perfil !== perfil.perfil) erros.push(`Perfil "${lote.perfil}" não confere com "${perfil.perfil}".`);
 
   const disciplinas = new Map(perfil.grupos.map((g) => [g.grupo, new Set(g.disciplinas.map((d) => d.nome))]));
+  // "P3|Disciplina" -> números de tópico do edital (só quando o perfil traz o conteúdo).
+  const topicos = new Map(
+    perfil.grupos.flatMap((g) =>
+      g.disciplinas
+        .filter((d) => d.topicos?.length)
+        .map((d) => [`${g.grupo}|${d.nome}`, new Set(d.topicos!.map((t) => t.numero))] as const)
+    )
+  );
+  let semTopico = 0;
   const provaExiste = (c: string) => !!lote.provas[c] || provasNoBanco.has(c);
 
   let itens = 0;
@@ -122,9 +140,20 @@ export function validarLoteCE(
       if (item.prova && !provaExiste(item.prova))
         erros.push(`Item ${item.id}: prova "${item.prova}" não está em "provas" nem no banco.`);
       if (item.codigo && !item.linguagem) avisos.push(`Item ${item.id}: código sem "linguagem".`);
+      const disciplina = item.disciplina ?? c.disciplina;
+      if (item.disciplina && !doGrupo?.has(item.disciplina))
+        erros.push(`Item ${item.id}: disciplina "${item.disciplina}" não existe no grupo ${c.grupo} do perfil.`);
+      const doEdital = topicos.get(`${c.grupo}|${disciplina}`);
+      if (doEdital) {
+        if (!item.topico) semTopico++;
+        else if (!doEdital.has(item.topico))
+          erros.push(`Item ${item.id}: tópico ${item.topico} não existe em "${disciplina}" no edital.`);
+      }
       if (ABSOLUTAS.test(item.afirmacao)) absolutas[item.gabarito]++;
     }
   });
+
+  if (semTopico > 0) avisos.push(`${semTopico} item(ns) sem "topico" do edital: não dá para conferir se o assunto cai.`);
 
   for (const p of lote.pendencias) {
     if (!provaExiste(p.prova)) erros.push(`Pendência ${p.numero}: prova "${p.prova}" não está em "provas" nem no banco.`);
