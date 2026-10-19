@@ -201,7 +201,12 @@ answersRouter.get(
     const stats = await calcularStats(req.userId!, desde);
     // Streak sempre considera o histórico completo (independe do período do filtro).
     const user = await prisma.user.findUnique({ where: { id: req.userId! } });
-    const streak = await calcularStreakUsuario(req.userId!, user?.metaDiaria ?? 70);
+    // Ofensiva do concurso ativo, com a meta dele (a ofensiva é por trilha).
+    const concursoId = req.query.concursoId ? String(req.query.concursoId) : undefined;
+    const concurso = concursoId
+      ? await prisma.concurso.findFirst({ where: { id: concursoId, userId: req.userId! }, select: { id: true, metaDiaria: true } })
+      : null;
+    const streak = await calcularStreakUsuario(req.userId!, concurso?.metaDiaria ?? user?.metaDiaria ?? 70, concurso?.id);
     res.json({ ...stats, streak });
   })
 );

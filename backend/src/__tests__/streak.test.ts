@@ -49,3 +49,11 @@ describe("calcularStreak: modo férias", () => {
     expect(calcularStreak(porDia, 1, ferias)).toBeLessThanOrEqual(calcularStreak(porDia, 1, ativo));
   });
 });
+
+describe("filtroFerias", () => {
+  it("no concurso, vale o período dele e os antigos sem concurso", async () => {
+    const { filtroFerias } = await import("../lib/streak.js");
+    expect(filtroFerias("u1", "c1")).toEqual({ userId: "u1", OR: [{ concursoId: "c1" }, { concursoId: null }] });
+    expect(filtroFerias("u1")).toEqual({ userId: "u1" });
+  });
+});

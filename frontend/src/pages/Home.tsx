@@ -55,6 +55,8 @@ export function Home() {
   const marcadas = useMarcadas();
   const [heatmap, setHeatmap] = useState<DiaHeatmap[]>([]);
   const [periodosFerias, setPeriodosFerias] = useState<PeriodoFerias[]>([]);
+  // Sobe ao ligar/desligar as férias: o heatmap recarrega os períodos do concurso.
+  const [versaoHeatmap, setVersaoHeatmap] = useState(0);
 
   useEffect(() => {
     const cid = activeId ?? getConcursoId();
@@ -74,7 +76,7 @@ export function Home() {
         setPeriodosFerias(r.periodos);
       })
       .catch(() => null);
-  }, [activeId]);
+  }, [activeId, versaoHeatmap]);
 
   const meta = goal?.meta ?? ativo?.metaDiaria ?? META_DIARIA_DEFAULT;
   const respondidas = goal?.respondidasHoje ?? 0;
@@ -157,8 +159,15 @@ export function Home() {
 
   async function alternarFerias(valor: boolean) {
     try {
-      const res = await api<{ feriasAtivo: boolean }>("/goals/ferias", { method: "PATCH", body: { ativo: valor } });
+      // Férias valem para o concurso ativo: a ofensiva é por pessoa e por trilha.
+      const res = await api<{ feriasAtivo: boolean }>("/goals/ferias", {
+        method: "PATCH",
+        body: { ativo: valor, concursoId: getConcursoId() ?? undefined },
+      });
       setGoal((g) => (g ? { ...g, feriasAtivo: res.feriasAtivo } : g));
+      // Ofensiva e marcação das semanas mudam com o período novo.
+      setVersaoHeatmap((v) => v + 1);
+      await atualizarMeta();
     } catch {
       /* ignora */
     }

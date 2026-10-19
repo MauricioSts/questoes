@@ -218,6 +218,8 @@ model Concurso {
   // Simulado configurado pelo usuário (composição, pesos, duração, corte, dia). null =
   // padrão calculado no cliente a partir das matérias da trilha.
   simuladoConfig Json?
+  // Modo férias DESTE concurso (a ofensiva é por trilha). User.feriasAtivo é legado.
+  feriasAtivo    Boolean   @default(false)
   createdAt      DateTime  @default(now())
 
   paginas PaginaCaderno[]
@@ -336,14 +338,18 @@ model Assinatura {
 // ainda ligado. Guardar TODOS os períodos (em vez de uma única janela no User) é o
 // que impede a ofensiva de quebrar retroativamente quando o modo é ligado de novo.
 model FeriasPeriodo {
-  id        String    @id @default(cuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  inicio    DateTime
-  fim       DateTime? // null = período em aberto (modo férias ligado agora)
-  createdAt DateTime  @default(now())
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inicio     DateTime
+  fim        DateTime? // null = período em aberto (modo férias ligado agora)
+  // Concurso cuja ofensiva o período protege. null = período antigo, de antes da
+  // ofensiva por trilha: vale para todos os concursos do usuário.
+  concursoId String?
+  createdAt  DateTime  @default(now())
 
   @@index([userId])
+  @@index([userId, concursoId])
 }
 
 // Sessão de estudo em andamento (uma por usuário). Guarda apenas a ORDEM dos IDs e

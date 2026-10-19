@@ -51,8 +51,9 @@ goalsRouter.get(
     });
 
     // Uma única passada nas respostas → mapa dia→quantidade, base do streak e da semana.
-    const porDia = await contarPorDia(req.userId!);
-    const periodosFerias = await carregarFeriasPeriodos(req.userId!);
+    // Ofensiva e semana do concurso ativo: cada trilha tem a sua.
+    const porDia = await contarPorDia(req.userId!, concurso?.id);
+    const periodosFerias = await carregarFeriasPeriodos(req.userId!, concurso?.id);
     const streak = calcularStreak(porDia, meta, periodosFerias);
 
     // Calendário da ofensiva: cada dia da semana atual (seg→dom) bateu a meta?
@@ -154,7 +155,8 @@ goalsRouter.get(
       acertosHoje,
       cumpriuHoje: respondidasHoje >= meta,
       streak,
-      feriasAtivo: user?.feriasAtivo ?? false, // modo férias ligado (dias não quebram a ofensiva)
+      // modo férias ligado (dias não quebram a ofensiva), do concurso ativo
+      feriasAtivo: (concurso ? concurso.feriasAtivo : user?.feriasAtivo) ?? false,
       semana, // 7 booleans: seg→dom da semana atual bateram a meta
       hojeIdx, // índice de hoje no array acima (0=seg … 6=dom)
       dataProva,
@@ -390,14 +392,32 @@ goalsRouter.patch(
 // (feriasDesde = agora, feriasAte = null); desligar fecha (feriasAte = agora).
 // Enquanto ligado, os dias não quebram a ofensiva; ao desligar, a janela [desde,
 // ate] continua sendo pulada no cálculo: por isso a ofensiva não quebra ao voltar.
+// Com concursoId, liga/desliga só naquele concurso (a ofensiva é por trilha); sem ele,
+// o comportamento antigo, na conta.
 const feriasSchema = z.object({
   ativo: z.boolean(),
+  concursoId: z.string().min(1).optional(),
 });
 
 goalsRouter.patch(
   "/ferias",
   asyncHandler(async (req, res) => {
     const { ativo } = feriasSchema.parse(req.body);
+    const concurso = await concursoDoEscopo(req);
+    if (concurso) {
+      const agora = new Date();
+      if (ativo !== concurso.feriasAtivo) {
+        await prisma.feriasPeriodo.updateMany({
+          where: { userId: req.userId!, concursoId: concurso.id, fim: null },
+          data: { fim: agora },
+        });
+        if (ativo) {
+          await prisma.feriasPeriodo.create({ data: { userId: req.userId!, concursoId: concurso.id, inicio: agora, fim: null } });
+        }
+        await prisma.concurso.update({ where: { id: concurso.id }, data: { feriasAtivo: ativo } });
+      }
+      return res.json({ feriasAtivo: ativo });
+    }
     const atual = await prisma.user.findUnique({ where: { id: req.userId! } });
     const jaAtivo = atual?.feriasAtivo ?? false;
     const agora = new Date();
@@ -407,14 +427,14 @@ goalsRouter.patch(
     if (ativo && !jaAtivo) {
       // Abre um novo período (se por algum motivo houver um aberto, fecha antes).
       await prisma.feriasPeriodo.updateMany({
-        where: { userId: req.userId!, fim: null },
+        where: { userId: req.userId!, concursoId: null, fim: null },
         data: { fim: agora },
       });
       await prisma.feriasPeriodo.create({ data: { userId: req.userId!, inicio: agora, fim: null } });
     } else if (!ativo && jaAtivo) {
       // Fecha o período em aberto.
       await prisma.feriasPeriodo.updateMany({
-        where: { userId: req.userId!, fim: null },
+        where: { userId: req.userId!, concursoId: null, fim: null },
         data: { fim: agora },
       });
     }

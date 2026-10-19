@@ -5,10 +5,11 @@ import { localDateKey, startOfToday, localWeekdayIndex } from "./date.js";
 
 // Mapa "YYYY-MM-DD" (fuso do usuário) → nº de questões respondidas naquele dia.
 // Janela de 120 dias é suficiente para streak e para a semana atual.
-export async function contarPorDia(userId: string): Promise<Map<string, number>> {
+// Com concursoId, só as respostas daquele concurso: a ofensiva é por pessoa E por trilha.
+export async function contarPorDia(userId: string, concursoId?: string): Promise<Map<string, number>> {
   const desde = new Date(Date.now() - 120 * 864e5);
   const answers = await prisma.answer.findMany({
-    where: { userId, createdAt: { gte: desde } },
+    where: { userId, createdAt: { gte: desde }, ...(concursoId ? { concursoId } : {}) },
     select: { createdAt: true },
   });
   const porDia = new Map<string, number>();
@@ -77,10 +78,16 @@ export function calcularStreak(
   return streak;
 }
 
+// Filtro dos períodos de férias que valem para um concurso: os dele e os antigos, de
+// antes da ofensiva por trilha (concursoId null), que valem para todos.
+export function filtroFerias(userId: string, concursoId?: string) {
+  return concursoId ? { userId, OR: [{ concursoId }, { concursoId: null }] } : { userId };
+}
+
 // Carrega os períodos de férias do usuário do banco.
-export async function carregarFeriasPeriodos(userId: string): Promise<FeriasPeriodo[]> {
+export async function carregarFeriasPeriodos(userId: string, concursoId?: string): Promise<FeriasPeriodo[]> {
   const rows = await prisma.feriasPeriodo.findMany({
-    where: { userId },
+    where: filtroFerias(userId, concursoId),
     select: { inicio: true, fim: true },
     orderBy: { inicio: "asc" },
   });
@@ -88,7 +95,7 @@ export async function carregarFeriasPeriodos(userId: string): Promise<FeriasPeri
 }
 
 // Conveniência: calcula o streak do usuário direto do banco.
-export async function calcularStreakUsuario(userId: string, meta: number): Promise<number> {
-  const [porDia, periodos] = await Promise.all([contarPorDia(userId), carregarFeriasPeriodos(userId)]);
+export async function calcularStreakUsuario(userId: string, meta: number, concursoId?: string): Promise<number> {
+  const [porDia, periodos] = await Promise.all([contarPorDia(userId, concursoId), carregarFeriasPeriodos(userId, concursoId)]);
   return calcularStreak(porDia, meta, periodos);
 }

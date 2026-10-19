@@ -5,6 +5,7 @@ import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { localDateKey } from "../../lib/date.js";
 import { calcularProcedencia } from "../../lib/procedencia.js";
+import { filtroFerias } from "../../lib/streak.js";
 
 export const statsRouter = Router();
 statsRouter.use(requireAuth);
@@ -44,7 +45,7 @@ statsRouter.get(
 
     // Períodos de férias (para o heatmap marcar as semanas em que houve modo férias).
     const periodosRaw = await prisma.feriasPeriodo.findMany({
-      where: { userId: req.userId! },
+      where: filtroFerias(req.userId!, concursoId),
       select: { inicio: true, fim: true },
       orderBy: { inicio: "asc" },
     });
