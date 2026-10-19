@@ -2,7 +2,6 @@
 // execução na fila (tabela Execucao) e devolve o resultado que o worker do sandbox
 // (serviço separado, sandbox/worker) gravou. Testes ocultos nunca saem daqui.
 import { Router } from "express";
-import { createHash } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
@@ -10,6 +9,10 @@ import { requireAdmin } from "../../middleware/admin.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { HttpError } from "../../middleware/error.js";
 import { resultadoPublico } from "../../lib/saidaSandbox.js";
+import { LINGUAGENS, LINGUAGENS_VERIFICACAO, hashCodigo } from "../../lib/sandboxCodigo.js";
+
+// hashCodigo mora em lib/sandboxCodigo.ts (o importador e os scripts de lote também usam).
+export { hashCodigo };
 
 export const exerciciosRouter = Router();
 export const execucoesRouter = Router();
@@ -21,10 +24,6 @@ export const EXECUCOES_POR_MINUTO = 10;
 // Fila cheia = o worker não está dando conta (ou caiu): recusa em vez de acumular.
 const MAX_FILA = 40;
 
-// Linguagens que o usuário pode mandar. "cpp-ubsan" só existe na verificação de questões.
-const LINGUAGENS = ["python", "javascript", "typescript", "java", "cpp", "sql", "shell"] as const;
-const LINGUAGENS_VERIFICACAO = [...LINGUAGENS, "cpp-ubsan"] as const;
-
 // Código: string até 64 KB em UTF-8 e sem NUL (nenhum compilador aceita, e o Postgres
 // recusa \0 em text — melhor um 400 claro do que um 500).
 const codigoSchema = z
@@ -32,10 +31,6 @@ const codigoSchema = z
   .min(1, "Código vazio.")
   .refine((c) => Buffer.byteLength(c, "utf8") <= MAX_CODIGO_BYTES, "Código passa de 64 KB.")
   .refine((c) => !c.includes("\u0000"), "Código com caractere nulo.");
-
-export function hashCodigo(linguagem: string, codigo: string): string {
-  return createHash("sha256").update(`${linguagem}\n${codigo}`).digest("hex");
-}
 
 // Limite por usuário contado no próprio banco (vale entre reinícios e entre processos).
 async function conferirLimites(userId: string) {

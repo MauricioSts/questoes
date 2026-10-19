@@ -137,3 +137,10 @@ export function iniciaisTrilha(nome: string): string {
       : (palavras[0] ?? "TR").slice(0, 4).split("");
   return ini.join("").toUpperCase();
 }
+
+// Quem escreve no acervo de uma trilha: o dono dela, ou o admin quando a trilha é oficial
+// (donoId null). Mesma regra de trilhaDoDono (modules/trilhas). O admin NÃO escreve em trilha de outro
+// usuário: ela é do dono.
+export function podeEscreverNaTrilha(trilha: { donoId: string | null }, userId: string, admin: boolean): boolean {
+  return trilha.donoId === userId || (admin && trilha.donoId === null);
+}

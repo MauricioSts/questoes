@@ -11,6 +11,7 @@ pendentes; as 9 trilhas `dev-*` seguem ocultas e vazias de questões autorais.
 | 2. Schema | `549e50a` | migração `20261015c_trilhas_dev_sandbox` **aplicada** (backup `~/questoes_backup_pretrilhasdev_20261015_190501.sql`). 9 trilhas `dev-*` com `publicada=false` |
 | 3. Sandbox | `be97f89` | gVisor instalado, imagens buildadas, worker **rodando** (`systemctl status questoes-sandbox`). Rotas `/exercicios` e `/execucoes` + helmet no ar |
 | 4. Vínculos Dataprev | `f5b498c` | 242 vínculos **aplicados** (backup `~/questoes_backup_previnculos_20261015_192618.sql`). Escopo/matéria por vínculo no ar |
+| 5.1 Validador + 5.2 verificação | este commit | só no GitHub (não deployado). Sem migração nova: `Questao.tipo`/`execucaoId` já vieram na `20261015c` |
 
 Decisões aprovadas: herdadas da Dataprev **não** contam para o mínimo de 50; SQL em
 SQLite; gVisor; trilha Testes = aluno escreve testes que pegam mutantes; Git/DevOps =
@@ -20,7 +21,16 @@ Leitura obrigatória antes de continuar: `sandbox/README.md` (modos, limites, op
 
 ## Etapa 5 — validador + geração das questões
 
-### 5.1 Validador de qualidade (fazer primeiro)
+### 5.1 Validador de qualidade — FEITO (este commit)
+
+Implementado em `backend/src/lib/qualidadeLote.ts` + `npm run lote:validar -- <lote.json>
+[--trilha dev-x] [--json]` (sai com 1 se reprovar). O lote declara na raiz `trilhaId` e
+`ementa` (lista de tópicos; cada `materia` precisa ser um deles). O importador manda 400
+com `{ error, relatorio }` quando a trilha de destino é `dev-*`. Decisões tomadas na
+implementação: a letra citada na explicação só conta em maiúscula ("a opção e a outra" é
+português); o enchimento é procurado nas alternativas; trilhas de linguagem =
+`dev-python`, `dev-javascript-typescript`, `dev-java`, `dev-cpp`; gabarito por letra
+aceita de ⌊8n/50⌋ a ⌈12n/50⌉.
 
 Arquivo novo `backend/src/lib/qualidadeLote.ts` (zod), usado pelo importador
 (`POST /questoes/import`) quando o lote vai para trilha `dev-*`, e por um script
@@ -45,7 +55,14 @@ Por trilha (lote inteiro da trilha):
 - trilhas de linguagem (python, js/ts, java, cpp): ≥ 40% `tipo` `saida`/`erro`;
 - cobertura: todo tópico da ementa com ≥ 1 questão e nenhum com > 15%.
 
-### 5.2 Verificação no sandbox (obrigatória para `saida`/`erro`)
+### 5.2 Verificação no sandbox (obrigatória para `saida`/`erro`) — FEITO (este commit)
+
+Implementado: `API_URL=… ADMIN_TOKEN=<access token do admin> npm run lote:verificar --
+<lote.json> [--seco]`. Questão de C++ com UB marca `"linguagemVerificacao": "cpp-ubsan"`
+(o hash usa essa linguagem). O importador aceita `trilhaId` (dono da trilha ou admin em
+trilha oficial; a rota segue com `requireAdmin`), confere a `Execucao` (finalidade, status,
+hash) **e** reconfere o resultado gravado contra `saidaEsperada`/alternativa/`erroEsperado`,
+e grava `tipo` e `execucaoId`.
 
 Script `backend/scripts/verificarLote.ts`:
 1. para cada questão `saida`/`erro`, `POST /execucoes/verificar` (admin) com

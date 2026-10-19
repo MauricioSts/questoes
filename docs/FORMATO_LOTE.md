@@ -90,6 +90,23 @@ Convenção de chave: `BANCA_ORGAO_ANO_CARGO` em maiúsculas, sem acento
 - **Módulo II = 30:** distribua entre as matérias específicas (ex.: Desenvolvimento de Software ~15,
   Banco de Dados / BI / Big Data ~5, Segurança da Informação ~5, Governança de TI ~5).
 
+## Lotes das trilhas de desenvolvimento (`dev-*`)
+
+Além dos campos acima, a raiz traz `"trilhaId": "dev-python"` e `"ementa": ["tópico", …]`
+(cada `materia` é um tópico da ementa), e cada questão traz:
+
+| Campo | Regras |
+|---|---|
+| `tipo` | `"conceitual"`, `"saida"` (qual a saída) ou `"erro"` (qual o erro) |
+| `saidaEsperada` | só em `saida`: stdout exato, igual ao texto da alternativa correta |
+| `erroEsperado` | só em `erro`: `{ "fase": "compilacao" \| "execucao", "contem": "trecho do stderr" }` |
+| `linguagemVerificacao` | opcional, só `"cpp-ubsan"` (C++ com comportamento indefinido) |
+| `execucaoId` | gravado por `npm run lote:verificar`; o importador exige em `saida`/`erro` |
+
+`origem` só `"autoral"` (ou `"adaptada"` + `prova`). Validar com `npm run lote:validar --
+<arquivo>` (regras em `docs/TRILHAS-DEV-PENDENTE.md`, 5.1) e importar mandando `trilhaId` e
+`ementa` no corpo de `POST /questoes/import`.
+
 ## Regras que o validador checa (evite reprovar a importação)
 - Todo `gabarito` existe em `alternativas`.
 - `modulo`/`dificuldade` com os valores exatos acima.

@@ -7,12 +7,14 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
-import { requireAdmin } from "../../middleware/admin.js";
+import { requireAdmin, ehAdmin } from "../../middleware/admin.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { escopoQuestoes, materiasDoVinculo } from "../../lib/escopoQuestoes.js";
 import { acessoDoUsuario } from "../../lib/assinatura.js";
 import { HttpError } from "../../middleware/error.js";
 import { loteCESchema, validarLoteCE, moduloDoGrupo, type PerfilProvaDados } from "../../lib/loteCE.js";
+import { conferirVerificacao, ehTrilhaDev, questaoDevSchema, validarQualidadeLote } from "../../lib/qualidadeLote.js";
+import { podeEscreverNaTrilha } from "../../lib/trilhaComunidade.js";
 import { randomUUID } from "node:crypto";
 import type { Prisma } from "@prisma/client";
 
@@ -74,6 +76,11 @@ const importSchema = z.object({
   deslocarSeColidir: z.boolean().default(true),
   nomeLote: z.string().max(200).optional(), // rótulo do lote (nome do arquivo)
   concursoId: z.string().min(1).optional(), // concurso ao qual o lote pertence
+  // Trilha que recebe o lote (só o dono dela, ou o admin numa trilha oficial). Sem ela,
+  // vale a trilha do concurso, como sempre foi.
+  trilhaId: z.string().min(1).max(100).optional(),
+  // Tópicos da ementa: o validador de qualidade das trilhas dev-* confere a cobertura.
+  ementa: z.array(z.string().min(1)).optional(),
 });
 
 // GET /questoes: todas as questões + textos base (para o frontend popular o app).
@@ -178,8 +185,18 @@ questoesRouter.post(
   "/import",
   requireAdmin,
   asyncHandler(async (req, res) => {
-    const { questoes, textosBase, provas, provaBase, origemPadrao, deslocarSeColidir, nomeLote, concursoId: concursoEnviado } =
-      importSchema.parse(req.body);
+    const {
+      questoes,
+      textosBase,
+      provas,
+      provaBase,
+      origemPadrao,
+      deslocarSeColidir,
+      nomeLote,
+      concursoId: concursoEnviado,
+      trilhaId: trilhaEnviada,
+      ementa,
+    } = importSchema.parse(req.body);
 
     // Sem concursoId a questão nasceria órfã: gravada no banco, mas invisível no app
     // (GET /questoes filtra pelo concurso ativo). Por isso, quando o cliente não manda o
@@ -189,7 +206,20 @@ questoesRouter.post(
     // segue (e para a contagem da tela de trilhas bater). Sem isso o lote ficava preso ao
     // concurso de quem importou.
     let trilhaId: string | null = null;
-    if (concursoId) {
+    if (trilhaEnviada) {
+      // Trilha explícita: o lote vai para ela, sem cair no concurso mais antigo de quem
+      // importa (quem segue a trilha enxerga pelo trilhaId).
+      const trilha = await prisma.trilha.findUnique({ where: { id: trilhaEnviada }, select: { id: true, donoId: true } });
+      if (!trilha) throw new HttpError(404, `Trilha "${trilhaEnviada}" não encontrada.`);
+      if (!podeEscreverNaTrilha(trilha, req.userId!, ehAdmin(req.userEmail))) {
+        throw new HttpError(403, "Só o dono da trilha (ou o admin, numa trilha oficial) importa questões nela.");
+      }
+      trilhaId = trilha.id;
+      if (concursoId) {
+        const dono = await prisma.concurso.findFirst({ where: { id: concursoId, userId: req.userId! } });
+        if (!dono) throw new HttpError(404, "Concurso não encontrado.");
+      }
+    } else if (concursoId) {
       const dono = await prisma.concurso.findFirst({ where: { id: concursoId, userId: req.userId! } });
       if (!dono) throw new HttpError(404, "Concurso não encontrado.");
       trilhaId = dono.trilhaId;
@@ -200,6 +230,38 @@ questoesRouter.post(
       });
       concursoId = padrao?.id ?? null;
       trilhaId = padrao?.trilhaId ?? null;
+    }
+
+    // Trilhas de desenvolvimento (dev-*): o lote passa pelo validador de qualidade e cada
+    // questão de saída/erro precisa da execução no sandbox que confirmou o gabarito.
+    // Lote de qualquer outra trilha segue exatamente o caminho de antes.
+    let extrasDev: { tipo: string; execucaoId: string | null }[] | null = null;
+    if (ehTrilhaDev(trilhaId)) {
+      const brutas = (req.body as { questoes: unknown[] }).questoes;
+      const relatorio = validarQualidadeLote({ trilhaId: trilhaId!, ementa, questoes: brutas });
+      if (!relatorio.ok) {
+        return res.status(400).json({ error: "Lote reprovado no validador de qualidade das trilhas dev.", relatorio });
+      }
+      const devs = brutas.map((b) => questaoDevSchema.parse(b));
+      const idsExec = [...new Set(devs.map((q) => q.execucaoId).filter((x): x is string => !!x))];
+      const execucoes = new Map(
+        (
+          await prisma.execucao.findMany({
+            where: { id: { in: idsExec } },
+            select: { id: true, finalidade: true, status: true, hash: true, resultado: true },
+          })
+        ).map((e) => [e.id, e])
+      );
+      const verificacao = devs
+        .map((q) => ({ id: q.id, erros: conferirVerificacao(q, q.execucaoId ? execucoes.get(q.execucaoId) : null) }))
+        .filter((v) => v.erros.length > 0);
+      if (verificacao.length > 0) {
+        return res.status(400).json({ error: "Questões de saída/erro sem verificação válida no sandbox.", verificacao });
+      }
+      extrasDev = devs.map((q) => ({
+        tipo: q.tipo,
+        execucaoId: q.tipo === "conceitual" ? null : q.execucaoId!,
+      }));
     }
 
     // valida gabarito ↔ alternativas (defesa extra além do frontend)
@@ -272,7 +334,7 @@ questoesRouter.post(
         })
       ),
       prisma.questao.createMany({
-        data: aGravar.map((q) => ({
+        data: aGravar.map((q, i) => ({
           id: q.id,
           concursoId,
           trilhaId,
@@ -294,6 +356,7 @@ questoesRouter.post(
           provaBaseChave: provaBase ?? null,
           numeroOriginal: q.numero ?? null,
           geradaDe: (q.geradaDe ?? undefined) as Prisma.InputJsonValue | undefined,
+          ...(extrasDev ? extrasDev[i] : {}),
         })),
       }),
       ...Object.entries(textosBase).map(([chave, texto]) =>

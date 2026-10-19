@@ -12,7 +12,9 @@
     "migrate": "prisma migrate deploy",
     "test": "vitest run",
     "test:watch": "vitest",
-    "vinculos:aplicar": "tsx scripts/aplicarVinculos.ts"
+    "vinculos:aplicar": "tsx scripts/aplicarVinculos.ts",
+    "lote:validar": "tsx scripts/validarLote.ts",
+    "lote:verificar": "tsx scripts/verificarLote.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
