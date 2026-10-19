@@ -34,6 +34,8 @@ import { RotaPremium } from "./components/RotaPremium";
 import { Perfil } from "./pages/Perfil";
 import { TrilhaEditor } from "./pages/TrilhaEditor";
 import { Assinatura } from "./pages/Assinatura";
+import { Exercicios } from "./pages/Exercicios";
+import { Exercicio } from "./pages/Exercicio";
 import { FronteiraErro } from "./components/FronteiraErro";
 
 // Bancada dos golpes da Batalha Pokémon: só carrega quem abre.
@@ -92,6 +94,8 @@ export default function App() {
                   <Route path="/legislacao" element={<Legislacao />} />
                   <Route path="/materias" element={<Materias />} />
                   <Route path="/erros" element={<Erros />} />
+                  <Route path="/exercicios" element={<Exercicios />} />
+                  <Route path="/exercicios/:id" element={<Exercicio />} />
                   <Route element={<RotaAdmin />}>
                     <Route path="/importar" element={<Importar />} />
                   </Route>

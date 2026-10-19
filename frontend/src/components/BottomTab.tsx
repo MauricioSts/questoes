@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NavLink, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
@@ -23,11 +23,13 @@ import {
   Menu,
   X,
   Compass,
+  Code2,
 } from "lucide-react";
 import { useTheme, type Tema } from "../store/theme";
 import { useAuth } from "../store/auth";
 import { useAssinatura } from "../store/assinatura";
 import { useConcurso } from "../store/concurso";
+import { useExercicios } from "../hooks/useExercicios";
 import { TagPlano } from "./TagPlano";
 import { ConcursoSwitcher } from "./ConcursoSwitcher";
 import { LineSidebar } from "./LineSidebar";
@@ -69,15 +71,24 @@ const desktopExtra = [
   { to: "/flash", label: "Flash", icon: Zap },
 ];
 
+// Exercícios de código: só aparece quando a trilha ativa tem algum (trilhas dev).
+const itemExercicios: ItemNav = { to: "/exercicios", label: "Exercícios", icon: Code2 };
+
 // Batalha: no desktop logo abaixo da Revisão (é a mesma fila, jogada).
 const itemBatalha = { to: "/batalha", label: "Batalha", icon: Swords };
-const allSidebarItems = [...navItems.slice(0, 3), itemBatalha, ...navItems.slice(3), ...desktopExtra];
 
 // Celular: a barra inferior tem espaço para 5. Ficam os 4 de uso diário (a Batalha é a
 // porta de entrada de quem chega pelo vídeo) e o resto da barra lateral vai para "Mais",
 // para o celular alcançar exatamente as mesmas telas que o computador.
 const itensCelular: ItemNav[] = [navItems[0], navItems[1], navItems[2], itemBatalha];
-const itensMais: ItemNav[] = [...navItems.slice(3), ...desktopExtra];
+
+function montarItens(comExercicios: boolean) {
+  const extra: ItemNav[] = comExercicios ? [...desktopExtra, itemExercicios] : desktopExtra;
+  return {
+    sidebar: [...navItems.slice(0, 3), itemBatalha, ...navItems.slice(3), ...extra],
+    mais: [...navItems.slice(3), ...extra],
+  };
+}
 
 // Cabeçalho da sidebar: marca e concurso ativo num bloco só. Eram dois cartões soltos
 // empilhados — a marca solta em cima e o trocador com borda própria embaixo. Agora o
@@ -103,6 +114,8 @@ export function BottomTab() {
   const { dados: assinatura } = useAssinatura();
   const { ativo } = useConcurso();
   const navigate = useNavigate();
+  const { temExercicios } = useExercicios();
+  const { sidebar: allSidebarItems, mais: itensMais } = useMemo(() => montarItens(temExercicios), [temExercicios]);
   const linha = CORES_LINHA[tema];
   const { pathname } = useLocation();
   const [maisAberto, setMaisAberto] = useState(false);
@@ -165,6 +178,7 @@ export function BottomTab() {
         <MenuMais
           onFechar={() => setMaisAberto(false)}
           onSair={sair}
+          itens={itensMais}
           admin={!!usuario?.admin}
           assinar={assinatura?.pagamentosAtivos ? (assinatura.premium ? "Assinatura" : "Assinar") : null}
           minhaTrilha={ativo?.souDonoTrilha && ativo.trilhaId ? ativo.trilhaId : null}
@@ -247,6 +261,7 @@ function MobileNavItem({
 // Folha do "Mais" (só celular): trilha ativa, as telas que não cabem na barra inferior e
 // o rodapé da barra lateral (perfil, tema, ajuda, assinatura, importar, sair).
 function MenuMais({
+  itens,
   onFechar,
   onSair,
   admin,
@@ -254,6 +269,7 @@ function MenuMais({
   minhaTrilha,
   nome,
 }: {
+  itens: ItemNav[];
   onFechar: () => void;
   onSair: () => void;
   admin: boolean;
@@ -287,7 +303,7 @@ function MenuMais({
           <ConcursoSwitcher />
         </div>
         <ul className="grid grid-cols-3 gap-2">
-          {itensMais.map(({ to, label, labelCurto, icon: Icon }) => (
+          {itens.map(({ to, label, labelCurto, icon: Icon }) => (
             <li key={to}>
               <NavLink
                 to={to}
