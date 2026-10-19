@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { corrigir } from "../lib/correcao";
 import {
+  juntarPorComando,
   montarFlash,
   montarSimulado,
   pesoSimulado,
@@ -271,5 +272,24 @@ describe("montarSimulado (frescor: prefere inéditas e esquecidas há 14+ dias)"
     });
     expect(errada).toBeGreaterThan(certa);
     expect(certa).toBeGreaterThan(recente);
+  });
+});
+
+describe("juntarPorComando", () => {
+  const ce = (id: number, comando?: string) =>
+    ({
+      id, modulo: "II", materia: "m", assunto: "a", dificuldade: "facil", enunciado: "e", explicacao: "",
+      alternativas: { C: "Certo", E: "Errado" }, gabarito: "C",
+      ...(comando ? { formato: "CERTO_ERRADO", comando: { id: comando, grupo: "P3", texto: "t" } } : {}),
+    }) as Questao;
+
+  it("um item puxa os outros do mesmo comando, em ordem, logo depois", () => {
+    const ordenadas = [ce(12, "b"), ce(1), ce(10, "a"), ce(13, "b"), ce(11, "a"), ce(2)];
+    expect(juntarPorComando(ordenadas, 4).map((q) => q.id)).toEqual([12, 13, 1, 10, 11]);
+  });
+
+  it("não puxa item que não está na lista (filtro ou descanso) e não muda múltipla escolha", () => {
+    expect(juntarPorComando([ce(1), ce(2), ce(10, "a")], 3).map((q) => q.id)).toEqual([1, 2, 10]);
+    expect(juntarPorComando([ce(3), ce(1), ce(2)], 2).map((q) => q.id)).toEqual([3, 1]);
   });
 });

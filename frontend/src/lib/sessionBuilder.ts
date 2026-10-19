@@ -41,6 +41,35 @@ export function sampleWeighted<T>(
   return out;
 }
 
+// ---------- CERTO/ERRADO: itens do mesmo comando juntos ----------
+
+// Pega `quantidade` questões de `ordenadas` (já na ordem de prioridade/sorteio), mas um
+// item certo/errado puxa os outros itens do MESMO comando que também estão na lista,
+// logo em seguida e na ordem do caderno, como na prova. O último comando entra inteiro
+// mesmo passando um pouco da quantidade: cortar o comando no meio é o que não pode.
+export function juntarPorComando(ordenadas: Questao[], quantidade: number): Questao[] {
+  const porComando = new Map<string, Questao[]>();
+  for (const q of ordenadas) {
+    if (!q.comando) continue;
+    const lista = porComando.get(q.comando.id) ?? [];
+    lista.push(q);
+    porComando.set(q.comando.id, lista);
+  }
+  const saida: Questao[] = [];
+  const usados = new Set<number>();
+  for (const q of ordenadas) {
+    if (saida.length >= quantidade) break;
+    if (usados.has(q.id)) continue;
+    const bloco = q.comando ? [...porComando.get(q.comando.id)!].sort((a, b) => a.id - b.id) : [q];
+    for (const item of bloco) {
+      if (usados.has(item.id)) continue;
+      saida.push(item);
+      usados.add(item.id);
+    }
+  }
+  return saida;
+}
+
 // ---------- FLASH: 10 questões do Módulo II já erradas ----------
 
 export interface FlashInput {

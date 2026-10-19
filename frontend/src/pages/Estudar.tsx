@@ -10,7 +10,7 @@ import {
   provasComContagem,
   temModulos,
 } from "../lib/questoesRepo";
-import { shuffle } from "../lib/sessionBuilder";
+import { juntarPorComando, shuffle } from "../lib/sessionBuilder";
 import { useProgresso } from "../hooks/useProgresso";
 import { SessionRunner, type RespostaSessao } from "../components/SessionRunner";
 import { ResumoSessao } from "../components/ResumoSessao";
@@ -148,9 +148,9 @@ export function Estudar() {
     if (priorizarErradas) {
       const err = shuffle(disponiveis.filter((q) => progresso.erradas.has(q.id)));
       const resto = shuffle(disponiveis.filter((q) => !progresso.erradas.has(q.id)));
-      sel = [...err, ...resto].slice(0, quantidade);
+      sel = juntarPorComando([...err, ...resto], quantidade);
     } else {
-      sel = shuffle(disponiveis).slice(0, quantidade);
+      sel = juntarPorComando(shuffle(disponiveis), quantidade);
     }
     setResultado(null);
     setCursorInicial(0);
