@@ -12,6 +12,8 @@ import { asyncHandler } from "../../lib/asyncHandler.js";
 import { escopoQuestoes, materiasDoVinculo } from "../../lib/escopoQuestoes.js";
 import { acessoDoUsuario } from "../../lib/assinatura.js";
 import { HttpError } from "../../middleware/error.js";
+import { loteCESchema, validarLoteCE, moduloDoGrupo, type PerfilProvaDados } from "../../lib/loteCE.js";
+import { randomUUID } from "node:crypto";
 import type { Prisma } from "@prisma/client";
 
 export const questoesRouter = Router();
@@ -111,6 +113,7 @@ questoesRouter.get(
       prisma.questao.findMany({
         where,
         orderBy: { id: "asc" },
+        include: { comando: true },
       }),
       prisma.textoBase.findMany(),
       prisma.prova.findMany(),
@@ -136,6 +139,18 @@ questoesRouter.get(
       prova_base: q.provaBaseChave ?? undefined,
       numero: q.numeroOriginal ?? undefined,
       geradaDe: q.geradaDe ?? undefined,
+      formato: q.formato,
+      gabarito_conferir: q.gabaritoConferir || undefined,
+      comando: q.comando
+        ? {
+            id: q.comando.id,
+            grupo: q.comando.grupo,
+            texto: q.comando.texto,
+            codigo: q.comando.codigo ?? undefined,
+            linguagem: q.comando.linguagem ?? undefined,
+            imagens: q.comando.imagens ?? undefined,
+          }
+        : undefined,
     }));
     const textosBase = Object.fromEntries(textos.map((t) => [t.chave, t.texto]));
     const provas = Object.fromEntries(
@@ -148,6 +163,7 @@ questoesRouter.get(
           cargo: p.cargo ?? undefined,
           tipo: p.tipo ?? undefined,
           url: p.url ?? undefined,
+          gabarito_fonte: p.gabaritoFonte ?? undefined,
         },
       ])
     );
@@ -294,6 +310,127 @@ questoesRouter.post(
       faixaFinal: [Math.min(...ids), Math.max(...ids)],
       totalAgora,
     });
+  })
+);
+
+// POST /questoes/import-ce: importa um lote certo/errado (docs/formato-lote-ce.md).
+// ?simular=1 só valida e devolve o relatório (erros, avisos, próximo id livre), sem gravar.
+// Cada item vira uma Questao com alternativas fixas { C, E }; o comando vira um Comando.
+const importCESchema = z.object({
+  lote: loteCESchema,
+  // Trilha que recebe o lote. Sem ela, vale a do concurso informado.
+  trilhaId: z.string().min(1).optional(),
+  concursoId: z.string().min(1).optional(),
+});
+
+questoesRouter.post(
+  "/import-ce",
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    const simular = req.query.simular === "1";
+    const { lote, trilhaId: trilhaEnviada, concursoId } = importCESchema.parse(req.body);
+
+    let trilhaId = trilhaEnviada ?? null;
+    if (!trilhaId && concursoId) {
+      const c = await prisma.concurso.findFirst({ where: { id: concursoId, userId: req.userId! } });
+      if (!c) throw new HttpError(404, "Concurso não encontrado.");
+      trilhaId = c.trilhaId;
+    }
+    if (!trilhaId) throw new HttpError(400, "Informe a trilha (trilhaId) ou um concurso que siga uma trilha.");
+    const trilha = await prisma.trilha.findUnique({ where: { id: trilhaId } });
+    if (!trilha) throw new HttpError(404, `Trilha "${trilhaId}" não encontrada.`);
+
+    const perfilLinha = await prisma.perfilProva.findUnique({ where: { id: lote.perfil } });
+    if (!perfilLinha) throw new HttpError(400, `Perfil de prova "${lote.perfil}" não cadastrado.`);
+    const perfil = perfilLinha.dados as unknown as PerfilProvaDados;
+
+    const chaves = [
+      ...new Set([
+        ...lote.comandos.flatMap((c) => c.itens.map((i) => i.prova)),
+        ...lote.pendencias.map((p) => p.prova),
+      ].filter((c): c is string => !!c)),
+    ];
+    const provasNoBanco = new Set(
+      (await prisma.prova.findMany({ where: { chave: { in: chaves } }, select: { chave: true } })).map((p) => p.chave)
+    );
+    const relatorio = validarLoteCE(lote, perfil, provasNoBanco);
+    if (trilha.perfilProvaId && trilha.perfilProvaId !== lote.perfil) {
+      relatorio.avisos.push(`A trilha ${trilha.id} segue o perfil "${trilha.perfilProvaId}", não "${lote.perfil}".`);
+    }
+
+    // Mesma regra do /import: colidiu, o lote inteiro anda para depois do maior id.
+    const itens = lote.comandos.flatMap((c) => c.itens);
+    const ids = itens.map((i) => i.id);
+    const agg = await prisma.questao.aggregate({ _max: { id: true } });
+    const maxId = agg._max.id ?? 0;
+    const colide = (await prisma.questao.count({ where: { id: { in: ids } } })) > 0;
+    const deslocamento = colide ? maxId - Math.min(...ids) + 1 : 0;
+    const faixa = [Math.min(...ids) + deslocamento, Math.max(...ids) + deslocamento];
+
+    const resumo = { ...relatorio, deslocamento, faixaFinal: faixa, proximoIdLivre: Math.max(maxId, faixa[1]) + 1 };
+    if (simular || relatorio.erros.length > 0) {
+      return res.status(relatorio.erros.length > 0 && !simular ? 400 : 200).json({ ok: relatorio.erros.length === 0, simulado: simular, ...resumo });
+    }
+
+    const comandos = lote.comandos.map((c) => ({ ...c, uuid: randomUUID() }));
+    await prisma.$transaction([
+      ...Object.entries(lote.provas).map(([chave, p]) => {
+        const dados = {
+          banca: p.banca,
+          orgao: p.orgao,
+          ano: p.ano,
+          cargo: p.cargo ?? null,
+          tipo: p.tipo ?? null,
+          url: p.url ?? null,
+          gabaritoFonte: p.gabarito_fonte,
+        };
+        return prisma.prova.upsert({ where: { chave }, update: dados, create: { chave, ...dados } });
+      }),
+      prisma.comando.createMany({
+        data: comandos.map((c) => ({
+          id: c.uuid,
+          trilhaId,
+          loteNome: lote.lote,
+          numero: c.id,
+          grupo: c.grupo,
+          disciplina: c.disciplina,
+          texto: c.texto,
+          codigo: c.codigo ?? null,
+          linguagem: c.linguagem ?? null,
+          imagens: (c.imagens ?? undefined) as Prisma.InputJsonValue | undefined,
+        })),
+      }),
+      prisma.questao.createMany({
+        data: comandos.flatMap((c) =>
+          c.itens.map((i) => ({
+            id: i.id + deslocamento,
+            concursoId: concursoId ?? null,
+            trilhaId,
+            formato: "CERTO_ERRADO",
+            comandoId: c.uuid,
+            modulo: moduloDoGrupo(perfil, c.grupo),
+            materia: c.disciplina,
+            assunto: i.assunto,
+            dificuldade: i.dificuldade,
+            enunciado: i.afirmacao,
+            codigo: i.codigo ?? null,
+            linguagem: i.linguagem ?? null,
+            alternativas: { C: "Certo", E: "Errado" },
+            gabarito: i.gabarito,
+            gabaritoConferir: i.gabarito_conferir ?? false,
+            explicacao: i.explicacao,
+            imagens: (i.imagens ?? undefined) as Prisma.InputJsonValue | undefined,
+            loteNome: lote.lote,
+            origem: i.origem,
+            provaChave: i.prova ?? null,
+            numeroOriginal: i.numero ?? null,
+            geradaDe: (i.geradaDe ?? undefined) as Prisma.InputJsonValue | undefined,
+          }))
+        ),
+      }),
+    ]);
+
+    res.status(201).json({ ok: true, simulado: false, adicionadas: itens.length, ...resumo });
   })
 );
 

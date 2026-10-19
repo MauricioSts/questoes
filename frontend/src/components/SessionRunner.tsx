@@ -21,6 +21,8 @@ export interface RespostaSessao {
   marcada?: Alternativa;
   acertou: boolean;
   tempoSegundos: number;
+  // Certo/errado deixado em branco: não grava resposta (não conta como erro nem acerto).
+  branco?: boolean;
 }
 
 interface Props {
@@ -76,6 +78,7 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   const [respostas, setRespostas] = useState<Map<number, RespostaSessao>>(new Map());
   const [selecionada, setSelecionada] = useState<Alternativa | undefined>();
   const [revelado, setRevelado] = useState(false);
+  const [emBranco, setEmBranco] = useState(false);
   // Questão mais adiante a que a sessão já chegou. Voltar para rever uma questão não pode
   // exigir respondê-la de novo para seguir, nem recuar o cursor salvo da sessão.
   const [alcancado, setAlcancado] = useState(idx);
@@ -126,7 +129,9 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
     if (!questao) return;
     const r = respostas.get(questao.id);
     setSelecionada(r?.marcada);
-    setRevelado(feedbackImediato && !!r);
+    // Branco sem gabarito no aparelho (plano gratuito) não tem o que revelar.
+    setRevelado(feedbackImediato && !!r && (!r.branco || !!questao.gabarito));
+    setEmBranco(!!r?.branco);
     setErroCorrecao(null);
     inicioRef.current = Date.now();
     alcancadoRef.current = Math.max(alcancadoRef.current, idx);
@@ -140,6 +145,24 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   const tempoDecorrido = () => Math.round((Date.now() - inicioRef.current) / 1000);
   const ehCompartilhado = (i: number) =>
     i > 0 && questoes[i].texto_base && questoes[i - 1]?.texto_base === questoes[i].texto_base;
+  const mesmoComando = (i: number) =>
+    i > 0 && !!questoes[i].comando && questoes[i - 1]?.comando?.id === questoes[i].comando?.id;
+
+  // Certo/errado em branco. No treino revela o gabarito sem gravar resposta (quando o
+  // aparelho tem o gabarito; no plano gratuito só pula). No simulado, desfaz a marcação.
+  function deixarEmBranco() {
+    if (feedbackImediato && (revelado || corrigindo)) return;
+    const resposta: RespostaSessao = { questao, marcada: undefined, acertou: false, tempoSegundos: tempoDecorrido(), branco: true };
+    setRespostas((prev) => new Map(prev).set(questao.id, resposta));
+    setSelecionada(undefined);
+    if (!feedbackImediato) return;
+    if (questao.gabarito) {
+      setEmBranco(true);
+      setRevelado(true);
+    } else if (idx + 1 < questoes.length) {
+      setIdx(idx + 1);
+    }
+  }
 
   async function selecionar(alt: Alternativa) {
     if (feedbackImediato && (revelado || corrigindo)) return; // já respondida
@@ -173,7 +196,7 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
   }
 
   function registrarSimulado() {
-    if (!selecionada) return;
+    if (!selecionada) return; // sem marcação: fica como estava (em branco ou não respondida)
     const resposta: RespostaSessao = {
       questao,
       marcada: selecionada,
@@ -296,8 +319,11 @@ export const SessionRunner = forwardRef<SessionRunnerHandle, Props>(function Ses
             selecionada={selecionada}
             revelado={revelado}
             mostrarTextoBase={!ehCompartilhado(idx)}
+            mostrarComando={!mesmoComando(idx)}
             historico={historico.get(questao.id)}
             onSelecionar={selecionar}
+            onBranco={questao.formato === "CERTO_ERRADO" ? deixarEmBranco : undefined}
+            emBranco={emBranco}
           />
         </div>
 

@@ -23,50 +23,59 @@ enum Contexto {
 // Banco de questões (conteúdo). Compartilhado entre usuários (não é escopo por userId).
 // A correção de acerto continua no frontend; o backend só guarda e serve o conteúdo.
 model Questao {
-  id             Int             @id // ID definido no lote (usado como questaoId em Answer)
-  concursoId     String? // concurso ao qual a questão pertence (multi-concurso). null = legado
-  modulo         String // "I" | "II"
-  materia        String
-  assunto        String
-  dificuldade    String // facil | media | dificil
-  textoBaseKey   String? // chave em TextoBase (questões de inglês)
-  enunciado      String
-  codigo         String? // bloco de código opcional
-  linguagem      String? // rótulo da linguagem do código
-  alternativas   Json // { "A": "...", "B": "...", ... }
-  gabarito       String
-  explicacao     String
+  id               Int             @id // ID definido no lote (usado como questaoId em Answer)
+  concursoId       String? // concurso ao qual a questão pertence (multi-concurso). null = legado
+  modulo           String // "I" | "II"
+  materia          String
+  assunto          String
+  dificuldade      String // facil | media | dificil
+  textoBaseKey     String? // chave em TextoBase (questões de inglês)
+  enunciado        String
+  codigo           String? // bloco de código opcional
+  linguagem        String? // rótulo da linguagem do código
+  alternativas     Json // { "A": "...", "B": "...", ... }
+  gabarito         String
+  explicacao       String
   // Figuras da questão: [{ arquivo, legenda, posicao, dados }], com a imagem embutida
   // como data URI em `dados`. null/ausente na maioria das questões.
-  imagens        Json?
+  imagens          Json?
   // Trilha dona do conteúdo: é por ela que as questões chegam a QUALQUER usuário que
   // siga a trilha. null = questão importada direto num concurso, visível só nele.
-  trilhaId       String?
-  trilha         Trilha?         @relation(fields: [trilhaId], references: [id], onDelete: SetNull)
-  loteNome       String? // rótulo do lote (nome do arquivo importado); null p/ imports antigos
+  trilhaId         String?
+  trilha           Trilha?         @relation(fields: [trilhaId], references: [id], onDelete: SetNull)
+  loteNome         String? // rótulo do lote (nome do arquivo importado); null p/ imports antigos
   // Procedência da questão: "oficial" (texto igual ao da prova), "adaptada" (baseada numa
   // prova, com texto alterado), "gerada" (criada como reforço a partir dos meus erros) ou
   // "autoral" (escrita sem prova de referência). Legado importado antes disso = "autoral".
-  origem         String          @default("autoral")
-  provaChave     String? // prova de onde veio (oficial/adaptada); null nas demais origens
-  prova          Prova?          @relation("QuestaoOrigem", fields: [provaChave], references: [chave], onDelete: SetNull)
+  origem           String          @default("autoral")
+  provaChave       String? // prova de onde veio (oficial/adaptada); null nas demais origens
+  prova            Prova?          @relation("QuestaoOrigem", fields: [provaChave], references: [chave], onDelete: SetNull)
   // Prova de que o LOTE foi montado. Vale para todas as questões dele, inclusive as
   // autorais escritas junto — por isso é separada de provaChave, que afirma que o texto
   // saiu da prova. Estatística por prova usa provaChave; "de que lote veio" usa esta.
-  provaBaseChave String?
-  provaBase      Prova?          @relation("QuestaoLoteBase", fields: [provaBaseChave], references: [chave], onDelete: SetNull)
-  numeroOriginal Int? // número que a questão tinha na prova de origem
+  provaBaseChave   String?
+  provaBase        Prova?          @relation("QuestaoLoteBase", fields: [provaBaseChave], references: [chave], onDelete: SetNull)
+  numeroOriginal   Int? // número que a questão tinha na prova de origem
   // Reforço: IDs das questões erradas que motivaram a geração desta. [] / null nas demais.
-  geradaDe       Json?
+  geradaDe         Json?
   // conceitual = pergunta comum (com ou sem código ilustrativo); saida = "qual a saída deste
   // código"; erro = "qual o erro deste código". As duas últimas só entram no banco com a
   // execução no sandbox que confirmou o gabarito (execucaoId).
-  tipo           String          @default("conceitual")
-  execucaoId     String?
-  execucao       Execucao?       @relation(fields: [execucaoId], references: [id], onDelete: SetNull)
+  tipo             String          @default("conceitual")
+  execucaoId       String?
+  execucao         Execucao?       @relation(fields: [execucaoId], references: [id], onDelete: SetNull)
   // Trilhas além da dona (trilhaId) em que a questão também aparece, sem duplicar a linha.
-  vinculos       QuestaoTrilha[]
-  createdAt      DateTime        @default(now()) // idêntico p/ toda questão de um mesmo import → chave do lote
+  vinculos         QuestaoTrilha[]
+  // MULTIPLA_ESCOLHA (A–E) ou CERTO_ERRADO (estilo Cebraspe). No certo/errado cada item é
+  // uma questão própria: enunciado = afirmação, alternativas fixas { C: "Certo", E: "Errado" }
+  // e gabarito "C"|"E". Assim resposta, revisão, caderno e estatística valem sem mudança.
+  formato          String          @default("MULTIPLA_ESCOLHA")
+  // Comando (texto-base / "julgue os itens") que agrupa os itens certo/errado.
+  comandoId        String?
+  comando          Comando?        @relation(fields: [comandoId], references: [id], onDelete: SetNull)
+  // Gabarito duvidoso: a correção mostra "gabarito a conferir" até alguém confirmar.
+  gabaritoConferir Boolean         @default(false)
+  createdAt        DateTime        @default(now()) // idêntico p/ toda questão de um mesmo import → chave do lote
 
   @@index([modulo, materia])
   @@index([createdAt])
@@ -75,6 +84,37 @@ model Questao {
   @@index([provaChave])
   @@index([provaBaseChave])
   @@index([trilhaId])
+  @@index([comandoId])
+}
+
+// Comando de uma prova certo/errado: o texto que vem antes dos itens ("Considerando…,
+// julgue os itens a seguir"), com o código compartilhado por eles quando há.
+model Comando {
+  id         String    @id @default(cuid())
+  trilhaId   String?
+  trilha     Trilha?   @relation(fields: [trilhaId], references: [id], onDelete: SetNull)
+  loteNome   String?
+  numero     Int // id do comando dentro do lote (1, 2, 3…)
+  grupo      String // grupo do perfil de prova: "P1", "P2", "P3"
+  disciplina String
+  texto      String
+  codigo     String?
+  linguagem  String?
+  imagens    Json?
+  createdAt  DateTime  @default(now())
+  questoes   Questao[]
+
+  @@index([trilhaId])
+}
+
+// Perfil de pontuação de uma prova (grupos, disciplinas, pesos, mínimos, tempo), no formato
+// de docs/perfis/*.json. É o que valida a disciplina de um lote certo/errado e calcula a nota.
+model PerfilProva {
+  id        String   @id // "cgu-2026-dev"
+  nome      String
+  dados     Json
+  createdAt DateTime @default(now())
+  trilhas   Trilha[]
 }
 
 // Trilha de estudo: um conjunto de questões que vários usuários podem seguir. É o que
@@ -83,28 +123,32 @@ model Questao {
 // vazio. A trilha é o dono compartilhado do conteúdo; o Concurso continua sendo a cópia
 // pessoal (progresso, meta, caderno) de cada um que a segue.
 model Trilha {
-  id           String    @id // slug, ex.: "dataprev-analista-ti"
-  nome         String // "Dataprev"
-  cargo        String // "Analista de TI"
-  iniciais     String // "DTPV" (selo do cartão)
-  banca        String
-  orgao        String
-  ano          Int
-  descricao    String // parágrafo do cartão de escolha
-  dataProva    DateTime? // usada como data inicial do concurso de quem entra
-  publicada    Boolean   @default(true) // false = não aparece na escolha
-  ordem        Int       @default(0)
+  id            String       @id // slug, ex.: "dataprev-analista-ti"
+  nome          String // "Dataprev"
+  cargo         String // "Analista de TI"
+  iniciais      String // "DTPV" (selo do cartão)
+  banca         String
+  orgao         String
+  ano           Int
+  descricao     String // parágrafo do cartão de escolha
+  dataProva     DateTime? // usada como data inicial do concurso de quem entra
+  publicada     Boolean      @default(true) // false = não aparece na escolha
+  ordem         Int          @default(0)
   // Trilha da comunidade: quem criou. null = trilha oficial (do admin). Se o dono apagar
   // a conta, a trilha fica (quem segue não perde o acervo), só ninguém mais a edita.
-  donoId       String?
-  dono         User?     @relation(fields: [donoId], references: [id], onDelete: SetNull)
+  donoId        String?
+  dono          User?        @relation(fields: [donoId], references: [id], onDelete: SetNull)
   // "publica" aparece na escolha de trilhas; "privada" só para o dono (recurso Premium).
-  visibilidade String    @default("publica")
+  visibilidade  String       @default("publica")
   // concurso | escola | vestibular | outro: só muda rótulos e o selo; o resto é igual.
-  tipo         String    @default("concurso")
-  createdAt    DateTime  @default(now())
+  tipo          String       @default("concurso")
+  // Perfil da prova certo/errado que esta trilha segue (nota por grupo, mínimos, tempo).
+  perfilProvaId String?
+  perfilProva   PerfilProva? @relation(fields: [perfilProvaId], references: [id], onDelete: SetNull)
+  createdAt     DateTime     @default(now())
 
   questoes   Questao[]
+  comandos   Comando[]
   concursos  Concurso[]
   vinculos   QuestaoTrilha[]
   exercicios Exercicio[]
@@ -116,16 +160,19 @@ model Trilha {
 // Prova de concurso de onde uma ou mais questões vieram. Vive fora da Questao porque
 // dezenas de questões compartilham a mesma prova (mesmo padrão de TextoBase).
 model Prova {
-  chave     String    @id // ex.: "FGV_TCE-TO_2022_ANALISTA-TI"
-  banca     String
-  orgao     String
-  ano       Int
-  cargo     String? // cargo/perfil da prova
-  tipo      String? // caderno, quando a banca embaralha versões (FGV: "1", "2", "3")
-  url       String? // PDF oficial
-  createdAt DateTime  @default(now())
-  questoes  Questao[] @relation("QuestaoOrigem")
-  lotes     Questao[] @relation("QuestaoLoteBase") // questões de lotes montados a partir dela
+  chave         String    @id // ex.: "FGV_TCE-TO_2022_ANALISTA-TI"
+  banca         String
+  orgao         String
+  ano           Int
+  cargo         String? // cargo/perfil da prova
+  tipo          String? // caderno, quando a banca embaralha versões (FGV: "1", "2", "3")
+  url           String? // PDF oficial
+  // "definitivo" = gabarito definitivo da banca; "resolucao_propria" = resolvido por quem
+  // montou o lote (a correção mostra "gabarito não oficial"). null = lotes antigos.
+  gabaritoFonte String?
+  createdAt     DateTime  @default(now())
+  questoes      Questao[] @relation("QuestaoOrigem")
+  lotes         Questao[] @relation("QuestaoLoteBase") // questões de lotes montados a partir dela
 
   @@index([banca, ano])
 }

@@ -1,0 +1,40 @@
+{
+  "perfil": "bacen-2024-ti",
+  "orgao": "BACEN",
+  "banca": "Cebraspe",
+  "cargo": "Cargo 2: Analista – Área: Tecnologia da Informação",
+  "data_prova": "2024-05-19",
+  "duracao_minutos": 210,
+  "pontuacao": { "acerto": 1, "erro": -0.5, "branco": 0 },
+  "nota_minima_geral": 36,
+  "grupos": [
+    {
+      "grupo": "P1",
+      "nome": "Conhecimentos básicos",
+      "nota_minima": 10,
+      "peso": 1,
+      "disciplinas": [
+        { "nome": "Língua Portuguesa", "itens": 25 },
+        { "nome": "Noções de lógica e estatística", "itens": 10 },
+        { "nome": "Direito administrativo", "itens": 5 },
+        { "nome": "Fundamentos de microeconomia e macroeconomia", "itens": 10 }
+      ]
+    },
+    {
+      "grupo": "P2",
+      "nome": "Conhecimentos Específicos",
+      "nota_minima": 21,
+      "peso": 1,
+      "disciplinas": [
+        { "nome": "Ciência de dados", "itens": 14 },
+        { "nome": "Segurança da Informação", "itens": 7 },
+        { "nome": "Engenharia de Software", "itens": 24 },
+        { "nome": "Infraestrutura em TI", "itens": 17 },
+        { "nome": "Bancos de Dados", "itens": 4 },
+        { "nome": "Gestão em TI", "itens": 4 }
+      ]
+    }
+  ],
+  "eliminacao": "Eliminado se tiver nota < 10 no P1, < 21 no P2 ou < 36 no conjunto das provas objetivas (subitem 8.11.4).",
+  "fonte": "Edital de abertura Bacen 2024 (subitens 7.1, 8.11.2, 8.11.4); discursiva, Procap e títulos fora do perfil."
+}

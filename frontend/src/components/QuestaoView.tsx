@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, X, History, Ban } from "lucide-react";
+import { Check, X, History, Ban, Minus, TriangleAlert } from "lucide-react";
 import type { Questao, Alternativa } from "../types/questao";
 import { getTextoBase, getProva, origemDe, rotuloOrigem, temModulos } from "../lib/questoesRepo";
 import { ordemAlternativas } from "../lib/ordemAlternativas";
@@ -28,7 +28,31 @@ interface Props {
   //             entregariam a questão antes de lê-la, coisa que a prova real não faz.
   metadados?: "completo" | "origem";
   onSelecionar: (alt: Alternativa) => void;
+  // Certo/errado: "Deixar em branco" (sem prop, sem botão). emBranco = o item foi deixado
+  // em branco e está revelado sem resposta.
+  onBranco?: () => void;
+  emBranco?: boolean;
+  // Certo/errado: o comando aparece só no primeiro item dele (igual ao texto base).
+  mostrarComando?: boolean;
 }
+
+// Bloco de código com o rótulo da linguagem (usado na questão e no comando).
+function BlocoCodigo({ codigo, linguagem }: { codigo: string; linguagem?: string }) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-hair">
+      {linguagem && (
+        <div className="border-b border-hair bg-brand-100 px-4 py-2 text-xs font-mono font-bold text-brand-700">
+          {linguagem}
+        </div>
+      )}
+      <pre className="overflow-x-auto p-4 text-sm leading-relaxed font-mono text-brand-ink" style={{ background: "var(--surface2)" }}>
+        <code>{codigo}</code>
+      </pre>
+    </div>
+  );
+}
+
+const ROTULO_CE: Record<string, string> = { C: "Certo", E: "Errado" };
 
 export function QuestaoView({
   questao,
@@ -38,7 +62,11 @@ export function QuestaoView({
   historico,
   metadados = "completo",
   onSelecionar,
+  onBranco,
+  emBranco = false,
+  mostrarComando = true,
 }: Props) {
+  const ehCE = questao.formato === "CERTO_ERRADO";
   const soOrigem = metadados === "origem";
   const { tema } = useTheme();
 
@@ -76,7 +104,7 @@ export function QuestaoView({
     onSelecionar(letra);
   }
   const textoBase = getTextoBase(questao.texto_base);
-  const acertou = revelado && selecionada === questao.gabarito;
+  const acertou = revelado && !emBranco && selecionada === questao.gabarito;
 
   // Procedência: de que prova a questão veio, ou que ela é adaptada/gerada/autoral.
   const origem = origemDe(questao);
@@ -98,8 +126,17 @@ export function QuestaoView({
   return (
     <article
       className="space-y-4"
-      style={revelado && !acertou ? { animation: "shakeX .4s ease" } : undefined}
+      style={revelado && !acertou && !emBranco ? { animation: "shakeX .4s ease" } : undefined}
     >
+      {/* Comando do certo/errado: o texto comum aos itens, com o código dele */}
+      {ehCE && questao.comando && mostrarComando && (
+        <Card className="space-y-3 border-l-4 border-brand-500 p-4">
+          <p className="text-sm text-brand-ink leading-relaxed whitespace-pre-wrap">{comRealce(questao.comando.texto)}</p>
+          <ImagensQuestao imagens={questao.comando.imagens} posicao="enunciado" />
+          {questao.comando.codigo && <BlocoCodigo codigo={questao.comando.codigo} linguagem={questao.comando.linguagem} />}
+        </Card>
+      )}
+
       {/* Texto base */}
       {textoBase && mostrarTextoBase && (
         <Card className="border-l-4 border-brand-500 p-4">
@@ -158,23 +195,54 @@ export function QuestaoView({
       <ImagensQuestao imagens={questao.imagens} posicao="enunciado" />
 
       {/* Código (se houver) */}
-      {questao.codigo && (
-        <div className="overflow-hidden rounded-xl border border-hair">
-          {questao.linguagem && (
-            <div className="border-b border-hair bg-brand-100 px-4 py-2 text-xs font-mono font-bold text-brand-700">
-              {questao.linguagem}
-            </div>
-          )}
-          <pre className="overflow-x-auto p-4 text-sm leading-relaxed font-mono text-brand-ink" style={{ background: "var(--surface2)" }}>
-            <code>{questao.codigo}</code>
-          </pre>
-        </div>
-      )}
+      {questao.codigo && <BlocoCodigo codigo={questao.codigo} linguagem={questao.linguagem} />}
 
       {/* Imagens que pertencem às alternativas */}
       <ImagensQuestao imagens={questao.imagens} posicao="alternativas" />
 
+      {/* Certo/errado: dois botões fixos (sem embaralhar nem eliminar) e o branco */}
+      {ehCE && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Julgamento do item">
+            {(["C", "E"] as const).map((letra) => {
+              const isCorreta = revelado && questao.gabarito === letra;
+              const isMarcadaErrada = revelado && !emBranco && selecionada === letra && questao.gabarito !== letra;
+              const isSelected = !emBranco && selecionada === letra;
+              let cls = "border-hair bg-surface hover:border-brand-400 hover:bg-brand-50";
+              if (isCorreta) cls = "border-success-from bg-success-soft";
+              else if (isMarcadaErrada) cls = "border-danger-from bg-danger-soft";
+              else if (isSelected && !revelado) cls = "border-brand-500 bg-brand-50";
+              return (
+                <button
+                  key={letra}
+                  type="button"
+                  role="radio"
+                  aria-checked={isSelected}
+                  disabled={revelado}
+                  onClick={() => onSelecionar(letra)}
+                  className={`tap flex items-center justify-center gap-2 rounded-2xl border p-4 font-display text-base font-bold text-brand-ink transition ${cls} ${revelado ? "cursor-default" : ""}`}
+                >
+                  {isCorreta ? <Check size={20} strokeWidth={3} /> : isMarcadaErrada ? <X size={20} strokeWidth={3} /> : null}
+                  {ROTULO_CE[letra]}
+                </button>
+              );
+            })}
+          </div>
+          {onBranco && !revelado && (
+            <button
+              type="button"
+              onClick={onBranco}
+              className="tap flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-hair p-3 text-sm font-semibold text-muted transition hover:text-brand-500"
+              title="Na prova, item em branco não soma nem desconta"
+            >
+              <Minus size={16} strokeWidth={2} /> Deixar em branco
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Alternativas. A ordem é sorteada por tentativa; a letra é a do lote. */}
+      {!ehCE && (
       <ul className="space-y-3" role="radiogroup" aria-label="Alternativas">
         {ordem.map((letra) => {
           const isCorreta = revelado && questao.gabarito === letra;
@@ -261,12 +329,15 @@ export function QuestaoView({
           );
         })}
       </ul>
+      )}
 
       {/* Feedback (acerto/erro) */}
       {revelado && (
         <Card
           className={`p-6 space-y-3 ${
-            acertou
+            emBranco
+              ? "bg-surface2 border-hair"
+              : acertou
               ? "bg-success-soft border-success-from"
               : "bg-danger-soft border-danger-from"
           }`}
@@ -276,16 +347,34 @@ export function QuestaoView({
               acertou ? "text-success-from" : "text-danger-from"
             }`}
           >
-            {acertou ? (
+            {emBranco ? (
+              <span className="text-brand-ink">Em branco · Gabarito: {ROTULO_CE[questao.gabarito ?? ""] ?? questao.gabarito}</span>
+            ) : acertou ? (
               <>
                 <Check size={24} strokeWidth={3} /> Você acertou!
               </>
             ) : (
               <>
-                <X size={24} strokeWidth={3} /> Resposta correta: {questao.gabarito}
+                <X size={24} strokeWidth={3} /> {ehCE ? `Gabarito: ${ROTULO_CE[questao.gabarito ?? ""] ?? questao.gabarito}` : `Resposta correta: ${questao.gabarito}`}
               </>
             )}
           </p>
+
+          {/* Gabarito que não veio da banca, ou que alguém marcou como duvidoso */}
+          {(prova?.gabarito_fonte === "resolucao_propria" || questao.gabarito_conferir) && (
+            <div className="flex flex-wrap gap-2">
+              {prova?.gabarito_fonte === "resolucao_propria" && (
+                <span className="meta-pill border border-hair bg-surface2 text-muted" title="Gabarito resolvido por quem montou o lote, não o definitivo da banca">
+                  Gabarito não oficial
+                </span>
+              )}
+              {questao.gabarito_conferir && (
+                <span className="meta-pill border border-hair bg-surface2 text-muted" title="Há dúvida sobre este gabarito">
+                  <TriangleAlert size={13} strokeWidth={2} /> Gabarito a conferir
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Explicação */}
           <div className="text-sm leading-relaxed whitespace-pre-wrap text-brand-ink">

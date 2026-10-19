@@ -20,6 +20,22 @@ export interface Prova {
   cargo?: string;
   tipo?: string; // caderno, quando a banca embaralha versões (FGV: "1", "2", "3")
   url?: string; // PDF oficial
+  // "resolucao_propria" = gabarito resolvido por quem montou o lote, não pela banca.
+  gabarito_fonte?: "definitivo" | "resolucao_propria";
+}
+
+// MULTIPLA_ESCOLHA (A–E) ou CERTO_ERRADO (Cebraspe). No certo/errado o enunciado é a
+// afirmação, as alternativas são { C: "Certo", E: "Errado" } e o gabarito é "C" ou "E".
+export type Formato = "MULTIPLA_ESCOLHA" | "CERTO_ERRADO";
+
+// Comando do certo/errado: o texto ("julgue os itens a seguir") comum a vários itens.
+export interface Comando {
+  id: string;
+  grupo: string; // "P1" | "P2" | "P3" do perfil da prova
+  texto: string;
+  codigo?: string;
+  linguagem?: string;
+  imagens?: ImagemQuestao[];
 }
 
 export interface Questao {
@@ -45,6 +61,9 @@ export interface Questao {
   prova_base?: string;
   numero?: number; // número que a questão tinha na prova de origem
   geradaDe?: number[]; // IDs das questões erradas que motivaram este reforço
+  formato?: Formato; // ausente = múltipla escolha
+  comando?: Comando; // só no certo/errado
+  gabarito_conferir?: boolean; // gabarito duvidoso: a correção avisa
 }
 
 export interface QuestoesRoot {

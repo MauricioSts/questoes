@@ -1,0 +1,54 @@
+{
+  "perfil": "cgu-2026-dev",
+  "orgao": "CGU",
+  "banca": "Cebraspe",
+  "cargo": "Cargo 4: Auditor Federal de Finanças e Controle (AFFC) – Especialidade: Tecnologia da Informação – Desenvolvimento de Sistemas",
+  "data_prova": "2026-12-13",
+  "duracao_minutos": 300,
+  "pontuacao": { "acerto": 1, "erro": -1, "branco": 0 },
+  "nota_minima_geral": 78,
+  "grupos": [
+    {
+      "grupo": "P1",
+      "nome": "Conhecimentos básicos",
+      "itens": 40,
+      "nota_minima": 8,
+      "peso": 1,
+      "disciplinas": [
+        { "nome": "Estado, Democracia, Direitos e Ciência Política", "itens": null },
+        { "nome": "Sociedade Brasileira, Desigualdades, Diversidade e Desenvolvimento", "itens": null },
+        { "nome": "Ética Pública e Responsabilidade Profissional", "itens": null },
+        { "nome": "Administração Pública e Fundamentos de Políticas Públicas", "itens": null }
+      ]
+    },
+    {
+      "grupo": "P2",
+      "nome": "Conhecimentos complementares",
+      "itens": 40,
+      "nota_minima": 12,
+      "peso": 1,
+      "disciplinas": [
+        { "nome": "Fundamentos de Governança, Riscos e Integridade Pública e Privada", "itens": null },
+        { "nome": "Fundamentos de Transparência, Ouvidoria e Participação Social", "itens": null },
+        { "nome": "Fundamentos de Direito Público Aplicado, Controle e Responsabilização", "itens": null },
+        { "nome": "Fundamentos de Evidências, Dados e Inteligência Artificial", "itens": null },
+        { "nome": "Fundamentos de Auditoria Governamental e Atuação Integrada da CGU", "itens": null }
+      ]
+    },
+    {
+      "grupo": "P3",
+      "nome": "Conhecimentos específicos",
+      "itens": 90,
+      "nota_minima": 54,
+      "peso": 2,
+      "disciplinas": [
+        { "nome": "Engenharia de Software e Programação", "itens": null },
+        { "nome": "Arquitetura e Integração de Sistemas", "itens": null },
+        { "nome": "Persistência, Integração e Proteção de Dados", "itens": null },
+        { "nome": "Desenvolvimento Seguro, Qualidade e Gestão da Entrega", "itens": null }
+      ]
+    }
+  ],
+  "eliminacao": "Eliminado se NP1 < 8, NP2 < 12, NP3 < 54 ou NP1 + NP2 + NP3 < 78 (subitem 8.11.4).",
+  "fonte": "Edital CGU 2026, subitens 7.1, 8.1, 8.11.2, 8.11.4. Notas mínimas em pontos já ponderados (P3 vale 2 por item; máximo 260). Itens por disciplina não constam no edital. Discursiva fora do perfil."
+}

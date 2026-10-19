@@ -20,6 +20,7 @@ import { useConcurso } from "../store/concurso";
 import exemplo from "../data/questoes.json";
 import { CircleCheck, CircleX, TriangleAlert } from "lucide-react";
 import { Spinner } from "../components/Spinner";
+import { ImportarCE } from "../components/ImportarCE";
 
 export function Importar() {
   const { total, recarregar } = useQuestoes();
@@ -30,6 +31,8 @@ export function Importar() {
   const [resultado, setResultado] = useState<ImportarResultado | null>(null);
   const [erroLeitura, setErroLeitura] = useState<string | null>(null);
   const [gravando, setGravando] = useState(false);
+  // Lote certo/errado: validado e gravado pelo servidor (ver ImportarCE).
+  const [loteCE, setLoteCE] = useState<unknown>(null);
 
   // --- lotes (importações) para excluir em bloco ---
   const [lotes, setLotes] = useState<Lote[]>([]);
@@ -116,6 +119,12 @@ export function Importar() {
     setErroLeitura(null);
     setResultado(null);
     setNomeArquivo(nome);
+    if ((json as { tipo?: unknown } | null)?.tipo === "CERTO_ERRADO") {
+      setValidacao(null);
+      setLoteCE(json);
+      return;
+    }
+    setLoteCE(null);
     setValidacao(validarLote(json));
   }
 
@@ -203,6 +212,21 @@ export function Importar() {
       )}
 
       {erroLeitura && <p className="card border border-erro p-3 text-sm text-erro">{erroLeitura}</p>}
+
+      {loteCE != null && !ativo && (
+        <p className="card border border-erro p-3 text-sm text-erro">Escolha um concurso que siga a trilha do lote antes de importar.</p>
+      )}
+      {loteCE != null && ativo && (
+        <ImportarCE
+          lote={loteCE}
+          nomeArquivo={nomeArquivo}
+          concursoId={ativo.id}
+          onImportado={async () => {
+            await recarregar();
+            await carregarLotes();
+          }}
+        />
+      )}
 
       {/* prévia da validação */}
       {validacao && (
