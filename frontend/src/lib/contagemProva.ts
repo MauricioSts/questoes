@@ -58,6 +58,25 @@ export function rotuloFuso(fuso: string = FUSO_PADRAO): string {
   return (fuso.split("/").pop() ?? fuso).replace(/_/g, " ");
 }
 
+// Dia do calendário (AAAA-MM-DD) de um instante no fuso.
+export function diaNoFuso(instante: number, fuso: string = FUSO_PADRAO): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: fuso, year: "numeric", month: "2-digit", day: "2-digit" }).format(
+    new Date(instante)
+  );
+}
+
+// Dias de calendário de hoje (no fuso da prova) até o dia da prova: 0 é o próprio dia da
+// prova (a qualquer hora, antes ou depois do início), negativo é prova que já passou.
+// É o que a Home escreve: "Faltam 2 dias" na sexta para a prova de domingo, "Hoje é dia
+// de prova" no domingo, e não "Faltam 0 dias" nem "1 dia" às 7h de uma prova às 13h.
+export function diasCorridos(dataProva: string, agora: number = Date.now(), fuso: string = FUSO_PADRAO): number | null {
+  const alvo = dataProva.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const hoje = diaNoFuso(agora, fuso).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!alvo || !hoje) return null;
+  const utc = (m: RegExpMatchArray) => Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return Math.round((utc(alvo) - utc(hoje)) / 86400000);
+}
+
 // Dias até a prova, arredondados para cima (como a contagem da data manual).
 export const diasAte = (alvo: number, agora: number = Date.now()) => Math.max(0, Math.ceil((alvo - agora) / 86400000));
 
