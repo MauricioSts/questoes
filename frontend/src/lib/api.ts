@@ -63,6 +63,17 @@ export class ApiError extends Error {
 
 let refreshing: Promise<boolean> | null = null;
 
+// Espera um pouco por um par novo gravado por outra aba (a resposta dela pode chegar
+// depois do nosso 401). true se o refresh do localStorage mudou em relação ao enviado.
+async function outraAbaRenovou(enviado: string): Promise<boolean> {
+  for (let i = 0; i < 6; i++) {
+    const atual = tokenStore.refresh;
+    if (atual && atual !== enviado && tokenStore.access) return true;
+    await new Promise((r) => setTimeout(r, 250));
+  }
+  return false;
+}
+
 // Tenta renovar o access token usando o refresh (evita corridas com um promise único).
 async function tryRefresh(): Promise<boolean> {
   const refresh = tokenStore.refresh;
@@ -75,14 +86,23 @@ async function tryRefresh(): Promise<boolean> {
     })
       .then(async (res) => {
         if (!res.ok) {
-          tokenStore.clear();
+          // Outra aba pode ter renovado com o mesmo refresh antes (o servidor rotaciona e
+          // o antigo morre). Se o localStorage já tem um par diferente do enviado, usa ele
+          // em vez de deslogar.
+          if (res.status === 401 && (await outraAbaRenovou(refresh))) return true;
+          // Só 401/403 dizem que o refresh morreu. 5xx/429 (ex.: 502 no restart do pm2)
+          // são passageiros: falha esta requisição, mas mantém a sessão.
+          // E só limpa se ninguém trocou o par nesse meio-tempo.
+          if ((res.status === 401 || res.status === 403) && tokenStore.refresh === refresh) {
+            tokenStore.clear();
+          }
           return false;
         }
         const data = await res.json();
         tokenStore.set(data.accessToken, data.refreshToken);
         return true;
       })
-      .catch(() => false)
+      .catch(() => false) // erro de rede: não desloga
       .finally(() => {
         refreshing = null;
       });
