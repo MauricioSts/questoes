@@ -41,7 +41,8 @@ import { CartaoRanking } from "../components/CartaoRanking";
 import { configDoPerfil, configPadrao, totalQuestoes as questoesDoSimulado } from "../lib/simuladoConfig";
 import { usePerfilProva } from "../hooks/usePerfilProva";
 import { ehPerfilCertoErrado } from "../lib/notaCE";
-import { contagemOficial, diasAte } from "../lib/contagemProva";
+import { contagemOficial, diasCorridos } from "../lib/contagemProva";
+import { useAgora } from "../hooks/useAgora";
 import { ContagemProva } from "../components/ContagemProva";
 import { todas } from "../lib/questoesRepo";
 
@@ -100,12 +101,19 @@ export function Home() {
   // Trilha com perfil de prova com data e horário (edital publicado) e prova ainda por
   // vir: a contagem segue a data e a hora oficiais. Sem horário (CGU) ou prova já feita
   // (Bacen 2024), fica a data manual do concurso, com o lápis de editar.
+  // Os dias são de calendário (no fuso da prova): 0 é o próprio dia ("Hoje é dia de
+  // prova"), negativo é prova que já passou. O relógio vira por minuto, sem F5.
+  const agoraMs = useAgora();
   const perfil = usePerfilProva();
-  const oficial = perfil?.dados ? contagemOficial(perfil.dados) : null;
+  const oficial = perfil?.dados ? contagemOficial(perfil.dados, agoraMs) : null;
   const inicioOficial = oficial?.inicio ?? null;
   const dataProva = goal?.dataProva ? new Date(goal.dataProva) : null;
   const diasProva =
-    inicioOficial != null ? diasAte(inicioOficial) : dataProva ? diasAte(dataProva.getTime()) : null;
+    oficial && perfil?.dados.data_prova
+      ? diasCorridos(perfil.dados.data_prova, agoraMs, perfil.dados.horario_prova?.fuso)
+      : dataProva
+        ? diasCorridos(dataProva.toISOString(), agoraMs)
+        : null;
   const progressoTempo = goal?.progressoTempo ?? null;
   const revisaoPendente = goal?.revisaoPendente ?? 0;
   // Cartão do Simulado segue a configuração da trilha ativa: "70 questões, só aos
@@ -120,7 +128,7 @@ export function Home() {
   const qtdSimulado = questoesDoSimulado(configSimulado);
 
   // Data e saudação por horário.
-  const agora = new Date();
+  const agora = new Date(agoraMs);
   const dataFmt = agora
     .toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "short", year: "numeric" })
     .toUpperCase();
@@ -194,9 +202,17 @@ export function Home() {
         <p className="legenda text-[11px] font-bold uppercase tracking-[.18em] text-faint">{dataFmt}</p>
         <TituloVivo texto={`${saudacao}, ${usuario?.nome ?? ""}`} tamanho={42} className="mt-1 leading-none" />
         <p className="mt-2 text-muted">
-          {diasProva != null ? (
+          {diasProva === 0 ? (
             <>
-              Faltam <b className="text-brand-ink">{diasProva} dias</b> para a prova da {ativo?.banca ?? ""}. Continue de onde parou.
+              <b className="text-brand-ink">Hoje é dia de prova</b>
+              {ativo?.banca ? ` da ${ativo.banca}` : ""}. Boa prova!
+            </>
+          ) : diasProva != null && diasProva < 0 ? (
+            <>A data da prova já passou. Atualize a data para acompanhar a próxima.</>
+          ) : diasProva != null ? (
+            <>
+              {diasProva === 1 ? "Falta" : "Faltam"} <b className="text-brand-ink">{diasProva} {diasProva === 1 ? "dia" : "dias"}</b> para a
+              prova da {ativo?.banca ?? ""}. Continue de onde parou.
             </>
           ) : (
             <>Defina a data da sua prova para acompanhar a contagem regressiva.</>
@@ -304,7 +320,7 @@ export function Home() {
               )}
             </div>
             {inicioOficial != null && perfil ? (
-              <ContagemProva perfil={perfil.dados} className="mt-2" />
+              <ContagemProva perfil={perfil.dados} agora={agoraMs} className="mt-2" />
             ) : editandoData ? (
               <div className="mt-3 space-y-2">
                 <input
@@ -320,15 +336,22 @@ export function Home() {
               </div>
             ) : (
               <>
-                <p className="mt-2 flex items-end gap-2">
-                  <span className="font-display font-bold leading-none text-brand-ink" style={{ fontSize: 38 }}>
-                    {diasProva == null ? "?" : <Contador valor={diasProva} fontSize={38} cor="var(--text)" fontWeight={700} />}
-                  </span>
-                  <span className="pb-1 text-sm text-muted">dias restantes</span>
-                </p>
+                {diasProva != null && diasProva <= 0 ? (
+                  <p className="mt-2 font-display text-[28px] font-bold leading-none text-brand-ink">
+                    {diasProva === 0 ? "Hoje é dia de prova" : "A prova já passou"}
+                  </p>
+                ) : (
+                  <p className="mt-2 flex items-end gap-2">
+                    <span className="font-display font-bold leading-none text-brand-ink" style={{ fontSize: 38 }}>
+                      {diasProva == null ? "?" : <Contador valor={diasProva} fontSize={38} cor="var(--text)" fontWeight={700} />}
+                    </span>
+                    <span className="pb-1 text-sm text-muted">{diasProva === 1 ? "dia restante" : "dias restantes"}</span>
+                  </p>
+                )}
+                {/* A data manual é gravada como meia-noite UTC: lida em UTC, é o dia escolhido. */}
                 <p className="mt-1 text-sm text-muted">
                   {dataProva
-                    ? `Prova: ${dataProva.toLocaleDateString("pt-BR", { day: "numeric", month: "short", year: "numeric" })}`
+                    ? `Prova: ${dataProva.toLocaleDateString("pt-BR", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}`
                     : "Defina a data da prova"}
                 </p>
                 {dataProva && progressoTempo != null && (

@@ -16,6 +16,10 @@
 //   ordem: reaprender no mesmo dia, espaçado, e não decorando a posição.
 // - Depois de errar, escrever em uma frase por que o gabarito está certo cura HP
 //   (autoexplicação). As lições podem ir para o Caderno no fim.
+// - Item certo/errado (Cebraspe) pode ficar em branco, como na prova: não grava resposta,
+//   não tira nem cura HP, não conta como erro nem zera o combo. A questão recua e volta
+//   algumas lutas depois; na volta, tem de ser julgada (branco só uma vez por encontro,
+//   senão dava para vencer a partida sem responder nada).
 
 export type Confianca = "certeza" | "duvida";
 export type TipoEncontro = "revisao" | "nova" | "chefe";
@@ -25,6 +29,7 @@ export interface Encontro {
   tipo: TipoEncontro;
   nivel: number; // nível na revisão espaçada (acertos seguidos); 0 para nova
   retorno: boolean; // voltou depois de fugir
+  adiada?: boolean; // voltou depois de ficar em branco (aí não aceita outro branco)
 }
 
 export type ItemId = "pocao" | "baga" | "elixir" | "lente" | "amuleto" | "tomo";
@@ -37,6 +42,7 @@ export interface Registro {
   retorno: boolean;
   chefe: boolean;
   capturada: boolean;
+  branco?: boolean; // certo/errado deixado em branco: não é acerto nem erro
 }
 
 export interface Partida {
@@ -66,6 +72,7 @@ export interface Partida {
 export type Evento =
   | { tipo: "acerto"; critico: boolean; xp: number; captura: boolean }
   | { tipo: "erro"; dano: number; bloqueado: boolean; volta: boolean }
+  | { tipo: "branco"; volta: boolean }
   | { tipo: "cura"; valor: number; motivo: "combo" | "lente" | "licao" | "pocao" | "elixir" }
   | { tipo: "derrota" };
 
@@ -217,15 +224,7 @@ export function responder(
     q.hp = Math.max(0, q.hp - dano);
     // Uma volta só: se errar de novo, fica para a revisão espaçada de amanhã.
     const volta = !e.retorno;
-    if (volta) {
-      const retorno: Encontro = { ...e, retorno: true };
-      if (chefe) q.fila.push(retorno);
-      else {
-        const temChefe = q.fila[q.fila.length - 1]?.tipo === "chefe";
-        const limite = q.fila.length - (temChefe ? 1 : 0);
-        q.fila.splice(Math.min(DISTANCIA_RETORNO, limite), 0, retorno);
-      }
-    }
+    if (volta) reinserir(q.fila, { ...e, retorno: true });
     eventos.push({ tipo: "erro", dano, bloqueado, volta });
     q.registros.push({ questaoId: e.questaoId, acertou, confianca, retorno: e.retorno, chefe, capturada: false });
     if (q.hp <= 0) {
@@ -234,6 +233,43 @@ export function responder(
     }
   }
   return { partida: q, eventos };
+}
+
+// A questão que sai e volta: o chefe vai para o fim; as comuns, DISTANCIA_RETORNO lutas
+// adiante (sempre antes do chefe).
+function reinserir(fila: Encontro[], e: Encontro) {
+  if (e.tipo === "chefe") {
+    fila.push(e);
+    return;
+  }
+  const temChefe = fila[fila.length - 1]?.tipo === "chefe";
+  const limite = fila.length - (temChefe ? 1 : 0);
+  fila.splice(Math.min(DISTANCIA_RETORNO, limite), 0, e);
+}
+
+// Branco só existe em certo/errado e uma vez por encontro: o que já voltou de um branco
+// tem de ser julgado.
+export function podeDeixarEmBranco(p: Partida, formato: string | undefined): boolean {
+  return formato === "CERTO_ERRADO" && !!p.atual && !p.atual.adiada && !p.fim;
+}
+
+// Item deixado em branco. Nada de HP, XP ou combo: na prova o branco não soma nem
+// desconta, e aqui ele também não é golpe. A questão recua e volta depois.
+export function deixarEmBranco(p: Partida, formato: string | undefined): { partida: Partida; eventos: Evento[] } {
+  const e = p.atual;
+  if (!e || !podeDeixarEmBranco(p, formato)) return { partida: p, eventos: [] };
+  const q: Partida = { ...p, registros: [...p.registros], fila: [...p.fila] };
+  reinserir(q.fila, { ...e, adiada: true });
+  q.registros.push({
+    questaoId: e.questaoId,
+    acertou: false,
+    confianca: "duvida",
+    retorno: e.retorno,
+    chefe: e.tipo === "chefe",
+    capturada: false,
+    branco: true,
+  });
+  return { partida: q, eventos: [{ tipo: "branco", volta: true }] };
 }
 
 // Próxima luta, ou a recompensa do andar quando ele acabou.
@@ -312,10 +348,11 @@ export interface Resumo {
   duvida: { total: number; acertos: number };
   recuperadas: number; // erradas na partida e acertadas na volta
   erradas: number[]; // ficaram erradas: voltam amanhã na revisão espaçada
+  brancos: number; // itens certo/errado deixados em branco (não entram nas contas acima)
 }
 
 export function resumir(p: { registros: Registro[] }): Resumo {
-  const r = p.registros;
+  const r = p.registros.filter((x) => !x.branco);
   const faixa = (c: Confianca) => {
     const xs = r.filter((x) => x.confianca === c);
     return { total: xs.length, acertos: xs.filter((x) => x.acertou).length };
@@ -330,6 +367,7 @@ export function resumir(p: { registros: Registro[] }): Resumo {
     duvida: faixa("duvida"),
     recuperadas: r.filter((x) => x.retorno && x.acertou).length,
     erradas: [...ultimaPorQuestao.values()].filter((x) => !x.acertou).map((x) => x.questaoId),
+    brancos: p.registros.length - r.length,
   };
 }
 
