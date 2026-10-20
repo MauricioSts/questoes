@@ -266,13 +266,16 @@ export function Batalha({ alternar }: { alternar?: ReactNode } = {}) {
     setConfirmarFuga(false);
     setHpInimigo(100);
     const chefe = encontro.tipo === "chefe";
+    // Voltar do branco vem antes de tudo (também no chefe): agora o item tem de ser julgado.
     setMensagem(
-      chefe
-        ? encontro.retorno
-          ? "O CHEFE se levantou! Última chance."
-          : "O CHEFE apareceu: a questão que mais te derrubou!"
-        : encontro.adiada
-          ? `O item #${questao.id} voltou: agora é julgar, certo ou errado.`
+      encontro.adiada
+        ? chefe
+          ? "O CHEFE voltou: agora é julgar, certo ou errado."
+          : `O item #${questao.id} voltou: agora é julgar, certo ou errado.`
+        : chefe
+          ? encontro.retorno
+            ? "O CHEFE se levantou! Última chance."
+            : "O CHEFE apareceu: a questão que mais te derrubou!"
           : encontro.retorno
             ? `A questão #${questao.id} voltou para a revanche!`
             : `Uma questão selvagem de ${tipo.nome} apareceu!`
@@ -287,7 +290,7 @@ export function Batalha({ alternar }: { alternar?: ReactNode } = {}) {
         void entradaHeroi(p);
       }
       if (p) {
-        if (chefe && !encontro.retorno) p.banner("Chefe!", "a questão que mais te derrubou", "#B3101F");
+        if (chefe && !encontro.retorno && !encontro.adiada) p.banner("Chefe!", "a questão que mais te derrubou", "#B3101F");
         await entradaVilao(p, chefe);
       }
       if (cancelado || !vivo.current) return;

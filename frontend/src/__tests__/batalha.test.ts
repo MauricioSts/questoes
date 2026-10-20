@@ -168,6 +168,42 @@ describe("branco (certo/errado)", () => {
     expect(avancar(q).fim).toBeNull();
   });
 
+  it("partida só de C/E, tudo em branco e depois tudo errado, termina em poucos passos", () => {
+    let p = partida(6);
+    const encontros = p.totalEncontros;
+    let passos = 0;
+    while (!p.fim && passos < 100) {
+      passos++;
+      if (p.oferta) {
+        p = escolherItem(p, p.oferta[0]);
+        continue;
+      }
+      const r = podeDeixarEmBranco(p, CE) ? deixarEmBranco(p, CE) : responder({ ...p, hp: 100 }, false, "duvida", "media");
+      p = avancar(r.partida);
+    }
+    expect(p.fim).toBe("vitoria");
+    // cada encontro: um branco, um erro e um erro na revanche
+    expect(passos).toBeLessThanOrEqual(encontros * 3);
+    const r = resumir(p);
+    expect(r.acertos).toBe(0);
+    expect(r.brancos).toBe(encontros);
+    expect(r.respondidas).toBe(encontros * 2);
+  });
+
+  it("branco na questão que voltou de um erro fica retorno + adiada e não aceita outro branco", () => {
+    let p = partida(8);
+    const id = p.atual!.questaoId;
+    p = responder(p, false, "duvida", "media").partida;
+    const volta = { ...p, atual: p.fila[3], fila: p.fila.filter((_, i) => i !== 3) };
+    expect(volta.atual).toMatchObject({ questaoId: id, retorno: true });
+    const q = deixarEmBranco(volta, CE).partida;
+    const outra = q.fila.find((e) => e.questaoId === id)!;
+    expect(outra).toMatchObject({ retorno: true, adiada: true });
+    const denovo = { ...q, atual: outra };
+    expect(podeDeixarEmBranco(denovo, CE)).toBe(false);
+    expect(deixarEmBranco(denovo, CE).partida).toBe(denovo);
+  });
+
   it("errar depois do branco tira HP e a questão volta como revanche", () => {
     const p = partida(8);
     const q = deixarEmBranco(p, CE).partida;

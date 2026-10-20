@@ -58,11 +58,14 @@ export function rotuloFuso(fuso: string = FUSO_PADRAO): string {
   return (fuso.split("/").pop() ?? fuso).replace(/_/g, " ");
 }
 
-// Dia do calendário (AAAA-MM-DD) de um instante no fuso.
+// Dia do calendário (AAAA-MM-DD) de um instante no fuso. Montado pelas partes, sem
+// depender de como um locale formata a data.
 export function diaNoFuso(instante: number, fuso: string = FUSO_PADRAO): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: fuso, year: "numeric", month: "2-digit", day: "2-digit" }).format(
+  const partes = new Intl.DateTimeFormat("en-US", { timeZone: fuso, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(
     new Date(instante)
   );
+  const v = (t: string) => partes.find((p) => p.type === t)?.value ?? "";
+  return `${v("year").padStart(4, "0")}-${v("month").padStart(2, "0")}-${v("day").padStart(2, "0")}`;
 }
 
 // Dias de calendário de hoje (no fuso da prova) até o dia da prova: 0 é o próprio dia da

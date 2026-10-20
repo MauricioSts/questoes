@@ -351,7 +351,7 @@ export function Home() {
                 {/* A data manual é gravada como meia-noite UTC: lida em UTC, é o dia escolhido. */}
                 <p className="mt-1 text-sm text-muted">
                   {dataProva
-                    ? `Prova:${dataProva.toLocaleDateString("pt-BR", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}`
+                    ? `Prova: ${dataProva.toLocaleDateString("pt-BR", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}`
                     : "Defina a data da prova"}
                 </p>
                 {dataProva && progressoTempo != null && (

@@ -7,6 +7,7 @@ import { requireAuth } from "../../middleware/auth.js";
 import { ehAdmin } from "../../middleware/admin.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { escopoQuestoes } from "../../lib/escopoQuestoes.js";
+import { diasCorridosAte } from "../../lib/date.js";
 import { HttpError } from "../../middleware/error.js";
 import { Prisma } from "@prisma/client";
 
@@ -61,11 +62,12 @@ concursosRouter.get(
       (respMap.get(a.concursoId) ?? respMap.set(a.concursoId, new Set()).get(a.concursoId)!).add(a.questaoId);
     }
 
-    const hoje = Date.now();
+    const hoje = new Date();
     const lista = concursos.map((c) => {
       const noBanco = bancoMap.get(c.id) ?? 0;
       const feitas = respMap.get(c.id)?.size ?? 0;
-      const diasProva = Math.max(0, Math.ceil((c.dataProva.getTime() - hoje) / 864e5));
+      // Dias de calendário (0 = dia da prova), a mesma conta da Home e das Trilhas.
+      const diasProva = Math.max(0, diasCorridosAte(c.dataProva, hoje));
       const estado = noBanco === 0 ? "VAZIO" : c.arquivado ? "PAUSADO" : "EM_CURSO";
       const { trilha, ...resto } = c;
       // souDonoTrilha: o atalho "Gerenciar minha trilha" só aparece para quem criou.

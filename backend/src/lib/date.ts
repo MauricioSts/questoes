@@ -13,6 +13,18 @@ export function localDateKey(date: Date, timeZone = env.USER_TIMEZONE): string {
   }).format(date);
 }
 
+// Dias de calendário de hoje (no fuso) até uma data gravada como meia-noite UTC (a data
+// da prova): 0 é o próprio dia, negativo já passou. É a mesma conta do frontend
+// (lib/contagemProva, diasCorridos): Home, Trilhas e a lista de concursos mostram o
+// mesmo número, e às 7h do dia da prova não aparece "1 dia".
+export function diasCorridosAte(alvo: Date, agora: Date = new Date(), timeZone = env.USER_TIMEZONE): number {
+  const dia = (k: string) => {
+    const [a, m, d] = k.split("-").map(Number);
+    return Date.UTC(a, m - 1, d);
+  };
+  return Math.round((dia(alvo.toISOString().slice(0, 10)) - dia(localDateKey(agora, timeZone))) / 864e5);
+}
+
 // Início do dia local (em UTC) para uma dada data.
 export function startOfLocalDay(date: Date, timeZone = env.USER_TIMEZONE): Date {
   const key = localDateKey(date, timeZone);

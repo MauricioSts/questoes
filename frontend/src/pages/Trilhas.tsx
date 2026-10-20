@@ -8,11 +8,14 @@ import { TIPOS, listarTrilhas, entrarNaTrilha, nomeCompleto, type RegrasCriacao,
 import { useConcurso } from "../store/concurso";
 import { TituloVivo } from "../components/TituloVivo";
 import { Carregando } from "../components/Spinner";
+import { diasCorridos } from "../lib/contagemProva";
 
+// Dias de calendário até a prova, a mesma conta da Home (0 = dia da prova). A data da
+// trilha é gravada como meia-noite UTC, então o dia dela é o AAAA-MM-DD do ISO.
 function diasAte(iso: string | null): number | null {
   if (!iso) return null;
-  const ms = new Date(iso).getTime() - Date.now();
-  return Math.max(0, Math.ceil(ms / 864e5));
+  const dias = diasCorridos(iso);
+  return dias == null ? null : Math.max(0, dias);
 }
 
 export function Trilhas() {
