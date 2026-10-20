@@ -1,27 +1,30 @@
 // Contagem regressiva até a prova oficial da trilha (perfil da prova): dias e horas até
 // data_prova + horario_prova.inicio, no fuso de Brasília. Sem moldura própria — entra
 // dentro do cartão de quem usa. Se o perfil avisa que o conteúdo é provisório, o aviso
-// vem embaixo, discreto, com o texto do perfil.
+// vem embaixo, discreto, com o texto do perfil. Sem horário no perfil, ou depois do fim
+// da prova, não desenha nada (quem usa volta para a data manual).
 import { useEffect, useState } from "react";
 import { Info } from "lucide-react";
 import type { PerfilProva } from "../lib/notaCE";
-import { inicioDaProva, tempoRestante } from "../lib/contagemProva";
+import { contagemOficial, rotuloFuso, tempoRestante } from "../lib/contagemProva";
 
 type PerfilContagem = Pick<PerfilProva, "data_prova" | "horario_prova" | "aviso_conteudo_provisorio">;
 
 export function ContagemProva({ perfil, className = "" }: { perfil: PerfilContagem; className?: string }) {
-  const alvo = inicioDaProva(perfil);
   // Relógio de minuto em minuto: a contagem mostra horas, não segundos.
   const [agora, setAgora] = useState(() => Date.now());
   useEffect(() => {
     const t = window.setInterval(() => setAgora(Date.now()), 60_000);
     return () => window.clearInterval(t);
   }, []);
-  if (alvo == null) return null;
+  const oficial = contagemOficial(perfil, agora);
+  if (!oficial) return null;
 
-  const r = tempoRestante(alvo, agora);
-  const quando = new Date(alvo).toLocaleString("pt-BR", {
-    timeZone: perfil.horario_prova?.fuso ?? "America/Sao_Paulo",
+  // Entre o início e o fim: "Dia de prova".
+  const r = tempoRestante(oficial.inicio, agora);
+  const fuso = perfil.horario_prova?.fuso;
+  const quando = new Date(oficial.inicio).toLocaleString("pt-BR", {
+    timeZone: fuso ?? "America/Sao_Paulo",
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -40,7 +43,7 @@ export function ContagemProva({ perfil, className = "" }: { perfil: PerfilContag
           {r.dias === 0 && <Numero valor={r.minutos} rotulo="min" />}
         </p>
       )}
-      <p className="mt-1 text-sm text-muted">Prova: {quando} (Brasília)</p>
+      <p className="mt-1 text-sm text-muted">Prova: {quando} ({rotuloFuso(fuso)})</p>
       {perfil.aviso_conteudo_provisorio && (
         <p className="mt-3 flex items-start gap-1.5 text-xs text-faint">
           <Info size={13} strokeWidth={2} className="mt-px flex-shrink-0" />

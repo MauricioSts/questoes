@@ -130,7 +130,9 @@ export function Discursiva() {
                   <p className="line-clamp-2 text-sm text-brand-ink">{d.enunciado}</p>
                   <p className="mt-1 text-xs text-faint">
                     {d.maxLinhas} linhas · {formatarPeso(d.valor)} pontos
-                    {d.padraoResposta != null && " · já tentada"}
+                    {(d.tentativas ?? 0) > 0
+                      ? ` · ${d.tentativas} ${d.tentativas === 1 ? "tentativa" : "tentativas"}`
+                      : d.padraoResposta != null && " · já tentada"}
                   </p>
                 </div>
                 <ChevronRight size={18} className="flex-shrink-0 text-faint" />
@@ -169,7 +171,7 @@ function lerNota(bruto: string, valor: number): number | null | "invalida" {
   return n;
 }
 
-function EditorDiscursiva({
+export function EditorDiscursiva({
   discursiva: d,
   onVoltar,
   onEnviada,
@@ -183,11 +185,17 @@ function EditorDiscursiva({
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [tentativas, setTentativas] = useState<TentativaDiscursiva[] | null>(null);
+  // Padrão de resposta: vem na lista, nas tentativas e na resposta do envio.
+  const [padrao, setPadrao] = useState<string | null>(d.padraoResposta);
 
   useEffect(() => {
     let vivo = true;
     listarTentativas(d.id)
-      .then((t) => vivo && setTentativas(t))
+      .then((r) => {
+        if (!vivo) return;
+        setTentativas(r.tentativas);
+        if (r.padraoResposta != null) setPadrao(r.padraoResposta);
+      })
       .catch(() => vivo && setTentativas([]));
     return () => {
       vivo = false;
@@ -203,12 +211,13 @@ function EditorDiscursiva({
     setEnviando(true);
     setErro(null);
     try {
-      const t = await enviarTentativa(d.id, texto, notaLida ?? undefined);
+      const { tentativa: t, padraoResposta } = await enviarTentativa(d.id, texto, notaLida ?? undefined);
       setTentativas((l) => [t, ...(l ?? [])]);
+      if (padraoResposta != null) setPadrao(padraoResposta);
       setTexto("");
       setNota("");
       gravarRascunho(d.id, "");
-      onEnviada(); // recarrega a lista: o padrão de resposta abre depois da 1ª tentativa
+      onEnviada(); // recarrega a lista: contagem de tentativas
     } catch (e) {
       setErro(e instanceof ApiError ? e.message : "Não deu para enviar agora. O rascunho continua salvo.");
     } finally {
@@ -258,11 +267,8 @@ function EditorDiscursiva({
         <label className="flex flex-wrap items-center gap-3 text-sm text-muted">
           Sua nota (autoavaliação)
           <input
-            type="number"
+            type="text"
             inputMode="decimal"
-            min={0}
-            max={d.valor}
-            step={0.5}
             value={nota}
             onChange={(e) => setNota(e.target.value)}
             placeholder="—"
@@ -288,10 +294,10 @@ function EditorDiscursiva({
         </p>
       </Card>
 
-      {d.padraoResposta != null && (
+      {padrao != null && (
         <Card className="space-y-2 p-6">
           <p className="text-[11px] font-bold uppercase tracking-[.14em] text-faint">Padrão de resposta</p>
-          <p className="whitespace-pre-line text-sm leading-relaxed text-brand-ink">{d.padraoResposta}</p>
+          <p className="whitespace-pre-line text-sm leading-relaxed text-brand-ink">{padrao}</p>
         </Card>
       )}
 
@@ -353,15 +359,12 @@ function ItemTentativa({
           <span className="text-xs text-faint">
             {new Date(t.createdAt).toLocaleString("pt-BR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
             {" · "}
-            {contarLinhas(t.texto, d.caracteresPorLinha)} linhas
+            {t.linhas ?? contarLinhas(t.texto, d.caracteresPorLinha)} linhas
           </span>
           <span className="flex items-center gap-2 text-sm text-muted">
             <input
-              type="number"
+              type="text"
               inputMode="decimal"
-              min={0}
-              max={d.valor}
-              step={0.5}
               value={nota}
               onChange={(e) => setNota(e.target.value)}
               placeholder="—"

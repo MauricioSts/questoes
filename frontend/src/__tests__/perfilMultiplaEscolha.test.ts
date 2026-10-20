@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { configDoPerfil, cortesDoPerfil, totalPontos, totalQuestoes } from "../lib/simuladoConfig";
 import { montarSimulado } from "../lib/sessionBuilder";
 import { ehPerfilCertoErrado, type PerfilProva } from "../lib/notaCE";
-import { inicioDaProva, tempoRestante } from "../lib/contagemProva";
+import { contagemOficial, diasAte, inicioDaProva, rotuloFuso, tempoRestante } from "../lib/contagemProva";
 import { contarLinhas } from "../lib/discursiva";
 import type { Questao } from "../types/questao";
 
@@ -78,6 +78,27 @@ describe("perfil de múltipla escolha (TJPB)", () => {
     expect(tempoRestante(alvo, Date.parse("2027-01-22T14:30:00Z"))).toEqual({ dias: 2, horas: 1, minutos: 30, passou: false });
     expect(tempoRestante(alvo, alvo + 1).passou).toBe(true);
     expect(inicioDaProva({})).toBeNull();
+    expect(diasAte(alvo, Date.parse("2027-01-22T14:30:00Z"))).toBe(3); // arredonda para cima
+  });
+
+  it("contagem oficial só com horário e prova por vir; CGU e Bacen ficam na data manual", () => {
+    const antes = Date.parse("2026-10-20T12:00:00Z");
+    expect(contagemOficial(tjpb, antes)).toEqual({
+      inicio: Date.parse("2027-01-24T16:00:00Z"),
+      fim: Date.parse("2027-01-24T21:00:00Z"),
+    });
+    // Durante a prova ainda vale ("Dia de prova"); depois do fim, não.
+    expect(contagemOficial(tjpb, Date.parse("2027-01-24T18:00:00Z"))).not.toBeNull();
+    expect(contagemOficial(tjpb, Date.parse("2027-01-24T21:00:00Z"))).toBeNull();
+    expect(contagemOficial(ler("cgu-2026-dev"), antes)).toBeNull(); // sem horário
+    expect(contagemOficial(ler("bacen-2024-ti"), antes)).toBeNull(); // sem horário e já passou
+    expect(contagemOficial({ data_prova: "2024-05-19", horario_prova: { inicio: "08:00" } }, antes)).toBeNull();
+  });
+
+  it("rótulo do fuso", () => {
+    expect(rotuloFuso("America/Sao_Paulo")).toBe("Brasília");
+    expect(rotuloFuso(undefined)).toBe("Brasília");
+    expect(rotuloFuso("America/Rio_Branco")).toBe("Rio Branco");
   });
 
   it("linhas da discursiva: quebra a cada N caracteres e em cada Enter", () => {
@@ -85,5 +106,9 @@ describe("perfil de múltipla escolha (TJPB)", () => {
     expect(contarLinhas("a".repeat(70), 70)).toBe(1);
     expect(contarLinhas("a".repeat(71), 70)).toBe(2);
     expect(contarLinhas("abc\n\nde", 70)).toBe(3);
+    // Um Enter solto no fim não conta; dois deixam uma linha em branco.
+    expect(contarLinhas("abc\n", 70)).toBe(1);
+    expect(contarLinhas("abc\n\n", 70)).toBe(2);
+    expect(contarLinhas("\n", 70)).toBe(0);
   });
 });

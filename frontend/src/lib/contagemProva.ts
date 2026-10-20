@@ -31,6 +31,36 @@ export function inicioDaProva(perfil: Pick<PerfilProva, "data_prova" | "horario_
   return comoUtc - deslocamento(fuso, comoUtc);
 }
 
+// Instante (ms UTC) do fim da prova: horario_prova.fim no mesmo dia (sem fim, o início).
+export function fimDaProva(perfil: Pick<PerfilProva, "data_prova" | "horario_prova">): number | null {
+  const fim = perfil.horario_prova?.fim;
+  if (!fim || !perfil.horario_prova) return inicioDaProva(perfil);
+  return inicioDaProva({ ...perfil, horario_prova: { ...perfil.horario_prova, inicio: fim } });
+}
+
+// A contagem oficial só vale para perfil com data E horário (edital publicado) e prova
+// que ainda não terminou. Fora disso (CGU sem horário, Bacen de 2024, prova já feita)
+// devolve null e a tela fica com a data manual do concurso.
+export function contagemOficial(
+  perfil: Pick<PerfilProva, "data_prova" | "horario_prova">,
+  agora: number = Date.now()
+): { inicio: number; fim: number } | null {
+  if (!perfil.horario_prova?.inicio) return null;
+  const inicio = inicioDaProva(perfil);
+  const fim = fimDaProva(perfil);
+  if (inicio == null || fim == null || agora >= fim) return null;
+  return { inicio, fim };
+}
+
+// Nome do fuso para a tela: Brasília para o de São Paulo; os demais, pela cidade do IANA.
+export function rotuloFuso(fuso: string = FUSO_PADRAO): string {
+  if (fuso === FUSO_PADRAO) return "Brasília";
+  return (fuso.split("/").pop() ?? fuso).replace(/_/g, " ");
+}
+
+// Dias até a prova, arredondados para cima (como a contagem da data manual).
+export const diasAte = (alvo: number, agora: number = Date.now()) => Math.max(0, Math.ceil((alvo - agora) / 86400000));
+
 export interface Restante {
   dias: number;
   horas: number;

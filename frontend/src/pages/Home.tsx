@@ -41,7 +41,7 @@ import { CartaoRanking } from "../components/CartaoRanking";
 import { configDoPerfil, configPadrao, totalQuestoes as questoesDoSimulado } from "../lib/simuladoConfig";
 import { usePerfilProva } from "../hooks/usePerfilProva";
 import { ehPerfilCertoErrado } from "../lib/notaCE";
-import { inicioDaProva, tempoRestante } from "../lib/contagemProva";
+import { contagemOficial, diasAte } from "../lib/contagemProva";
 import { ContagemProva } from "../components/ContagemProva";
 import { todas } from "../lib/questoesRepo";
 
@@ -97,17 +97,15 @@ export function Home() {
   const progressoPlano = goal?.progressoPlano ?? 0;
   const faltamBanco = Math.max(0, totalQuestoes - respondidasTotal);
 
-  // Trilha com perfil de prova datado (edital publicado): a contagem segue a data e a
-  // hora oficiais do perfil, e a data manual do concurso sai de cena.
+  // Trilha com perfil de prova com data e horário (edital publicado) e prova ainda por
+  // vir: a contagem segue a data e a hora oficiais. Sem horário (CGU) ou prova já feita
+  // (Bacen 2024), fica a data manual do concurso, com o lápis de editar.
   const perfil = usePerfilProva();
-  const inicioOficial = perfil?.dados ? inicioDaProva(perfil.dados) : null;
+  const oficial = perfil?.dados ? contagemOficial(perfil.dados) : null;
+  const inicioOficial = oficial?.inicio ?? null;
   const dataProva = goal?.dataProva ? new Date(goal.dataProva) : null;
   const diasProva =
-    inicioOficial != null
-      ? tempoRestante(inicioOficial).dias
-      : dataProva
-        ? Math.max(0, Math.ceil((dataProva.getTime() - Date.now()) / 86400000))
-        : null;
+    inicioOficial != null ? diasAte(inicioOficial) : dataProva ? diasAte(dataProva.getTime()) : null;
   const progressoTempo = goal?.progressoTempo ?? null;
   const revisaoPendente = goal?.revisaoPendente ?? 0;
   // Cartão do Simulado segue a configuração da trilha ativa: "70 questões, só aos
