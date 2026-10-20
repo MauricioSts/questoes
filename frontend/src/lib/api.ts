@@ -90,15 +90,19 @@ async function tryRefresh(): Promise<boolean> {
           // o antigo morre). Se o localStorage já tem um par diferente do enviado, usa ele
           // em vez de deslogar.
           if (res.status === 401 && (await outraAbaRenovou(refresh))) return true;
-          // só limpa se ninguém trocou o par nesse meio-tempo
-          if (tokenStore.refresh === refresh) tokenStore.clear();
+          // Só 401/403 dizem que o refresh morreu. 5xx/429 (ex.: 502 no restart do pm2)
+          // são passageiros: falha esta requisição, mas mantém a sessão.
+          // E só limpa se ninguém trocou o par nesse meio-tempo.
+          if ((res.status === 401 || res.status === 403) && tokenStore.refresh === refresh) {
+            tokenStore.clear();
+          }
           return false;
         }
         const data = await res.json();
         tokenStore.set(data.accessToken, data.refreshToken);
         return true;
       })
-      .catch(() => false)
+      .catch(() => false) // erro de rede: não desloga
       .finally(() => {
         refreshing = null;
       });

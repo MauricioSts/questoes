@@ -3,7 +3,7 @@
 // que espera a aprovação do administrador.
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { limparPerfisProva } from "../lib/perfilProva";
-import { api, tokenStore } from "../lib/api";
+import { api, ApiError, tokenStore } from "../lib/api";
 
 export interface Usuario {
   id: string;
@@ -61,11 +61,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setCarregando(false);
         return;
       }
+      const refreshInicial = tokenStore.refresh;
       try {
         const { user } = await api<{ user: Usuario }>("/auth/me");
         setUsuario(user);
-      } catch {
-        tokenStore.clear();
+      } catch (e) {
+        // Só descarta a sessão em 401 de verdade e se outra aba não renovou nesse meio-tempo;
+        // erro de rede ou 5xx (ex.: restart da API) não desloga.
+        if (e instanceof ApiError && e.status === 401 && tokenStore.refresh === refreshInicial) {
+          tokenStore.clear();
+        }
       } finally {
         setCarregando(false);
       }
