@@ -18,6 +18,8 @@ import {
   notaCE,
   type ComposicaoGrupo,
   type NotaCE,
+  type NotaDisciplina,
+  type NotaGrupo,
   type PerfilProva,
 } from "../lib/notaCE";
 import { useQuestoes } from "../store/questoes";
@@ -37,7 +39,10 @@ type Fase = "intro" | "rodando" | "resultado";
 interface ResultadoGuardado {
   id: string;
   createdAt: string;
-  dados: NotaCE & { itens: { questaoId: number; marcada: "C" | "E" | null }[]; duracaoSegundos: number | null };
+  // resultados guardados antes do mínimo por disciplina não têm grupos[].disciplinas
+  dados: Omit<NotaCE, "grupos"> & {
+    grupos: (Omit<NotaGrupo, "disciplinas"> & { disciplinas?: NotaDisciplina[] })[];
+    itens: { questaoId: number; marcada: "C" | "E" | null }[]; duracaoSegundos: number | null };
 }
 
 const formatarDuracao = (min: number) =>
@@ -113,7 +118,12 @@ export function SimuladoCE({ perfil, perfilId, concursoId }: { perfil: PerfilPro
     if (marcadas.length) await enviarLote(marcadas.map((r) => montarResultado(r.questao, r.marcada!, "SIMULADO", r.tempoSegundos)));
     const nota = notaCE(
       perfil,
-      rs.map((r) => ({ grupo: r.questao.comando?.grupo ?? "", marcada: r.marcada as "C" | "E" | undefined, acertou: r.acertou }))
+      rs.map((r) => ({
+        grupo: r.questao.comando?.grupo ?? "",
+        disciplina: r.questao.materia,
+        marcada: r.marcada as "C" | "E" | undefined,
+        acertou: r.acertou,
+      }))
     );
     try {
       await api("/provas/resultados", {

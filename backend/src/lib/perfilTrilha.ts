@@ -20,9 +20,17 @@ const disciplinaSchema = z
     itens: z.number().int().nullable().optional(),
     // false = conteúdo provisório (edital ainda sem o anexo). Ausente = oficial.
     conteudo_oficial: z.boolean().optional(),
+    // Mínimo da disciplina (opcional; só onde o edital fixa), em pontos já ponderados como
+    // o nota_minima do grupo. O simulado encolhe o mínimo na proporção dos itens, então
+    // exige `itens` da disciplina: sem ele não há como saber o tamanho real.
+    nota_minima: z.number().min(0).nullable().optional(),
     topicos: z.array(topicoSchema).optional(),
   })
-  .passthrough();
+  .passthrough()
+  .refine((d) => d.nota_minima == null || (d.itens ?? 0) > 0, {
+    message: "nota_minima da disciplina exige itens (> 0) da disciplina no edital",
+    path: ["nota_minima"],
+  });
 
 const grupoSchema = z
   .object({

@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 import { describe, it, expect } from "vitest";
 import {
   atualizarConteudo,
+  conferirPerfil,
   conferirVinculos,
   contarLinhas,
   formatoDoPerfil,
@@ -197,6 +198,33 @@ describe("meta do dia numa trilha só de vínculos", () => {
       const doDia = materiaDoDia(dia, 0, rodizio);
       expect(casarMaterias(nomes, doDia.termos)).toEqual([doDia.rotulo]);
     }
+  });
+});
+
+// Mínimo por disciplina é opcional: os perfis do repositório (sem ele) seguem válidos, e
+// quem o declara precisa dar os itens da disciplina (o simulado o encolhe na proporção).
+describe("nota_minima por disciplina", () => {
+  const doc = (nome: string) => JSON.parse(readFileSync(new URL(`../../../docs/perfis/${nome}.json`, import.meta.url), "utf8"));
+
+  it("perfis atuais (sem mínimo por disciplina) continuam válidos", () => {
+    for (const nome of ["cgu-2026-dev", "bacen-2024-ti", "tjpb-2026-dev"]) expect(conferirPerfil(doc(nome)).ok).toBe(true);
+  });
+
+  it("aceita mínimo com itens e mínimo null", () => {
+    const p = doc("cgu-2026-dev");
+    p.grupos[0].disciplinas[0] = { ...p.grupos[0].disciplinas[0], itens: 10, nota_minima: 2 };
+    p.grupos[0].disciplinas[1] = { ...p.grupos[0].disciplinas[1], nota_minima: null };
+    expect(conferirPerfil(p).ok).toBe(true);
+  });
+
+  it("recusa mínimo sem itens da disciplina ou negativo", () => {
+    const p = doc("cgu-2026-dev");
+    p.grupos[0].disciplinas[0] = { ...p.grupos[0].disciplinas[0], nota_minima: 2 };
+    const r = conferirPerfil(p);
+    expect(r.ok).toBe(false);
+    expect(!r.ok && r.erro).toMatch(/grupos\.0\.disciplinas\.0\.nota_minima: nota_minima da disciplina exige itens/);
+    p.grupos[0].disciplinas[0] = { ...p.grupos[0].disciplinas[0], itens: 10, nota_minima: -1 };
+    expect(conferirPerfil(p).ok).toBe(false);
   });
 });
 

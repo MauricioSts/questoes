@@ -14,6 +14,7 @@ const db = vi.hoisted(() => ({
   concurso: { findFirst: vi.fn() },
   discursiva: { findUnique: vi.fn(), findMany: vi.fn(), create: vi.fn(), count: vi.fn() },
   tentativaDiscursiva: { create: vi.fn(), findFirst: vi.fn(), findMany: vi.fn(), update: vi.fn(), groupBy: vi.fn() },
+  resultadoProva: { create: vi.fn() },
   $transaction: vi.fn(),
 }));
 vi.mock("../prisma.js", () => ({ prisma: db }));
@@ -236,5 +237,41 @@ describe("GET /provas/perfil", () => {
   it("trilha sem perfil: os dois null", async () => {
     db.concurso.findFirst.mockResolvedValue({ id: "c1", trilha: { perfilProva: null } });
     expect(await (await chamar("GET", "/provas/perfil?concursoId=c1", aluno)).json()).toEqual({ perfil: null, perfilTrilha: null });
+  });
+});
+
+// O resultado guarda a nota por disciplina quando o perfil tem mínimo nela; resultado sem
+// o campo (front antigo, perfil sem mínimo por disciplina) continua valendo.
+describe("POST /provas/resultados", () => {
+  const placar = { acertos: 3, erros: 1, brancos: 0, pontos: 2, maximo: 4, minimo: 1, aprovado: true };
+  const corpo = (grupo: Record<string, unknown>) => ({
+    concursoId: "c1",
+    perfilProvaId: "cgu-2026-dev",
+    dados: { grupos: [grupo], pontos: 2, maximo: 4, minimo: 0, aprovado: false, motivos: ["P1 · X: abaixo"], itens: [], duracaoSegundos: 60 },
+  });
+  beforeEach(() => {
+    db.concurso.findFirst.mockResolvedValue({ id: "c1", trilha: null });
+    db.resultadoProva.create.mockResolvedValue({ id: "r1", createdAt: new Date(0) });
+  });
+
+  it("guarda as disciplinas do grupo", async () => {
+    const disciplinas = [{ nome: "Ética Pública", ...placar, pontos: 0, minimo: 1, aprovado: false }];
+    const r = await chamar("POST", "/provas/resultados", aluno, corpo({ grupo: "P1", ...placar, disciplinas }));
+    expect(r.status).toBe(201);
+    expect(db.resultadoProva.create.mock.calls[0][0].data.dados.grupos[0].disciplinas).toEqual(disciplinas);
+  });
+
+  it("aceita mais de 20 motivos (muitas disciplinas abaixo do mínimo)", async () => {
+    const c = corpo({ grupo: "P1", ...placar });
+    c.dados.motivos = Array.from({ length: 35 }, (_, i) => `P1 · Disciplina ${i}: abaixo do mínimo`);
+    const r = await chamar("POST", "/provas/resultados", aluno, c);
+    expect(r.status).toBe(201);
+    expect(db.resultadoProva.create.mock.calls[0][0].data.dados.motivos).toHaveLength(35);
+  });
+
+    it("aceita grupo sem disciplinas", async () => {
+    const r = await chamar("POST", "/provas/resultados", aluno, corpo({ grupo: "P1", ...placar }));
+    expect(r.status).toBe(201);
+    expect(db.resultadoProva.create.mock.calls[0][0].data.dados.grupos[0].disciplinas).toBeUndefined();
   });
 });
