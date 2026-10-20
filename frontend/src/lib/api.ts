@@ -63,6 +63,17 @@ export class ApiError extends Error {
 
 let refreshing: Promise<boolean> | null = null;
 
+// Espera um pouco por um par novo gravado por outra aba (a resposta dela pode chegar
+// depois do nosso 401). true se o refresh do localStorage mudou em relação ao enviado.
+async function outraAbaRenovou(enviado: string): Promise<boolean> {
+  for (let i = 0; i < 6; i++) {
+    const atual = tokenStore.refresh;
+    if (atual && atual !== enviado && tokenStore.access) return true;
+    await new Promise((r) => setTimeout(r, 250));
+  }
+  return false;
+}
+
 // Tenta renovar o access token usando o refresh (evita corridas com um promise único).
 async function tryRefresh(): Promise<boolean> {
   const refresh = tokenStore.refresh;
@@ -75,7 +86,12 @@ async function tryRefresh(): Promise<boolean> {
     })
       .then(async (res) => {
         if (!res.ok) {
-          tokenStore.clear();
+          // Outra aba pode ter renovado com o mesmo refresh antes (o servidor rotaciona e
+          // o antigo morre). Se o localStorage já tem um par diferente do enviado, usa ele
+          // em vez de deslogar.
+          if (res.status === 401 && (await outraAbaRenovou(refresh))) return true;
+          // só limpa se ninguém trocou o par nesse meio-tempo
+          if (tokenStore.refresh === refresh) tokenStore.clear();
           return false;
         }
         const data = await res.json();

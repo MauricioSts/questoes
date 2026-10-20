@@ -335,12 +335,16 @@ authRouter.post(
     });
 
     if (!stored || stored.expiresAt < new Date()) {
-      if (stored) await prisma.refreshToken.delete({ where: { id: stored.id } });
+      // deleteMany não estoura P2025 se outra requisição já apagou o token
+      if (stored) await prisma.refreshToken.deleteMany({ where: { id: stored.id } });
       throw new HttpError(401, "Refresh token inválido ou expirado");
     }
 
-    // rotação: apaga o antigo e emite novo
-    await prisma.refreshToken.delete({ where: { id: stored.id } });
+    // rotação: apaga o antigo e emite novo. Duas abas renovando ao mesmo tempo leem o
+    // mesmo token; só quem apagou de fato (count 1) ganha o par novo, a outra leva 401
+    // em vez de 500 (P2025) e o cliente aproveita o par que a primeira gravou.
+    const { count } = await prisma.refreshToken.deleteMany({ where: { id: stored.id } });
+    if (count === 0) throw new HttpError(401, "Refresh token inválido ou expirado");
     const tokens = await issueTokens(stored.user);
     res.json({ user: publicUser(stored.user), ...tokens });
   })
