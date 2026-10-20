@@ -34,12 +34,14 @@ import { salvarLicoesNoCaderno, textoCalibragem } from "../lib/licoes";
 import {
   MIN_LICAO,
   avancar,
+  deixarEmBranco,
   escolherItem,
   fugir,
   montarPartida,
   nivelDoXp,
   estagioDoNivel,
   NIVEIS_EVOLUCAO,
+  podeDeixarEmBranco,
   registrarLicao,
   responder,
   resumir,
@@ -269,9 +271,11 @@ export function Batalha({ alternar }: { alternar?: ReactNode } = {}) {
         ? encontro.retorno
           ? "O CHEFE se levantou! Última chance."
           : "O CHEFE apareceu: a questão que mais te derrubou!"
-        : encontro.retorno
-          ? `A questão #${questao.id} voltou para a revanche!`
-          : `Uma questão selvagem de ${tipo.nome} apareceu!`
+        : encontro.adiada
+          ? `O item #${questao.id} voltou: agora é julgar, certo ou errado.`
+          : encontro.retorno
+            ? `A questão #${questao.id} voltou para a revanche!`
+            : `Uma questão selvagem de ${tipo.nome} apareceu!`
     );
     let cancelado = false;
     void (async () => {
@@ -295,7 +299,7 @@ export function Batalha({ alternar }: { alternar?: ReactNode } = {}) {
       cancelado = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fase, encontro?.questaoId, encontro?.retorno]);
+  }, [fase, encontro?.questaoId, encontro?.retorno, encontro?.adiada]);
 
   // Ao terminar, soma a partida no perfil (uma vez só).
   useEffect(() => {
@@ -412,8 +416,28 @@ export function Batalha({ alternar }: { alternar?: ReactNode } = {}) {
     setTimeout(() => resultadoRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 60);
   }
 
+  // ----- branco (certo/errado) -----
+  // Não vai ao servidor (não grava resposta) e não é golpe: a questão só recua e volta
+  // depois. O gabarito não aparece, senão a volta virava cópia.
+  async function emBranco() {
+    if (!partida || !questao || fase !== "pergunta") return;
+    const { partida: nova, eventos } = deixarEmBranco(partida, questao.formato);
+    if (!eventos.length) return;
+    setFase("golpe");
+    setPartida(nova);
+    setSelecionada(undefined);
+    setMensagem(`${forma.nome} deixou o item em branco. Sem dano, sem cura: ele volta daqui a pouco.`);
+    const p = palco.current;
+    if (p) await fugaVilao(p);
+    if (!vivo.current) return;
+    seguir(nova);
+  }
+
   function continuar() {
-    if (!partida) return;
+    if (partida) seguir(partida);
+  }
+
+  function seguir(partida: Partida) {
     if (partida.fim) {
       setFase("fim");
       return;
@@ -609,14 +633,15 @@ export function Batalha({ alternar }: { alternar?: ReactNode } = {}) {
         {(fase === "entrada" || fase === "pergunta" || fase === "golpe" || fase === "resultado") && questao && (
           <div className="flex min-h-full flex-col">
             <div className="flex-1 space-y-4 p-4 sm:p-6">
-              <div key={`${questao.id}-${encontro?.retorno ? "r" : "a"}`} className="bt-carta-questao" style={fase === "entrada" ? { opacity: 0.35 } : undefined}>
+              <div key={`${questao.id}-${encontro?.retorno ? "r" : "a"}${encontro?.adiada ? "b" : ""}`} className="bt-carta-questao" style={fase === "entrada" ? { opacity: 0.35 } : undefined}>
                 <QuestaoView
-                  key={`${questao.id}-${encontro?.retorno ? "r" : "a"}`}
+                  key={`${questao.id}-${encontro?.retorno ? "r" : "a"}${encontro?.adiada ? "b" : ""}`}
                   questao={questao}
                   selecionada={fase === "resultado" || fase === "golpe" ? desfecho?.marcada : selecionada}
                   revelado={fase === "resultado"}
                   historico={historicoView}
                   onSelecionar={(a) => fase === "pergunta" && setSelecionada(a)}
+                  onBranco={fase === "pergunta" && podeDeixarEmBranco(partida, questao.formato) ? () => void emBranco() : undefined}
                 />
               </div>
 
@@ -644,8 +669,16 @@ export function Batalha({ alternar }: { alternar?: ReactNode } = {}) {
                       {partida.fim !== "derrota" && (
                         <>
                           <label className="block text-sm text-muted" htmlFor="licao">
-                            Em uma frase, com suas palavras: por que a <b className="text-brand-ink">{questao.gabarito}</b> é a certa
-                            {desfecho.marcada ? <> e a {desfecho.marcada} não</> : null}? Escrever cura HP.
+                            {questao.formato === "CERTO_ERRADO" ? (
+                              <>
+                                Em uma frase, com suas palavras: por que o item está <b className="text-brand-ink">{questao.gabarito === "C" ? "certo" : "errado"}</b>? Escrever cura HP.
+                              </>
+                            ) : (
+                              <>
+                                Em uma frase, com suas palavras: por que a <b className="text-brand-ink">{questao.gabarito}</b> é a certa
+                                {desfecho.marcada ? <> e a {desfecho.marcada} não</> : null}? Escrever cura HP.
+                              </>
+                            )}
                           </label>
                           {licaoAnterior ? (
                             <p className="rounded-xl border border-hair bg-surface2 p-3 text-sm text-brand-ink">
@@ -929,6 +962,7 @@ function Lobby({
             <p>
               <b className="text-brand-ink">Errou? A questão foge e volta</b> três lutas depois, com as alternativas em outra ordem.
               Antes, escreva em uma frase por que o gabarito está certo: isso cura HP e é a melhor forma de fixar.
+              Item de certo ou errado pode ficar em branco, como na prova: não tira nem cura HP e volta mais tarde para ser julgado.
             </p>
             <p>
               <b className="text-brand-ink">Vencer uma questão que já te derrubou é captura.</b> A cada 4 vitórias, escolha uma
@@ -983,7 +1017,8 @@ function Fim({ partida, perfil, activeId, onNova }: { partida: Partida; perfil: 
           Andar {partida.andar} · {r.acertos}/{r.respondidas} acertos · +{partida.xp} XP
         </p>
         <p className="mt-1 text-xs text-faint">
-          {r.respondidas} respostas contaram na meta do dia e na ofensiva. Nível do parceiro: {nivelDoXp(perfil.xp).nivel}.
+          {r.respondidas} respostas contaram na meta do dia e na ofensiva
+          {r.brancos > 0 ? ` (${r.brancos} em branco não contam: não são acerto nem erro)` : ""}. Nível do parceiro: {nivelDoXp(perfil.xp).nivel}.
         </p>
       </div>
 

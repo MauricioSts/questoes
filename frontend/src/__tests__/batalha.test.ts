@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   avancar,
+  deixarEmBranco,
   escolherItem,
   intercalar,
   montarPartida,
+  podeDeixarEmBranco,
   registrarLicao,
   responder,
   resumir,
@@ -111,6 +113,68 @@ describe("responder", () => {
     const alvo = { ...p, atual: { ...p.atual!, questaoId: 1 } };
     const r = responder(alvo, true, "duvida", "media");
     expect(r.eventos[0]).toMatchObject({ tipo: "acerto", captura: true });
+  });
+});
+
+describe("branco (certo/errado)", () => {
+  const CE = "CERTO_ERRADO";
+
+  it("só existe em certo/errado", () => {
+    const p = partida(8);
+    expect(podeDeixarEmBranco(p, "MULTIPLA_ESCOLHA")).toBe(false);
+    expect(podeDeixarEmBranco(p, undefined)).toBe(false);
+    expect(deixarEmBranco(p, "MULTIPLA_ESCOLHA").partida).toBe(p);
+    expect(podeDeixarEmBranco(p, CE)).toBe(true);
+  });
+
+  it("não dá dano nem cura, não mexe em XP nem combo e não conta como erro", () => {
+    let p = partida(8);
+    p = { ...p, hp: 50, combo: 2, xp: 30 };
+    const { partida: q, eventos } = deixarEmBranco(p, CE);
+    expect(eventos).toEqual([{ tipo: "branco", volta: true }]);
+    expect(q.hp).toBe(50);
+    expect(q.combo).toBe(2);
+    expect(q.xp).toBe(30);
+    expect(q.derrotadosNoAndar).toBe(p.derrotadosNoAndar);
+    const r = resumir(q);
+    expect(r).toMatchObject({ respondidas: 0, acertos: 0, erradas: [], brancos: 1 });
+    expect(r.duvida.total).toBe(0);
+  });
+
+  it("a questão volta 3 lutas depois, sem virar revanche, e aí tem de ser julgada", () => {
+    const p = partida(8);
+    const id = p.atual!.questaoId;
+    const q = deixarEmBranco(p, CE).partida;
+    expect(q.fila[3]).toMatchObject({ questaoId: id, adiada: true, retorno: false });
+    const volta = { ...q, atual: q.fila[3] };
+    expect(podeDeixarEmBranco(volta, CE)).toBe(false);
+    expect(deixarEmBranco(volta, CE).partida).toBe(volta);
+  });
+
+  it("acertar o item que voltou do branco não é captura nem XP de revanche", () => {
+    const p = partida(8);
+    const q = deixarEmBranco(p, CE).partida;
+    const volta = { ...q, atual: q.fila[3] };
+    const r = responder(volta, true, "duvida", "media");
+    expect(r.eventos[0]).toMatchObject({ tipo: "acerto", captura: false, xp: 12 });
+    expect(resumir(r.partida)).toMatchObject({ respondidas: 1, acertos: 1, brancos: 1 });
+  });
+
+  it("chefe em branco vai para o fim da fila", () => {
+    let p = partida(3);
+    while (p.atual?.tipo !== "chefe") p = avancar(responder(p, true, "duvida", "media").partida);
+    const q = deixarEmBranco(p, CE).partida;
+    expect(q.fila[q.fila.length - 1]).toMatchObject({ tipo: "chefe", adiada: true });
+    expect(avancar(q).fim).toBeNull();
+  });
+
+  it("errar depois do branco tira HP e a questão volta como revanche", () => {
+    const p = partida(8);
+    const q = deixarEmBranco(p, CE).partida;
+    const volta = { ...q, atual: q.fila[3], fila: q.fila.filter((_, i) => i !== 3) };
+    const r = responder(volta, false, "duvida", "media");
+    expect(r.partida.hp).toBe(80);
+    expect(resumir(r.partida).erradas).toEqual([p.atual!.questaoId]);
   });
 });
 
