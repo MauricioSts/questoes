@@ -36,6 +36,7 @@ import { TrilhaEditor } from "./pages/TrilhaEditor";
 import { Assinatura } from "./pages/Assinatura";
 import { Exercicios } from "./pages/Exercicios";
 import { Exercicio } from "./pages/Exercicio";
+import { Discursiva } from "./pages/Discursiva";
 import { FronteiraErro } from "./components/FronteiraErro";
 
 // Bancada dos golpes da Batalha Pokémon: só carrega quem abre.
@@ -96,6 +97,7 @@ export default function App() {
                   <Route path="/erros" element={<Erros />} />
                   <Route path="/exercicios" element={<Exercicios />} />
                   <Route path="/exercicios/:id" element={<Exercicio />} />
+                  <Route path="/discursiva" element={<Discursiva />} />
                   <Route element={<RotaAdmin />}>
                     <Route path="/importar" element={<Importar />} />
                   </Route>

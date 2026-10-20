@@ -9,10 +9,26 @@ import type { Questao } from "../types/questao";
 
 export interface PerfilProva {
   perfil: string;
+  // Sem o campo é certo/errado: os perfis da CGU e do Bacen nasceram antes dele.
+  formato?: "CERTO_ERRADO" | "MULTIPLA_ESCOLHA";
   cargo?: string;
+  banca?: string;
+  data_prova?: string; // "AAAA-MM-DD"
+  horario_prova?: { inicio: string; fim?: string; fuso?: string; portoes_fecham?: string };
   duracao_minutos: number | null;
   pontuacao: { acerto: number; erro: number; branco: number };
-  nota_minima_geral: number | null;
+  nota_minima_geral?: number | null;
+  // Múltipla escolha: corte da objetiva em % dos pontos e quanto ele cai para as cotas.
+  nota_minima_objetiva_pct?: number;
+  reducao_minima_cotas_pct?: number;
+  aviso_conteudo_provisorio?: string;
+  discursiva?: {
+    questoes: number;
+    max_linhas: number;
+    caracteres_por_linha: number;
+    valor: number;
+    corrigidas_top?: number;
+  };
   grupos: {
     grupo: string;
     nome: string;
@@ -22,6 +38,9 @@ export interface PerfilProva {
     disciplinas: { nome: string; itens: number | null }[];
   }[];
 }
+
+// Perfil certo/errado: o formato declarado, ou nenhum (os perfis antigos são todos C/E).
+export const ehPerfilCertoErrado = (p: PerfilProva) => (p.formato ?? "CERTO_ERRADO") === "CERTO_ERRADO";
 
 // Itens do grupo na prova real: o total do grupo, ou a soma das disciplinas.
 export function itensDoGrupo(g: PerfilProva["grupos"][number]): number {
