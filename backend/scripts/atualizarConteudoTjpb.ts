@@ -5,7 +5,8 @@
 // no --mapa muda para o destino, e o resto é LISTADO como órfão, sem apagar nada.
 // Idempotente: rodar de novo com o mesmo arquivo não muda nada.
 //   npx tsx scripts/atualizarConteudoTjpb.ts conteudo.json [--mapa mapa.json] [--seco]
-//     [--perfil-arquivo[=../docs/perfis/tjpb-2026-dev.json]] [--trilha tjpb-2026-dev]
+//     [--perfil-arquivo [caminho] | --perfil-arquivo=caminho] [--trilha tjpb-2026-dev]
+//   (sem caminho, regrava ../docs/perfis/tjpb-2026-dev.json)
 // conteudo.json: { "disciplinas": [{ "nome", "itens": n|null, "topicos": [{ "numero", "texto" }] }] }
 //   ou a lista plana [{ "disciplina", "numero", "texto" }].
 // mapa.json: { "<disciplina>|<tópico antigo>": { "materia": "...", "topico": "..." } }
@@ -14,26 +15,18 @@ import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "../src/prisma.js";
-import { atualizarConteudo, lerConteudoOficial, lerPerfil, type MapaReclassificacao } from "../src/lib/perfilTrilha.js";
+import { atualizarConteudo, lerArgsAtualizarConteudo, lerConteudoOficial, lerPerfil, type MapaReclassificacao } from "../src/lib/perfilTrilha.js";
 
 const PERFIL_ARQUIVO_PADRAO = fileURLToPath(new URL("../../docs/perfis/tjpb-2026-dev.json", import.meta.url));
 
-const args = process.argv.slice(2);
-const valor = (flag: string) => {
-  const i = args.indexOf(flag);
-  return i >= 0 ? args[i + 1] : undefined;
-};
-const caminho = args.find((a, i) => !a.startsWith("--") && !["--mapa", "--trilha"].includes(args[i - 1]));
-if (!caminho) {
-  throw new Error("uso: atualizarConteudoTjpb.ts <conteudo.json> [--mapa mapa.json] [--seco] [--perfil-arquivo[=caminho]] [--trilha id]");
-}
-const seco = args.includes("--seco");
-const trilhaId = valor("--trilha") ?? "tjpb-2026-dev";
-const flagArquivo = args.find((a) => a === "--perfil-arquivo" || a.startsWith("--perfil-arquivo="));
-const perfilArquivo = flagArquivo ? (flagArquivo.split("=")[1] || PERFIL_ARQUIVO_PADRAO) : null;
+const args = lerArgsAtualizarConteudo(process.argv.slice(2));
+const caminho = args.conteudo;
+const seco = args.seco;
+const trilhaId = args.trilha;
+const perfilArquivo = args.perfilArquivo === null ? null : args.perfilArquivo || PERFIL_ARQUIVO_PADRAO;
 
 const novas = lerConteudoOficial(JSON.parse(readFileSync(caminho, "utf8")));
-const caminhoMapa = valor("--mapa");
+const caminhoMapa = args.mapa;
 const mapa: MapaReclassificacao = caminhoMapa
   ? z.record(z.object({ materia: z.string().min(1), topico: z.string().min(1) })).parse(JSON.parse(readFileSync(caminhoMapa, "utf8")))
   : {};

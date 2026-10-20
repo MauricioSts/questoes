@@ -20,11 +20,14 @@ vi.mock("../prisma.js", () => ({ prisma: db }));
 
 const { trilhasRouter } = await import("../modules/trilhas/trilhas.routes.js");
 const { discursivasRouter } = await import("../modules/discursivas/discursivas.routes.js");
+const { provasRouter } = await import("../modules/provas/provas.routes.js");
 const { errorHandler } = await import("../middleware/error.js");
 const { signAccessToken } = await import("../lib/jwt.js");
 const { env } = await import("../config/env.js");
 
-const perfilTjpb = JSON.parse(readFileSync(new URL("../../../docs/perfis/tjpb-2026-dev.json", import.meta.url), "utf8"));
+const lerDoc = (nome: string) => JSON.parse(readFileSync(new URL(`../../../docs/perfis/${nome}.json`, import.meta.url), "utf8"));
+const perfilTjpb = lerDoc("tjpb-2026-dev");
+const perfilCgu = lerDoc("cgu-2026-dev");
 const admin = `Bearer ${signAccessToken({ sub: "u-admin", email: env.ADMIN_EMAIL })}`;
 const aluno = `Bearer ${signAccessToken({ sub: "u-aluno", email: "aluno@example.com" })}`;
 
@@ -35,6 +38,7 @@ beforeAll(async () => {
   app.use(express.json());
   app.use("/trilhas", trilhasRouter);
   app.use("/discursivas", discursivasRouter);
+  app.use("/provas", provasRouter);
   app.use(errorHandler);
   server = app.listen(0);
   await new Promise((r) => server.once("listening", r));
@@ -110,6 +114,14 @@ describe("PUT /trilhas/:trilhaId/vinculos/:questaoId", () => {
     expect(db.questaoTrilha.update).not.toHaveBeenCalled();
   });
 
+  it("perfil malformado no banco é 500 com mensagem, não 400", async () => {
+    db.trilha.findUnique.mockResolvedValue({ perfilProva: { dados: { perfil: "quebrado" } } });
+    const r = await chamar("PUT", "/trilhas/tjpb-2026-dev/vinculos/114", admin, { materia: "Banco de dados", topico: "6" });
+    expect(r.status).toBe(500);
+    expect((await r.json()).error).toMatch(/Perfil de prova da trilha tjpb-2026-dev está malformado/);
+    expect(db.questaoTrilha.update).not.toHaveBeenCalled();
+  });
+
   it("recusa disciplina fora do perfil", async () => {
     const r = await chamar("PUT", "/trilhas/tjpb-2026-dev/vinculos/114", admin, { materia: "APIs REST", topico: "APIs REST" });
     expect(r.status).toBe(400);
@@ -180,6 +192,14 @@ describe("/discursivas", () => {
     expect(db.tentativaDiscursiva.update).not.toHaveBeenCalled();
   });
 
+  it("POST admin com perfil malformado é 500 com mensagem explícita", async () => {
+    db.trilha.findUnique.mockResolvedValue({ id: "tjpb-2026-dev", perfilProva: { dados: { grupos: "x" } } });
+    const r = await chamar("POST", "/discursivas", admin, { trilhaId: "tjpb-2026-dev", enunciado: "E", padraoResposta: "P" });
+    expect(r.status).toBe(500);
+    expect((await r.json()).error).toMatch(/malformado/);
+    expect(db.discursiva.create).not.toHaveBeenCalled();
+  });
+
   it("POST admin usa os limites do perfil quando não vêm no corpo", async () => {
     db.trilha.findUnique.mockResolvedValue({ id: "tjpb-2026-dev", perfilProva: { dados: perfilTjpb } });
     db.discursiva.count.mockResolvedValue(0);
@@ -189,5 +209,32 @@ describe("/discursivas", () => {
     expect(db.discursiva.create).toHaveBeenCalledWith({
       data: { trilhaId: "tjpb-2026-dev", enunciado: "E", padraoResposta: "P", maxLinhas: 30, caracteresPorLinha: 70, valor: 40, ordem: 0 },
     });
+  });
+});
+
+// O simulado C/E abre quando `perfil` vem preenchido; o TJPB (múltipla escolha) não pode
+// cair nele, mas o front ainda precisa do perfil inteiro (discursiva, aviso).
+describe("GET /provas/perfil", () => {
+  const comPerfil = (id: string, dados: unknown) =>
+    db.concurso.findFirst.mockResolvedValue({ id: "c1", trilha: { perfilProva: { id, nome: id, dados } } });
+
+  it("CGU (certo/errado, sem campo formato): perfil preenchido", async () => {
+    comPerfil("cgu-2026-dev", perfilCgu);
+    const corpo = await (await chamar("GET", "/provas/perfil?concursoId=c1", aluno)).json();
+    expect(corpo.perfil?.id).toBe("cgu-2026-dev");
+    expect(corpo.perfilTrilha?.id).toBe("cgu-2026-dev");
+  });
+
+  it("TJPB (múltipla escolha): perfil null e perfilTrilha preenchido", async () => {
+    comPerfil("tjpb-2026-dev", perfilTjpb);
+    const corpo = await (await chamar("GET", "/provas/perfil?concursoId=c1", aluno)).json();
+    expect(corpo.perfil).toBeNull();
+    expect(corpo.perfilTrilha.id).toBe("tjpb-2026-dev");
+    expect(corpo.perfilTrilha.dados.discursiva.max_linhas).toBe(30);
+  });
+
+  it("trilha sem perfil: os dois null", async () => {
+    db.concurso.findFirst.mockResolvedValue({ id: "c1", trilha: { perfilProva: null } });
+    expect(await (await chamar("GET", "/provas/perfil?concursoId=c1", aluno)).json()).toEqual({ perfil: null, perfilTrilha: null });
   });
 });

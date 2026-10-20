@@ -7,6 +7,7 @@ import { prisma } from "../../prisma.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { HttpError } from "../../middleware/error.js";
+import { formatoDoPerfil } from "../../lib/perfilTrilha.js";
 import type { Prisma } from "@prisma/client";
 
 export const provasRouter = Router();
@@ -32,9 +33,7 @@ provasRouter.get(
     const c = await concursoDoUsuario(concursoId, req.userId!);
     const p = c.trilha?.perfilProva;
     const completo = p ? { id: p.id, nome: p.nome, dados: p.dados } : null;
-    // Perfil sem "formato" é dos C/E que vieram antes do campo (CGU, Bacen).
-    const formato = p ? ((p.dados as { formato?: string }).formato ?? "CERTO_ERRADO") : null;
-    const ce = formato === "CERTO_ERRADO";
+    const ce = p ? formatoDoPerfil(p.dados) === "CERTO_ERRADO" : false;
     res.json({ perfil: ce ? completo : null, perfilTrilha: completo });
   })
 );

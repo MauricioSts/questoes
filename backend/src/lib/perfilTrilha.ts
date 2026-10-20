@@ -64,9 +64,28 @@ export function lerPerfil(dados: unknown): PerfilTrilha {
   return dados as PerfilTrilha;
 }
 
-// Perfil sem "formato" é dos certo/errado (CGU, Bacen), que vieram antes do campo.
-export function formatoDoPerfil(perfil: PerfilTrilha): "MULTIPLA_ESCOLHA" | "CERTO_ERRADO" {
-  return perfil.formato ?? "CERTO_ERRADO";
+// Versão que não lança, para as rotas: perfil malformado no banco é erro do servidor
+// (500 com mensagem clara), não do pedido do usuário (o ZodError viraria 400).
+export function conferirPerfil(dados: unknown): { ok: true; perfil: PerfilTrilha } | { ok: false; erro: string } {
+  const r = perfilTrilhaSchema.safeParse(dados);
+  if (r.success) return { ok: true, perfil: dados as PerfilTrilha };
+  const onde = r.error.issues
+    .slice(0, 3)
+    .map((i) => `${i.path.join(".") || "(raiz)"}: ${i.message}`)
+    .join("; ");
+  return { ok: false, erro: onde };
+}
+
+export type FormatoProva = "MULTIPLA_ESCOLHA" | "CERTO_ERRADO";
+
+// Perfil sem "formato" é dos certo/errado (CGU, Bacen), que vieram antes do campo. Aceita
+// também o Json cru do banco: se não passar no schema, ainda lê o campo "formato" (e cai
+// no C/E sem ele), para um perfil antigo ou incompleto não mudar o simulado de ninguém.
+export function formatoDoPerfil(perfil: PerfilTrilha | unknown): FormatoProva {
+  const r = perfilTrilhaSchema.safeParse(perfil);
+  if (r.success) return r.data.formato ?? "CERTO_ERRADO";
+  const bruto = (perfil as { formato?: unknown } | null)?.formato;
+  return bruto === "MULTIPLA_ESCOLHA" ? "MULTIPLA_ESCOLHA" : "CERTO_ERRADO";
 }
 
 export interface DisciplinaListada {
@@ -304,4 +323,51 @@ export function atualizarConteudo(
     remapeados,
     orfaos,
   };
+}
+
+// ---- Argumentos do script atualizarConteudoTjpb ----
+
+export interface ArgsAtualizarConteudo {
+  conteudo: string;
+  mapa: string | null;
+  seco: boolean;
+  trilha: string;
+  // null = não regrava; "" = caminho padrão (docs/perfis/tjpb-2026-dev.json).
+  perfilArquivo: string | null;
+}
+
+// --mapa e --trilha sempre levam valor; --perfil-arquivo aceita "=caminho", "caminho"
+// separado por espaço ou nada (padrão). O token depois de "--perfil-arquivo" é SEMPRE o
+// caminho dele quando não começa com "--": o arquivo de conteúdo vem antes da flag ou
+// depois do caminho. Sobrar mais de um posicional (ou nenhum) é erro explícito.
+export function lerArgsAtualizarConteudo(argv: string[]): ArgsAtualizarConteudo {
+  const uso =
+    "uso: atualizarConteudoTjpb.ts <conteudo.json> [--mapa mapa.json] [--seco] [--perfil-arquivo [caminho]] [--trilha id]";
+  const posicionais: string[] = [];
+  const r: Omit<ArgsAtualizarConteudo, "conteudo"> = { mapa: null, seco: false, trilha: "tjpb-2026-dev", perfilArquivo: null };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    const proximo = argv[i + 1];
+    const temValor = proximo !== undefined && !proximo.startsWith("--");
+    if (a === "--seco") r.seco = true;
+    else if (a === "--mapa" || a === "--trilha") {
+      if (!temValor) throw new Error(`${a} precisa de um valor\n${uso}`);
+      if (a === "--mapa") r.mapa = proximo;
+      else r.trilha = proximo;
+      i++;
+    } else if (a.startsWith("--perfil-arquivo=")) {
+      r.perfilArquivo = a.slice("--perfil-arquivo=".length);
+    } else if (a === "--perfil-arquivo") {
+      r.perfilArquivo = temValor ? proximo : "";
+      if (temValor) i++;
+    } else if (a.startsWith("--")) throw new Error(`flag desconhecida: ${a}\n${uso}`);
+    else posicionais.push(a);
+  }
+  if (posicionais.length !== 1) {
+    throw new Error(
+      `${posicionais.length === 0 ? "falta o arquivo de conteúdo" : `mais de um arquivo de conteúdo: ${posicionais.join(", ")}`}` +
+        ` (o token depois de --perfil-arquivo é o caminho do perfil)\n${uso}`
+    );
+  }
+  return { conteudo: posicionais[0], ...r };
 }

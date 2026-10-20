@@ -6,7 +6,7 @@ import { z } from "zod";
 import type { Prisma, Trilha } from "@prisma/client";
 import { prisma } from "../../prisma.js";
 import { ehAdmin, requireAdmin } from "../../middleware/admin.js";
-import { lerPerfil, validarVinculo } from "../../lib/perfilTrilha.js";
+import { conferirPerfil, validarVinculo } from "../../lib/perfilTrilha.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { env } from "../../config/env.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
@@ -479,7 +479,9 @@ trilhasRouter.put(
     const trilha = await prisma.trilha.findUnique({ where: { id: trilhaId }, select: { perfilProva: { select: { dados: true } } } });
     if (!trilha) throw new HttpError(404, "Trilha não encontrada.");
     if (trilha.perfilProva) {
-      const erro = validarVinculo(lerPerfil(trilha.perfilProva.dados), materia, topico);
+      const conferido = conferirPerfil(trilha.perfilProva.dados);
+      if (!conferido.ok) throw new HttpError(500, `Perfil de prova da trilha ${trilhaId} está malformado (${conferido.erro}).`);
+      const erro = validarVinculo(conferido.perfil, materia, topico);
       if (erro) throw new HttpError(400, `Vínculo inválido: ${erro}.`);
     }
     try {

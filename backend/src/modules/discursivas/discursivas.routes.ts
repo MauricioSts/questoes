@@ -10,7 +10,7 @@ import { requireAuth } from "../../middleware/auth.js";
 import { ehAdmin, requireAdmin } from "../../middleware/admin.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { HttpError } from "../../middleware/error.js";
-import { lerPerfil, contarLinhas, regraDiscursiva, validarTextoDiscursiva } from "../../lib/perfilTrilha.js";
+import { conferirPerfil, contarLinhas, regraDiscursiva, validarTextoDiscursiva } from "../../lib/perfilTrilha.js";
 
 export const discursivasRouter = Router();
 discursivasRouter.use(requireAuth);
@@ -112,7 +112,13 @@ discursivasRouter.post(
       select: { id: true, perfilProva: { select: { dados: true } } },
     });
     if (!trilha) throw new HttpError(404, "Trilha não encontrada.");
-    const regra = regraDiscursiva(trilha.perfilProva ? lerPerfil(trilha.perfilProva.dados) : null);
+    let perfil = null;
+    if (trilha.perfilProva) {
+      const conferido = conferirPerfil(trilha.perfilProva.dados);
+      if (!conferido.ok) throw new HttpError(500, `Perfil de prova da trilha ${trilha.id} está malformado (${conferido.erro}).`);
+      perfil = conferido.perfil;
+    }
+    const regra = regraDiscursiva(perfil);
     const maxLinhas = dados.maxLinhas ?? regra?.maxLinhas;
     const caracteresPorLinha = dados.caracteresPorLinha ?? regra?.caracteresPorLinha;
     const valor = dados.valor ?? regra?.valor;

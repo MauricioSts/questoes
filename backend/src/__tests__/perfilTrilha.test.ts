@@ -7,6 +7,8 @@ import {
   atualizarConteudo,
   conferirVinculos,
   contarLinhas,
+  formatoDoPerfil,
+  lerArgsAtualizarConteudo,
   lerConteudoOficial,
   lerPerfil,
   listarDisciplinas,
@@ -195,5 +197,48 @@ describe("meta do dia numa trilha só de vínculos", () => {
       const doDia = materiaDoDia(dia, 0, rodizio);
       expect(casarMaterias(nomes, doDia.termos)).toEqual([doDia.rotulo]);
     }
+  });
+});
+
+describe("formatoDoPerfil", () => {
+  it("lê o formato e cai no C/E sem ele", () => {
+    expect(formatoDoPerfil(lerPerfil(arquivo()))).toBe("MULTIPLA_ESCOLHA");
+    const { formato: _, ...semFormato } = arquivo();
+    expect(formatoDoPerfil(semFormato)).toBe("CERTO_ERRADO");
+  });
+
+  it("perfil fora do schema ainda respeita o campo formato", () => {
+    expect(formatoDoPerfil({ formato: "MULTIPLA_ESCOLHA" })).toBe("MULTIPLA_ESCOLHA");
+    expect(formatoDoPerfil({ grupos: 1 })).toBe("CERTO_ERRADO");
+    expect(formatoDoPerfil(null)).toBe("CERTO_ERRADO");
+  });
+});
+
+describe("argumentos do atualizarConteudoTjpb", () => {
+  it("--perfil-arquivo com espaço pega o caminho sem confundir com o conteúdo", () => {
+    expect(lerArgsAtualizarConteudo(["c.json", "--perfil-arquivo", "saida.json", "--seco"])).toEqual({
+      conteudo: "c.json", mapa: null, seco: true, trilha: "tjpb-2026-dev", perfilArquivo: "saida.json",
+    });
+    expect(lerArgsAtualizarConteudo(["--perfil-arquivo", "saida.json", "c.json"]).conteudo).toBe("c.json");
+  });
+
+  it("--perfil-arquivo=caminho e sem caminho (padrão)", () => {
+    expect(lerArgsAtualizarConteudo(["c.json", "--perfil-arquivo=x.json"]).perfilArquivo).toBe("x.json");
+    expect(lerArgsAtualizarConteudo(["c.json", "--perfil-arquivo"]).perfilArquivo).toBe("");
+    expect(lerArgsAtualizarConteudo(["c.json", "--perfil-arquivo", "--seco"]).perfilArquivo).toBe("");
+    expect(lerArgsAtualizarConteudo(["c.json"]).perfilArquivo).toBeNull();
+  });
+
+  it("--mapa e --trilha", () => {
+    const a = lerArgsAtualizarConteudo(["--mapa", "m.json", "c.json", "--trilha", "outra"]);
+    expect(a).toMatchObject({ conteudo: "c.json", mapa: "m.json", trilha: "outra" });
+  });
+
+  it("recusa com mensagem clara quando o conteúdo some ou sobra", () => {
+    // O token depois de --perfil-arquivo é dele: aqui não sobra arquivo de conteúdo.
+    expect(() => lerArgsAtualizarConteudo(["--perfil-arquivo", "c.json"])).toThrow(/falta o arquivo de conteúdo/);
+    expect(() => lerArgsAtualizarConteudo(["a.json", "b.json"])).toThrow(/mais de um arquivo de conteúdo/);
+    expect(() => lerArgsAtualizarConteudo(["c.json", "--mapa"])).toThrow(/--mapa precisa de um valor/);
+    expect(() => lerArgsAtualizarConteudo(["c.json", "--perfil"])).toThrow(/flag desconhecida/);
   });
 });
