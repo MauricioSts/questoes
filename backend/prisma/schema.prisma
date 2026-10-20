@@ -134,6 +134,41 @@ model ResultadoProva {
   @@index([userId, concursoId, createdAt])
 }
 
+// Questão discursiva de uma trilha (tema + padrão de resposta). Os limites de linhas,
+// caracteres por linha e o valor são copiados do perfil da trilha quando ela é criada
+// (perfil.discursiva), e ficam na linha para o tema poder ter regra própria.
+model Discursiva {
+  id                 String                @id @default(cuid())
+  trilhaId           String
+  trilha             Trilha                @relation(fields: [trilhaId], references: [id], onDelete: Cascade)
+  enunciado          String
+  padraoResposta     String
+  maxLinhas          Int
+  caracteresPorLinha Int
+  valor              Float
+  ordem              Int                   @default(0)
+  createdAt          DateTime              @default(now())
+  tentativas         TentativaDiscursiva[]
+
+  @@index([trilhaId, ordem])
+}
+
+// Uma resposta escrita pelo usuário. A nota é a autoavaliação dele (0..valor), comparando
+// com o padrão de resposta; null = ainda não se deu nota.
+model TentativaDiscursiva {
+  id           String     @id @default(cuid())
+  discursivaId String
+  discursiva   Discursiva @relation(fields: [discursivaId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  texto        String
+  nota         Float?
+  createdAt    DateTime   @default(now())
+
+  @@index([userId, discursivaId, createdAt])
+  @@index([discursivaId])
+}
+
 // Trilha de estudo: um conjunto de questões que vários usuários podem seguir. É o que
 // o usuário escolhe ao entrar no app. Existe porque Questao.concursoId aponta para o
 // Concurso de UM usuário: sem a trilha, quem cria o próprio concurso começa com o banco
@@ -164,11 +199,12 @@ model Trilha {
   perfilProva   PerfilProva? @relation(fields: [perfilProvaId], references: [id], onDelete: SetNull)
   createdAt     DateTime     @default(now())
 
-  questoes   Questao[]
-  comandos   Comando[]
-  concursos  Concurso[]
-  vinculos   QuestaoTrilha[]
-  exercicios Exercicio[]
+  questoes    Questao[]
+  comandos    Comando[]
+  concursos   Concurso[]
+  vinculos    QuestaoTrilha[]
+  exercicios  Exercicio[]
+  discursivas Discursiva[]
 
   @@index([publicada, ordem])
   @@index([donoId])
@@ -316,6 +352,7 @@ model User {
   codigosEmail    CodigoEmail[]
   execucoes       Execucao[]
   resultadosProva ResultadoProva[]
+  discursivas     TentativaDiscursiva[]
 }
 
 // Assinatura do Mercado Pago (API de preapproval): uma linha por usuário, apontando para

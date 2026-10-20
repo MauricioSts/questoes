@@ -2,14 +2,26 @@
 // Idempotente: cria o que falta, atualiza o tópico do que já existe e, com --podar, apaga
 // vínculos daquelas trilhas que saíram do arquivo. Nunca mexe em Questao: a questão
 // continua dona da trilha de origem (a Dataprev segue intacta).
+// Cada vínculo pode trazer "materia" (a matéria na trilha); sem ela, a matéria é o tópico,
+// como sempre foi. Trilha com perfil de prova (TJPB, CGU) exige matéria = disciplina do
+// perfil e tópico = número do edital: qualquer vínculo fora disso recusa o arquivo inteiro,
+// com a lista de todos, antes de gravar.
 //   npx tsx scripts/aplicarVinculos.ts prisma/vinculos/dataprev-dev.json [--podar] [--seco]
 import { readFileSync } from "node:fs";
 import { z } from "zod";
 import { prisma } from "../src/prisma.js";
+import { conferirVinculos, lerPerfil, type PerfilTrilha } from "../src/lib/perfilTrilha.js";
 
 const arquivoSchema = z.object({
   origem: z.string().min(1),
-  vinculos: z.array(z.object({ questaoId: z.number().int(), trilhaId: z.string().min(1), topico: z.string().min(1) })),
+  vinculos: z.array(
+    z.object({
+      questaoId: z.number().int(),
+      trilhaId: z.string().min(1),
+      topico: z.string().min(1),
+      materia: z.string().min(1).optional(),
+    })
+  ),
 });
 
 const [caminho, ...flags] = process.argv.slice(2);
@@ -26,10 +38,25 @@ if (faltando.length || deOutraOrigem.length) {
   throw new Error(`questões inexistentes: ${faltando.join(",") || "-"}; fora da origem ${origem}: ${deOutraOrigem.join(",") || "-"}`);
 }
 const trilhas = [...new Set(vinculos.map((v) => v.trilhaId))];
-const existentes = await prisma.trilha.findMany({ where: { id: { in: trilhas } }, select: { id: true } });
+const existentes = await prisma.trilha.findMany({
+  where: { id: { in: trilhas } },
+  select: { id: true, perfilProva: { select: { dados: true } } },
+});
 const semTrilha = trilhas.filter((t) => !existentes.some((e) => e.id === t));
 if (semTrilha.length) throw new Error(`trilhas inexistentes: ${semTrilha.join(", ")}`);
 if (trilhas.includes(origem)) throw new Error("vínculo para a própria trilha de origem duplicaria a contagem");
+
+const materiaDe = (v: (typeof vinculos)[number]) => v.materia ?? v.topico;
+const perfis = new Map<string, PerfilTrilha>(
+  existentes.filter((e) => e.perfilProva).map((e) => [e.id, lerPerfil(e.perfilProva!.dados)])
+);
+const invalidos = conferirVinculos(
+  vinculos.map((v) => ({ questaoId: v.questaoId, trilhaId: v.trilhaId, materia: materiaDe(v), topico: v.topico })),
+  perfis
+);
+if (invalidos.length) {
+  throw new Error(`${invalidos.length} vínculo(s) fora do perfil da trilha, nada foi gravado:\n  ${invalidos.join("\n  ")}`);
+}
 
 const chave = (q: number, t: string) => `${q}|${t}`;
 const noArquivo = new Set(vinculos.map((v) => chave(v.questaoId, v.trilhaId)));
@@ -44,8 +71,8 @@ if (!seco) {
     ...vinculos.map((v) =>
       prisma.questaoTrilha.upsert({
         where: { questaoId_trilhaId: { questaoId: v.questaoId, trilhaId: v.trilhaId } },
-        update: { topico: v.topico, materia: v.topico },
-        create: { questaoId: v.questaoId, trilhaId: v.trilhaId, topico: v.topico, materia: v.topico },
+        update: { topico: v.topico, materia: materiaDe(v) },
+        create: { questaoId: v.questaoId, trilhaId: v.trilhaId, topico: v.topico, materia: materiaDe(v) },
       })
     ),
     ...(flags.includes("--podar")

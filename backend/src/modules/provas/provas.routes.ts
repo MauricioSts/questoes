@@ -21,15 +21,21 @@ async function concursoDoUsuario(concursoId: string, userId: string) {
   return c;
 }
 
-// GET /provas/perfil?concursoId=: perfil da prova da trilha (null = trilha sem perfil,
-// simulado de múltipla escolha de sempre).
+// GET /provas/perfil?concursoId=: perfil da prova da trilha. `perfil` só vem quando a
+// prova é certo/errado (o cliente abre o simulado C/E quando ele existe; null = simulado
+// de múltipla escolha de sempre). `perfilTrilha` vem para qualquer formato (TJPB é
+// múltipla escolha com discursiva e aviso de conteúdo provisório).
 provasRouter.get(
   "/perfil",
   asyncHandler(async (req, res) => {
     const concursoId = z.string().min(1).parse(req.query.concursoId);
     const c = await concursoDoUsuario(concursoId, req.userId!);
     const p = c.trilha?.perfilProva;
-    res.json({ perfil: p ? { id: p.id, nome: p.nome, dados: p.dados } : null });
+    const completo = p ? { id: p.id, nome: p.nome, dados: p.dados } : null;
+    // Perfil sem "formato" é dos C/E que vieram antes do campo (CGU, Bacen).
+    const formato = p ? ((p.dados as { formato?: string }).formato ?? "CERTO_ERRADO") : null;
+    const ce = formato === "CERTO_ERRADO";
+    res.json({ perfil: ce ? completo : null, perfilTrilha: completo });
   })
 );
 

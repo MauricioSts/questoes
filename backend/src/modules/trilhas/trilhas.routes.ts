@@ -5,7 +5,8 @@ import express, { Router } from "express";
 import { z } from "zod";
 import type { Prisma, Trilha } from "@prisma/client";
 import { prisma } from "../../prisma.js";
-import { ehAdmin } from "../../middleware/admin.js";
+import { ehAdmin, requireAdmin } from "../../middleware/admin.js";
+import { lerPerfil, validarVinculo } from "../../lib/perfilTrilha.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { env } from "../../config/env.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
@@ -440,6 +441,58 @@ trilhasRouter.delete(
       prisma.questao.delete({ where: { id: qid } }),
     ]);
     res.status(204).end();
+  })
+);
+
+// ---- Vínculos questão↔trilha (admin) ----
+// O vínculo é só a linha QuestaoTrilha: tirar uma questão da trilha TJPB não pode apagar a
+// questão (ela é da Dataprev) nem o vínculo dela com outra trilha.
+
+const vinculoParams = z.object({ trilhaId: z.string().min(1), questaoId: z.coerce.number().int().positive() });
+const vinculoSchema = z.object({ materia: z.string().trim().min(1).max(120), topico: z.string().trim().min(1).max(40) });
+const naoAchou = (e: unknown) => (e as { code?: string })?.code === "P2025";
+
+// DELETE /trilhas/:trilhaId/vinculos/:questaoId: tira a questão desta trilha.
+trilhasRouter.delete(
+  "/:trilhaId/vinculos/:questaoId",
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    const { trilhaId, questaoId } = vinculoParams.parse(req.params);
+    try {
+      await prisma.questaoTrilha.delete({ where: { questaoId_trilhaId: { questaoId, trilhaId } } });
+    } catch (e) {
+      if (naoAchou(e)) throw new HttpError(404, "Vínculo não encontrado.");
+      throw e;
+    }
+    res.status(204).end();
+  })
+);
+
+// PUT /trilhas/:trilhaId/vinculos/:questaoId { materia, topico }: reclassifica o vínculo.
+// Trilha com perfil de prova só aceita disciplina e tópico (número do edital) do perfil.
+trilhasRouter.put(
+  "/:trilhaId/vinculos/:questaoId",
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    const { trilhaId, questaoId } = vinculoParams.parse(req.params);
+    const { materia, topico } = vinculoSchema.parse(req.body);
+    const trilha = await prisma.trilha.findUnique({ where: { id: trilhaId }, select: { perfilProva: { select: { dados: true } } } });
+    if (!trilha) throw new HttpError(404, "Trilha não encontrada.");
+    if (trilha.perfilProva) {
+      const erro = validarVinculo(lerPerfil(trilha.perfilProva.dados), materia, topico);
+      if (erro) throw new HttpError(400, `Vínculo inválido: ${erro}.`);
+    }
+    try {
+      const vinculo = await prisma.questaoTrilha.update({
+        where: { questaoId_trilhaId: { questaoId, trilhaId } },
+        data: { materia, topico },
+        select: { questaoId: true, trilhaId: true, materia: true, topico: true },
+      });
+      res.json({ vinculo });
+    } catch (e) {
+      if (naoAchou(e)) throw new HttpError(404, "Vínculo não encontrado.");
+      throw e;
+    }
   })
 );
 

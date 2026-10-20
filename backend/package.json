@@ -14,7 +14,9 @@
     "test:watch": "vitest",
     "vinculos:aplicar": "tsx scripts/aplicarVinculos.ts",
     "lote:validar": "tsx scripts/validarLote.ts",
-    "lote:verificar": "tsx scripts/verificarLote.ts"
+    "lote:verificar": "tsx scripts/verificarLote.ts",
+    "tjpb:atualizar-conteudo": "tsx scripts/atualizarConteudoTjpb.ts",
+    "atualizar-conteudo-tjpb": "tsx scripts/atualizarConteudoTjpb.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
