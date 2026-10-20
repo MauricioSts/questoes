@@ -1,0 +1,3246 @@
+{
+ "origem": "dataprev-analista-ti",
+ "descricao": "Questões da trilha Dataprev que também valem na trilha TJPB 2026 – Desenvolvimento de Sistemas (QuestaoTrilha). materia = disciplina do perfil tjpb-2026-dev; topico = número do item da ementa. Gerado em 2026-10-20 (relatório em docs/relatorio-tjpb-2026.md).",
+ "vinculos": [
+  {
+   "questaoId": 1,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 2,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5"
+  },
+  {
+   "questaoId": 3,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 4,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 5,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.6"
+  },
+  {
+   "questaoId": 6,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.1"
+  },
+  {
+   "questaoId": 7,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 8,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 9,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 10,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.1"
+  },
+  {
+   "questaoId": 11,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.5"
+  },
+  {
+   "questaoId": 25,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 26,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 28,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "3.3"
+  },
+  {
+   "questaoId": 29,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 30,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 41,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 42,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 43,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 45,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 46,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 47,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 48,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 49,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 51,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 52,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 53,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 54,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 55,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 57,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 59,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 63,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 65,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 66,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 67,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 68,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 69,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 70,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 71,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 72,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 74,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.2"
+  },
+  {
+   "questaoId": 75,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 76,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 77,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.3"
+  },
+  {
+   "questaoId": 78,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.3"
+  },
+  {
+   "questaoId": 79,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.1"
+  },
+  {
+   "questaoId": 80,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.7"
+  },
+  {
+   "questaoId": 81,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 82,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5"
+  },
+  {
+   "questaoId": 95,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 96,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 97,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 98,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 99,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 103,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 106,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 111,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 112,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 113,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 114,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 115,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 116,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 117,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 118,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 119,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 120,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 121,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 122,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 123,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 124,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 125,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 126,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 127,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 128,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 129,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 130,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 131,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 132,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 133,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 135,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 136,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 137,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 139,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 141,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 142,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 143,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 144,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 145,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 146,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 147,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 148,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 149,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 150,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.2"
+  },
+  {
+   "questaoId": 151,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.2"
+  },
+  {
+   "questaoId": 152,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 153,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 154,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 155,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 156,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 157,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.2"
+  },
+  {
+   "questaoId": 158,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 159,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 160,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 161,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 162,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 163,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 164,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 165,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 166,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 167,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 168,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 169,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 170,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 180,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 183,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 191,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "2"
+  },
+  {
+   "questaoId": 192,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "2"
+  },
+  {
+   "questaoId": 193,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.2"
+  },
+  {
+   "questaoId": 194,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 195,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 196,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.7"
+  },
+  {
+   "questaoId": 197,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.2"
+  },
+  {
+   "questaoId": 198,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.1"
+  },
+  {
+   "questaoId": 199,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "3"
+  },
+  {
+   "questaoId": 200,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.5"
+  },
+  {
+   "questaoId": 201,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 202,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 215,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 216,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 217,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "3.3"
+  },
+  {
+   "questaoId": 218,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "3.3"
+  },
+  {
+   "questaoId": 219,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 231,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 232,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 233,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 234,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 235,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 236,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 237,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 238,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 239,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 240,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 241,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 243,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 244,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 245,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 246,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 247,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 248,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 249,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 250,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 251,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 254,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 255,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 256,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 259,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 260,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 261,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "2"
+  },
+  {
+   "questaoId": 262,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 263,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 264,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 265,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.1"
+  },
+  {
+   "questaoId": 266,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.6"
+  },
+  {
+   "questaoId": 267,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.8"
+  },
+  {
+   "questaoId": 268,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.3"
+  },
+  {
+   "questaoId": 269,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 270,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 271,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "2"
+  },
+  {
+   "questaoId": 272,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 285,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 286,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 287,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 288,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 289,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 301,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 302,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 303,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 304,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 305,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 306,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 307,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 308,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 309,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 310,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 311,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 312,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 313,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 314,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 315,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 316,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 317,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 318,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 319,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 323,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 325,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 326,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 327,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 328,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 329,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 330,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 331,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 332,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.2"
+  },
+  {
+   "questaoId": 333,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.3"
+  },
+  {
+   "questaoId": 334,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 335,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 336,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.2"
+  },
+  {
+   "questaoId": 337,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.1"
+  },
+  {
+   "questaoId": 338,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.1"
+  },
+  {
+   "questaoId": 339,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.3"
+  },
+  {
+   "questaoId": 340,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.2"
+  },
+  {
+   "questaoId": 341,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.4"
+  },
+  {
+   "questaoId": 342,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.6"
+  },
+  {
+   "questaoId": 355,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "3.2"
+  },
+  {
+   "questaoId": 356,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "3.4"
+  },
+  {
+   "questaoId": 357,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "4"
+  },
+  {
+   "questaoId": 358,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 359,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 366,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 371,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 372,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 373,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 375,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 376,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 377,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 378,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 379,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 381,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 382,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 383,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 384,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 385,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 386,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 387,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 388,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 391,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 394,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 395,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 396,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 398,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 399,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 400,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 401,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 402,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 403,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 404,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 405,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 406,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 407,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 408,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 409,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 410,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 423,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 424,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 425,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 426,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 427,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 428,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 431,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "3"
+  },
+  {
+   "questaoId": 432,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.2"
+  },
+  {
+   "questaoId": 433,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.3"
+  },
+  {
+   "questaoId": 434,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.5"
+  },
+  {
+   "questaoId": 435,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.6"
+  },
+  {
+   "questaoId": 436,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.7"
+  },
+  {
+   "questaoId": 437,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 438,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.8"
+  },
+  {
+   "questaoId": 439,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 440,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "2"
+  },
+  {
+   "questaoId": 441,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.4"
+  },
+  {
+   "questaoId": 442,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.1"
+  },
+  {
+   "questaoId": 455,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "3.3"
+  },
+  {
+   "questaoId": 456,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 457,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 458,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "3.3"
+  },
+  {
+   "questaoId": 471,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 473,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 474,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 477,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 478,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 479,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 480,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 481,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 482,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 483,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 484,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 487,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 489,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 491,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 497,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 498,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 499,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 500,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 501,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5"
+  },
+  {
+   "questaoId": 502,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "2"
+  },
+  {
+   "questaoId": 503,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 504,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.3"
+  },
+  {
+   "questaoId": 505,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.5"
+  },
+  {
+   "questaoId": 506,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.1"
+  },
+  {
+   "questaoId": 507,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "3"
+  },
+  {
+   "questaoId": 508,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 509,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 510,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 511,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 512,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 525,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 526,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 527,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 528,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "4"
+  },
+  {
+   "questaoId": 529,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 545,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 546,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 547,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 548,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 549,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 550,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 551,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 552,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 553,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 554,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 555,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 556,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 559,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 560,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 561,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 564,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 565,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 566,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 569,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 570,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 571,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "2"
+  },
+  {
+   "questaoId": 572,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 573,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "2"
+  },
+  {
+   "questaoId": 574,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.1"
+  },
+  {
+   "questaoId": 575,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.6"
+  },
+  {
+   "questaoId": 576,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 577,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 578,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 579,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 580,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.2"
+  },
+  {
+   "questaoId": 581,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.2"
+  },
+  {
+   "questaoId": 582,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 595,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "3.3"
+  },
+  {
+   "questaoId": 596,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 597,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 598,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 599,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "3.4"
+  },
+  {
+   "questaoId": 600,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 607,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 611,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 613,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 614,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 615,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 616,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 618,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 619,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 620,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 621,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 622,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 623,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 624,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 625,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 626,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 627,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 629,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 630,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 631,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 632,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 634,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 635,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 637,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 638,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 639,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 641,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 642,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "2"
+  },
+  {
+   "questaoId": 643,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.1"
+  },
+  {
+   "questaoId": 644,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 645,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 646,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.2"
+  },
+  {
+   "questaoId": 647,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 648,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.2"
+  },
+  {
+   "questaoId": 649,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "2"
+  },
+  {
+   "questaoId": 650,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "3"
+  },
+  {
+   "questaoId": 651,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.7"
+  },
+  {
+   "questaoId": 652,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 665,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "4"
+  },
+  {
+   "questaoId": 666,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 667,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 668,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 669,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "2"
+  },
+  {
+   "questaoId": 670,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 676,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 681,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 682,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 683,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 684,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 685,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 686,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 687,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 688,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 689,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 690,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 691,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 692,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 693,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 694,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 695,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 697,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 698,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 699,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 701,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 702,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 703,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 704,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 705,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 707,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 708,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 709,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 710,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 711,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 712,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "1"
+  },
+  {
+   "questaoId": 714,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.2"
+  },
+  {
+   "questaoId": 715,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.4"
+  },
+  {
+   "questaoId": 716,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "4.1"
+  },
+  {
+   "questaoId": 717,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.3"
+  },
+  {
+   "questaoId": 718,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.3"
+  },
+  {
+   "questaoId": 719,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "6.1"
+  },
+  {
+   "questaoId": 720,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Língua Portuguesa",
+   "topico": "5.7"
+  },
+  {
+   "questaoId": 733,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 734,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 735,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 736,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 737,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 738,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 739,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 740,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 741,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 742,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Raciocínio Lógico-Matemático",
+   "topico": "5"
+  },
+  {
+   "questaoId": 748,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 749,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 750,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 753,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 754,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 755,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 756,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 757,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 758,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 759,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 760,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 761,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 762,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 763,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 764,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 766,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 767,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 768,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 769,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 771,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 772,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 773,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 774,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 775,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 776,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 778,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 780,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 783,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 786,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 787,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 789,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 792,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 793,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Governança e gestão de TI no setor público",
+   "topico": "8"
+  },
+  {
+   "questaoId": 794,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 796,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 802,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 803,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 804,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 807,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 809,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 810,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 813,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 814,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 815,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Metodologias ágeis e DevOps",
+   "topico": "2"
+  },
+  {
+   "questaoId": 818,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 819,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 820,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 821,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 822,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 823,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 824,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 825,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 826,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 827,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Desenvolvimento web e mobile",
+   "topico": "4"
+  },
+  {
+   "questaoId": 828,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 829,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 830,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 833,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 834,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 835,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 836,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 837,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 838,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 839,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 840,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 841,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 842,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Engenharia de Software",
+   "topico": "1"
+  },
+  {
+   "questaoId": 843,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 844,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Programação",
+   "topico": "3"
+  },
+  {
+   "questaoId": 845,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 846,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 847,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 848,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Arquitetura e integração de sistemas",
+   "topico": "5"
+  },
+  {
+   "questaoId": 849,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 850,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 851,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 852,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 853,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 854,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 855,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 856,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 857,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 863,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 864,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 865,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 866,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 867,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 868,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 869,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 870,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 871,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 878,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 879,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 880,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 881,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 883,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 884,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 886,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 887,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 889,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Banco de dados",
+   "topico": "6"
+  },
+  {
+   "questaoId": 896,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 897,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 898,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  },
+  {
+   "questaoId": 899,
+   "trilhaId": "tjpb-2026-dev",
+   "materia": "Segurança no desenvolvimento",
+   "topico": "7"
+  }
+ ]
+}
