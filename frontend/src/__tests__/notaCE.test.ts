@@ -94,6 +94,20 @@ describe("notaCE: mínimo por disciplina", () => {
     expect(n3.grupos[0].disciplinas[0].minimo).toBeCloseTo(2.4);
   });
 
+  it("empate com mínimo fracionário não elimina por arredondamento", () => {
+    // acerto 0,1 e mínimo = a disciplina inteira (3 × 0,1 = 0,30000000000000004): 1 de 3
+    // itens certo vale 0,1, e o mínimo proporcional sai 0,10000000000000002
+    const fracionario: PerfilProva = {
+      ...cgu,
+      pontuacao: { acerto: 0.1, erro: 0, branco: 0 },
+      nota_minima_geral: null,
+      grupos: [{ ...cgu.grupos[0], nota_minima: null, disciplinas: cgu.grupos[0].disciplinas.map((d) => ({ ...d, itens: 3, nota_minima: 3 * 0.1 })) }],
+    };
+    const d = notaCE(fracionario, daDisciplina(etica, 1, 0, 0)).grupos[0].disciplinas[0];
+    expect(d.pontos).toBeLessThan(d.minimo);
+    expect(d.aprovado).toBe(true);
+  });
+
   it("disciplina sem item no simulado ou sem itens no perfil fica de fora", () => {
     expect(notaCE(comMinimo, daDisciplina(outra, 5, 0, 0)).grupos[0].disciplinas).toEqual([]);
     const semItens: PerfilProva = {

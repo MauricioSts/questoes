@@ -67,7 +67,8 @@ const resultadoSchema = z.object({
     maximo: z.number(),
     minimo: z.number(),
     aprovado: z.boolean(),
-    motivos: z.array(z.string().max(300)).max(20),
+    // um por grupo, um por disciplina com mínimo e o do total: folga para muitas disciplinas
+    motivos: z.array(z.string().max(300)).max(60),
     itens: z
       .array(z.object({ questaoId: z.number().int(), marcada: z.enum(["C", "E"]).nullable() }))
       .max(500),

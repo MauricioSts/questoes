@@ -261,7 +261,15 @@ describe("POST /provas/resultados", () => {
     expect(db.resultadoProva.create.mock.calls[0][0].data.dados.grupos[0].disciplinas).toEqual(disciplinas);
   });
 
-  it("aceita grupo sem disciplinas", async () => {
+  it("aceita mais de 20 motivos (muitas disciplinas abaixo do mínimo)", async () => {
+    const c = corpo({ grupo: "P1", ...placar });
+    c.dados.motivos = Array.from({ length: 35 }, (_, i) => `P1 · Disciplina ${i}: abaixo do mínimo`);
+    const r = await chamar("POST", "/provas/resultados", aluno, c);
+    expect(r.status).toBe(201);
+    expect(db.resultadoProva.create.mock.calls[0][0].data.dados.motivos).toHaveLength(35);
+  });
+
+    it("aceita grupo sem disciplinas", async () => {
     const r = await chamar("POST", "/provas/resultados", aluno, corpo({ grupo: "P1", ...placar }));
     expect(r.status).toBe(201);
     expect(db.resultadoProva.create.mock.calls[0][0].data.dados.grupos[0].disciplinas).toBeUndefined();

@@ -154,6 +154,9 @@ export interface NotaCE {
   motivos: string[]; // por que foi eliminado (vazio quando aprovado)
 }
 
+// O mínimo proporcional é fração (54 × 9 / 90): sem folga, 5,4 − 1e-16 eliminaria quem empatou.
+const TOLERANCIA = 1e-9;
+
 const fmt = (n: number) => n.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
 
 export function notaCE(perfil: PerfilProva, respostas: RespostaCE[]): NotaCE {
@@ -167,7 +170,7 @@ export function notaCE(perfil: PerfilProva, respostas: RespostaCE[]): NotaCE {
     const pontos = peso * (acertos * acerto + erros * erro + brancos * branco);
     const maximo = peso * acerto * rs.length;
     const minimo = notaMinima == null ? -Infinity : (notaMinima * rs.length) / Math.max(1, alvo);
-    return { acertos, erros, brancos, pontos, maximo, minimo, aprovado: pontos >= minimo };
+    return { acertos, erros, brancos, pontos, maximo, minimo, aprovado: pontos >= minimo - TOLERANCIA };
   };
   const grupos: NotaGrupo[] = [];
   let maximoOficial = 0;
@@ -194,7 +197,7 @@ export function notaCE(perfil: PerfilProva, respostas: RespostaCE[]): NotaCE {
       .filter((d) => !d.aprovado)
       .map((d) => `${g.grupo} · ${d.nome}: ${fmt(d.pontos)} pontos, abaixo do mínimo de ${fmt(d.minimo)}`),
   ]);
-  if (pontos < minimo) motivos.push(`Total: ${fmt(pontos)} pontos, abaixo do mínimo de ${fmt(minimo)}`);
+  if (pontos < minimo - TOLERANCIA) motivos.push(`Total: ${fmt(pontos)} pontos, abaixo do mínimo de ${fmt(minimo)}`);
   return { grupos, pontos, maximo, minimo, aprovado: motivos.length === 0, motivos };
 }
 
