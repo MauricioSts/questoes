@@ -38,8 +38,7 @@ provasRouter.get(
   })
 );
 
-const grupoSchema = z.object({
-  grupo: z.string().min(1).max(10),
+const placarSchema = {
   acertos: z.number().int().min(0),
   erros: z.number().int().min(0),
   brancos: z.number().int().min(0),
@@ -47,6 +46,16 @@ const grupoSchema = z.object({
   maximo: z.number(),
   minimo: z.number(),
   aprovado: z.boolean(),
+};
+
+const grupoSchema = z.object({
+  grupo: z.string().min(1).max(10),
+  ...placarSchema,
+  // Só as disciplinas com mínimo no perfil (opcional: resultados antigos não têm).
+  disciplinas: z
+    .array(z.object({ nome: z.string().min(1).max(200), ...placarSchema }))
+    .max(30)
+    .optional(),
 });
 
 const resultadoSchema = z.object({

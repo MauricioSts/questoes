@@ -113,7 +113,12 @@ export function SimuladoCE({ perfil, perfilId, concursoId }: { perfil: PerfilPro
     if (marcadas.length) await enviarLote(marcadas.map((r) => montarResultado(r.questao, r.marcada!, "SIMULADO", r.tempoSegundos)));
     const nota = notaCE(
       perfil,
-      rs.map((r) => ({ grupo: r.questao.comando?.grupo ?? "", marcada: r.marcada as "C" | "E" | undefined, acertou: r.acertou }))
+      rs.map((r) => ({
+        grupo: r.questao.comando?.grupo ?? "",
+        disciplina: r.questao.materia,
+        marcada: r.marcada as "C" | "E" | undefined,
+        acertou: r.acertou,
+      }))
     );
     try {
       await api("/provas/resultados", {

@@ -1,6 +1,7 @@
 // Simulado certo/errado (Cebraspe) montado e corrigido pelo perfil da prova da trilha
 // (docs/perfis/*.json, servido por GET /provas/perfil): grupos P1..Pn, itens de cada
-// grupo, peso, pontos por acerto/erro/branco, mínimos por grupo e no total.
+// grupo, peso, pontos por acerto/erro/branco, mínimos por grupo, por disciplina (quando o
+// edital fixa) e no total.
 //
 // O acervo quase nunca tem os 170 itens da prova. Aí a prova sai menor e os mínimos
 // e o tempo encolhem na mesma proporção: passar no simulado de 58 itens quer dizer
@@ -35,7 +36,9 @@ export interface PerfilProva {
     itens?: number;
     nota_minima: number | null;
     peso: number;
-    disciplinas: { nome: string; itens: number | null }[];
+    // nota_minima da disciplina: opcional, em pontos já ponderados como o do grupo. Só
+    // vale com `itens` (o mínimo encolhe na proporção dos itens da disciplina no simulado).
+    disciplinas: { nome: string; itens: number | null; nota_minima?: number | null }[];
   }[];
 }
 
@@ -115,13 +118,12 @@ export function duracaoProporcional(perfil: PerfilProva, itens: number): number 
 
 export interface RespostaCE {
   grupo: string;
+  disciplina?: string; // matéria da questão = nome da disciplina no perfil
   marcada?: "C" | "E";
   acertou: boolean;
 }
 
-export interface NotaGrupo {
-  grupo: string;
-  nome: string;
+interface Placar {
   acertos: number;
   erros: number;
   brancos: number;
@@ -129,6 +131,18 @@ export interface NotaGrupo {
   maximo: number;
   minimo: number; // mínimo do edital, na proporção dos itens deste simulado
   aprovado: boolean;
+}
+
+// Só as disciplinas com mínimo no perfil e com item no simulado.
+export interface NotaDisciplina extends Placar {
+  nome: string;
+}
+
+export interface NotaGrupo extends Placar {
+  grupo: string;
+  nome: string;
+  // aprovado do grupo é só o mínimo do grupo; o de cada disciplina fica nela.
+  disciplinas: NotaDisciplina[];
 }
 
 export interface NotaCE {
@@ -144,28 +158,42 @@ const fmt = (n: number) => n.toLocaleString("pt-BR", { maximumFractionDigits: 1 
 
 export function notaCE(perfil: PerfilProva, respostas: RespostaCE[]): NotaCE {
   const { acerto, erro, branco } = perfil.pontuacao;
+  // Pontos de um conjunto de itens com o peso do grupo; mínimo do edital (null = sem
+  // mínimo) dividido pelos itens da prova real e multiplicado pelos deste simulado.
+  const placar = (rs: RespostaCE[], peso: number, notaMinima: number | null | undefined, alvo: number): Placar => {
+    const acertos = rs.filter((r) => r.marcada && r.acertou).length;
+    const brancos = rs.filter((r) => !r.marcada).length;
+    const erros = rs.length - acertos - brancos;
+    const pontos = peso * (acertos * acerto + erros * erro + brancos * branco);
+    const maximo = peso * acerto * rs.length;
+    const minimo = notaMinima == null ? -Infinity : (notaMinima * rs.length) / Math.max(1, alvo);
+    return { acertos, erros, brancos, pontos, maximo, minimo, aprovado: pontos >= minimo };
+  };
   const grupos: NotaGrupo[] = [];
   let maximoOficial = 0;
   for (const g of perfil.grupos) {
     maximoOficial += itensDoGrupo(g) * acerto * g.peso;
     const doGrupo = respostas.filter((r) => r.grupo === g.grupo);
     if (doGrupo.length === 0) continue;
-    const acertos = doGrupo.filter((r) => r.marcada && r.acertou).length;
-    const brancos = doGrupo.filter((r) => !r.marcada).length;
-    const erros = doGrupo.length - acertos - brancos;
-    const pontos = g.peso * (acertos * acerto + erros * erro + brancos * branco);
-    const maximo = g.peso * acerto * doGrupo.length;
-    const alvo = itensDoGrupo(g);
-    const minimo = g.nota_minima == null ? -Infinity : (g.nota_minima * doGrupo.length) / Math.max(1, alvo);
-    grupos.push({ grupo: g.grupo, nome: g.nome, acertos, erros, brancos, pontos, maximo, minimo, aprovado: pontos >= minimo });
+    // Mínimo de disciplina sem `itens` não tem como ser proporcional: fica de fora (o
+    // backend recusa esse perfil; aqui só não inventa um tamanho).
+    const disciplinas: NotaDisciplina[] = g.disciplinas
+      .filter((d) => d.nota_minima != null && (d.itens ?? 0) > 0)
+      .map((d) => ({ d, rs: doGrupo.filter((r) => r.disciplina === d.nome) }))
+      .filter(({ rs }) => rs.length > 0)
+      .map(({ d, rs }) => ({ nome: d.nome, ...placar(rs, g.peso, d.nota_minima, d.itens!) }));
+    grupos.push({ grupo: g.grupo, nome: g.nome, ...placar(doGrupo, g.peso, g.nota_minima, itensDoGrupo(g)), disciplinas });
   }
   const pontos = grupos.reduce((s, g) => s + g.pontos, 0);
   const maximo = grupos.reduce((s, g) => s + g.maximo, 0);
   const minimo =
     perfil.nota_minima_geral == null ? -Infinity : (perfil.nota_minima_geral * maximo) / Math.max(1, maximoOficial);
-  const motivos = grupos
-    .filter((g) => !g.aprovado)
-    .map((g) => `${g.grupo}: ${fmt(g.pontos)} pontos, abaixo do mínimo de ${fmt(g.minimo)}`);
+  const motivos = grupos.flatMap((g) => [
+    ...(g.aprovado ? [] : [`${g.grupo}: ${fmt(g.pontos)} pontos, abaixo do mínimo de ${fmt(g.minimo)}`]),
+    ...g.disciplinas
+      .filter((d) => !d.aprovado)
+      .map((d) => `${g.grupo} · ${d.nome}: ${fmt(d.pontos)} pontos, abaixo do mínimo de ${fmt(d.minimo)}`),
+  ]);
   if (pontos < minimo) motivos.push(`Total: ${fmt(pontos)} pontos, abaixo do mínimo de ${fmt(minimo)}`);
   return { grupos, pontos, maximo, minimo, aprovado: motivos.length === 0, motivos };
 }

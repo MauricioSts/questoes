@@ -1,5 +1,5 @@
 // Resultado do simulado certo/errado: nota por grupo com os pesos e o desconto do perfil,
-// mínimos (proporcionais ao tamanho do simulado), aprovado ou eliminado e revisão item
+// mínimos por grupo e por disciplina (proporcionais ao tamanho do simulado), aprovado ou eliminado e revisão item
 // a item, com os brancos marcados como brancos.
 import { useMemo, useState } from "react";
 import { Check, TrendingUp, Trophy, X } from "lucide-react";
@@ -23,6 +23,7 @@ export function ResultadoCE({
         perfil,
         respostas.map((r) => ({
           grupo: r.questao.comando?.grupo ?? "",
+          disciplina: r.questao.materia,
           marcada: r.marcada as "C" | "E" | undefined,
           acertou: r.acertou,
         }))
@@ -106,6 +107,18 @@ export function ResultadoCE({
                   {g.acertos} {g.acertos === 1 ? "certo" : "certos"} · {g.erros} {g.erros === 1 ? "errado" : "errados"} · {g.brancos} em branco
                   {Number.isFinite(g.minimo) && <> · mínimo {formatarPontos(g.minimo)}</>}
                 </p>
+                {g.disciplinas.length > 0 && (
+                  <ul className="mt-1 space-y-0.5 border-l border-hair pl-3 text-xs">
+                    {g.disciplinas.map((d) => (
+                      <li key={d.nome} className="flex items-baseline justify-between gap-2">
+                        <span className="truncate text-muted">{d.nome}</span>
+                        <span className={`flex-shrink-0 tabular-nums ${d.aprovado ? "text-acerto" : "text-erro"}`}>
+                          {formatarPontos(d.pontos)} · mínimo {formatarPontos(d.minimo)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             );
           })}
