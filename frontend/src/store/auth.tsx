@@ -2,6 +2,7 @@
 // O registro entra direto quando o servidor devolve tokens; sem eles, é só um pedido
 // que espera a aprovação do administrador.
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { limparPerfisProva } from "../lib/perfilProva";
 import { api, tokenStore } from "../lib/api";
 
 export interface Usuario {
@@ -120,6 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } finally {
       tokenStore.clear();
+      limparPerfisProva(); // outro usuário pode entrar a seguir
       setUsuario(null);
     }
   }

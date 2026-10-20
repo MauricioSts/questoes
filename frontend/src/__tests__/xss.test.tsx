@@ -7,13 +7,15 @@
 // 2) de execução: o HTML renderizado é recarregado num JSDOM que RODA scripts, com
 //    alert espionado, e recebe click/load/error/mouseover/focus em todo elemento. O
 //    controle positivo (o payload cru) prova que esse JSDOM executaria o ataque.
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { JSDOM } from "jsdom";
 import { QuestaoView } from "../components/QuestaoView";
 import { ThemeProvider } from "../store/theme";
 import { sanitizeHtml } from "../lib/sanitizeHtml";
+import { EditorDiscursiva } from "../pages/Discursiva";
+import type { Discursiva } from "../lib/discursiva";
 import type { Questao } from "../types/questao";
 
 const PAYLOADS = [
@@ -174,5 +176,68 @@ describe("Caderno (sanitizeHtml) com payloads", () => {
       semExecutavel(div);
       expect(alertsAoExecutar(div.innerHTML)).toBe(0);
     }
+  });
+});
+
+// Discursiva: enunciado e padrão de resposta vêm do servidor; o texto das tentativas é
+// do próprio usuário, mas volta do servidor e é mostrado de novo no histórico.
+describe("Discursiva renderiza payloads como texto", () => {
+  let raiz: Root | null = null;
+  let container: HTMLDivElement;
+  const alerta = vi.fn();
+
+  beforeEach(() => {
+    (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+    window.alert = alerta;
+  });
+
+  afterEach(() => {
+    act(() => raiz?.unmount());
+    raiz = null;
+    container?.remove();
+    vi.unstubAllGlobals();
+  });
+
+  it.each(PAYLOADS)("enunciado, padrão de resposta e tentativa: %s", async (p) => {
+    // GET /discursivas/:id/tentativas devolve uma tentativa com o payload.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ tentativas: [{ id: "t1", texto: `Minha resposta ${p}`, nota: 10, createdAt: "2026-10-20T12:00:00Z" }] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        })
+      )
+    );
+    const d: Discursiva = {
+      id: "d1",
+      trilhaId: "tjpb-2026-dev",
+      enunciado: `Disserte sobre ${p}.`,
+      padraoResposta: `Esperava-se ${p}.`,
+      maxLinhas: 30,
+      caracteresPorLinha: 70,
+      valor: 40,
+      ordem: 1,
+    };
+    container = document.createElement("div");
+    document.body.appendChild(container);
+    raiz = createRoot(container);
+    await act(async () => {
+      raiz!.render(<EditorDiscursiva discursiva={d} onVoltar={() => {}} onEnviada={() => {}} />);
+    });
+    for (let i = 0; i < 50 && !container.textContent?.includes("Minha resposta"); i++) {
+      await act(async () => {
+        await new Promise((r) => setTimeout(r, 10));
+      });
+    }
+    expect(container.textContent).toContain(`Disserte sobre ${p}.`);
+    expect(container.textContent).toContain(`Esperava-se ${p}.`);
+    expect(container.textContent).toContain(`Minha resposta ${p}`);
+    semExecutavel(container);
+    for (const el of container.querySelectorAll("*")) {
+      for (const tipo of EVENTOS) el.dispatchEvent(new Event(tipo));
+    }
+    expect(alerta).not.toHaveBeenCalled();
+    expect(alertsAoExecutar(container.innerHTML)).toBe(0);
   });
 });

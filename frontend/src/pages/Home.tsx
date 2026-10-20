@@ -38,7 +38,11 @@ import { PainelMalha } from "../components/PainelMalha";
 import { useTheme } from "../store/theme";
 import { Spinner } from "../components/Spinner";
 import { CartaoRanking } from "../components/CartaoRanking";
-import { configPadrao, totalQuestoes as questoesDoSimulado } from "../lib/simuladoConfig";
+import { configDoPerfil, configPadrao, totalQuestoes as questoesDoSimulado } from "../lib/simuladoConfig";
+import { usePerfilProva } from "../hooks/usePerfilProva";
+import { ehPerfilCertoErrado } from "../lib/notaCE";
+import { contagemOficial, diasAte } from "../lib/contagemProva";
+import { ContagemProva } from "../components/ContagemProva";
 import { todas } from "../lib/questoesRepo";
 
 
@@ -93,15 +97,24 @@ export function Home() {
   const progressoPlano = goal?.progressoPlano ?? 0;
   const faltamBanco = Math.max(0, totalQuestoes - respondidasTotal);
 
+  // Trilha com perfil de prova com data e horário (edital publicado) e prova ainda por
+  // vir: a contagem segue a data e a hora oficiais. Sem horário (CGU) ou prova já feita
+  // (Bacen 2024), fica a data manual do concurso, com o lápis de editar.
+  const perfil = usePerfilProva();
+  const oficial = perfil?.dados ? contagemOficial(perfil.dados) : null;
+  const inicioOficial = oficial?.inicio ?? null;
   const dataProva = goal?.dataProva ? new Date(goal.dataProva) : null;
-  const diasProva = dataProva ? Math.max(0, Math.ceil((dataProva.getTime() - Date.now()) / 86400000)) : null;
+  const diasProva =
+    inicioOficial != null ? diasAte(inicioOficial) : dataProva ? diasAte(dataProva.getTime()) : null;
   const progressoTempo = goal?.progressoTempo ?? null;
   const revisaoPendente = goal?.revisaoPendente ?? 0;
   // Cartão do Simulado segue a configuração da trilha ativa: "70 questões, só aos
   // sábados" é a prova da Dataprev; nas outras trilhas o padrão libera todo dia.
   const configSimulado = useMemo(
-    () => ativo?.simuladoConfig ?? configPadrao(ativo?.trilhaId, todas()),
-    [ativo?.simuladoConfig, ativo?.trilhaId]
+    () =>
+      ativo?.simuladoConfig ??
+      (perfil && !ehPerfilCertoErrado(perfil.dados) ? configDoPerfil(perfil.dados) : configPadrao(ativo?.trilhaId, todas())),
+    [ativo?.simuladoConfig, ativo?.trilhaId, perfil]
   );
   const simuladoLiberado = !configSimulado.soSabado || ehDiaDeSimulado();
   const qtdSimulado = questoesDoSimulado(configSimulado);
@@ -284,13 +297,15 @@ export function Home() {
           <Cartao malha={tema === "cyberpunk"} className="p-6">
             <div className="flex items-start justify-between">
               <p className="legenda text-[11px] font-bold uppercase tracking-[.16em] text-faint">Contagem para a prova</p>
-              {!editandoData && (
+              {!editandoData && inicioOficial == null && (
                 <button onClick={() => setEditandoData(true)} className="text-faint transition hover:text-brand-500" aria-label="Alterar data da prova">
                   {dataProva ? <Pencil size={14} strokeWidth={1.8} /> : <CalendarDays size={16} strokeWidth={1.8} />}
                 </button>
               )}
             </div>
-            {editandoData ? (
+            {inicioOficial != null && perfil ? (
+              <ContagemProva perfil={perfil.dados} className="mt-2" />
+            ) : editandoData ? (
               <div className="mt-3 space-y-2">
                 <input
                   type="date"

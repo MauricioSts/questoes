@@ -9,10 +9,13 @@ import { QuestaoView } from "./QuestaoView";
 export function ResultadoSimulado({
   respostas,
   config,
+  cortes,
   onSair,
 }: {
   respostas: RespostaSessao[];
   config: ConfigSimulado;
+  // Trilha com perfil de prova: cortes do edital (ampla e cotas) para a nota máxima.
+  cortes?: (maximo: number) => { ampla: number; cotas: number | null };
   onSair: () => void;
 }) {
   const [revisando, setRevisando] = useState(false);
@@ -50,6 +53,7 @@ export function ResultadoSimulado({
     );
   }
 
+  const corteEdital = cortes?.(nota.totalPontosPossivel);
   const pctNota = nota.totalPontosPossivel ? Math.round((nota.pontos / nota.totalPontosPossivel) * 100) : 0;
 
   return (
@@ -78,6 +82,16 @@ export function ResultadoSimulado({
             : `Abaixo do corte (${formatarPeso(nota.corte)} pts, ${config.notaCortePct}%)`}
         </p>
       </div>
+
+      {corteEdital && (
+        <div className="card space-y-2 p-4 text-left">
+          <p className="text-sm font-semibold">Corte do edital</p>
+          <LinhaCorte rotulo="Ampla concorrência" corte={corteEdital.ampla} maximo={nota.totalPontosPossivel} pontos={nota.pontos} />
+          {corteEdital.cotas != null && (
+            <LinhaCorte rotulo="Cotas" corte={corteEdital.cotas} maximo={nota.totalPontosPossivel} pontos={nota.pontos} />
+          )}
+        </div>
+      )}
 
       <div className="card p-4 text-left">
         <p className="mb-2 text-sm font-semibold">Acertos por matéria</p>
@@ -111,5 +125,22 @@ export function ResultadoSimulado({
         </button>
       </div>
     </div>
+  );
+}
+
+// Uma linha do corte do edital: "36 de 60" e se a nota passou dele.
+function LinhaCorte({ rotulo, corte, maximo, pontos }: { rotulo: string; corte: number; maximo: number; pontos: number }) {
+  const passou = pontos >= corte;
+  return (
+    <p className="flex items-center justify-between gap-3 text-sm">
+      <span className="text-muted">{rotulo}</span>
+      <span
+        className="flex items-center gap-1.5 font-semibold tabular-nums"
+        style={{ color: passou ? "var(--goodText)" : "var(--accentText)" }}
+      >
+        {passou ? <Check size={15} strokeWidth={2.6} /> : <X size={15} strokeWidth={2.6} />}
+        {formatarPeso(corte)} de {formatarPeso(maximo)}
+      </span>
+    </p>
   );
 }

@@ -5,6 +5,7 @@
 // acervo para as outras.
 import { PROPORCAO_SIMULADO, PESOS, SIMULADO_DURACAO_MIN, NOTA_CORTE_PONTOS, TOTAL_PONTOS } from "../config/prova";
 import type { Questao } from "../types/questao";
+import type { PerfilProva } from "./notaCE";
 
 export interface ItemSimulado {
   nome: string; // rótulo na tela ("Português", "Conhecimentos específicos")
@@ -75,6 +76,39 @@ export function configAutomatica(todas: Questao[]): ConfigSimulado {
 export function configPadrao(trilhaId: string | null | undefined, todas: Questao[]): ConfigSimulado {
   // Concurso sem trilha é a Dataprev de antes das trilhas.
   return !trilhaId || trilhaId === TRILHA_DATAPREV ? configDataprev(todas) : configAutomatica(todas);
+}
+
+// Padrão de uma trilha com perfil de prova de múltipla escolha (TJPB/FGV): tudo sai do
+// perfil. Disciplina com quantidade própria vira item próprio; as sem quantidade (as
+// específicas, que o edital só conta no grupo) entram juntas num item com o nome do
+// grupo, sorteando entre elas o que sobra do grupo. Erro não desconta.
+export function configDoPerfil(perfil: PerfilProva): ConfigSimulado {
+  const peso = perfil.pontuacao.acerto;
+  const itens: ItemSimulado[] = [];
+  for (const g of perfil.grupos) {
+    const comQtd = g.disciplinas.filter((d) => d.itens != null && d.itens > 0);
+    const semQtd = g.disciplinas.filter((d) => d.itens == null);
+    for (const d of comQtd) itens.push({ nome: d.nome, materias: [d.nome], qtd: d.itens!, peso });
+    const resto = (g.itens ?? 0) - comQtd.reduce((s, d) => s + d.itens!, 0);
+    if (semQtd.length && resto > 0) {
+      itens.push({ nome: g.nome, materias: semQtd.map((d) => d.nome), qtd: resto, peso });
+    }
+  }
+  const total = itens.reduce((s, i) => s + i.qtd, 0);
+  return {
+    itens,
+    duracaoMin: perfil.duracao_minutos ?? Math.max(30, Math.round((total * 3) / 10) * 10),
+    notaCortePct: perfil.nota_minima_objetiva_pct ?? 60,
+    soSabado: false,
+  };
+}
+
+// Cortes da objetiva para uma nota máxima: o da ampla concorrência (% do perfil) e o
+// das cotas, que o edital reduz em reducao_minima_cotas_pct (null quando não há).
+export function cortesDoPerfil(perfil: PerfilProva, maximo: number): { ampla: number; cotas: number | null } {
+  const ampla = (maximo * (perfil.nota_minima_objetiva_pct ?? 60)) / 100;
+  const red = perfil.reducao_minima_cotas_pct;
+  return { ampla, cotas: red ? (ampla * (100 - red)) / 100 : null };
 }
 
 export const totalQuestoes = (c: ConfigSimulado) => c.itens.reduce((s, i) => s + i.qtd, 0);

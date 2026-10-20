@@ -4,6 +4,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { getConcursoId, setConcursoId } from "../lib/concurso";
+import { limparPerfisProva } from "../lib/perfilProva";
 import type { ConfigSimulado } from "../lib/simuladoConfig";
 
 export type EstadoConcurso = "EM_CURSO" | "PAUSADO" | "VAZIO";
@@ -45,6 +46,7 @@ export function ConcursoProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     const { concursos } = await api<{ concursos: Concurso[] }>("/concursos");
+    limparPerfisProva(); // a trilha de um concurso pode ter mudado: perfil buscado de novo
     setConcursos(concursos);
     // Garante um ativo válido: mantém o salvo se ainda existir, senão pega o primeiro
     // em curso (ou o primeiro qualquer).
@@ -63,6 +65,7 @@ export function ConcursoProvider({ children }: { children: ReactNode }) {
   }, [refresh]);
 
   const setAtivo = useCallback((id: string) => {
+    limparPerfisProva();
     setConcursoId(id);
     setActiveId(id);
   }, []);

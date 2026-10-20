@@ -14,7 +14,7 @@ import {
   descartarProva,
   type ProvaEmAndamento,
 } from "../lib/provaEmAndamento";
-import { configPadrao, formatarPeso, totalPontos, totalQuestoes, type ConfigSimulado } from "../lib/simuladoConfig";
+import { configDoPerfil, configPadrao, cortesDoPerfil, formatarPeso, totalPontos, totalQuestoes, type ConfigSimulado } from "../lib/simuladoConfig";
 import { atualizarConcurso } from "../lib/multiApi";
 import { useConcurso } from "../store/concurso";
 import { useQuestoes } from "../store/questoes";
@@ -25,7 +25,8 @@ import { Cronometro } from "../components/Cronometro";
 import { Carregando, Spinner } from "../components/Spinner";
 import { ResultadoSimulado } from "../components/ResultadoSimulado";
 import { SimuladoCE } from "../components/SimuladoCE";
-import type { PerfilProva } from "../lib/notaCE";
+import { ehPerfilCertoErrado, type PerfilProva } from "../lib/notaCE";
+import { usePerfilProva } from "../hooks/usePerfilProva";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { Toggle } from "../components/Toggle";
@@ -35,31 +36,20 @@ type Fase = "intro" | "rodando" | "resultado";
 type Aba = "novo" | "anteriores";
 
 // Trilha com perfil de prova certo/errado (CGU, Bacen) usa o simulado C/E; as demais,
-// o de múltipla escolha configurável por matéria.
+// o de múltipla escolha configurável por matéria — com o padrão tirado do perfil quando
+// a trilha tem um de múltipla escolha (TJPB).
 export function Simulado() {
   const { ativo } = useConcurso();
-  const [perfil, setPerfil] = useState<{ id: string; dados: PerfilProva } | null | undefined>(undefined);
-  useEffect(() => {
-    if (!ativo?.trilhaId) {
-      setPerfil(null);
-      return;
-    }
-    setPerfil(undefined);
-    let vivo = true;
-    api<{ perfil: { id: string; dados: PerfilProva } | null }>(`/provas/perfil?concursoId=${encodeURIComponent(ativo.id)}`)
-      .then((r) => vivo && setPerfil(r.perfil))
-      .catch(() => vivo && setPerfil(null)); // offline: cai no simulado de sempre
-    return () => {
-      vivo = false;
-    };
-  }, [ativo?.id, ativo?.trilhaId]);
+  const perfil = usePerfilProva(); // offline: null, cai no simulado de sempre
 
   if (perfil === undefined) return <Carregando />;
-  if (perfil && ativo) return <SimuladoCE perfil={perfil.dados} perfilId={perfil.id} concursoId={ativo.id} />;
-  return <SimuladoMultiplaEscolha />;
+  if (perfil && ativo && ehPerfilCertoErrado(perfil.dados)) {
+    return <SimuladoCE perfil={perfil.dados} perfilId={perfil.id} concursoId={ativo.id} />;
+  }
+  return <SimuladoMultiplaEscolha perfil={perfil?.dados ?? null} />;
 }
 
-function SimuladoMultiplaEscolha() {
+function SimuladoMultiplaEscolha({ perfil }: { perfil: PerfilProva | null }) {
   const [fase, setFase] = useState<Fase>("intro");
   const [aba, setAba] = useState<Aba>("novo");
   const [questoes, setQuestoes] = useState<Questao[]>([]);
@@ -71,7 +61,10 @@ function SimuladoMultiplaEscolha() {
   // Configuração do simulado deste concurso (a do usuário ou o padrão da trilha).
   const { ativo, refresh: recarregarConcursos } = useConcurso();
   const { total: totalBanco } = useQuestoes();
-  const padrao = useMemo(() => configPadrao(ativo?.trilhaId, todas()), [ativo?.trilhaId, totalBanco]); // eslint-disable-line react-hooks/exhaustive-deps
+  const padrao = useMemo(
+    () => (perfil ? configDoPerfil(perfil) : configPadrao(ativo?.trilhaId, todas())),
+    [perfil, ativo?.trilhaId, totalBanco] // eslint-disable-line react-hooks/exhaustive-deps
+  );
   const config: ConfigSimulado = ativo?.simuladoConfig ?? padrao;
   const disponivelPorMateria = useMemo(() => {
     const m = new Map<string, number>();
@@ -190,7 +183,14 @@ function SimuladoMultiplaEscolha() {
   }
 
   if (fase === "resultado") {
-    return <ResultadoSimulado respostas={resultado} config={config} onSair={() => setFase("intro")} />;
+    return (
+      <ResultadoSimulado
+        respostas={resultado}
+        config={config}
+        cortes={perfil ? (maximo) => cortesDoPerfil(perfil, maximo) : undefined}
+        onSair={() => setFase("intro")}
+      />
+    );
   }
 
   if (fase === "rodando") {

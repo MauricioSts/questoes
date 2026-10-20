@@ -24,12 +24,14 @@ import {
   X,
   Compass,
   Code2,
+  PenLine,
 } from "lucide-react";
 import { useTheme, type Tema } from "../store/theme";
 import { useAuth } from "../store/auth";
 import { useAssinatura } from "../store/assinatura";
 import { useConcurso } from "../store/concurso";
 import { useExercicios } from "../hooks/useExercicios";
+import { usePerfilProva } from "../hooks/usePerfilProva";
 import { TagPlano } from "./TagPlano";
 import { ConcursoSwitcher } from "./ConcursoSwitcher";
 import { LineSidebar } from "./LineSidebar";
@@ -82,8 +84,15 @@ const itemBatalha = { to: "/batalha", label: "Batalha", icon: Swords };
 // para o celular alcançar exatamente as mesmas telas que o computador.
 const itensCelular: ItemNav[] = [navItems[0], navItems[1], navItems[2], itemBatalha];
 
-function montarItens(comExercicios: boolean) {
-  const extra: ItemNav[] = comExercicios ? [...desktopExtra, itemExercicios] : desktopExtra;
+// Discursiva: só quando o perfil da prova da trilha ativa tem etapa discursiva (TJPB).
+const itemDiscursiva: ItemNav = { to: "/discursiva", label: "Discursiva", icon: PenLine };
+
+function montarItens(comExercicios: boolean, comDiscursiva: boolean) {
+  const extra: ItemNav[] = [
+    ...desktopExtra,
+    ...(comExercicios ? [itemExercicios] : []),
+    ...(comDiscursiva ? [itemDiscursiva] : []),
+  ];
   return {
     sidebar: [...navItems.slice(0, 3), itemBatalha, ...navItems.slice(3), ...extra],
     mais: [...navItems.slice(3), ...extra],
@@ -115,7 +124,11 @@ export function BottomTab() {
   const { ativo } = useConcurso();
   const navigate = useNavigate();
   const { temExercicios } = useExercicios();
-  const { sidebar: allSidebarItems, mais: itensMais } = useMemo(() => montarItens(temExercicios), [temExercicios]);
+  const temDiscursiva = !!usePerfilProva()?.dados.discursiva;
+  const { sidebar: allSidebarItems, mais: itensMais } = useMemo(
+    () => montarItens(temExercicios, temDiscursiva),
+    [temExercicios, temDiscursiva]
+  );
   const linha = CORES_LINHA[tema];
   const { pathname } = useLocation();
   const [maisAberto, setMaisAberto] = useState(false);
