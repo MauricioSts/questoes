@@ -32,6 +32,11 @@ Credenciais em `/etc/questoes-sandbox/env` (root:qsandbox 640).
 | shell | script bash num repo git montado pelo `seedSql` | script de conferência | stdout da conferência |
 | livre | (verificação de questão) | — | stdout/stderr/exit crus |
 
+No modo shell a conferência deve **imprimir** o que se confere (ex.: `git show
+feature:b.txt`, `git log --oneline | wc -l`), não depender só do código de saída: se ela
+sair com erro, o stdout ganha a linha `__conferencia_falhou:<código>` e o teste conta como
+`saida_diferente` (o repositório ficou no estado errado), não como erro do aluno.
+
 `cpp-ubsan` existe só para verificar questões de comportamento indefinido: o UBSan em
 modo trap transforma o UB num sinal observável.
 

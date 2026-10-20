@@ -14,18 +14,19 @@ PORTA_PG="${PORTA_PG:-55432}"
 PORTA_API="${PORTA_API:-3397}"
 PG_NOME="questoes-e2e-pg-$$"
 # Rótulo próprio: o limparOrfaos do worker de teste não pode pegar os containers de produção.
-ROTULO="questoes-sandbox-e2e"
+ROTULO="questoes-sandbox-e2e-$$"
 TMP="$(mktemp -d)"
 API_PID=""
 WORKER_PID=""
 
 limpar() {
   set +e
-  [ -n "$API_PID" ] && kill "$API_PID" 2>/dev/null
-  [ -n "$WORKER_PID" ] && kill -TERM "$WORKER_PID" 2>/dev/null
+  # API e worker sobem com setsid: o PID é o do grupo, e matar o grupo pega também o
+  # node filho do tsx.
+  for pid in $API_PID $WORKER_PID; do kill -TERM -- "-$pid" 2>/dev/null; done
   for pid in $API_PID $WORKER_PID; do
-    for _ in $(seq 1 60); do kill -0 "$pid" 2>/dev/null || break; sleep 0.5; done
-    kill -KILL "$pid" 2>/dev/null
+    for _ in $(seq 1 60); do kill -0 -- "-$pid" 2>/dev/null || break; sleep 0.5; done
+    kill -KILL -- "-$pid" 2>/dev/null
   done
   sudo -n docker rm -f "$PG_NOME" >/dev/null 2>&1
   ids="$(sudo -n docker ps -aq --filter "label=$ROTULO=1")"
@@ -57,12 +58,14 @@ sudo -n docker exec -i "$PG_NOME" psql -q -v ON_ERROR_STOP=1 -U postgres -d ques
 
 SEGREDO="e2e-$(head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n')"
 echo "== API em :$PORTA_API"
-(cd "$RAIZ/backend" && exec env -i PATH="$PATH" HOME="$HOME" PORT="$PORTA_API" DATABASE_URL="$DB" \
+# DOTENV_CONFIG_PATH=/dev/null: o env.ts importa dotenv/config, que leria o backend/.env
+# de verdade (SMTP, Mercado Pago, Groq) se este checkout tiver um.
+(cd "$RAIZ/backend" && exec setsid env -i PATH="$PATH" HOME="$HOME" DOTENV_CONFIG_PATH=/dev/null PORT="$PORTA_API" DATABASE_URL="$DB" \
   JWT_ACCESS_SECRET="$SEGREDO" JWT_REFRESH_SECRET="$SEGREDO-r" ./node_modules/.bin/tsx src/server.ts) >"$TMP/api.log" 2>&1 &
 API_PID=$!
 
 echo "== worker (rótulo $ROTULO)"
-(cd "$RAIZ/sandbox/worker" && exec env -i PATH="$PATH" HOME="$HOME" DOCKER_BIN="$TMP/docker" SANDBOX_ROTULO="$ROTULO" \
+(cd "$RAIZ/sandbox/worker" && exec setsid env -i PATH="$PATH" HOME="$HOME" DOCKER_BIN="$TMP/docker" SANDBOX_ROTULO="$ROTULO" \
   SANDBOX_DATABASE_URL="postgresql://questoes_sandbox_e2e:e2e@127.0.0.1:$PORTA_PG/questoes_e2e" \
   ./node_modules/.bin/tsx src/index.ts) >"$TMP/worker.log" 2>&1 &
 WORKER_PID=$!

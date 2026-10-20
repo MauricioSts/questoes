@@ -76,8 +76,9 @@ function comandoDoTeste(t: Trabalho, rodar: string): string {
       // entrada = script de conferência, rodado depois do script do aluno; é a saída dele
       // que se compara. Chamado por caminho absoluto: o aluno não troca o git do PATH.
       // Conferência que sai com erro (ex.: `git show feature:b.txt` sem a branch) é
-      // repositório no estado errado, não erro do script do aluno: vira saida_diferente.
-      return `rm -rf /tmp/repo && mkdir /tmp/repo && cd /tmp/repo && /bin/bash /tmp/preparo.sh >/dev/null 2>&1 && (${rodar}) >/dev/null && cd /tmp/repo && { /bin/bash /tmp/entrada.sh || true; }`;
+      // repositório no estado errado, não erro do script do aluno: vira saida_diferente,
+      // com uma linha que deixa visível que foi a conferência que falhou.
+      return `rm -rf /tmp/repo && mkdir /tmp/repo && cd /tmp/repo && /bin/bash /tmp/preparo.sh >/dev/null 2>&1 && (${rodar}) >/dev/null && cd /tmp/repo && { /bin/bash /tmp/entrada.sh || echo "__conferencia_falhou:$?"; }`;
     case "testes":
       // entrada = implementação-alvo (a certa ou um mutante), lida pelo stdin.
       return "python3 /opt/sandbox/rodar-testes.py";
