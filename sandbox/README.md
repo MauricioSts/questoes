@@ -41,3 +41,9 @@ modo trap transforma o UB num sinal observável.
 - Logs: `sudo journalctl -u questoes-sandbox -f`
 - Testes de fuga e de funcionamento (containers reais): `cd sandbox/worker && sudo npm run test:fuga`
 - Unitários: `cd sandbox/worker && npm test`
+- Ponta a ponta (API + fila + worker de verdade, sem tocar em produção): `sandbox/e2e/rodar.sh`
+  (ou `sandbox/e2e/rodar.sh python`, `sandbox/e2e/rodar.sh cpp:fork`). Sobe um Postgres
+  descartável num container (porta 55432), aplica as migrações, cria exercícios com testes
+  ocultos em cada linguagem, roda a API (porta 3397) e o worker deste checkout com o rótulo
+  `questoes-sandbox-e2e` (`SANDBOX_ROTULO`, para não limpar os containers de produção) e
+  confere certo/errado/loop/fork/memória/rede. Derruba tudo no fim.

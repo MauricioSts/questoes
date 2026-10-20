@@ -49,12 +49,19 @@ export interface Resultado {
   erroInterno?: string;
 }
 
+// Limite de memória (ou de threads) da própria linguagem: o heap da JVM (-Xmx) e o do V8
+// estouram antes do limite do container, e o programa sai com a mensagem do runtime em
+// vez de ser morto. Idem para o fork recusado pelo limite de PIDs no Java (EAGAIN/ENOMEM
+// viram IOException). Para o aluno é o mesmo caso que o estouro do container.
+const SEM_MEMORIA =
+  /java\.lang\.OutOfMemoryError|Cannot run program .*error=1[12],|JavaScript heap out of memory|std::bad_alloc|^MemoryError\b/m;
+
 // Código de saída 137 = SIGKILL. Perto do limite de tempo foi o timeout; longe dele, quem
 // matou foi o limite de memória do container.
-function motivoDaFalha(r: ResultadoExec, segundos: number): Motivo {
+export function motivoDaFalha(r: ResultadoExec, segundos: number): Motivo {
   if (r.sandboxMorreu) return "limite_recursos";
   if (r.estourouTempo || ((r.codigo === 137 || r.codigo === 124) && r.tempoMs >= segundos * 1000 - 250)) return "tempo_esgotado";
-  if (r.codigo === 137) return "limite_recursos";
+  if (r.codigo === 137 || SEM_MEMORIA.test(r.stderr)) return "limite_recursos";
   return "erro_execucao";
 }
 
@@ -68,7 +75,9 @@ function comandoDoTeste(t: Trabalho, rodar: string): string {
     case "shell":
       // entrada = script de conferência, rodado depois do script do aluno; é a saída dele
       // que se compara. Chamado por caminho absoluto: o aluno não troca o git do PATH.
-      return `rm -rf /tmp/repo && mkdir /tmp/repo && cd /tmp/repo && /bin/bash /tmp/preparo.sh >/dev/null 2>&1 && (${rodar}) >/dev/null && cd /tmp/repo && /bin/bash /tmp/entrada.sh`;
+      // Conferência que sai com erro (ex.: `git show feature:b.txt` sem a branch) é
+      // repositório no estado errado, não erro do script do aluno: vira saida_diferente.
+      return `rm -rf /tmp/repo && mkdir /tmp/repo && cd /tmp/repo && /bin/bash /tmp/preparo.sh >/dev/null 2>&1 && (${rodar}) >/dev/null && cd /tmp/repo && { /bin/bash /tmp/entrada.sh || true; }`;
     case "testes":
       // entrada = implementação-alvo (a certa ou um mutante), lida pelo stdin.
       return "python3 /opt/sandbox/rodar-testes.py";

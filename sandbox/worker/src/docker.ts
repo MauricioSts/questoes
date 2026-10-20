@@ -7,7 +7,9 @@ import { Coletor } from "./saida.js";
 
 const DOCKER = process.env.DOCKER_BIN ?? "docker";
 const RUNTIME = process.env.SANDBOX_RUNTIME ?? "runsc";
-export const ROTULO = "questoes-sandbox";
+// Rótulo (e prefixo do nome) dos containers. Um worker de teste rodando na mesma VM usa
+// outro rótulo: senão o limparOrfaos dele derruba os containers do worker de produção.
+export const ROTULO = process.env.SANDBOX_ROTULO ?? "questoes-sandbox";
 // Vida máxima do container: nenhuma execução passa disso, nem se o worker travar.
 const VIDA_MAXIMA_S = 120;
 
