@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Lock, Play } from "lucide-react";
+import { ChevronDown, Lock, PenLine, Play } from "lucide-react";
 import { SimuladosAnteriores } from "../components/SimuladosAnteriores";
 import { PageHeader } from "../components/PageHeader";
 import { api } from "../lib/api";
@@ -30,9 +30,12 @@ import { usePerfilProva } from "../hooks/usePerfilProva";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { Toggle } from "../components/Toggle";
+import { RespostaDiscursiva } from "../components/RespostaDiscursiva";
+import { buscarDiscursiva, temaParaSimulado, type Discursiva } from "../lib/discursiva";
 import type { Questao, Alternativa } from "../types/questao";
 
-type Fase = "intro" | "rodando" | "resultado";
+// "discursiva": depois da objetiva, a entrega da folha (foto ou texto), como na prova.
+type Fase = "intro" | "rodando" | "discursiva" | "resultado";
 type Aba = "novo" | "anteriores";
 
 // Trilha com perfil de prova certo/errado (CGU, Bacen) usa o simulado C/E; as demais,
@@ -73,6 +76,24 @@ function SimuladoMultiplaEscolha({ perfil }: { perfil: PerfilProva | null }) {
   }, [totalBanco]); // eslint-disable-line react-hooks/exhaustive-deps
   const nQuestoes = totalQuestoes(config);
 
+  // Discursiva na prova (perfil com discursiva, ex.: TJPB): o tema da semana entra junto
+  // com a objetiva; o enunciado fica num painel da prova e a folha é entregue no fim.
+  const trilhaId = ativo?.trilhaId ?? null;
+  const temDiscursiva = !!perfil?.discursiva && !!trilhaId;
+  const [temaDisc, setTemaDisc] = useState<Discursiva | null>(null);
+  const [incluirDisc, setIncluirDisc] = useState(true);
+  const [discursivaProva, setDiscursivaProva] = useState<Discursiva | null>(null);
+  useEffect(() => {
+    if (!temDiscursiva || !trilhaId) return;
+    let vivo = true;
+    temaParaSimulado(trilhaId)
+      .then((d) => vivo && setTemaDisc(d))
+      .catch(() => {});
+    return () => {
+      vivo = false;
+    };
+  }, [temDiscursiva, trilhaId]);
+
   async function salvarConfig(c: ConfigSimulado | null) {
     if (!ativo) return;
     await atualizarConcurso(ativo.id, { simuladoConfig: c });
@@ -87,7 +108,8 @@ function SimuladoMultiplaEscolha({ perfil }: { perfil: PerfilProva | null }) {
     tempos: [number, number][];
     restante: number | null;
     iniciadaEm: number;
-  }>({ marcadas: [], tempos: [], restante: null, iniciadaEm: Date.now() });
+    discursivaId: string | null;
+  }>({ marcadas: [], tempos: [], restante: null, iniciadaEm: Date.now(), discursivaId: null });
 
   useEffect(() => {
     setEmAndamento(carregarProva());
@@ -102,6 +124,7 @@ function SimuladoMultiplaEscolha({ perfil }: { perfil: PerfilProva | null }) {
       tempos: e.tempos,
       restanteSegundos: e.restante,
       iniciadaEm: e.iniciadaEm,
+      discursivaId: e.discursivaId,
     });
   }
 
@@ -130,11 +153,14 @@ function SimuladoMultiplaEscolha({ perfil }: { perfil: PerfilProva | null }) {
       );
     }
     setQuestoes(sim);
+    const disc = temDiscursiva && incluirDisc ? temaDisc : null;
+    setDiscursivaProva(disc);
     estadoRef.current = {
       marcadas: [],
       tempos: [],
       restante: usarCronometro ? config.duracaoMin * 60 : null,
       iniciadaEm: Date.now(),
+      discursivaId: disc?.id ?? null,
     };
     setRetomada(null);
     setEmAndamento(null);
@@ -158,7 +184,14 @@ function SimuladoMultiplaEscolha({ perfil }: { perfil: PerfilProva | null }) {
       tempos: p.tempos,
       restante: p.restanteSegundos,
       iniciadaEm: p.iniciadaEm,
+      discursivaId: p.discursivaId ?? null,
     };
+    setDiscursivaProva(null);
+    if (p.discursivaId) {
+      buscarDiscursiva(p.discursivaId)
+        .then(setDiscursivaProva)
+        .catch(() => {});
+    }
     setQuestoes(qs);
     setRetomada(p);
     setUsarCronometro(p.restanteSegundos != null);
@@ -175,11 +208,15 @@ function SimuladoMultiplaEscolha({ perfil }: { perfil: PerfilProva | null }) {
     setEmAndamento(null);
     setRetomada(null);
     setResultado(rs);
-    setFase("resultado");
+    setFase(discursivaProva ? "discursiva" : "resultado");
     const lote = rs
       .filter((r) => r.marcada)
       .map((r) => montarResultado(r.questao, r.marcada!, "SIMULADO", r.tempoSegundos));
     if (lote.length) await enviarLote(lote);
+  }
+
+  if (fase === "discursiva" && discursivaProva) {
+    return <EntregaDiscursiva discursiva={discursivaProva} onFim={() => setFase("resultado")} />;
   }
 
   if (fase === "resultado") {
@@ -211,15 +248,20 @@ function SimuladoMultiplaEscolha({ perfil }: { perfil: PerfilProva | null }) {
           setFase("intro");
         }}
         cabecalho={
-          usarCronometro ? (
-            <Cronometro
-              minutos={config.duracaoMin}
-              segundosIniciais={retomada?.restanteSegundos ?? undefined}
-              onTick={(restante) => {
-                estadoRef.current.restante = restante;
-              }}
-              onFim={() => provaRef.current?.finalizar()}
-            />
+          usarCronometro || discursivaProva ? (
+            <div className="space-y-3">
+              {usarCronometro && (
+                <Cronometro
+                  minutos={config.duracaoMin}
+                  segundosIniciais={retomada?.restanteSegundos ?? undefined}
+                  onTick={(restante) => {
+                    estadoRef.current.restante = restante;
+                  }}
+                  onFim={() => provaRef.current?.finalizar()}
+                />
+              )}
+              {discursivaProva && <PainelDiscursiva discursiva={discursivaProva} />}
+            </div>
           ) : null
         }
       />
@@ -279,6 +321,21 @@ function SimuladoMultiplaEscolha({ perfil }: { perfil: PerfilProva | null }) {
             <StatSimulado n={duracao} label="cronômetro" />
             <StatSimulado n={formatarPeso(totalPontos(config))} label="pontos" />
           </Card>
+          {temDiscursiva && (
+            <Card className="p-6">
+              <Toggle
+                checked={incluirDisc && !!temaDisc}
+                onChange={setIncluirDisc}
+                label="Incluir discursiva"
+                ariaLabel="Incluir a discursiva no simulado"
+              />
+              <p className="mt-3 text-xs text-faint">
+                {temaDisc
+                  ? `${temaDisc.titulo ?? "Tema da semana"} · escreva na folha e entregue a foto no fim`
+                  : "Nenhum tema de discursiva disponível ainda"}
+              </p>
+            </Card>
+          )}
           <Card className="p-6">
             <Toggle
               checked={usarCronometro}
@@ -355,6 +412,56 @@ function SimuladoMultiplaEscolha({ perfil }: { perfil: PerfilProva | null }) {
           <SimuladosAnteriores config={config} />
         )}
       </div>
+    </div>
+  );
+}
+
+// Enunciado da discursiva durante a prova, recolhível para não empurrar as questões.
+function PainelDiscursiva({ discursiva: d }: { discursiva: Discursiva }) {
+  const [aberto, setAberto] = useState(false);
+  return (
+    <div className="card p-4">
+      <button onClick={() => setAberto((a) => !a)} aria-expanded={aberto} className="flex w-full items-center gap-3 text-left">
+        <PenLine size={16} strokeWidth={2.2} style={{ color: "var(--accent)" }} />
+        <span className="min-w-0 flex-1 text-sm font-semibold text-brand-ink">
+          Discursiva{d.titulo ? `: ${d.titulo}` : ""}
+          <span className="font-normal text-faint"> · até {d.maxLinhas} linhas, {formatarPeso(d.valor)} pontos</span>
+        </span>
+        <ChevronDown size={16} className={`flex-shrink-0 text-faint transition ${aberto ? "rotate-180" : ""}`} />
+      </button>
+      {aberto && (
+        <div className="mt-3 space-y-2 border-t border-hair pt-3">
+          <p className="whitespace-pre-line text-sm text-brand-ink">{d.enunciado}</p>
+          <p className="text-xs text-faint">Escreva à mão na folha. A entrega (foto ou texto) é no fim da prova.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Fim da objetiva: entrega da folha da discursiva antes de ver o resultado.
+function EntregaDiscursiva({ discursiva: d, onFim }: { discursiva: Discursiva; onFim: () => void }) {
+  const [entregue, setEntregue] = useState(false);
+  return (
+    <div className="fadeup mx-auto max-w-[820px] space-y-5 pt-2">
+      <PageHeader rotulo="Simulado" titulo="Discursiva" subtitulo="Entregue a folha antes de ver o resultado da objetiva." />
+      <Card className="space-y-2 p-6">
+        <p className="text-[11px] font-bold uppercase tracking-[.14em] text-faint">
+          Vale {formatarPeso(d.valor)} pontos · até {d.maxLinhas} linhas
+        </p>
+        {d.titulo && <h2 className="font-display text-lg font-extrabold text-brand-ink">{d.titulo}</h2>}
+        <p className="whitespace-pre-line text-brand-ink">{d.enunciado}</p>
+      </Card>
+      <Card className="p-6">
+        {entregue ? (
+          <p className="text-sm text-brand-ink">Discursiva entregue. Ela fica no histórico da tela Discursiva, onde dá para lançar a nota depois da correção.</p>
+        ) : (
+          <RespostaDiscursiva discursiva={d} origem="SIMULADO" onEntregue={() => setEntregue(true)} />
+        )}
+      </Card>
+      <Button onClick={onFim} variant={entregue ? "primary" : "secondary"} fullWidth>
+        {entregue ? "Ver resultado" : "Entregar depois e ver resultado"}
+      </Button>
     </div>
   );
 }

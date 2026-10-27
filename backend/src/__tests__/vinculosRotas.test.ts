@@ -12,8 +12,9 @@ const db = vi.hoisted(() => ({
   questaoTrilha: { delete: vi.fn(), deleteMany: vi.fn(), update: vi.fn() },
   trilha: { findUnique: vi.fn(), findFirst: vi.fn() },
   concurso: { findFirst: vi.fn() },
-  discursiva: { findUnique: vi.fn(), findMany: vi.fn(), create: vi.fn(), count: vi.fn() },
-  tentativaDiscursiva: { create: vi.fn(), findFirst: vi.fn(), findMany: vi.fn(), update: vi.fn(), groupBy: vi.fn() },
+  discursiva: { findUnique: vi.fn(), findFirst: vi.fn(), findMany: vi.fn(), create: vi.fn(), count: vi.fn() },
+  tentativaDiscursiva: { create: vi.fn(), findFirst: vi.fn(), findMany: vi.fn(), update: vi.fn(), groupBy: vi.fn(), count: vi.fn(), delete: vi.fn() },
+  fotoDiscursiva: { create: vi.fn(), findFirst: vi.fn() },
   resultadoProva: { create: vi.fn() },
   $transaction: vi.fn(),
 }));
@@ -140,8 +141,11 @@ describe("/discursivas", () => {
     caracteresPorLinha: 70,
     valor: 40,
     ordem: 0,
+    titulo: null,
+    liberaEm: null,
     createdAt: new Date(),
   };
+  const futuro = (dias: number) => new Date(Date.now() + dias * 864e5);
   beforeEach(() => {
     db.discursiva.findUnique.mockResolvedValue(tema);
     db.trilha.findFirst.mockResolvedValue(null);
@@ -157,7 +161,7 @@ describe("/discursivas", () => {
   });
 
   it("grava dentro do limite e devolve o padrão de resposta", async () => {
-    db.tentativaDiscursiva.create.mockResolvedValue({ id: "t1", texto: "ok", nota: 30, createdAt: new Date() });
+    db.tentativaDiscursiva.create.mockImplementation(async ({ data }) => ({ id: "t1", ...data, createdAt: new Date(), fotos: [] }));
     const r = await chamar("POST", "/discursivas/d1/tentativas", aluno, { texto: Array(30).fill("x".repeat(70)).join("\n"), nota: 30 });
     expect(r.status).toBe(201);
     const corpo = await r.json();
@@ -182,7 +186,7 @@ describe("/discursivas", () => {
     db.concurso.findFirst.mockResolvedValue(null);
     const r = await chamar("GET", "/discursivas?trilhaId=outra", aluno);
     expect(r.status).toBe(200);
-    expect(await r.json()).toEqual({ discursivas: [] });
+    expect(await r.json()).toEqual({ discursivas: [], proxima: null, restantes: 0 });
   });
 
   it("PATCH de nota só na tentativa do próprio usuário", async () => {
@@ -208,8 +212,101 @@ describe("/discursivas", () => {
     const r = await chamar("POST", "/discursivas", admin, { trilhaId: "tjpb-2026-dev", enunciado: "E", padraoResposta: "P" });
     expect(r.status).toBe(201);
     expect(db.discursiva.create).toHaveBeenCalledWith({
-      data: { trilhaId: "tjpb-2026-dev", enunciado: "E", padraoResposta: "P", maxLinhas: 30, caracteresPorLinha: 70, valor: 40, ordem: 0 },
+      data: {
+        trilhaId: "tjpb-2026-dev",
+        titulo: null,
+        enunciado: "E",
+        padraoResposta: "P",
+        liberaEm: null,
+        maxLinhas: 30,
+        caracteresPorLinha: 70,
+        valor: 40,
+        ordem: 0,
+      },
     });
+  });
+
+  it("lista só os temas abertos; da fila, só o próximo aparece (sem enunciado)", async () => {
+    db.discursiva.findMany.mockResolvedValue([
+      tema,
+      { ...tema, id: "d2", titulo: "Semana 2", enunciado: "segredo 2", liberaEm: futuro(7) },
+      { ...tema, id: "d3", titulo: "Semana 3", enunciado: "segredo 3", liberaEm: futuro(14) },
+    ]);
+    db.tentativaDiscursiva.groupBy.mockResolvedValue([]);
+    const r = await chamar("GET", "/discursivas?trilhaId=tjpb-2026-dev", aluno);
+    const corpo = await r.json();
+    expect(corpo.discursivas.map((d: { id: string }) => d.id)).toEqual(["d1"]);
+    expect(corpo.proxima).toMatchObject({ id: "d2", titulo: "Semana 2" });
+    expect(corpo.proxima.enunciado).toBeUndefined();
+    expect(corpo.restantes).toBe(1);
+    expect(JSON.stringify(corpo)).not.toMatch(/segredo/);
+  });
+
+  it("tema adiantado e entregue conta como aberto", async () => {
+    db.discursiva.findMany.mockResolvedValue([{ ...tema, id: "d2", liberaEm: futuro(7) }]);
+    db.tentativaDiscursiva.groupBy.mockResolvedValue([{ discursivaId: "d2", _count: { _all: 1 } }]);
+    const corpo = await (await chamar("GET", "/discursivas?trilhaId=tjpb-2026-dev", aluno)).json();
+    expect(corpo.discursivas.map((d: { id: string }) => d.id)).toEqual(["d2"]);
+    expect(corpo.proxima).toBeNull();
+  });
+
+  it("adiantar: o próximo da fila abre, o seguinte é 404", async () => {
+    const d2 = { ...tema, id: "d2", liberaEm: futuro(7) };
+    const d3 = { ...tema, id: "d3", liberaEm: futuro(14) };
+    db.tentativaDiscursiva.count.mockResolvedValue(0);
+    db.discursiva.findFirst.mockResolvedValue(d2);
+    db.discursiva.findUnique.mockResolvedValue(d2);
+    const ok = await chamar("GET", "/discursivas/d2", aluno);
+    expect(ok.status).toBe(200);
+    expect((await ok.json()).discursiva.padraoResposta).toBeNull();
+    db.discursiva.findUnique.mockResolvedValue(d3);
+    expect((await chamar("GET", "/discursivas/d3", aluno)).status).toBe(404);
+    expect((await chamar("POST", "/discursivas/d3/tentativas", aluno, { texto: "x" })).status).toBe(404);
+    expect(db.tentativaDiscursiva.create).not.toHaveBeenCalled();
+  });
+
+  it("com foto, a tentativa pode ir sem texto", async () => {
+    db.tentativaDiscursiva.create.mockResolvedValue({ id: "t1", texto: "", nota: null, origem: "SIMULADO", createdAt: new Date(), fotos: [] });
+    const r = await chamar("POST", "/discursivas/d1/tentativas", aluno, { comFoto: true, origem: "SIMULADO" });
+    expect(r.status).toBe(201);
+    expect(db.tentativaDiscursiva.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ texto: "", origem: "SIMULADO" }) })
+    );
+    const semFoto = await chamar("POST", "/discursivas/d1/tentativas", aluno, {});
+    expect(semFoto.status).toBe(400);
+  });
+
+  const enviarFoto = (corpo: Buffer, tipo = "image/jpeg") =>
+    fetch(base + "/discursivas/tentativas/t1/fotos", { method: "POST", headers: { authorization: aluno, "content-type": tipo }, body: corpo });
+
+  it("foto: aceita JPEG de verdade na tentativa do próprio usuário", async () => {
+    db.tentativaDiscursiva.findFirst.mockResolvedValue({ id: "t1", texto: "", discursiva: { valor: 40, caracteresPorLinha: 70 }, _count: { fotos: 0 } });
+    db.fotoDiscursiva.create.mockResolvedValue({ id: "f1" });
+    const r = await enviarFoto(Buffer.from([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3]));
+    expect(r.status).toBe(201);
+    expect(db.tentativaDiscursiva.findFirst).toHaveBeenCalledWith(expect.objectContaining({ where: { id: "t1", userId: "u-aluno" } }));
+    expect(db.fotoDiscursiva.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ mime: "image/jpeg", bytes: 7 }) }));
+  });
+
+  it("foto: recusa arquivo que não é imagem, mesmo com Content-Type de imagem", async () => {
+    db.tentativaDiscursiva.findFirst.mockResolvedValue({ id: "t1", texto: "", discursiva: { valor: 40, caracteresPorLinha: 70 }, _count: { fotos: 0 } });
+    const r = await enviarFoto(Buffer.from("<script>alert(1)</script>"));
+    expect(r.status).toBe(400);
+    expect(db.fotoDiscursiva.create).not.toHaveBeenCalled();
+  });
+
+  it("foto: tentativa de outra pessoa é 404", async () => {
+    db.tentativaDiscursiva.findFirst.mockResolvedValue(null);
+    const r = await enviarFoto(Buffer.from([0xff, 0xd8, 0xff, 0xe0]));
+    expect(r.status).toBe(404);
+    expect(db.fotoDiscursiva.create).not.toHaveBeenCalled();
+  });
+
+  it("foto: só o dono baixa", async () => {
+    db.fotoDiscursiva.findFirst.mockResolvedValue(null);
+    const r = await chamar("GET", "/discursivas/fotos/f1", aluno);
+    expect(r.status).toBe(404);
+    expect(db.fotoDiscursiva.findFirst).toHaveBeenCalledWith(expect.objectContaining({ where: { id: "f1", tentativa: { userId: "u-aluno" } } }));
   });
 });
 

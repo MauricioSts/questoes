@@ -116,10 +116,11 @@ export interface ApiOptions {
   auth?: boolean; // default true
   keepalive?: boolean; // continua depois que a página fecha (corpo até 64 KB)
   arquivo?: Blob; // corpo binário (ex.: PDF), enviado como está, com o tipo do próprio arquivo
+  blob?: boolean; // devolve a resposta como Blob (ex.: imagem protegida por login)
 }
 
 export async function api<T = unknown>(path: string, opts: ApiOptions = {}): Promise<T> {
-  const { method = "GET", body, auth = true, keepalive, arquivo } = opts;
+  const { method = "GET", body, auth = true, keepalive, arquivo, blob } = opts;
 
   const scopedPath = scopePath(path, method);
   const scopedBody = scopeBody(path, method, body);
@@ -146,6 +147,7 @@ export async function api<T = unknown>(path: string, opts: ApiOptions = {}): Pro
   }
 
   if (res.status === 204) return undefined as T;
+  if (blob && res.ok) return (await res.blob()) as T;
 
   const data = await res.json().catch(() => null);
   if (!res.ok) {

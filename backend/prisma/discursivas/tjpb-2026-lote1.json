@@ -1,0 +1,9 @@
+{
+  "trilhaId": "tjpb-2026-dev",
+  "temas": [
+    {
+      "titulo": "Tema 1 – Modernização de sistema legado",
+      "enunciado": "O Tribunal de Justiça mantém um sistema monolítico de acompanhamento processual, desenvolvido há 15 anos, com lentidão nos horários de pico e dificuldade de evoluir sem quebrar funcionalidades existentes. A diretoria de TI avalia migrá-lo gradualmente para uma arquitetura de microsserviços.\n\nRedija um texto dissertativo abordando:\n\na) duas vantagens e dois riscos da migração de um monólito para microsserviços;\nb) uma estratégia para realizar essa migração de forma gradual, sem interromper o serviço aos usuários;\nc) como garantir a segurança na comunicação entre os serviços e no acesso dos usuários.\n\n(Até 30 linhas; 40 pontos.)\n\nLembrete: escreva à mão, sem consulta, em 1 hora no máximo. Use introdução, um parágrafo para cada item (a, b, c) e conclusão."
+    }
+  ]
+}

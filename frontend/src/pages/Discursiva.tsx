@@ -3,26 +3,30 @@
 // autoavaliação — a nota é o próprio usuário que dá, olhando o padrão de resposta, que
 // só abre depois da primeira tentativa. As regras (linhas, pontos, quem é corrigido)
 // vêm do perfil da prova; a tela só aparece na navegação quando o perfil tem discursiva.
+// Os temas de lote abrem um por terça; o próximo da fila aparece fechado, para adiantar.
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, ChevronRight, PenLine, RefreshCw } from "lucide-react";
+import { ArrowLeft, CalendarClock, ChevronRight, PenLine, RefreshCw, Trash2 } from "lucide-react";
 import { useConcurso } from "../store/concurso";
 import { usePerfilProva } from "../hooks/usePerfilProva";
 import { ApiError } from "../lib/api";
 import {
+  apagarTentativa,
+  buscarDiscursiva,
   contarLinhas,
   darNota,
-  enviarTentativa,
   listarDiscursivas,
   listarTentativas,
   type Discursiva as DiscursivaT,
+  type ListaDiscursivas,
   type TentativaDiscursiva,
 } from "../lib/discursiva";
 import { formatarPeso } from "../lib/simuladoConfig";
 import type { PerfilProva } from "../lib/notaCE";
 import { PageHeader } from "../components/PageHeader";
 import { Card } from "../components/Card";
-import { Button } from "../components/Button";
 import { Carregando } from "../components/Spinner";
+import { RespostaDiscursiva, lerNota } from "../components/RespostaDiscursiva";
+import { FotoDiscursiva } from "../components/FotoDiscursiva";
 
 type RegrasDiscursiva = NonNullable<PerfilProva["discursiva"]>;
 
@@ -32,50 +36,103 @@ function textoRegras(r: RegrasDiscursiva): string {
   return partes.join(" · ");
 }
 
+// "terça, 3 de nov."
+const diaDaLiberacao = (iso: string) =>
+  new Date(iso).toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "short" });
+
 export function Discursiva() {
   const { ativo } = useConcurso();
   const perfil = usePerfilProva();
   const trilhaId = ativo?.trilhaId ?? null;
   const regras = perfil?.dados.discursiva;
-  const [lista, setLista] = useState<DiscursivaT[] | null>(null);
+  const [dados, setDados] = useState<ListaDiscursivas | null>(null);
   const [erro, setErro] = useState(false);
   const [abertaId, setAbertaId] = useState<string | null>(null);
+  // Tema adiantado: ainda não está na lista (abre na terça), veio pelo GET /:id.
+  const [adiantada, setAdiantada] = useState<DiscursivaT | null>(null);
+  const [adiantando, setAdiantando] = useState(false);
+  const vazio: ListaDiscursivas = { discursivas: [], proxima: null, restantes: 0 };
 
   const carregar = useCallback(() => {
     if (!trilhaId) {
-      setLista([]);
+      setDados(vazio);
       return () => {};
     }
     let vivo = true;
     setErro(false);
     listarDiscursivas(trilhaId)
-      .then((l) => vivo && setLista(l))
+      .then((l) => vivo && setDados(l))
       .catch((e) => {
         if (!vivo) return;
         // 404: servidor ainda sem as discursivas; para quem usa, é o mesmo que nenhuma.
-        if (e instanceof ApiError && e.status === 404) setLista([]);
+        if (e instanceof ApiError && e.status === 404) setDados(vazio);
         else {
           setErro(true);
-          setLista([]);
+          setDados(vazio);
         }
       });
     return () => {
       vivo = false;
     };
-  }, [trilhaId]);
+  }, [trilhaId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    setLista(null);
+    setDados(null);
     setAbertaId(null);
+    setAdiantada(null);
     return carregar();
   }, [carregar]);
 
-  if (perfil === undefined || lista === null) return <Carregando />;
-
-  const aberta = lista.find((d) => d.id === abertaId);
-  if (aberta) {
-    return <EditorDiscursiva discursiva={aberta} onVoltar={() => setAbertaId(null)} onEnviada={carregar} />;
+  async function adiantar(id: string) {
+    setAdiantando(true);
+    try {
+      setAdiantada(await buscarDiscursiva(id));
+      setAbertaId(id);
+    } catch {
+      setErro(true);
+    } finally {
+      setAdiantando(false);
+    }
   }
+
+  if (perfil === undefined || dados === null) return <Carregando />;
+  const lista = dados.discursivas;
+
+  const aberta = lista.find((d) => d.id === abertaId) ?? (adiantada?.id === abertaId ? adiantada : undefined);
+  if (aberta) {
+    return (
+      <EditorDiscursiva
+        discursiva={aberta}
+        onVoltar={() => {
+          setAbertaId(null);
+          setAdiantada(null);
+        }}
+        onEnviada={carregar}
+      />
+    );
+  }
+
+  const cartaoProxima = dados.proxima && (
+    <Card className="flex flex-wrap items-center gap-4 p-5">
+      <CalendarClock size={20} className="flex-shrink-0 text-faint" strokeWidth={2} />
+      <div className="min-w-0 flex-1">
+        <p className="text-sm text-brand-ink">
+          Próxima: <b>{dados.proxima.titulo ?? "novo tema"}</b>
+        </p>
+        <p className="mt-0.5 text-xs text-faint">
+          Abre {diaDaLiberacao(dados.proxima.liberaEm)}
+          {dados.restantes > 0 && ` · mais ${dados.restantes} na fila`}
+        </p>
+      </div>
+      <button
+        onClick={() => adiantar(dados.proxima!.id)}
+        disabled={adiantando}
+        className="text-sm font-semibold text-brand-500 disabled:opacity-50"
+      >
+        {adiantando ? "Abrindo…" : "Adiantar"}
+      </button>
+    </Card>
+  );
 
   return (
     <div className="fadeup mx-auto max-w-[820px] pt-2">
@@ -98,6 +155,8 @@ export function Discursiva() {
             <RefreshCw size={14} strokeWidth={2.2} /> Tentar de novo
           </button>
         </Card>
+      ) : lista.length === 0 && dados.proxima ? (
+        cartaoProxima
       ) : lista.length === 0 ? (
         <Card className="space-y-3 p-6">
           <div className="flex items-center gap-3">
@@ -121,13 +180,16 @@ export function Discursiva() {
           </ul>
         </Card>
       ) : (
+        <div className="space-y-3">
+        {cartaoProxima}
         <ul className="space-y-3">
-          {lista.map((d, i) => (
+          {[...lista].reverse().map((d) => (
             <li key={d.id}>
               <button onClick={() => setAbertaId(d.id)} className="card card-hover flex w-full items-center gap-4 p-5 text-left">
-                <span className="font-display text-lg font-bold text-faint tabular-nums">{i + 1}</span>
+                <span className="font-display text-lg font-bold text-faint tabular-nums">{lista.indexOf(d) + 1}</span>
                 <div className="min-w-0 flex-1">
-                  <p className="line-clamp-2 text-sm text-brand-ink">{d.enunciado}</p>
+                  {d.titulo && <p className="font-display font-bold text-brand-ink">{d.titulo}</p>}
+                  <p className={`line-clamp-2 text-sm ${d.titulo ? "text-muted" : "text-brand-ink"}`}>{d.enunciado}</p>
                   <p className="mt-1 text-xs text-faint">
                     {d.maxLinhas} linhas · {formatarPeso(d.valor)} pontos
                     {(d.tentativas ?? 0) > 0
@@ -140,35 +202,10 @@ export function Discursiva() {
             </li>
           ))}
         </ul>
+        </div>
       )}
     </div>
   );
-}
-
-// Rascunho por tema no aparelho: sair da tela (ou F5) não apaga o que foi escrito.
-const chaveRascunho = (id: string) => `q_discursiva_${id}`;
-function lerRascunho(id: string): string {
-  try {
-    return localStorage.getItem(chaveRascunho(id)) ?? "";
-  } catch {
-    return "";
-  }
-}
-function gravarRascunho(id: string, texto: string) {
-  try {
-    if (texto) localStorage.setItem(chaveRascunho(id), texto);
-    else localStorage.removeItem(chaveRascunho(id));
-  } catch {
-    /* sem armazenamento: segue sem rascunho */
-  }
-}
-
-// Nota de 0 até o valor da questão; vazio = sem nota.
-function lerNota(bruto: string, valor: number): number | null | "invalida" {
-  if (bruto.trim() === "") return null;
-  const n = Number(bruto.replace(",", "."));
-  if (!Number.isFinite(n) || n < 0 || n > valor) return "invalida";
-  return n;
 }
 
 export function EditorDiscursiva({
@@ -180,10 +217,6 @@ export function EditorDiscursiva({
   onVoltar: () => void;
   onEnviada: () => void;
 }) {
-  const [texto, setTexto] = useState(() => lerRascunho(d.id));
-  const [nota, setNota] = useState("");
-  const [enviando, setEnviando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
   const [tentativas, setTentativas] = useState<TentativaDiscursiva[] | null>(null);
   // Padrão de resposta: vem na lista, nas tentativas e na resposta do envio.
   const [padrao, setPadrao] = useState<string | null>(d.padraoResposta);
@@ -202,29 +235,6 @@ export function EditorDiscursiva({
     };
   }, [d.id]);
 
-  const linhas = contarLinhas(texto, d.caracteresPorLinha);
-  const passou = linhas > d.maxLinhas;
-  const notaLida = lerNota(nota, d.valor);
-
-  async function enviar() {
-    if (!texto.trim() || passou || notaLida === "invalida") return;
-    setEnviando(true);
-    setErro(null);
-    try {
-      const { tentativa: t, padraoResposta } = await enviarTentativa(d.id, texto, notaLida ?? undefined);
-      setTentativas((l) => [t, ...(l ?? [])]);
-      if (padraoResposta != null) setPadrao(padraoResposta);
-      setTexto("");
-      setNota("");
-      gravarRascunho(d.id, "");
-      onEnviada(); // recarrega a lista: contagem de tentativas
-    } catch (e) {
-      setErro(e instanceof ApiError ? e.message : "Não deu para enviar agora. O rascunho continua salvo.");
-    } finally {
-      setEnviando(false);
-    }
-  }
-
   return (
     <div className="fadeup mx-auto max-w-[820px] space-y-5 pt-2">
       <button onClick={onVoltar} className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-brand-ink">
@@ -235,64 +245,26 @@ export function EditorDiscursiva({
         <p className="text-[11px] font-bold uppercase tracking-[.14em] text-faint">
           Vale {formatarPeso(d.valor)} pontos · até {d.maxLinhas} linhas
         </p>
+        {d.titulo && <h2 className="font-display text-lg font-extrabold text-brand-ink">{d.titulo}</h2>}
         <p className="whitespace-pre-line text-brand-ink">{d.enunciado}</p>
       </Card>
 
-      <Card className="space-y-4 p-6">
-        <div className="overflow-x-auto">
-          <textarea
-            value={texto}
-            onChange={(e) => {
-              setTexto(e.target.value);
-              gravarRascunho(d.id, e.target.value);
-            }}
-            rows={Math.min(d.maxLinhas, 18)}
-            spellCheck
-            aria-label="Sua resposta"
-            placeholder="Escreva sua resposta…"
-            // Largura de caracteresPorLinha colunas: a quebra na tela fica perto da da folha.
-            style={{ width: `calc(${d.caracteresPorLinha}ch + 1.5rem)`, maxWidth: "100%" }}
-            className="block resize-y rounded-xl border border-hair bg-surface p-3 font-mono text-sm leading-relaxed text-brand-ink outline-none focus:border-brand-300"
-          />
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-          <span className="tabular-nums" style={{ color: passou ? "var(--accentText)" : undefined }}>
-            <b className={passou ? "" : "text-brand-ink"}>{linhas}</b>
-            <span className={passou ? "" : "text-muted"}> / {d.maxLinhas} linhas</span>
-            {passou && " · passou do limite"}
-          </span>
-          <span className="text-xs text-faint">{d.caracteresPorLinha} caracteres por linha</span>
-        </div>
-
-        <label className="flex flex-wrap items-center gap-3 text-sm text-muted">
-          Sua nota (autoavaliação)
-          <input
-            type="text"
-            inputMode="decimal"
-            value={nota}
-            onChange={(e) => setNota(e.target.value)}
-            placeholder="—"
-            className="filter-select !w-24"
-          />
-          <span>de {formatarPeso(d.valor)}</span>
-        </label>
-        {notaLida === "invalida" && (
-          <p className="text-xs" style={{ color: "var(--accentText)" }}>
-            A nota vai de 0 a {formatarPeso(d.valor)}.
-          </p>
-        )}
-        {erro && (
-          <p className="rounded-xl border p-3 text-sm" style={{ borderColor: "var(--accentBd)", background: "var(--accentBg)", color: "var(--accentText)" }}>
-            {erro}
-          </p>
-        )}
-        <Button onClick={enviar} disabled={enviando || !texto.trim() || passou || notaLida === "invalida"} fullWidth>
-          {enviando ? "Enviando…" : "Enviar tentativa"}
-        </Button>
-        <p className="text-xs text-faint">
-          Pode dar a nota agora ou depois de ler o padrão de resposta, no histórico.
-        </p>
+      <Card className="p-6">
+        <RespostaDiscursiva
+          discursiva={d}
+          onEntregue={(t, padraoResposta) => {
+            setTentativas((l) => [t, ...(l ?? [])]);
+            if (padraoResposta != null) setPadrao(padraoResposta);
+            onEnviada(); // recarrega a lista: contagem de tentativas
+          }}
+        />
       </Card>
+
+      {d.temPadrao === false && (tentativas?.length ?? 0) > 0 && (
+        <Card className="p-5 text-sm text-muted">
+          Este tema não tem padrão de resposta: mande a foto (ou o texto) para correção e lance a nota no histórico.
+        </Card>
+      )}
 
       {padrao != null && (
         <Card className="space-y-2 p-6">
@@ -306,7 +278,9 @@ export function EditorDiscursiva({
         {tentativas === null ? (
           <Carregando className="py-4" />
         ) : tentativas.length === 0 ? (
-          <p className="text-sm text-muted">Nenhuma ainda. O padrão de resposta abre depois da primeira.</p>
+          <p className="text-sm text-muted">
+            {d.temPadrao === false ? "Nenhuma ainda." : "Nenhuma ainda. O padrão de resposta abre depois da primeira."}
+          </p>
         ) : (
           <ul className="space-y-3">
             {tentativas.map((t) => (
@@ -314,7 +288,11 @@ export function EditorDiscursiva({
                 key={t.id}
                 tentativa={t}
                 discursiva={d}
-                onNota={(nova) => setTentativas((l) => l?.map((x) => (x.id === nova.id ? nova : x)) ?? null)}
+                onNota={(nova) => setTentativas((l) => l?.map((x) => (x.id === nova.id ? { ...x, ...nova } : x)) ?? null)}
+                onApagada={() => {
+                  setTentativas((l) => l?.filter((x) => x.id !== t.id) ?? null);
+                  onEnviada();
+                }}
               />
             ))}
           </ul>
@@ -328,11 +306,26 @@ function ItemTentativa({
   tentativa: t,
   discursiva: d,
   onNota,
+  onApagada,
 }: {
   tentativa: TentativaDiscursiva;
   discursiva: DiscursivaT;
   onNota: (t: TentativaDiscursiva) => void;
+  onApagada: () => void;
 }) {
+  const [apagando, setApagando] = useState(false);
+  const fotos = t.fotos ?? [];
+
+  async function apagar() {
+    if (!window.confirm("Apagar esta tentativa (e as fotos dela)?")) return;
+    setApagando(true);
+    try {
+      await apagarTentativa(t.id);
+      onApagada();
+    } catch {
+      setApagando(false);
+    }
+  }
   const [nota, setNota] = useState(t.nota == null ? "" : String(t.nota));
   const [salvando, setSalvando] = useState(false);
   const [falhou, setFalhou] = useState(false);
@@ -359,7 +352,10 @@ function ItemTentativa({
           <span className="text-xs text-faint">
             {new Date(t.createdAt).toLocaleString("pt-BR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
             {" · "}
-            {t.linhas ?? contarLinhas(t.texto, d.caracteresPorLinha)} linhas
+            {t.texto.trim()
+              ? `${t.linhas ?? contarLinhas(t.texto, d.caracteresPorLinha)} linhas`
+              : `${fotos.length} ${fotos.length === 1 ? "foto" : "fotos"}`}
+            {t.origem === "SIMULADO" && " · simulado"}
           </span>
           <span className="flex items-center gap-2 text-sm text-muted">
             <input
@@ -384,10 +380,28 @@ function ItemTentativa({
             {falhou ? "Não deu para salvar a nota." : `A nota vai de 0 a ${formatarPeso(d.valor)}.`}
           </p>
         )}
-        <details>
-          <summary className="cursor-pointer text-sm font-semibold text-muted hover:text-brand-ink">Ver texto</summary>
-          <p className="mt-2 whitespace-pre-wrap break-words font-mono text-sm leading-relaxed text-brand-ink">{t.texto}</p>
-        </details>
+        {fotos.length > 0 && (
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {fotos.map((id, i) => (
+              <li key={id}>
+                <FotoDiscursiva id={id} rotulo={`Foto ${i + 1} da folha`} />
+              </li>
+            ))}
+          </ul>
+        )}
+        {t.texto.trim() && (
+          <details>
+            <summary className="cursor-pointer text-sm font-semibold text-muted hover:text-brand-ink">Ver texto</summary>
+            <p className="mt-2 whitespace-pre-wrap break-words font-mono text-sm leading-relaxed text-brand-ink">{t.texto}</p>
+          </details>
+        )}
+        <button
+          onClick={apagar}
+          disabled={apagando}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-faint hover:text-brand-ink disabled:opacity-50"
+        >
+          <Trash2 size={13} strokeWidth={2.2} /> {apagando ? "Apagando…" : "Apagar tentativa"}
+        </button>
       </Card>
     </li>
   );

@@ -141,12 +141,17 @@ model Discursiva {
   id                 String                @id @default(cuid())
   trilhaId           String
   trilha             Trilha                @relation(fields: [trilhaId], references: [id], onDelete: Cascade)
+  titulo             String? // "Modernização de sistema legado"
   enunciado          String
-  padraoResposta     String
+  // null = tema sem padrão de resposta (a correção é feita fora, a partir da foto/texto).
+  padraoResposta     String?
   maxLinhas          Int
   caracteresPorLinha Int
   valor              Float
   ordem              Int                   @default(0)
+  // Quando o tema abre para todos (terça 00h no fuso do usuário, nos lotes). null = já
+  // aberto. Antes disso só o PRÓXIMO da fila pode ser adiantado; os outros nem aparecem.
+  liberaEm           DateTime?
   createdAt          DateTime              @default(now())
   tentativas         TentativaDiscursiva[]
 
@@ -156,17 +161,34 @@ model Discursiva {
 // Uma resposta escrita pelo usuário. A nota é a autoavaliação dele (0..valor), comparando
 // com o padrão de resposta; null = ainda não se deu nota.
 model TentativaDiscursiva {
-  id           String     @id @default(cuid())
+  id           String           @id @default(cuid())
   discursivaId String
-  discursiva   Discursiva @relation(fields: [discursivaId], references: [id], onDelete: Cascade)
+  discursiva   Discursiva       @relation(fields: [discursivaId], references: [id], onDelete: Cascade)
   userId       String
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  texto        String
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  texto        String // "" quando a resposta é só a foto da folha
   nota         Float?
-  createdAt    DateTime   @default(now())
+  origem       String           @default("TREINO") // TREINO | SIMULADO
+  createdAt    DateTime         @default(now())
+  fotos        FotoDiscursiva[]
 
   @@index([userId, discursivaId, createdAt])
   @@index([discursivaId])
+}
+
+// Foto da folha escrita à mão (a resposta de verdade é no papel, como na prova). Fica no
+// próprio Postgres: são poucas por semana, já comprimidas no cliente, e assim entram no
+// pg_dump junto com o resto.
+model FotoDiscursiva {
+  id          String              @id @default(cuid())
+  tentativaId String
+  tentativa   TentativaDiscursiva @relation(fields: [tentativaId], references: [id], onDelete: Cascade)
+  mime        String
+  dados       Bytes
+  bytes       Int
+  createdAt   DateTime            @default(now())
+
+  @@index([tentativaId])
 }
 
 // Trilha de estudo: um conjunto de questões que vários usuários podem seguir. É o que

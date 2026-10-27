@@ -16,6 +16,7 @@ export interface ProvaEmAndamento {
   tempos: [number, number][]; // segundos creditados a cada questão
   iniciadaEm: number;
   restanteSegundos: number | null; // cronômetro; null = prova sem cronômetro
+  discursivaId?: string | null; // tema da discursiva que entrou na prova (TJPB)
   salvaEm: number;
 }
 
