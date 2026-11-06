@@ -10,8 +10,8 @@
   "arquetipo": "PROJ"
  },
  "acid-armor": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "acid-armor",
   "arquetipo": "BUFF"
  },
  "agility": {
@@ -35,8 +35,8 @@
   "arquetipo": "MULTI"
  },
  "barrier": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "barrier",
   "arquetipo": "BUFF"
  },
  "bide": {
@@ -131,8 +131,9 @@
   "arquetipo": "STRIKE"
  },
  "defense-curl": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "defense-curl",
+  "tipo": 0,
   "arquetipo": "BUFF"
  },
  "dig": {
@@ -141,8 +142,8 @@
   "arquetipo": "CHARGE"
  },
  "disable": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "disable",
   "arquetipo": "DEBUFF"
  },
  "dizzy-punch": {
@@ -162,8 +163,9 @@
   "arquetipo": "MULTI"
  },
  "double-team": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "double-team",
+  "tipo": 0,
   "arquetipo": "BUFF"
  },
  "double-edge": {
@@ -234,8 +236,8 @@
   "arquetipo": "BEAM"
  },
  "flash": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "flash",
   "arquetipo": "DEBUFF"
  },
  "fly": {
@@ -244,8 +246,8 @@
   "arquetipo": "CHARGE"
  },
  "focus-energy": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "focus-energy",
   "arquetipo": "BUFF"
  },
  "fury-attack": {
@@ -269,8 +271,8 @@
   "arquetipo": "DEBUFF"
  },
  "growth": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "growth",
   "arquetipo": "BUFF"
  },
  "guillotine": {
@@ -284,8 +286,8 @@
   "arquetipo": "PROJ"
  },
  "harden": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "harden",
   "arquetipo": "BUFF"
  },
  "haze": {
@@ -401,8 +403,8 @@
   "arquetipo": "STRIKE"
  },
  "meditate": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "meditate",
   "arquetipo": "BUFF"
  },
  "mega-drain": {
@@ -432,8 +434,9 @@
   "arquetipo": "SPECIAL"
  },
  "minimize": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "minimize",
+  "tipo": 0,
   "arquetipo": "BUFF"
  },
  "mirror-move": {
@@ -566,8 +569,8 @@
   "arquetipo": "STRIKE"
  },
  "sand-attack": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "sand-attack",
   "arquetipo": "DEBUFF"
  },
  "scratch": {
@@ -591,8 +594,9 @@
   "arquetipo": "SACRIFICE"
  },
  "sharpen": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "sharpen",
+  "tipo": 0,
   "arquetipo": "BUFF"
  },
  "sing": {
@@ -637,13 +641,13 @@
   "arquetipo": "PROJ"
  },
  "smokescreen": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "smokescreen",
   "arquetipo": "DEBUFF"
  },
  "soft-boiled": {
-  "modo": "recolor",
-  "receita": "recover",
+  "modo": "pixel",
+  "receita": "soft-boiled",
   "arquetipo": "HEAL"
  },
  "solar-beam": {
@@ -684,8 +688,8 @@
   "arquetipo": "STRIKE"
  },
  "string-shot": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "string-shot",
   "arquetipo": "DEBUFF"
  },
  "struggle": {
@@ -740,8 +744,8 @@
   "arquetipo": "STRIKE"
  },
  "tail-whip": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "tail-whip",
   "arquetipo": "DEBUFF"
  },
  "take-down": {
@@ -826,8 +830,8 @@
   "arquetipo": "STRIKE"
  },
  "whirlwind": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "whirlwind",
   "arquetipo": "DEBUFF"
  },
  "wing-attack": {
@@ -836,8 +840,8 @@
   "arquetipo": "STRIKE"
  },
  "withdraw": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "withdraw",
   "arquetipo": "BUFF"
  },
  "wrap": {
@@ -871,8 +875,8 @@
   "arquetipo": "MULTI"
  },
  "belly-drum": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "belly-drum",
   "arquetipo": "BUFF"
  },
  "bone-rush": {
@@ -881,8 +885,8 @@
   "arquetipo": "MULTI"
  },
  "charm": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "charm",
   "arquetipo": "DEBUFF"
  },
  "conversion-2": {
@@ -932,8 +936,8 @@
   "arquetipo": "STRIKE"
  },
  "encore": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "encore",
   "arquetipo": "DEBUFF"
  },
  "endure": {
@@ -1044,8 +1048,8 @@
   "arquetipo": "STRIKE"
  },
  "milk-drink": {
-  "modo": "recolor",
-  "receita": "recover",
+  "modo": "pixel",
+  "receita": "milk-drink",
   "arquetipo": "HEAL"
  },
  "mind-reader": {
@@ -1059,14 +1063,14 @@
   "arquetipo": "STRIKE"
  },
  "moonlight": {
-  "modo": "recolor",
-  "receita": "recover",
+  "modo": "pixel",
+  "receita": "moonlight",
   "tipo": 17,
   "arquetipo": "HEAL"
  },
  "morning-sun": {
-  "modo": "recolor",
-  "receita": "recover",
+  "modo": "pixel",
+  "receita": "morning-sun",
   "arquetipo": "HEAL"
  },
  "mud-slap": {
@@ -1245,13 +1249,13 @@
   "arquetipo": "STATUS"
  },
  "sweet-scent": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "sweet-scent",
   "arquetipo": "DEBUFF"
  },
  "synthesis": {
-  "modo": "recolor",
-  "receita": "recover",
+  "modo": "pixel",
+  "receita": "synthesis",
   "tipo": 4,
   "arquetipo": "HEAL"
  },
@@ -1343,8 +1347,8 @@
   "arquetipo": "STRIKE"
  },
  "bulk-up": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "bulk-up",
   "arquetipo": "BUFF"
  },
  "bullet-seed": {
@@ -1353,8 +1357,8 @@
   "arquetipo": "MULTI"
  },
  "calm-mind": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "calm-mind",
   "arquetipo": "BUFF"
  },
  "camouflage": {
@@ -1363,13 +1367,13 @@
   "arquetipo": "SPECIAL"
  },
  "charge": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "charge",
   "arquetipo": "BUFF"
  },
  "cosmic-power": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "cosmic-power",
   "arquetipo": "BUFF"
  },
  "covet": {
@@ -1399,8 +1403,8 @@
   "arquetipo": "STRIKE"
  },
  "dragon-dance": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "dragon-dance",
   "arquetipo": "BUFF"
  },
  "endeavor": {
@@ -1429,13 +1433,13 @@
   "arquetipo": "STRIKE"
  },
  "fake-tears": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "fake-tears",
   "arquetipo": "DEBUFF"
  },
  "feather-dance": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "feather-dance",
   "arquetipo": "DEBUFF"
  },
  "flatter": {
@@ -1486,8 +1490,8 @@
   "arquetipo": "BUFF"
  },
  "howl": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "howl",
   "arquetipo": "BUFF"
  },
  "hydro-cannon": {
@@ -1517,14 +1521,14 @@
   "arquetipo": "DEBUFF"
  },
  "ingrain": {
-  "modo": "recolor",
-  "receita": "recover",
+  "modo": "pixel",
+  "receita": "ingrain",
   "tipo": 4,
   "arquetipo": "HEAL"
  },
  "iron-defense": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "iron-defense",
   "arquetipo": "BUFF"
  },
  "knock-off": {
@@ -1702,8 +1706,8 @@
   "arquetipo": "STRIKE"
  },
  "slack-off": {
-  "modo": "recolor",
-  "receita": "recover",
+  "modo": "pixel",
+  "receita": "slack-off",
   "arquetipo": "HEAL"
  },
  "smelling-salts": {
@@ -1722,8 +1726,8 @@
   "arquetipo": "PROJ"
  },
  "stockpile": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "stockpile",
   "arquetipo": "BUFF"
  },
  "superpower": {
@@ -1737,8 +1741,8 @@
   "arquetipo": "HEAL"
  },
  "tail-glow": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "tail-glow",
   "arquetipo": "BUFF"
  },
  "taunt": {
@@ -1753,8 +1757,8 @@
   "arquetipo": "STATUS"
  },
  "tickle": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "tickle",
   "arquetipo": "DEBUFF"
  },
  "torment": {
@@ -1805,8 +1809,8 @@
   "arquetipo": "STATUS"
  },
  "wish": {
-  "modo": "recolor",
-  "receita": "recover",
+  "modo": "pixel",
+  "receita": "wish",
   "arquetipo": "HEAL"
  },
  "yawn": {
@@ -1833,8 +1837,8 @@
   "arquetipo": "STRIKE"
  },
  "aqua-ring": {
-  "modo": "recolor",
-  "receita": "recover",
+  "modo": "pixel",
+  "receita": "aqua-ring",
   "tipo": 2,
   "arquetipo": "HEAL"
  },
@@ -1891,8 +1895,8 @@
   "arquetipo": "STRIKE"
  },
  "captivate": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "captivate",
   "arquetipo": "DEBUFF"
  },
  "charge-beam": {
@@ -2033,8 +2037,8 @@
   "arquetipo": "STRIKE"
  },
  "gastro-acid": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "gastro-acid",
   "arquetipo": "DEBUFF"
  },
  "giga-impact": {
@@ -2156,8 +2160,8 @@
   "arquetipo": "PROJ"
  },
  "magnet-rise": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "magnet-rise",
   "arquetipo": "BUFF"
  },
  "me-first": {
@@ -2187,8 +2191,8 @@
   "arquetipo": "PROJ"
  },
  "nasty-plot": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "nasty-plot",
   "arquetipo": "BUFF"
  },
  "natural-gift": {
@@ -2233,8 +2237,8 @@
   "arquetipo": "SPECIAL"
  },
  "power-trick": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "power-trick",
   "arquetipo": "BUFF"
  },
  "power-whip": {
@@ -2268,8 +2272,8 @@
   "arquetipo": "STRIKE"
  },
  "rock-polish": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "rock-polish",
   "arquetipo": "BUFF"
  },
  "rock-wrecker": {
@@ -2278,8 +2282,8 @@
   "arquetipo": "PROJ"
  },
  "roost": {
-  "modo": "recolor",
-  "receita": "recover",
+  "modo": "pixel",
+  "receita": "roost",
   "tipo": 9,
   "arquetipo": "HEAL"
  },
@@ -2414,8 +2418,8 @@
   "arquetipo": "STRIKE"
  },
  "after-you": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "after-you",
   "arquetipo": "BUFF"
  },
  "ally-switch": {
@@ -2424,8 +2428,8 @@
   "arquetipo": "SPECIAL"
  },
  "autotomize": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "autotomize",
   "arquetipo": "BUFF"
  },
  "bestow": {
@@ -2464,13 +2468,13 @@
   "arquetipo": "AOE"
  },
  "coil": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "coil",
   "arquetipo": "BUFF"
  },
  "cotton-guard": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "cotton-guard",
   "arquetipo": "BUFF"
  },
  "dragon-tail": {
@@ -2584,8 +2588,8 @@
   "arquetipo": "STRIKE"
  },
  "heal-pulse": {
-  "modo": "recolor",
-  "receita": "recover",
+  "modo": "pixel",
+  "receita": "heal-pulse",
   "tipo": 10,
   "arquetipo": "HEAL"
  },
@@ -2681,8 +2685,8 @@
   "arquetipo": "PROJ"
  },
  "quash": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "quash",
   "arquetipo": "DEBUFF"
  },
  "quick-guard": {
@@ -2691,8 +2695,8 @@
   "arquetipo": "FIELD"
  },
  "quiver-dance": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "quiver-dance",
   "arquetipo": "BUFF"
  },
  "rage-powder": {
@@ -2747,18 +2751,18 @@
   "arquetipo": "PROJ"
  },
  "shell-smash": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "shell-smash",
   "arquetipo": "BUFF"
  },
  "shift-gear": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "shift-gear",
   "arquetipo": "BUFF"
  },
  "simple-beam": {
-  "modo": "recolor",
-  "receita": "_stat-down",
+  "modo": "pixel",
+  "receita": "simple-beam",
   "arquetipo": "DEBUFF"
  },
  "sky-drop": {
@@ -2864,8 +2868,8 @@
   "arquetipo": "FIELD"
  },
  "work-up": {
-  "modo": "recolor",
-  "receita": "_stat-up",
+  "modo": "pixel",
+  "receita": "work-up",
   "arquetipo": "BUFF"
  },
  "spiky-shield": {

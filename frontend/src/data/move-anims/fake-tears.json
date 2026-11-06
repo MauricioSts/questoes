@@ -1,0 +1,101 @@
+{
+ "slug": "fake-tears",
+ "pixel": true,
+ "note": "pixel art própria (original): lágrimas exageradas em gotas grandes",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Og-fake-tears",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 30,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     6,
+     2
+    ],
+    "interval": 4,
+    "life": 22,
+    "seed": 43,
+    "burst": 0.9,
+    "gravity": 0.08,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -22
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 16,
+   "end": 72,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  36
+ ],
+ "react": "status"
+}

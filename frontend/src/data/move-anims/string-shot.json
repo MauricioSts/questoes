@@ -1,0 +1,94 @@
+{
+ "slug": "string-shot",
+ "pixel": true,
+ "note": "pixel art própria (original): fios brancos de seda enrolando",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Og-string-shot",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 52,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     3
+    ],
+    "fps": 8
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 1
+      },
+      {
+       "t": 52,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 16,
+   "end": 72,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  36
+ ],
+ "react": "status"
+}

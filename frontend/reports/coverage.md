@@ -1,12 +1,12 @@
 # Cobertura das animações de golpes
 
-Gerado por `tools/gerar-receitas.mjs`. 559 golpes (gerações 1–5), 370 receitas, 599 de 623 arquivos do atlas usados.
+Gerado por `tools/gerar-receitas.mjs`. 559 golpes (gerações 1–5), 431 receitas, 662 de 686 arquivos do atlas usados.
 
 | | golpes |
 |---|---|
 | Cobertos com asset original | 91 |
-| Cobertos com aproximação (receita combinada ou reaproveitada) | 240 |
-| Pixel art própria (peças Px-* desenhadas por tools/pixel-kit.mjs) | 228 |
+| Cobertos com aproximação (receita combinada ou reaproveitada) | 179 |
+| Pixel art própria (peças Px-* desenhadas por tools/pixel-kit.mjs) | 289 |
 | Sem cobertura de sprite (fallback procedural por arquétipo) | 0 |
 
 Nenhuma receita é a animação do jogo: os PNGs são peças e o movimento foi recriado à mão.
@@ -111,8 +111,6 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 ## Cobertos com aproximação
 
 - Absorb: receita própria combinando peças: orbes e brilhos de Leech Seed voltando ao usuário
-- Acid Armor: usa `_stat-up`
-- Barrier: usa `_stat-up`
 - Bite: usa `crunch`
 - Blizzard: receita própria combinando peças: nevasca com cacos de gelo cruzando a tela
 - Body Slam: usa `stomp`
@@ -121,22 +119,15 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Comet Punch: usa `rock-smash` pintado de Normal
 - Confuse Ray: receita própria combinando peças: orbe de Sacred Fire + pássaros de confusão
 - Confusion: usa `psychic`
-- Defense Curl: usa `_stat-up`
-- Disable: usa `_stat-down`
 - Dizzy Punch: usa `rock-smash` pintado de Normal
-- Double Team: usa `_stat-up`
 - Double-Edge: usa `giga-impact`
 - Dream Eater: usa `nightmare` pintado de Psychic
 - Earthquake: receita própria combinando peças: rachaduras de Fissure + tremor
 - Egg Bomb: usa `mud-bomb` pintado de Normal
 - Ember: receita própria combinando peças: chama pequena de Fire Spin + Burn
 - Flamethrower: receita própria combinando peças: jato montado com chamas soltas de Fire Spin
-- Flash: usa `_stat-down`
-- Focus Energy: usa `_stat-up`
 - Fury Swipes: usa `scratch`
 - Glare: usa `mean-look`
-- Growth: usa `_stat-up`
-- Harden: usa `_stat-up`
 - Headbutt: usa `iron-head` pintado de Normal
 - High Jump Kick: usa `mega-kick` pintado de Fighting
 - Hyper Fang: usa `crunch` pintado de Normal
@@ -146,10 +137,8 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Karate Chop: usa `cut` pintado de Fighting
 - Leer: usa `scary-face`
 - Low Kick: usa `mega-kick` pintado de Fighting
-- Meditate: usa `_stat-up`
 - Mega Drain: usa `absorb`
 - Mega Punch: usa `rock-smash` pintado de Normal
-- Minimize: usa `_stat-up`
 - Petal Dance: usa `magical-leaf`
 - Poison Powder: usa `sleep-powder` pintado de Poison
 - Poison Sting: usa `pin-missile` pintado de Poison
@@ -159,35 +148,24 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Rock Slide: usa `rock-tomb`
 - Rock Throw: usa `rock-tomb`
 - Rolling Kick: usa `mega-kick` pintado de Fighting
-- Sand Attack: usa `_stat-down`
 - Screech: usa `growl`
-- Sharpen: usa `_stat-up`
 - Slash: usa `cut`
 - Sleep Powder: receita própria combinando peças: nuvens de Worry Seed como pó
 - Sludge: usa `mud-bomb` pintado de Poison
-- Smokescreen: usa `_stat-down`
-- Soft-Boiled: usa `recover`
 - Solar Beam: usa `flash-cannon` pintado de Grass
 - Spike Cannon: usa `pin-missile` pintado de Normal
 - Spore: usa `sleep-powder`
-- String Shot: usa `_stat-down`
 - Stun Spore: usa `sleep-powder`
 - Submission: usa `seismic-toss`
 - Super Fang: usa `crunch` pintado de Normal
 - Supersonic: usa `growl`
-- Tail Whip: usa `_stat-down`
 - Take Down: usa `giga-impact`
 - Thunder Punch: usa `fire-punch` pintado de Electric
 - Twineedle: usa `pin-missile`
 - Water Gun: usa `bubble-beam`
-- Whirlwind: usa `_stat-down`
-- Withdraw: usa `_stat-up`
-- Belly Drum: usa `_stat-up`
-- Charm: usa `_stat-down`
 - Cotton Spore: usa `sleep-powder`
 - Cross Chop: usa `x-scissor` pintado de Fighting
 - Dynamic Punch: receita própria combinando peças: fundo do asset + punho de Close Combat
-- Encore: usa `_stat-down`
 - Extreme Speed: usa `quick-attack`
 - Feint Attack: usa `sucker-punch`
 - Flame Wheel: receita própria combinando peças
@@ -197,10 +175,7 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Mach Punch: usa `rock-smash`
 - Magnitude: usa `earthquake`
 - Metal Claw: usa `scratch` pintado de Steel
-- Milk Drink: usa `recover`
 - Mind Reader: usa `lock-on`
-- Moonlight: usa `recover` pintado de Fairy
-- Morning Sun: usa `recover`
 - Mud-Slap: usa `mud-bomb`
 - Octazooka: usa `mud-shot` pintado de Water
 - Perish Song: usa `sing`
@@ -213,8 +188,6 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Spite: usa `grudge`
 - Sunny Day: receita própria combinando peças: bola de fogo como sol
 - Sweet Kiss: usa `confuse-ray` pintado de Fairy
-- Sweet Scent: usa `_stat-down`
-- Synthesis: usa `recover` pintado de Grass
 - Triple Kick: usa `double-kick`
 - Vital Throw: usa `seismic-toss`
 - Air Cutter: usa `psycho-cut` pintado de Flying
@@ -222,28 +195,18 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Blaze Kick: usa `mega-kick` pintado de Fire
 - Bounce: usa `fly`
 - Brick Break: usa `hammer-arm`
-- Bulk Up: usa `_stat-up`
-- Calm Mind: usa `_stat-up`
-- Charge: usa `_stat-up`
-- Cosmic Power: usa `_stat-up`
 - Crush Claw: usa `shadow-claw` pintado de Normal
 - Dive: usa `whirlpool`
-- Dragon Dance: usa `_stat-up`
 - Extrasensory: usa `psychic`
-- Fake Tears: usa `_stat-down`
-- Feather Dance: usa `_stat-down`
 - Flatter: usa `swagger` pintado de Dark
 - Focus Punch: usa `dynamic-punch`
 - Follow Me: usa `metronome`
 - Grass Whistle: usa `sing` pintado de Grass
-- Howl: usa `_stat-up`
 - Hydro Cannon: receita própria combinando peças: fundo do asset + jato de Hydro Pump
 - Hyper Voice: usa `growl`
 - Ice Ball: usa `ice-shard`
 - Icicle Spear: usa `ice-shard`
 - Imprison: usa `block` pintado de Psychic
-- Ingrain: usa `recover` pintado de Grass
-- Iron Defense: usa `_stat-up`
 - Leaf Blade: usa `psycho-cut` pintado de Grass
 - Metal Sound: usa `growl` pintado de Steel
 - Meteor Mash: usa `iron-head`
@@ -256,28 +219,21 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Sheer Cold: usa `blizzard`
 - Signal Beam: usa `flash-cannon` pintado de Bug
 - Sky Uppercut: usa `rock-smash`
-- Slack Off: usa `recover`
-- Stockpile: usa `_stat-up`
-- Tail Glow: usa `_stat-up`
 - Taunt: usa `swagger` pintado de Dark
-- Tickle: usa `_stat-down`
 - Torment: usa `block` pintado de Dark
 - Trick: receita própria combinando peças: copos embaralhando: não sabemos qual golpe do DP usa esta folha
 - Uproar: usa `growl`
 - Volt Tackle: usa `flare-blitz` pintado de Electric
 - Water Spout: usa `hydro-pump`
 - Will-O-Wisp: receita própria combinando peças: chamas de Grudge + chamas de Burn
-- Wish: usa `recover`
 - Yawn: usa `rest` pintado de Normal
 - Air Slash: usa `psycho-cut` pintado de Flying
 - Aqua Jet: usa `quick-attack` pintado de Water
-- Aqua Ring: usa `recover` pintado de Water
 - Assurance: usa `sucker-punch`
 - Aura Sphere: receita própria combinando peças: orbes da folha de Sacred Fire
 - Brave Bird: usa `flare-blitz` pintado de Flying
 - Brine: usa `water-pulse`
 - Bullet Punch: usa `rock-smash` pintado de Steel
-- Captivate: usa `_stat-down`
 - Charge Beam: usa `flash-cannon` pintado de Electric
 - Cross Poison: usa `x-scissor` pintado de Poison
 - Dark Pulse: usa `shadow-ball` pintado de Dark
@@ -289,24 +245,18 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Feint: usa `quick-attack`
 - Fire Fang: usa `crunch` pintado de Fire
 - Flare Blitz: receita própria combinando peças: fundo do asset + explosão de Fire Punch
-- Gastro Acid: usa `_stat-down`
 - Head Smash: usa `iron-head` pintado de Rock
 - Heal Block: usa `block` pintado de Psychic
 - Ice Fang: usa `crunch` pintado de Ice
 - Magma Storm: usa `fire-spin`
-- Magnet Rise: usa `_stat-up`
 - Miracle Eye: usa `foresight` pintado de Psychic
 - Mirror Shot: usa `flash-cannon`
 - Mud Bomb: receita própria combinando peças: bola de Mud Bomb + respingo de Mud Sport
-- Nasty Plot: usa `_stat-up`
 - Night Slash: usa `x-scissor` pintado de Dark
 - Ominous Wind: usa `shadow-ball`
 - Payback: usa `sucker-punch`
-- Power Trick: usa `_stat-up`
 - Roar of Time: usa `spacial-rend`
-- Rock Polish: usa `_stat-up`
 - Rock Wrecker: usa `rock-tomb`
-- Roost: usa `recover` pintado de Flying
 - Seed Bomb: usa `worry-seed`
 - Shadow Sneak: usa `shadow-force`
 - Stealth Rock: usa `spikes` pintado de Rock
@@ -314,16 +264,11 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Toxic Spikes: usa `spikes` pintado de Poison
 - U-turn: usa `quick-attack` pintado de Bug
 - Zen Headbutt: usa `iron-head` pintado de Psychic
-- After You: usa `_stat-up`
-- Autotomize: usa `_stat-up`
 - Bulldoze: usa `earthquake`
 - Circle Throw: usa `seismic-toss`
-- Coil: usa `_stat-up`
-- Cotton Guard: usa `_stat-up`
 - Echoed Voice: usa `growl`
 - Flame Charge: usa `flare-blitz`
 - Head Charge: usa `giga-impact`
-- Heal Pulse: usa `recover` pintado de Psychic
 - Heavy Slam: usa `iron-head`
 - Hex: usa `nightmare`
 - Hone Claws: usa `swords-dance` pintado de Dark
@@ -334,14 +279,9 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Magic Room: usa `trick-room`
 - Psyshock: usa `psychic`
 - Psystrike: usa `psychic`
-- Quash: usa `_stat-down`
-- Quiver Dance: usa `_stat-up`
 - Rage Powder: usa `sleep-powder` pintado de Bug
 - Relic Song: usa `sing`
 - Round: usa `sing`
-- Shell Smash: usa `_stat-up`
-- Shift Gear: usa `_stat-up`
-- Simple Beam: usa `_stat-down`
 - Sky Drop: usa `fly`
 - Snarl: usa `growl` pintado de Dark
 - Stored Power: usa `psychic`
@@ -349,13 +289,14 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Telekinesis: usa `kinesis`
 - Wild Charge: usa `flare-blitz` pintado de Electric
 - Wonder Room: usa `trick-room`
-- Work Up: usa `_stat-up`
 
 ## Pixel art própria
 
 - Acid: (projetil)
+- Acid Armor: (original): gosma roxa escorrendo e cobrindo
 - Aurora Beam: (feixe)
 - Barrage: (projetil)
+- Barrier: (original): placa hexagonal translúcida ciano
 - Bide: (carga)
 - Bind: (prender)
 - Bone Club: (osso)
@@ -365,14 +306,21 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Conversion: (brilhos)
 - Counter: (contato)
 - Crabhammer: (corte)
+- Defense Curl: (original): anel que se fecha em bola pintado de Normal
 - Dig: (cavar)
+- Disable: (original): X vermelho sobre uma corrente
 - Double Slap: (golpe)
+- Double Team: (original): três silhuetas translúcidas pintado de Normal
 - Dragon Rage: (feixe)
 - Drill Peck: (chifre)
 - Explosion: (explosao)
+- Flash: (original): clarão branco em tela cheia
+- Focus Energy: (original): veias de energia amarela convergindo
 - Fury Attack: (chifre)
+- Growth: (original): broto que cresce e floresce
 - Guillotine: (pinca)
 - Gust: (projetil)
+- Harden: (original): superfície que racha e cristaliza
 - Haze: (nuvem)
 - Horn Attack: (chifre)
 - Horn Drill: (chifre)
@@ -381,7 +329,9 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Lick: (chicote)
 - Light Screen: (barreira)
 - Lovely Kiss: (coracoes)
+- Meditate: (original): aura de lótus laranja
 - Mimic: (troca)
+- Minimize: (original): setas para dentro e ponto encolhendo pintado de Normal
 - Mirror Move: (brilhos)
 - Mist: (nuvem)
 - Night Shade: (ondas)
@@ -392,15 +342,21 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Psywave: (ondas)
 - Rage: (contato)
 - Reflect: (barreira)
+- Sand Attack: (original): punhado de areia jogado no rosto
 - Self-Destruct: (explosao)
+- Sharpen: (original): aresta que ganha brilho afiado pintado de Normal
 - Skull Bash: (carga)
 - Sky Attack: (carga)
 - Slam: (contato)
 - Smog: (nuvem)
+- Smokescreen: (original): nuvem de fumaça preta
+- Soft-Boiled: (original): ovo branco que se abre em brilho
 - Sonic Boom: (projetil)
 - Strength: (contato)
+- String Shot: (original): fios brancos de seda enrolando
 - Struggle: (contato)
 - Tackle: (contato)
+- Tail Whip: (original): cauda balançando com linhas de movimento
 - Teleport: (teleporte)
 - Thrash: (contato)
 - Thunder: (raio)
@@ -412,16 +368,21 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Tri Attack: (projetil)
 - Vine Whip: (chicote)
 - Vise Grip: (pinca)
+- Whirlwind: (original): redemoinho de vento cinza-claro
 - Wing Attack: (corte)
+- Withdraw: (original): casco que se fecha
 - Wrap: (prender)
 - Attract: (coracoes)
 - Beat Up: (golpe)
+- Belly Drum: (original): barriga batendo com ondas vermelhas
 - Bone Rush: (osso)
+- Charm: (original): coração rosa piscando
 - Conversion 2: (brilhos)
 - Curse: (maldicao)
 - Destiny Bond: (ondas)
 - Detect: (brilhos)
 - Dragon Breath: (feixe)
+- Encore: (original): holofote e 'BIS!' com estrelas
 - Endure: (aura)
 - False Swipe: (corte)
 - Flail: (contato)
@@ -431,7 +392,10 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Hidden Power: (orbitar)
 - Iron Tail: (chicote)
 - Megahorn: (chifre)
+- Milk Drink: (original): garrafa de leite e brilho branco
 - Mirror Coat: (feixe)
+- Moonlight: (original): lua crescente e luz azul descendo pintado de Fairy
+- Morning Sun: (original): sol nascendo laranja e amarelo
 - Outrage: (contato)
 - Pain Split: (troca)
 - Present: (projetil)
@@ -447,19 +411,31 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Spark: (choque)
 - Spider Web: (prender)
 - Steel Wing: (corte)
+- Sweet Scent: (original): nuvem rosa de perfume com flores
+- Synthesis: (original): raios de sol descendo e folhas absorvendo a luz pintado de Grass
 - Thief: (golpe)
 - Twister: (area)
 - Zap Cannon: (projetil)
 - Aromatherapy: (brilhos)
 - Assist: (brilhos)
 - Astonish: (contato)
+- Bulk Up: (original): bíceps inflando com linhas de força
+- Calm Mind: (original): olho fechado e ondas suaves lilás
 - Camouflage: (brilhos)
+- Charge: (original): faíscas elétricas se acumulando
+- Cosmic Power: (original): constelação dourada descendo
 - Covet: (contato)
 - Doom Desire: (futuro)
+- Dragon Dance: (original): chamas de dragão roxas e azuis em espiral
 - Endeavor: (contato)
 - Facade: (contato)
 - Fake Out: (palmas)
+- Fake Tears: (original): lágrimas exageradas em gotas grandes
+- Feather Dance: (original): penas brancas caindo
 - Hail: (clima)
+- Howl: (original): lua e ondas de uivo
+- Ingrain: (original): raízes descendo para o chão pintado de Grass
+- Iron Defense: (original): placas de aço que se juntam como armadura
 - Knock Off: (golpe)
 - Luster Purge: (feixe)
 - Magic Coat: (barreira)
@@ -477,16 +453,23 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Shock Wave: (ondas)
 - Silver Wind: (area)
 - Skill Swap: (troca)
+- Slack Off: (original): nuvenzinha de preguiça (zzz) e brilho verde
 - Smelling Salts: (golpe)
 - Snatch: (troca)
 - Spit Up: (projetil)
+- Stockpile: (original): esferas verdes que se acumulam
 - Superpower: (contato)
 - Swallow: (brilhos)
+- Tail Glow: (original): cauda brilhando com pontos de luz
+- Tickle: (original): pena fazendo cócegas com marcas de riso
 - Weather Ball: (projetil)
+- Wish: (original): estrela cadente que cai no usuário
+- Aqua Ring: (original): anel de bolhas d'água girando pintado de Water
 - Aqua Tail: (chicote)
 - Avalanche: (area)
 - Bug Bite: (pinca)
 - Bug Buzz: (ondas)
+- Captivate: (original): corações rosas com brilho
 - Chatter: (ondas)
 - Copycat: (brilhos)
 - Crush Grip: (golpe)
@@ -498,6 +481,7 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Dragon Rush: (contato)
 - Fling: (projetil)
 - Force Palm: (golpe)
+- Gastro Acid: (original): gosma verde ácida pingando
 - Grass Knot: (chicote)
 - Gravity: (clima)
 - Guard Swap: (troca)
@@ -509,16 +493,21 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Lucky Chant: (barreira)
 - Lunar Dance: (sacrificio)
 - Magnet Bomb: (projetil)
+- Magnet Rise: (original): ímã em U flutuando com linhas de campo
 - Me First: (troca)
 - Metal Burst: (feixe)
+- Nasty Plot: (original): balão com sorriso maligno e lâmpada escura
 - Natural Gift: (projetil)
 - Pluck: (chifre)
 - Power Gem: (projetil)
 - Power Swap: (troca)
+- Power Trick: (original): setas de ataque e defesa trocando de lugar
 - Power Whip: (chicote)
 - Psycho Shift: (troca)
 - Punishment: (golpe)
 - Rock Climb: (contato)
+- Rock Polish: (original): pedra brilhando com faíscas de polimento
+- Roost: (original): penas descendo e ninho pintado de Flying
 - Switcheroo: (troca)
 - Tailwind: (clima)
 - Trump Card: (projetil)
@@ -527,12 +516,16 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Wring Out: (golpe)
 - Acid Spray: (projetil)
 - Acrobatics: (contato)
+- After You: (original): mão em gesto de 'por favor' e seta
 - Ally Switch: (teleporte)
+- Autotomize: (original): pedaços de metal caindo e linhas de velocidade
 - Bestow: (troca)
 - Blue Flare: (area)
 - Bolt Strike: (choque)
 - Chip Away: (contato)
 - Clear Smog: (nuvem)
+- Coil: (original): serpente roxa se enrolando
+- Cotton Guard: (original): nuvens de algodão envolvendo
 - Dragon Tail: (chicote)
 - Drill Run: (chifre)
 - Dual Chop: (corte)
@@ -552,6 +545,7 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Glaciate: (area)
 - Grass Pledge: (area)
 - Guard Split: (troca)
+- Heal Pulse: (original): pulso de onda em cruz verde pintado de Psychic
 - Heart Stamp: (golpe)
 - Heat Crash: (contato)
 - Hurricane: (area)
@@ -560,7 +554,9 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Low Sweep: (chicote)
 - Night Daze: (ondas)
 - Power Split: (troca)
+- Quash: (original): mão empurrando para baixo com ondas escuras
 - Quick Guard: (barreira)
+- Quiver Dance: (original): pó de asa iridescente em espiral
 - Razor Shell: (corte)
 - Reflect Type: (troca)
 - Retaliate: (contato)
@@ -568,6 +564,9 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Scald: (projetil)
 - Searing Shot: (area)
 - Secret Sword: (corte)
+- Shell Smash: (original): casco que racha e explode
+- Shift Gear: (original): duas engrenagens girando
+- Simple Beam: (original): raio de pontinhos rosa e amarelo
 - Sludge Wave: (area)
 - Smack Down: (projetil)
 - Soak: (projetil)
@@ -581,6 +580,7 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Volt Switch: (choque)
 - Water Pledge: (area)
 - Wide Guard: (barreira)
+- Work Up: (original): punhos com linhas de esforço
 
 ## Sem cobertura (fallback procedural)
 

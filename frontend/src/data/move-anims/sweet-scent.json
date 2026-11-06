@@ -1,0 +1,107 @@
+{
+ "slug": "sweet-scent",
+ "pixel": true,
+ "note": "pixel art própria (original): nuvem rosa de perfume com flores",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Og-sweet-scent",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": true
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -20
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 1
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -26
+      },
+      {
+       "t": 30,
+       "v": 0,
+       "ease": "out"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 16,
+   "end": 72,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  36
+ ],
+ "react": "status"
+}

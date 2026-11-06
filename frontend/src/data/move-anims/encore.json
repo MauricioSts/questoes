@@ -1,0 +1,94 @@
+{
+ "slug": "encore",
+ "pixel": true,
+ "note": "pixel art própria (original): holofote e 'BIS!' com estrelas",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Og-encore",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 64,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     1,
+     2
+    ],
+    "fps": 6
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -8
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 56,
+       "v": 1
+      },
+      {
+       "t": 64,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 16,
+   "end": 72,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  36
+ ],
+ "react": "status"
+}

@@ -63,7 +63,15 @@ const mapa = {};
 for (const l of CATALOGO) {
   const propria = porSlug.get(l.slug);
   const reuso = REUSO[l.slug] ?? REUSO_ARQUETIPO[l.arquetipo];
-  if (propria?.pixel) {
+  const og = RECEITAS_OG.find((r) => r.slug === l.slug);
+  if (og) {
+    // sprite original: pinta pelo tipo do golpe se tem peça cinza (recolorível) ou se a base
+    // reaproveitada é de outro tipo (o brilho de cura do Recover vira verde no Synthesis)
+    const cinza = propria.layers.some((c) => c.asset.startsWith("Og-") && !c.keepColor);
+    const tipoBase = og.base ? tipoDe.get(og.base) : undefined;
+    const pinta = cinza || (tipoBase !== undefined && tipoBase !== l.tipo);
+    mapa[l.slug] = { modo: "pixel", receita: l.slug, ...(pinta ? { tipo: l.tipo } : {}), arquetipo: l.arquetipo };
+  } else if (propria?.pixel) {
     if (REUSO[l.slug]) erros.push(`${l.slug}: tem receita pixel e também REUSO`);
     const tipo = TIPO_PIXEL.get(l.slug);
     mapa[l.slug] = { modo: "pixel", receita: l.slug, ...(tipo !== undefined ? { tipo } : {}), arquetipo: l.arquetipo };

@@ -1,0 +1,134 @@
+{
+ "slug": "autotomize",
+ "pixel": true,
+ "note": "pixel art própria (original): pedaços de metal caindo e linhas de velocidade",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Og-autotomize--pedaco",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 24,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     14,
+     10
+    ],
+    "interval": 3,
+    "life": 22,
+    "seed": 40,
+    "gravity": 0.08,
+    "spin": 10,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-autotomize--velocidade",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 18,
+   "end": 44,
+   "frame": 0,
+   "z": 1,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      },
+      {
+       "t": 26,
+       "v": -30
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "user",
+   "start": 16,
+   "end": 72,
+   "frame": 0,
+   "maskActor": "user",
+   "scroll": {
+    "dx": 0,
+    "dy": -2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [],
+ "react": "self"
+}

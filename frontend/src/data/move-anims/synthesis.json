@@ -1,0 +1,138 @@
+{
+ "slug": "synthesis",
+ "pixel": true,
+ "note": "pixel art própria (original): raios de sol descendo e folhas absorvendo a luz",
+ "duration": 102,
+ "layers": [
+  {
+   "asset": "Og-synthesis",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 64,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     2,
+     2
+    ],
+    "fps": 6
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -16
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 56,
+       "v": 1
+      },
+      {
+       "t": 64,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Healing",
+   "anchor": "user",
+   "start": 18,
+   "end": 88,
+   "frame": 0,
+   "maskActor": "user",
+   "scroll": {
+    "dx": 0,
+    "dy": -3
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 8,
+       "v": 0.55
+      },
+      {
+       "t": 54,
+       "v": 0.55
+      },
+      {
+       "t": 70,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Healing",
+   "anchor": "user",
+   "start": 24,
+   "end": 92,
+   "spawn": {
+    "count": 10,
+    "spread": [
+     28,
+     24
+    ],
+    "interval": 5,
+    "frames": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "vy": -0.8,
+    "life": 20,
+    "seed": 2
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "hits": [],
+ "react": "self"
+}

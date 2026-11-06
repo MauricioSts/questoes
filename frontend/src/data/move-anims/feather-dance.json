@@ -1,0 +1,121 @@
+{
+ "slug": "feather-dance",
+ "pixel": true,
+ "note": "pixel art própria (original): penas brancas caindo",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Og-feather-dance",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 30,
+   "spawn": {
+    "count": 10,
+    "spread": [
+     26,
+     6
+    ],
+    "interval": 3,
+    "life": 34,
+    "seed": 42,
+    "vy": 0.9,
+    "spin": 3,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -40
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 10,
+       "v": 3
+      },
+      {
+       "t": 20,
+       "v": -3
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 16,
+   "end": 72,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  36
+ ],
+ "react": "status"
+}

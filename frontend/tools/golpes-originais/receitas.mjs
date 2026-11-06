@@ -13,6 +13,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PNG } from "pngjs";
+import { RECEITAS as RECEITAS_DP, REUSO, REUSO_ARQUETIPO } from "../receitas.mjs";
+import { POR_SLUG } from "../../src/components/poke/golpes/catalogo.ts";
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const SRC = path.join(RAIZ, "assets/golpes-originais");
@@ -319,4 +321,132 @@ export const RECEITAS_OG = [
 ];
 
 // o arquétipo é só do mapa; a receita gravada não o carrega
-export const receitasOgLimpas = () => RECEITAS_OG.map(({ arquetipo, ...r }) => r);
+// ---------- lote 2a: aumento/queda de atributo e cura ----------
+// A receita que o golpe reaproveitava (aura de atributo, brilho de cura) continua tocando por
+// cima do efeito próprio, deslocada de `atraso` quadros.
+const baseDe = (slug) => {
+  const b = REUSO[slug] ?? REUSO_ARQUETIPO[POR_SLUG.get(slug)?.arquetipo];
+  const r = RECEITAS_DP.find((x) => x.slug === b);
+  if (!r) throw new Error(`${slug}: sem receita base (${b})`);
+  return r;
+};
+const desloca = (l, dt) => ({ ...l, start: l.start + dt, end: l.end + dt });
+function comBase(slug, note, minhas, { atraso = 0, dur = 0, actor, screen, hits, cinza = false } = {}) {
+  const b = baseDe(slug);
+  const fim = Math.max(dur, ...minhas.map((l) => l.end + (l.spawn?.life ?? 0)));
+  return R(slug, POR_SLUG.get(slug).arquetipo, note, {
+    duration: Math.max(fim, b.duration + atraso) + 4,
+    layers: [...minhas.map((l) => (cinza && l.asset.startsWith("Og-") ? { ...l, keepColor: false } : l)), ...b.layers.map((l) => desloca(l, atraso))],
+    hits: hits ?? (b.hits ?? []).map((h) => h + atraso),
+    ...(b.react ? { react: b.react } : {}),
+    ...(actor ? { actor } : {}),
+    ...(screen ?? b.screen ? { screen: screen ?? b.screen } : {}),
+    base: b.slug,
+  });
+}
+// ícone animado que flutua sobre quem usa (buff) ou sobre o alvo (debuff)
+const icone = (asset, quem, frames, fps, { y = -26, start = 0, dur, loop = false, z = 4, tracks = {}, ...o } = {}) => {
+  const n = Array.isArray(frames) ? frames : intervalo(frames);
+  const d = dur ?? Math.max(30, Math.ceil((n.length * 60) / fps) + 14);
+  // acima da cabeça do usuário fica a caixa de HP do inimigo (DOM, por cima do canvas):
+  // ícone alto do usuário vai para a frente dele, na altura do peito
+  const desvia = quem === "user" && y < -20;
+  const tr = desvia ? { y: k([0, -10]), x: k([0, 24]) } : { y: k([0, y]) };
+  return L(asset, { anchor: quem, start, end: start + d, frameSeq: seq(n, fps, loop), z, ...o, tracks: { ...tr, alpha: fade(d, 3, 8), ...tracks } });
+};
+const U = "user";
+const T = "target";
+// [slug, nota, camadas, opções de comBase]
+const LOTE_2A = [
+  ["growth", "broto que cresce e floresce", [icone("growth", U, 4, 8, { y: -30 })], { atraso: 14 }],
+  ["withdraw", "casco que se fecha", [icone("withdraw", U, [0, 1, 2, 2], 8, { y: -6 })], { atraso: 10 }],
+  ["iron-defense", "placas de aço que se juntam como armadura", [icone("iron-defense", U, [0, 1, 2, 3, 3], 10, { y: -6 })], { atraso: 12 }],
+  ["harden", "superfície que racha e cristaliza", [icone("harden", U, [0, 1, 2, 2], 7, { y: -6 })], { atraso: 12 }],
+  ["quiver-dance", "pó de asa iridescente em espiral", [icone("quiver-dance", U, 4, 12, { y: -10, loop: true, dur: 54 })], { atraso: 8 }],
+  ["focus-energy", "veias de energia amarela convergindo", [icone("focus-energy", U, [0, 1, 2, 3, 3], 10, { y: -6 })], { atraso: 16 }],
+  ["stockpile", "esferas verdes que se acumulam", [icone("stockpile", U, [0, 1, 2, 2, 2], 6, { y: -30 })], { atraso: 14 }],
+  ["coil", "serpente roxa se enrolando", [icone("coil", U, [0, 1, 2, 3, 3], 8, { y: -4 })], { atraso: 12 }],
+  ["double-team", "três silhuetas translúcidas", [icone("double-team", U, [0, 1, 2, 1, 2], 8, { y: 0, z: 2 })], { atraso: 16, cinza: true }],
+  ["defense-curl", "anel que se fecha em bola", [icone("defense-curl", U, [0, 1, 2, 3, 3], 10, { y: -4 })], { atraso: 10, cinza: true }],
+  ["minimize", "setas para dentro e ponto encolhendo", [icone("minimize", U, [0, 1, 2, 3, 3], 8, { y: -4 })], { atraso: 12, cinza: true, actor: [{ who: "user", t: 6, kind: "blink", dur: 24 }] }],
+  ["cosmic-power", "constelação dourada descendo", [icone("cosmic-power", U, [0, 1, 2, 2, 2], 7, { y: -60, tracks: { y: k([0, -60], [30, -24, "out"]) } })], { atraso: 16 }],
+  ["after-you", "mão em gesto de 'por favor' e seta", [icone("after-you", T, [0, 1, 1], 5, { y: -26 })], { atraso: 10 }],
+  ["nasty-plot", "balão com sorriso maligno e lâmpada escura", [icone("nasty-plot", U, [0, 1, 2, 2, 2], 6, { y: -34, tracks: { x: k([0, 14]) } })], { atraso: 18 }],
+  ["belly-drum", "barriga batendo com ondas vermelhas", [icone("belly-drum", U, [0, 1, 2, 0, 1, 2], 10, { y: 0 })], { atraso: 14, screen: { shake: [{ t: 4, dur: 4, amp: 1 }, { t: 10, dur: 4, amp: 1 }, { t: 16, dur: 4, amp: 2 }] } }],
+  ["calm-mind", "olho fechado e ondas suaves lilás", [icone("calm-mind", U, [0, 1, 2, 2], 6, { y: -30 })], { atraso: 14 }],
+  ["barrier", "placa hexagonal translúcida ciano", [icone("barrier", U, [0, 1, 2, 1], 8, { y: -4, tracks: { x: k([0, 16]) } })], { atraso: 10 }],
+  ["rock-polish", "pedra brilhando com faíscas de polimento", [icone("rock-polish", U, [0, 1, 2, 1, 2], 8, { y: -30 })], { atraso: 12 }],
+  ["magnet-rise", "ímã em U flutuando com linhas de campo", [icone("magnet-rise", U, [0, 1], 4, { y: -34, loop: true, dur: 50 })], { atraso: 10, actor: [{ who: "user", t: 4, kind: "hop", dur: 30 }] }],
+  ["acid-armor", "gosma roxa escorrendo e cobrindo", [icone("acid-armor", U, [0, 1, 2, 3, 3], 7, { y: 0, z: 3 })], { atraso: 20 }],
+  ["shell-smash", "casco que racha e explode", [icone("shell-smash", U, [0, 1, 2, 3], 8, { y: -6 })], { atraso: 20, screen: { shake: [{ t: 16, dur: 8, amp: 2 }] } }],
+  ["meditate", "aura de lótus laranja", [icone("meditate", U, [0, 1, 2, 2], 6, { y: 16, z: 1 })], { atraso: 14 }],
+  ["charge", "faíscas elétricas se acumulando", [icone("charge", U, [0, 1, 2, 3, 3], 10, { y: -4 })], { atraso: 14 }],
+  ["dragon-dance", "chamas de dragão roxas e azuis em espiral", [icone("dragon-dance", U, 6, 14, { y: -4, loop: true, dur: 54, z: 3 })], { atraso: 10 }],
+  ["work-up", "punhos com linhas de esforço", [icone("work-up", U, [0, 1], 10, { y: -30, loop: true, dur: 36 })], { atraso: 10 }],
+  ["sharpen", "aresta que ganha brilho afiado", [icone("sharpen", U, [0, 1, 2, 2], 8, { y: -30 })], { atraso: 12, cinza: true }],
+  ["cotton-guard", "nuvens de algodão envolvendo", [icone("cotton-guard", U, [0, 1, 2, 2, 2], 8, { y: 0, z: 3 })], { atraso: 14 }],
+  [
+    "autotomize",
+    "pedaços de metal caindo e linhas de velocidade",
+    [
+      L("autotomize--pedaco", { anchor: "user", start: 0, end: 24, spawn: { count: 6, spread: [14, 10], interval: 3, life: 22, seed: 40, gravity: 0.08, spin: 10, frames: [0, 1, 2] }, z: 3, tracks: { alpha: fade(22, 1, 6) } }),
+      L("autotomize--velocidade", { anchor: "user", start: 18, end: 44, frame: 0, z: 1, tracks: { x: k([0, -10], [26, -30]), alpha: fade(26, 2, 8) } }),
+    ],
+    { atraso: 16 },
+  ],
+  ["power-trick", "setas de ataque e defesa trocando de lugar", [icone("power-trick", U, [0, 1, 2, 3, 3], 7, { y: -30 })], { atraso: 12 }],
+  ["howl", "lua e ondas de uivo", [icone("howl", U, [0, 1, 2, 2], 6, { y: -30 })], { atraso: 12 }],
+  ["bulk-up", "bíceps inflando com linhas de força", [icone("bulk-up", U, [0, 1, 2, 1, 2], 8, { y: -30 })], { atraso: 12 }],
+  ["tail-glow", "cauda brilhando com pontos de luz", [icone("tail-glow", U, [0, 1, 2, 2, 2], 8, { y: 8 })], { atraso: 14 }],
+  ["shift-gear", "duas engrenagens girando", [icone("shift-gear", U, 4, 12, { y: -30, loop: true, dur: 44 })], { atraso: 10 }],
+  ["sweet-scent", "nuvem rosa de perfume com flores", [icone("sweet-scent", T, 4, 8, { y: -20, loop: true, dur: 50, tracks: { x: k([0, -26], [30, 0, "out"]) } })], { atraso: 16 }],
+  ["smokescreen", "nuvem de fumaça preta", [icone("smokescreen", T, [0, 1, 2, 2, 2, 3], 8, { y: -4, z: 4 })], { atraso: 14 }],
+  ["tail-whip", "cauda balançando com linhas de movimento", [icone("tail-whip", U, [0, 1, 2, 1, 0, 1, 2], 12, { y: 10, tracks: { x: k([0, -14]) } })], { atraso: 18 }],
+  ["string-shot", "fios brancos de seda enrolando", [icone("string-shot", T, [0, 1, 2, 3, 3], 8, { y: 0, z: 3 })], { atraso: 16 }],
+  ["whirlwind", "redemoinho de vento cinza-claro", [icone("whirlwind", T, 4, 14, { y: -4, loop: true, dur: 44, z: 3 })], { atraso: 12, actor: [{ who: "target", t: 20, kind: "shake", dur: 20 }] }],
+  ["captivate", "corações rosas com brilho", [L("captivate", { anchor: "user", to: "target", start: 0, end: 30, frameSeq: seq([0, 1, 2], 8, true), z: 4, tracks: { p: k([0, 0], [30, 1, "out"]), y: k([0, -20]), alpha: fade(30, 2, 6) } })], { atraso: 16 }],
+  [
+    "sand-attack",
+    "punhado de areia jogado no rosto",
+    [
+      L("sand-attack--grao", { anchor: "user", to: "target", start: 0, end: 18, spawn: { count: 10, spread: [6, 6], interval: 1, life: 16, seed: 41, frames: [0, 1, 2] }, tracks: { p: k([0, 0], [16, 1]), alpha: fade(16, 1, 2) } }),
+      L("sand-attack--nuvem", { anchor: "target", start: 14, end: 40, frameSeq: seq([0, 1, 2], 8), z: 4, tracks: { y: k([0, -16]), alpha: fade(26, 1, 8) } }),
+    ],
+    { atraso: 16 },
+  ],
+  ["feather-dance", "penas brancas caindo", [L("feather-dance", { anchor: "target", start: 0, end: 30, spawn: { count: 10, spread: [26, 6], interval: 3, life: 34, seed: 42, vy: 0.9, spin: 3, frames: [0, 1, 2] }, z: 4, tracks: { y: k([0, -40]), x: k([0, 0], [10, 3], [20, -3], [34, 0]), alpha: fade(34, 3, 8) } })], { atraso: 16 }],
+  ["gastro-acid", "gosma verde ácida pingando", [icone("gastro-acid", T, 4, 8, { y: -18, loop: true, dur: 50 })], { atraso: 14 }],
+  ["encore", "holofote e 'BIS!' com estrelas", [icone("encore", T, [0, 1, 2, 1, 2], 6, { y: -8 })], { atraso: 16 }],
+  ["disable", "X vermelho sobre uma corrente", [icone("disable", T, [0, 1, 2, 2], 8, { y: -20 })], { atraso: 12 }],
+  ["tickle", "pena fazendo cócegas com marcas de riso", [icone("tickle", T, [0, 1, 2, 1, 2], 8, { y: -14 })], { atraso: 14, actor: [{ who: "target", t: 10, kind: "shake", dur: 24 }] }],
+  ["fake-tears", "lágrimas exageradas em gotas grandes", [L("fake-tears", { anchor: "user", start: 0, end: 30, spawn: { count: 8, spread: [6, 2], interval: 4, life: 22, seed: 43, burst: 0.9, gravity: 0.08, frames: [0, 1, 2] }, z: 4, tracks: { y: k([0, -22]), alpha: fade(22, 1, 6) } })], { atraso: 16 }],
+  ["charm", "coração rosa piscando", [icone("charm", T, [0, 1, 2, 1, 0, 1], 8, { y: -26 })], { atraso: 12 }],
+  ["quash", "mão empurrando para baixo com ondas escuras", [icone("quash", T, [0, 1, 2, 2], 8, { y: -20 })], { atraso: 12, screen: { shake: [{ t: 8, dur: 8, amp: 2 }] } }],
+  // a folha de tela cheia vai no meio do DS e o clarão do motor cobre a arena inteira (que pode ser mais larga que 256×Sds)
+  ["flash", "clarão branco em tela cheia", [L("flash", { anchor: "screen-center", ds: true, start: 0, end: 24, frameSeq: seq([0, 0, 1, 2], 10), z: 5, tracks: { alpha: fade(24, 1, 6) } })], { atraso: 14, screen: { flash: [{ t: 0, dur: 22, color: "#FFFFFF", alpha: 0.85 }] } }],
+  ["simple-beam", "raio de pontinhos rosa e amarelo", [viagem("simple-beam", 0, 24, { frameSeq: seq([0, 1], 12, true), orient: true, tracks: { p: k([0, 0.2], [24, 0.85]) } })], { atraso: 18 }],
+  // cura
+  ["synthesis", "raios de sol descendo e folhas absorvendo a luz", [icone("synthesis", U, [0, 1, 2, 2, 2], 6, { y: -16, z: 3 })], { atraso: 18 }],
+  [
+    "roost",
+    "penas descendo e ninho",
+    [
+      L("roost--ninho", { anchor: "field-user", start: 0, end: 70, frame: 0, z: 1, tracks: { y: k([0, -2]), alpha: fade(70, 6, 10) } }),
+      L("feather-dance", { anchor: "user", start: 0, end: 28, spawn: { count: 7, spread: [22, 4], interval: 4, life: 34, seed: 44, vy: 0.8, spin: 3, frames: [0, 1, 2] }, z: 4, tracks: { y: k([0, -40]), alpha: fade(34, 3, 8) } }),
+    ],
+    { atraso: 14 },
+  ],
+  ["moonlight", "lua crescente e luz azul descendo", [icone("moonlight", U, [0, 1, 2, 2, 2], 6, { y: -26, z: 3 })], { atraso: 16 }],
+  ["slack-off", "nuvenzinha de preguiça (zzz) e brilho verde", [icone("slack-off", U, [0, 1, 2, 2], 4, { y: -34 })], { atraso: 16 }],
+  ["heal-pulse", "pulso de onda em cruz verde", [icone("heal-pulse", T, [0, 1, 2, 3], 8, { y: -4, z: 3 })], { atraso: 12 }],
+  ["aqua-ring", "anel de bolhas d'água girando", [icone("aqua-ring", U, 4, 12, { y: 8, loop: true, dur: 70, z: 3 })], { atraso: 8 }],
+  ["soft-boiled", "ovo branco que se abre em brilho", [icone("soft-boiled", U, [0, 1, 2, 3, 3], 7, { y: -32 })], { atraso: 20 }],
+  ["ingrain", "raízes descendo para o chão", [L("ingrain", { anchor: "field-user", start: 0, end: 70, frameSeq: seq([0, 1, 2, 3], 8), z: 1, tracks: { y: k([0, 8]), alpha: fade(70, 3, 10) } })], { atraso: 16 }],
+  ["wish", "estrela cadente que cai no usuário", [L("wish--estrela", { anchor: "user", start: 0, end: 24, frame: 0, z: 4, tracks: { x: k([0, -50], [24, 0, "in"]), y: k([0, -110], [24, -20, "in"]), rot: k([0, 35]), alpha: fade(24, 2, 2) } })], { atraso: 22 }],
+  ["morning-sun", "sol nascendo laranja e amarelo", [icone("morning-sun", U, [0, 1, 2, 3, 3], 6, { y: -34 })], { atraso: 16 }],
+  ["milk-drink", "garrafa de leite e brilho branco", [icone("milk-drink", U, [0, 1, 2, 2], 5, { y: -32 })], { atraso: 18 }],
+];
+RECEITAS_OG.push(...LOTE_2A.map(([slug, note, camadas, o]) => comBase(slug, note, camadas, o)));
+
+// arquétipo e base são só do mapa; a receita gravada não os carrega
+export const receitasOgLimpas = () => RECEITAS_OG.map(({ arquetipo, base, ...r }) => r);

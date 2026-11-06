@@ -1,0 +1,97 @@
+{
+ "slug": "simple-beam",
+ "pixel": true,
+ "note": "pixel art própria (original): raio de pontinhos rosa e amarelo",
+ "duration": 82,
+ "layers": [
+  {
+   "asset": "Og-simple-beam",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 24,
+   "frameSeq": {
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 12,
+    "loop": true
+   },
+   "orient": true,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.2
+      },
+      {
+       "t": 24,
+       "v": 0.85
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 18,
+   "end": 74,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  38
+ ],
+ "react": "status"
+}

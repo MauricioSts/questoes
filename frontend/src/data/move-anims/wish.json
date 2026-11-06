@@ -1,0 +1,155 @@
+{
+ "slug": "wish",
+ "pixel": true,
+ "note": "pixel art própria (original): estrela cadente que cai no usuário",
+ "duration": 106,
+ "layers": [
+  {
+   "asset": "Og-wish--estrela",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 24,
+   "frame": 0,
+   "z": 4,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -50
+      },
+      {
+       "t": 24,
+       "v": 0,
+       "ease": "in"
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -110
+      },
+      {
+       "t": 24,
+       "v": -20,
+       "ease": "in"
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 35
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Healing",
+   "anchor": "user",
+   "start": 22,
+   "end": 92,
+   "frame": 0,
+   "maskActor": "user",
+   "scroll": {
+    "dx": 0,
+    "dy": -3
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 8,
+       "v": 0.55
+      },
+      {
+       "t": 54,
+       "v": 0.55
+      },
+      {
+       "t": 70,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Healing",
+   "anchor": "user",
+   "start": 28,
+   "end": 96,
+   "spawn": {
+    "count": 10,
+    "spread": [
+     28,
+     24
+    ],
+    "interval": 5,
+    "frames": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "vy": -0.8,
+    "life": 20,
+    "seed": 2
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "hits": [],
+ "react": "self"
+}

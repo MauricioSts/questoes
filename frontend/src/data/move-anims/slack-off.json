@@ -1,0 +1,145 @@
+{
+ "slug": "slack-off",
+ "pixel": true,
+ "note": "pixel art própria (original): nuvenzinha de preguiça (zzz) e brilho verde",
+ "duration": 100,
+ "layers": [
+  {
+   "asset": "Og-slack-off",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 74,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     2
+    ],
+    "fps": 4
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 24
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 66,
+       "v": 1
+      },
+      {
+       "t": 74,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Healing",
+   "anchor": "user",
+   "start": 16,
+   "end": 86,
+   "frame": 0,
+   "maskActor": "user",
+   "scroll": {
+    "dx": 0,
+    "dy": -3
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 8,
+       "v": 0.55
+      },
+      {
+       "t": 54,
+       "v": 0.55
+      },
+      {
+       "t": 70,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Healing",
+   "anchor": "user",
+   "start": 22,
+   "end": 90,
+   "spawn": {
+    "count": 10,
+    "spread": [
+     28,
+     24
+    ],
+    "interval": 5,
+    "frames": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "vy": -0.8,
+    "life": 20,
+    "seed": 2
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "hits": [],
+ "react": "self"
+}

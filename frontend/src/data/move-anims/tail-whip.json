@@ -1,0 +1,104 @@
+{
+ "slug": "tail-whip",
+ "pixel": true,
+ "note": "pixel art própria (original): cauda balançando com linhas de movimento",
+ "duration": 82,
+ "layers": [
+  {
+   "asset": "Og-tail-whip",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 49,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     1,
+     0,
+     1,
+     2
+    ],
+    "fps": 12
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 10
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 41,
+       "v": 1
+      },
+      {
+       "t": 49,
+       "v": 0
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -14
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 18,
+   "end": 74,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  38
+ ],
+ "react": "status"
+}

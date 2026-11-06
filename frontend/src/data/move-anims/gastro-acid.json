@@ -1,0 +1,94 @@
+{
+ "slug": "gastro-acid",
+ "pixel": true,
+ "note": "pixel art própria (original): gosma verde ácida pingando",
+ "duration": 78,
+ "layers": [
+  {
+   "asset": "Og-gastro-acid",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": true
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -18
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 1
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 14,
+   "end": 70,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  34
+ ],
+ "react": "status"
+}

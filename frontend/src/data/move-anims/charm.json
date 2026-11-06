@@ -1,0 +1,95 @@
+{
+ "slug": "charm",
+ "pixel": true,
+ "note": "pixel art própria (original): coração rosa piscando",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Og-charm",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 59,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     1,
+     0,
+     1
+    ],
+    "fps": 8
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -26
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 51,
+       "v": 1
+      },
+      {
+       "t": 59,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 12,
+   "end": 68,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  32
+ ],
+ "react": "status"
+}

@@ -1,0 +1,92 @@
+{
+ "slug": "focus-energy",
+ "pixel": true,
+ "note": "pixel art própria (original): veias de energia amarela convergindo",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Og-focus-energy",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 44,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     3
+    ],
+    "fps": 10
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 36,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "user",
+   "start": 16,
+   "end": 72,
+   "frame": 0,
+   "maskActor": "user",
+   "scroll": {
+    "dx": 0,
+    "dy": -2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [],
+ "react": "self"
+}

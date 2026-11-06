@@ -1,0 +1,102 @@
+{
+ "slug": "tickle",
+ "pixel": true,
+ "note": "pixel art própria (original): pena fazendo cócegas com marcas de riso",
+ "duration": 78,
+ "layers": [
+  {
+   "asset": "Og-tickle",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 52,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     1,
+     2
+    ],
+    "fps": 8
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -14
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 1
+      },
+      {
+       "t": 52,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 14,
+   "end": 70,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  34
+ ],
+ "react": "status",
+ "actor": [
+  {
+   "who": "target",
+   "t": 10,
+   "kind": "shake",
+   "dur": 24
+  }
+ ]
+}

@@ -1,0 +1,100 @@
+{
+ "slug": "rock-polish",
+ "pixel": true,
+ "note": "pixel art própria (original): pedra brilhando com faíscas de polimento",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Og-rock-polish",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 52,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     1,
+     2
+    ],
+    "fps": 8
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 24
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 1
+      },
+      {
+       "t": 52,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "user",
+   "start": 12,
+   "end": 68,
+   "frame": 0,
+   "maskActor": "user",
+   "scroll": {
+    "dx": 0,
+    "dy": -2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [],
+ "react": "self"
+}

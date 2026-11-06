@@ -359,3 +359,226 @@ def prancha(entradas, pasta, caminho, titulo, largura=1600):
         base.alpha_composite(im, (px, py))
         d.text((px, py + im.height + 4), f"{arq.replace('.png', '')}  ({n}q, {esc}x)", fill=H("#ffffff"), font=fonte)
     base.convert("RGB").save(caminho, optimize=True)
+
+
+# ---------- paletas extras ----------
+ACO = Pal("#383850", "#686890", "#a0a0c0", "#d8d8f0", "#ffffff")
+ROXO = Pal("#381038", "#702878", "#a048a8", "#d890d8", "#f8e0f8")
+LARANJA = Pal("#782800", "#d06010", "#f89030", "#ffc870", "#fff0d0")
+NOITE = Pal("#080828", "#182060", "#283c90", "#5070c0", "#a0b8f0")
+CIANO = Pal("#085868", "#18a0b0", "#50d8e0", "#b0f8f8", "#ffffff")
+VERMELHO = Pal("#600808", "#c02020", "#f04040", "#ff9080", "#ffe0d8")
+ROSA = Pal("#901848", "#d03870", "#f070a0", "#ffb8d0", "#ffffff")
+LILAS = Pal("#503070", "#8060b0", "#b098e0", "#e0d0f8", "#ffffff")
+TOXICO = Pal("#184808", "#409018", "#78c828", "#c0f060", "#f0ffc0")
+OVO = Pal("#706048", "#c0b090", "#e8e0c8", "#fffaf0", "#ffffff")
+FUMACA = Pal("#080808", "#202024", "#383840", "#585860", "#808088")
+
+
+# ---------- primitivas com contorno ----------
+def disco(q, cx, cy, r, P, O=None):
+    return peca(q, lambda x, y: esfera(x - cx, y - cy, r, P), O or P.O)
+
+
+def linha(q, ax, ay, bx, by, w, cor, O=None, cor_luz=None):
+    def fn(x, y):
+        d, t = seg_dist(x, y, ax, ay, bx, by)
+        if d > w:
+            return None
+        return cor_luz if (cor_luz and d < w * 0.45) else cor
+    return peca(q, fn, O)
+
+
+def arco(q, cx, cy, R, esp, a0, a1, P, O=None, sy=1.0):
+    def fn(x, y):
+        d = hyp(x - cx, (y - cy) / sy)
+        a = ang(x - cx, (y - cy) / sy)
+        a = (a - a0) % TAU
+        if a > (a1 - a0) % TAU or not (R - esp <= d <= R):
+            return None
+        return P.L if d > R - esp / 2 else P.M
+    return peca(q, fn, O if O is not None else P.O)
+
+
+def seta(q, ax, ay, bx, by, w, P, cabeca=None):
+    cabeca = cabeca or w * 3
+    dx, dy = bx - ax, by - ay
+    n = hyp(dx, dy) or 1
+    ux, uy = dx / n, dy / n
+    nx, ny = -uy, ux
+    hx, hy = bx - ux * cabeca, by - uy * cabeca
+    tri = [(bx, by), (hx + nx * cabeca * 0.8, hy + ny * cabeca * 0.8), (hx - nx * cabeca * 0.8, hy - ny * cabeca * 0.8)]
+    def fn(x, y):
+        if in_poly(x, y, tri):
+            return P.L
+        d, t = seg_dist(x, y, ax, ay, hx, hy)
+        return (P.L if d < w * 0.4 else P.M) if d <= w else None
+    return peca(q, fn, P.O)
+
+
+def estrela5(q, cx, cy, r, P, fase=-math.pi / 2):
+    def fn(x, y):
+        d, a = hyp(x - cx, y - cy), ang(x - cx, y - cy)
+        if d > star_r(a, 5, r * 0.45, r, fase):
+            return None
+        return P.W if d < r * 0.25 else P.L if (y - cy) < r * 0.15 else P.M
+    return peca(q, fn, P.O)
+
+
+def nuvem(q, puffs, P, alpha=255):
+    def fn(x, y):
+        best = None
+        for px, py, r in puffs:
+            d = hyp(x - px, y - py)
+            if d <= r:
+                c = P.W if hyp(x - px + r * 0.4, y - py + r * 0.4) < r * 0.4 else P.L if y - py < r * 0.25 else P.M
+                if best is None or c == P.W or (c == P.L and best == P.M):
+                    best = c
+        return A(best, alpha) if best else None
+    return peca(q, fn, A(P.O, max(alpha, 160)) if alpha < 255 else P.O)
+
+
+def punho(q, cx, cy, s, P, dedos=True):
+    """Punho fechado de lado, nós dos dedos para a direita (s = meia altura)."""
+    def fn(x, y):
+        u, v = (x - cx) / s, (y - cy) / s
+        # dedos dobrados: 4 gomos arredondados na frente
+        for k, vy in enumerate((-0.66, -0.22, 0.22, 0.66)):
+            if hyp((u - 0.55) / 0.5, (v - vy) / 0.27) <= 1:
+                return P.L if k == 0 else P.M if dedos and abs(v - vy) < 0.17 else P.D
+        if -0.6 <= u <= 0.6 and -0.92 <= v <= 0.92:
+            if -0.35 < u < 0.45 and 0.2 < v < 0.55:
+                return P.L  # polegar por cima
+            return P.L if v < -0.4 else P.M
+        if -1.2 <= u < -0.6 and abs(v) < 0.6:
+            return P.D  # pulso
+        return None
+    return peca(q, fn, P.O)
+
+
+def mao_aberta(q, cx, cy, s, P, angulo=0.0):
+    def fn(x, y):
+        u, v = rot(x - cx, y - cy, angulo)
+        u, v = u / s, v / s
+        if (u / 0.75) ** 2 + ((v - 0.35) / 0.65) ** 2 <= 1:
+            return P.L if u < 0.1 else P.M
+        for i, fx in enumerate((-0.48, -0.16, 0.16, 0.48)):
+            top = -0.95 + abs(fx) * 0.35
+            if abs(u - fx) < 0.15 and top <= v <= 0.2:
+                return P.L if i < 2 else P.M
+        if -1.15 < u < -0.6 and 0.0 < v < 0.5 and abs(v - 0.25 - (u + 0.9) * 0.6) < 0.18:
+            return P.M  # polegar
+        return None
+    return peca(q, fn, P.O)
+
+
+def gota(q, cx, cy, r, P):
+    def fn(x, y):
+        u, v = x - cx, y - cy
+        if hyp(u, v - r * 0.3) < r or (v < r * 0.3 and abs(u) < (v + r * 1.9) * 0.55 and v > -r * 1.8):
+            return P.W if hyp(u + r * 0.35, v) < r * 0.3 else P.L if u < 0 else P.M
+        return None
+    return peca(q, fn, P.O)
+
+
+def faisca(q, cx, cy, s, P):
+    def fn(x, y):
+        ax_, ay_ = abs(x - cx), abs(y - cy)
+        if ax_ < 1 and ay_ < 1:
+            return P.W
+        if (ax_ < 1 and ay_ <= s) or (ay_ < 1 and ax_ <= s):
+            return P.L
+        return None
+    return peca(q, fn, P.O if s >= 3 else None)
+
+
+def coracao(q, cx, cy, s, P):
+    return peca(q, lambda x, y: (P.W if hyp(x - cx + s * 0.4, y - cy + s * 0.3) < s * 0.3 else P.M if y - cy > s * 0.1 else P.L) if heart(x - cx, y - cy, s) else None, P.O)
+
+
+def folha(q, cx, cy, ang_, comp, larg, P):
+    def fn(x, y):
+        u, v = rot(x - cx, y - cy, ang_)
+        if abs(u) > comp:
+            return None
+        lim = larg * (1 - (u / comp) ** 2)
+        if abs(v) > lim:
+            return None
+        if abs(v) < 0.55 and u < comp * 0.8:
+            return P.D
+        return P.L if v < 0 else P.M
+    return peca(q, fn, P.O)
+
+
+def bitmap_peca(q, rows, cor, O, x0, y0):
+    t = Q(q.w, q.h)
+    t.bitmap(rows, {"#": cor}, x0, y0)
+    t.outline(O)
+    q.stamp(t)
+
+
+def pena(q, cx, cy, ang_, comp, P):
+    def fn(x, y):
+        u, v = rot(x - cx, y - cy, ang_)
+        if abs(u) > comp:
+            return None
+        lim = comp * 0.32 * (1 - ((u + comp * 0.2) / (comp * 1.2)) ** 2)
+        if abs(v) < 0.6 and u > -comp:
+            return P.D
+        if 0 <= v <= lim or (-lim * 0.85 <= v < 0):
+            if int((u + comp) * 0.9) % 3 == 0 and abs(v) > 1:
+                return None
+            return P.L if v < 0 else P.W
+        return None
+    return peca(q, fn, P.O)
+
+
+# ---------- lote: registro, manifesto, golpes.md e prancha ----------
+import json
+import os as _os
+
+
+class Lote:
+    def __init__(s, numero, titulo, pasta):
+        s.numero, s.titulo, s.pasta = numero, titulo, pasta
+        s.reg = []
+        _os.makedirs(pasta, exist_ok=True)
+
+    def salvar(s, arq, frames, pecas, desc, golpe=None):
+        folha_png(frames, _os.path.join(s.pasta, arq))
+        s.reg.append((arq, frames[0].w, frames[0].h, len(frames), pecas, desc, golpe or arq.split("--")[0].replace(".png", "")))
+
+    def finalizar(s, titulos_lotes):
+        man_p = _os.path.join(s.pasta, "manifesto.json")
+        man = json.load(open(man_p)) if _os.path.exists(man_p) else {}
+        man = {k: v for k, v in man.items() if v.get("lote") != s.numero}
+        for a, w, h, n, p, d, g in s.reg:
+            man[a] = {"w": w, "h": h, "n": n, "peca": p, "lote": s.numero, "golpe": g, "desc": d}
+        man = dict(sorted(man.items()))
+        with open(man_p, "w") as fh:
+            json.dump(man, fh, indent=1, ensure_ascii=False)
+        cab = ("# Sprites originais de golpes\n\nFolhas de sprite em pixel art de DS, desenhadas por código "
+               "(`tools/golpes-originais/`), sem pixel dos jogos. Cada PNG: fundo transparente, quadros do mesmo tamanho "
+               "lado a lado numa linha, 2 px de espaço entre eles. Tamanhos em px reais de DS (tela 256×192). "
+               "Projéteis apontam para a direita (atacante embaixo à esquerda); o jogo espelha quando o inimigo ataca. "
+               "Peças marcadas *(recolorível)* estão em cinza para o recolor por tipo.\n")
+        partes = [cab]
+        for num, tit in titulos_lotes:
+            linhas = [(a, v) for a, v in man.items() if str(v["lote"]) == str(num)]
+            if not linhas:
+                continue
+            partes.append(f"\n## Lote {num}: {tit}\n\n| arquivo | quadro | nº de quadros | peças | o que acontece em cada quadro |\n|---|---|---|---|---|\n")
+            ordem = {}
+            for a, v in linhas:
+                ordem.setdefault(v.get("golpe", a), []).append((a, v))
+            for g in sorted(ordem):
+                for a, v in sorted(ordem[g]):
+                    partes.append(f"| {a} | {v['w']}×{v['h']} | {v['n']} | {v['peca']} | {v.get('desc', '')} |\n")
+        with open(_os.path.join(s.pasta, "golpes.md"), "w") as fh:
+            fh.write("".join(partes))
+        _os.makedirs(_os.path.join(s.pasta, "pranchas"), exist_ok=True)
+        prancha([(a, w, h, n) for a, w, h, n, *_ in s.reg], s.pasta, _os.path.join(s.pasta, "pranchas", f"lote-{s.numero}.png"), f"Lote {s.numero} - {s.titulo}")
+        print(len(s.reg), "arquivos no lote", s.numero)
+
+
+LOTES = [("1", "golpes sem sprite (28)"), ("2a", "aumento/queda de atributo e cura (61)"), ("2b", "grupos de golpes parecidos (108)"), ("2c", "pares e golpes isolados (48)")]

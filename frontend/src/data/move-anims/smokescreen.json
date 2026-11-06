@@ -1,0 +1,95 @@
+{
+ "slug": "smokescreen",
+ "pixel": true,
+ "note": "pixel art própria (original): nuvem de fumaça preta",
+ "duration": 78,
+ "layers": [
+  {
+   "asset": "Og-smokescreen",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 59,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     2,
+     2,
+     3
+    ],
+    "fps": 8
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 51,
+       "v": 1
+      },
+      {
+       "t": 59,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 14,
+   "end": 70,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  34
+ ],
+ "react": "status"
+}

@@ -1,0 +1,100 @@
+{
+ "slug": "stockpile",
+ "pixel": true,
+ "note": "pixel art própria (original): esferas verdes que se acumulam",
+ "duration": 78,
+ "layers": [
+  {
+   "asset": "Og-stockpile",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 64,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     2,
+     2
+    ],
+    "fps": 6
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 24
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 56,
+       "v": 1
+      },
+      {
+       "t": 64,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "user",
+   "start": 14,
+   "end": 70,
+   "frame": 0,
+   "maskActor": "user",
+   "scroll": {
+    "dx": 0,
+    "dy": -2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [],
+ "react": "self"
+}

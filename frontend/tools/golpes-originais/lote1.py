@@ -17,12 +17,8 @@ RAIZ = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OUT = os.path.join(RAIZ, "assets", "golpes-originais")
 os.makedirs(OUT, exist_ok=True)
 
-REG = []  # (arquivo, w, h, n, peças, descrição)
-
-
-def salvar(arq, frames, pecas, desc):
-    folha_png(frames, os.path.join(OUT, arq))
-    REG.append((arq, frames[0].w, frames[0].h, len(frames), pecas, desc))
+LOTE = Lote("1", "golpes sem sprite (28)", OUT)
+salvar = LOTE.salvar
 
 
 # glifos 5x5 de runa
@@ -1009,21 +1005,4 @@ GOLPES = [spiky_shield, mystical_fire, water_shuriken, leafage, phantom_force, s
 if __name__ == "__main__":
     for g in GOLPES:
         g()
-    md = os.path.join(OUT, "golpes.md")
-    linhas = [f"| {a} | {w}×{h} | {n} | {p} | {d} |" for a, w, h, n, p, d in REG]
-    bloco = "\n## Lote 1: golpes sem sprite (28)\n\n| arquivo | quadro | nº de quadros | peças | o que acontece em cada quadro |\n|---|---|---|---|---|\n" + "\n".join(linhas) + "\n"
-    cab = ("# Sprites originais de golpes\n\nFolhas de sprite em pixel art de DS, desenhadas por código "
-           "(`tools/golpes-originais/`), sem pixel dos jogos. Cada PNG: fundo transparente, quadros do mesmo tamanho "
-           "lado a lado numa linha, 2 px de espaço entre eles. Tamanhos em px reais de DS (tela 256×192). "
-           "Projéteis apontam para a direita (atacante embaixo à esquerda); o jogo espelha quando o inimigo ataca.\n")
-    with open(md, "w") as fh:
-        fh.write(cab + bloco)
-    prancha([(a, w, h, n) for a, w, h, n, _, _ in REG], OUT, os.path.join(OUT, "pranchas", "lote-1.png"), "Lote 1 - golpes sem sprite (28)")
-    import json
-    man_p = os.path.join(OUT, "manifesto.json")
-    man = json.load(open(man_p)) if os.path.exists(man_p) else {}
-    for a, w, h, n, p, _ in REG:
-        man[a] = {"w": w, "h": h, "n": n, "peca": p, "lote": 1}
-    with open(man_p, "w") as fh:
-        json.dump(dict(sorted(man.items())), fh, indent=1, ensure_ascii=False)
-    print(len(REG), "arquivos")
+    LOTE.finalizar(LOTES)

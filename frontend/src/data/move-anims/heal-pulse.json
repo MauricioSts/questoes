@@ -1,0 +1,137 @@
+{
+ "slug": "heal-pulse",
+ "pixel": true,
+ "note": "pixel art própria (original): pulso de onda em cruz verde",
+ "duration": 96,
+ "layers": [
+  {
+   "asset": "Og-heal-pulse",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 44,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 36,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Healing",
+   "anchor": "user",
+   "start": 12,
+   "end": 82,
+   "frame": 0,
+   "maskActor": "user",
+   "scroll": {
+    "dx": 0,
+    "dy": -3
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 8,
+       "v": 0.55
+      },
+      {
+       "t": 54,
+       "v": 0.55
+      },
+      {
+       "t": 70,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Healing",
+   "anchor": "user",
+   "start": 18,
+   "end": 86,
+   "spawn": {
+    "count": 10,
+    "spread": [
+     28,
+     24
+    ],
+    "interval": 5,
+    "frames": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "vy": -0.8,
+    "life": 20,
+    "seed": 2
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   },
+   "z": 4
+  }
+ ],
+ "hits": [],
+ "react": "self"
+}

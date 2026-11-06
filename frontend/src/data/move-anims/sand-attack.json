@@ -1,0 +1,149 @@
+{
+ "slug": "sand-attack",
+ "pixel": true,
+ "note": "pixel art própria (original): punhado de areia jogado no rosto",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Og-sand-attack--grao",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 18,
+   "spawn": {
+    "count": 10,
+    "spread": [
+     6,
+     6
+    ],
+    "interval": 1,
+    "life": 16,
+    "seed": 41,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 16,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-sand-attack--nuvem",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 14,
+   "end": 40,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 8
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -16
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 16,
+   "end": 72,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  36
+ ],
+ "react": "status"
+}

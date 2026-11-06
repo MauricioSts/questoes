@@ -1,0 +1,91 @@
+{
+ "slug": "harden",
+ "pixel": true,
+ "note": "pixel art própria (original): superfície que racha e cristaliza",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Og-harden",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 49,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     2
+    ],
+    "fps": 7
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 41,
+       "v": 1
+      },
+      {
+       "t": 49,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "user",
+   "start": 12,
+   "end": 68,
+   "frame": 0,
+   "maskActor": "user",
+   "scroll": {
+    "dx": 0,
+    "dy": -2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [],
+ "react": "self"
+}

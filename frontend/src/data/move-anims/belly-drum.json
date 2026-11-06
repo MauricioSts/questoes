@@ -1,0 +1,112 @@
+{
+ "slug": "belly-drum",
+ "pixel": true,
+ "note": "pixel art própria (original): barriga batendo com ondas vermelhas",
+ "duration": 78,
+ "layers": [
+  {
+   "asset": "Og-belly-drum",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     0,
+     1,
+     2
+    ],
+    "fps": 10
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 1
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "user",
+   "start": 14,
+   "end": 70,
+   "frame": 0,
+   "maskActor": "user",
+   "scroll": {
+    "dx": 0,
+    "dy": -2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 42,
+       "v": 0.6
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [],
+ "react": "self",
+ "screen": {
+  "shake": [
+   {
+    "t": 4,
+    "dur": 4,
+    "amp": 1
+   },
+   {
+    "t": 10,
+    "dur": 4,
+    "amp": 1
+   },
+   {
+    "t": 16,
+    "dur": 4,
+    "amp": 2
+   }
+  ]
+ }
+}
