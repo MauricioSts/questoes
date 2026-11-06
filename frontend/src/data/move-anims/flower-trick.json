@@ -1,0 +1,103 @@
+{
+ "slug": "flower-trick",
+ "pixel": true,
+ "note": "pixel art própria (original): buquê que estoura em pétalas cortantes",
+ "duration": 58,
+ "layers": [
+  {
+   "asset": "Og-flower-trick--buque",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 26,
+   "frameSeq": {
+    "frames": [
+     0,
+     0,
+     1,
+     1,
+     2
+    ],
+    "fps": 10
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-flower-trick--petala",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 24,
+   "end": 28,
+   "spawn": {
+    "count": 10,
+    "spread": 5,
+    "interval": 0,
+    "life": 24,
+    "seed": 24,
+    "burst": 1.6,
+    "spin": 16,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  26
+ ]
+}

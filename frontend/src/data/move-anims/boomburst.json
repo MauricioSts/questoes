@@ -1,0 +1,108 @@
+{
+ "slug": "boomburst",
+ "pixel": true,
+ "note": "pixel art própria (original): anéis sonoros brancos enormes que estouram",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Og-boomburst",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 10
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-boomburst",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 18,
+   "end": 43,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 12
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 21,
+       "v": 1
+      },
+      {
+       "t": 25,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  22
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 6,
+    "dur": 30,
+    "amp": 3
+   }
+  ],
+  "flash": [
+   {
+    "t": 18,
+    "dur": 6,
+    "color": "#FFFFFF",
+    "alpha": 0.4
+   }
+  ]
+ }
+}

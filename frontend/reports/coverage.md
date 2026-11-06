@@ -1,6 +1,6 @@
 # Cobertura das animações de golpes
 
-Gerado por `tools/gerar-receitas.mjs`. 559 golpes (gerações 1–5), 342 receitas, 551 de 575 arquivos do atlas usados.
+Gerado por `tools/gerar-receitas.mjs`. 559 golpes (gerações 1–5), 370 receitas, 599 de 623 arquivos do atlas usados.
 
 | | golpes |
 |---|---|

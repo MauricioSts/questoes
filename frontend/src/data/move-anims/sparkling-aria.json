@@ -1,0 +1,125 @@
+{
+ "slug": "sparkling-aria",
+ "pixel": true,
+ "note": "pixel art própria (original): bolhas cintilantes e notas musicais",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Og-sparkling-aria--bolha",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 34,
+   "spawn": {
+    "count": 9,
+    "spread": [
+     10,
+     12
+    ],
+    "interval": 3,
+    "life": 26,
+    "seed": 12,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.1
+      },
+      {
+       "t": 26,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-sparkling-aria--nota",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 4,
+   "end": 32,
+   "spawn": {
+    "count": 4,
+    "spread": [
+     8,
+     14
+    ],
+    "interval": 6,
+    "life": 24,
+    "seed": 13,
+    "frames": [
+     0,
+     1
+    ]
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.1
+      },
+      {
+       "t": 24,
+       "v": 0.9
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  28,
+  40
+ ]
+}

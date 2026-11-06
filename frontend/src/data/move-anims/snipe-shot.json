@@ -1,0 +1,134 @@
+{
+ "slug": "snipe-shot",
+ "pixel": true,
+ "note": "pixel art própria (original): mira de atirador e um tiro d'água fino",
+ "duration": 62,
+ "layers": [
+  {
+   "asset": "Og-snipe-shot--mira",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 46,
+   "frameSeq": {
+    "frames": [
+     0,
+     0,
+     1,
+     1,
+     2
+    ],
+    "fps": 8
+   },
+   "z": 4,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 1
+      },
+      {
+       "t": 46,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-snipe-shot--tiro",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 36,
+   "end": 44,
+   "frame": 0,
+   "orient": true,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 8,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 7,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-water-shuriken--impacto",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 44,
+   "end": 56,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  44
+ ]
+}

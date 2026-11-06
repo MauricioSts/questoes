@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { CATALOGO } from "../components/poke/golpes/catalogo";
+import fs from "node:fs";
+import path from "node:path";
+import { CATALOGO, POR_SLUG, slugDe } from "../components/poke/golpes/catalogo";
+import dex from "../data/pokedex.json";
 import { MAPA, RECEITA_POR_SLUG, SpritesFx } from "../components/poke/golpes/sprites/fx";
 import { avaliar, deslocamento, instancias, quadroNo } from "../components/poke/golpes/sprites/player";
 import type { Layer } from "../components/poke/golpes/sprites/tipos";
@@ -38,11 +41,35 @@ describe("player de sprites: funções puras", () => {
 
 describe("mapa golpe → visual", () => {
   it("cobre os 559 golpes do catálogo e só aponta para receitas que existem", () => {
-    expect(Object.keys(MAPA)).toHaveLength(CATALOGO.length);
+    // além do catálogo (gerações 1–5), só os golpes de gerações seguintes com sprite original
+    const extras = Object.keys(MAPA).filter((s) => !POR_SLUG.has(s));
+    expect(Object.keys(MAPA)).toHaveLength(CATALOGO.length + extras.length);
+    const doDex = new Set((dex as unknown as { golpes: [string][] }).golpes.map((g) => slugDe(g[0])));
+    for (const s of extras) {
+      expect(doDex.has(s), `${s} não está no pokedex.json`).toBe(true);
+      expect(MAPA[s].modo, s).toBe("pixel");
+      expect(RECEITA_POR_SLUG.has(MAPA[s].receita!), s).toBe(true);
+    }
     for (const l of CATALOGO) {
       const e = MAPA[l.slug];
       expect(e, l.slug).toBeDefined();
       if (e.modo !== "fallback") expect(RECEITA_POR_SLUG.has(e.receita!), `${l.slug} → ${e.receita}`).toBe(true);
+    }
+  });
+
+  it("os 28 golpes sem sprite (lote 1) tocam sprites originais que existem no atlas", () => {
+    const lote1 = "spiky-shield mystical-fire water-shuriken leafage phantom-force spirit-shackle darkest-lariat disarming-voice baby-doll-eyes misty-terrain moonblast sparkling-aria branch-poke noble-roar grassy-terrain drum-beating boomburst pyro-ball court-change tearful-look liquidation snipe-shot play-rough flower-trick torch-song aqua-cutter aqua-step wave-crash".split(" ");
+    const atlas = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../public/fx/fx-atlas.json"), "utf8")).arquivos;
+    for (const s of lote1) {
+      const r = RECEITA_POR_SLUG.get(MAPA[s]?.receita ?? "");
+      expect(r, s).toBeDefined();
+      for (const l of r!.layers) {
+        const a = atlas[l.asset];
+        expect(a, `${s}: ${l.asset}`).toBeDefined();
+        if (l.asset.startsWith("Og-")) expect(l.keepColor, `${s}: ${l.asset} tem cor final`).toBe(true);
+        for (const f of [l.frame ?? 0, ...(l.frameSeq?.frames ?? []), ...(l.spawn?.frames ?? [])]) expect(f < a.quadros.length, `${s}: ${l.asset}[${f}]`).toBe(true);
+        if (l.assetVirado) expect(atlas[l.assetVirado], l.assetVirado).toBeDefined();
+      }
     }
   });
 

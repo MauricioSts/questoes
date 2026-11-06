@@ -1,0 +1,59 @@
+{
+ "slug": "spiky-shield",
+ "pixel": true,
+ "note": "pixel art própria (original): domo verde de espinhos em volta do usuário",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Og-spiky-shield",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 64,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 10
+   },
+   "z": 3,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.5
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 54,
+       "v": 1
+      },
+      {
+       "t": 64,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  12
+ ],
+ "react": "self"
+}

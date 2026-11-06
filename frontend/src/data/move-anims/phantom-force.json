@@ -1,0 +1,119 @@
+{
+ "slug": "phantom-force",
+ "pixel": true,
+ "note": "pixel art própria (original): some, abre uma fenda atrás do alvo e acerta em X",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Og-phantom-force--portal",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 8,
+   "end": 44,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     3,
+     3,
+     2,
+     1,
+     0
+    ],
+    "fps": 15
+   },
+   "z": 1,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 24
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 1
+      },
+      {
+       "t": 36,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-phantom-force--impacto",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 40,
+   "end": 56,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 15
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "hide",
+   "dur": 70
+  }
+ ],
+ "hits": [
+  42
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 42,
+    "dur": 8,
+    "amp": 2
+   }
+  ]
+ }
+}

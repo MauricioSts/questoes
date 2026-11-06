@@ -1,0 +1,144 @@
+{
+ "slug": "drum-beating",
+ "pixel": true,
+ "note": "pixel art própria (original): tambor de tronco e raiz que sai do chão sob o alvo",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Og-drum-beating--tambor",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 34,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     0,
+     1,
+     2,
+     0,
+     1
+    ],
+    "fps": 14
+   },
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 18
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 29,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-drum-beating--raiz",
+   "keepColor": true,
+   "anchor": "field-target",
+   "start": 26,
+   "end": 58,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12
+   },
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -22
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 32,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  40
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 8,
+    "dur": 4,
+    "amp": 1
+   },
+   {
+    "t": 16,
+    "dur": 4,
+    "amp": 1
+   },
+   {
+    "t": 40,
+    "dur": 8,
+    "amp": 2
+   }
+  ]
+ }
+}

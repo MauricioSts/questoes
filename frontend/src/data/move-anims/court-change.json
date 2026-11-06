@@ -1,0 +1,50 @@
+{
+ "slug": "court-change",
+ "pixel": true,
+ "note": "pixel art própria (original): duas setas curvas trocando de lado",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Og-court-change",
+   "keepColor": true,
+   "anchor": "screen-center",
+   "start": 0,
+   "end": 56,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     3,
+     3
+    ],
+    "fps": 8
+   },
+   "z": 4,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 1
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "none"
+}

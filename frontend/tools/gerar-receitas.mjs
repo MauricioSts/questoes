@@ -12,14 +12,18 @@ import { fileURLToPath } from "node:url";
 import { RECEITAS as RECEITAS_DP, REUSO, REUSO_ARQUETIPO } from "./receitas.mjs";
 import { gerarCenas } from "./cenas-pixel.mjs";
 import { gerarKit } from "./pixel-kit.mjs";
+import { gerarOriginais, RECEITAS_OG, receitasOgLimpas } from "./golpes-originais/receitas.mjs";
 import { CATALOGO, TIPOS_EN } from "../src/components/poke/golpes/catalogo.ts";
 
 // peças em pixel art próprias (public/fx/Px-*.png) e as cenas quadro a quadro dos golpes sem
 // folha do DP (public/fx/Cena-*.png) entram no atlas antes da validação
 gerarKit();
+// sprites originais (assets/golpes-originais): golpes das gerações 6+ fora do catálogo
+gerarOriginais();
+const ORIGINAIS = new Map(RECEITAS_OG.map((r) => [r.slug, r.arquetipo]));
 const PIXEL = gerarCenas(CATALOGO).receitas;
 const TIPO_PIXEL = new Map(PIXEL.map((p) => [p.receita.slug, p.tipo]));
-const RECEITAS = [...RECEITAS_DP, ...PIXEL.map((p) => p.receita)];
+const RECEITAS = [...RECEITAS_DP, ...PIXEL.map((p) => p.receita), ...receitasOgLimpas()];
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIR = path.join(RAIZ, "src/data/move-anims");
@@ -72,7 +76,8 @@ for (const l of CATALOGO) {
     mapa[l.slug] = { modo: "fallback", arquetipo: l.arquetipo };
   }
 }
-for (const r of RECEITAS) if (!r.slug.startsWith("_") && !tipoDe.has(r.slug)) erros.push(`receita ${r.slug} não é um golpe do catálogo`);
+for (const [slug, arquetipo] of ORIGINAIS) if (!tipoDe.has(slug)) mapa[slug] = { modo: "pixel", receita: slug, arquetipo };
+for (const r of RECEITAS) if (!r.slug.startsWith("_") && !tipoDe.has(r.slug) && !ORIGINAIS.has(r.slug)) erros.push(`receita ${r.slug} não é um golpe do catálogo`);
 for (const k of Object.keys(REUSO)) if (!tipoDe.has(k)) erros.push(`REUSO: ${k} não é um golpe do catálogo`);
 fs.writeFileSync(path.join(RAIZ, "src/data/move-anim-map.json"), JSON.stringify(mapa, null, 1) + "\n");
 

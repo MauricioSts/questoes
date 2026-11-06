@@ -1,0 +1,93 @@
+{
+ "slug": "aqua-cutter",
+ "pixel": true,
+ "note": "pixel art própria (original): lâmina d'água em meia-lua horizontal",
+ "duration": 40,
+ "layers": [
+  {
+   "asset": "Og-aqua-cutter--lamina",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 16,
+   "frame": 0,
+   "orient": true,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 16,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-aqua-cutter--impacto",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 16,
+   "end": 28,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 15
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  16
+ ]
+}

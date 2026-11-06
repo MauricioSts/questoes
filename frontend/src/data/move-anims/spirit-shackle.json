@@ -1,0 +1,108 @@
+{
+ "slug": "spirit-shackle",
+ "pixel": true,
+ "note": "pixel art própria (original): flecha-sombra crava sob o alvo e correntes o prendem",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Og-spirit-shackle--flecha",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "field-target",
+   "start": 0,
+   "end": 20,
+   "frame": 0,
+   "orient": true,
+   "arc": 18,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 20,
+       "v": 1,
+       "ease": "in"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 19,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-spirit-shackle--correntes",
+   "keepColor": true,
+   "anchor": "field-target",
+   "start": 20,
+   "end": 76,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     2,
+     3,
+     2,
+     3
+    ],
+    "fps": 9
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 46,
+       "v": 1
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  20
+ ]
+}

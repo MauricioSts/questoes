@@ -1,0 +1,71 @@
+{
+ "slug": "leafage",
+ "pixel": true,
+ "note": "pixel art própria (original): folhinhas soltas voando até o alvo",
+ "duration": 44,
+ "layers": [
+  {
+   "asset": "Og-leafage",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 26,
+   "spawn": {
+    "count": 7,
+    "spread": [
+     6,
+     8
+    ],
+    "interval": 3,
+    "life": 18,
+    "seed": 4,
+    "spin": 14,
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ]
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 18,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 15,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  18,
+  30
+ ]
+}

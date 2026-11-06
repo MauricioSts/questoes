@@ -1,0 +1,344 @@
+{
+ "slug": "water-shuriken",
+ "pixel": true,
+ "note": "pixel art própria (original): shurikens d'água girando, em sequência",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Og-water-shuriken--projetil",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 16,
+   "frame": 0,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 16,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 16,
+       "v": 720
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-water-shuriken--impacto",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 16,
+   "end": 28,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -8
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 5
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-water-shuriken--projetil",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 7,
+   "end": 23,
+   "frame": 0,
+   "arc": 10,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 16,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 16,
+       "v": 720
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-water-shuriken--impacto",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 23,
+   "end": 35,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-water-shuriken--projetil",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 14,
+   "end": 30,
+   "frame": 0,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 16,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 16,
+       "v": 720
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-water-shuriken--impacto",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 30,
+   "end": 42,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 20
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 8
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -5
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  17,
+  24,
+  31
+ ]
+}

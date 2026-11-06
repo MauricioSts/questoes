@@ -2,7 +2,9 @@ import { createRoot } from "react-dom/client";
 import { useMemo } from "react";
 import { Arena, type LadoVis } from "../src/components/poke/Arena";
 import { MotorGolpes } from "../src/components/poke/golpes/motor";
-import { specPorSlug } from "../src/components/poke/golpes/spec";
+import { specDoGolpe, specPorSlug } from "../src/components/poke/golpes/spec";
+import { slugDe } from "../src/components/poke/golpes/catalogo";
+import dex from "../src/data/pokedex.json";
 import { spritesFx } from "../src/components/poke/golpes/sprites/fx";
 import "../src/index.css";
 import "../src/poke.css";
@@ -31,7 +33,10 @@ let t = 0;
     t = 0;
     const A = motor.atores.ancora(inverte ? "inimigo-0" : "meu-0")!;
     const T = motor.atores.ancora(inverte ? "meu-0" : "inimigo-0")!;
-    motor.tocar(specPorSlug(slug)!, { attacker: A, targets: [T], power: 80, outcome: outcome as "hit", seed: 7 });
+    // golpes de gerações 6+ não estão no catálogo: spec pelos dados do pokedex.json, como na batalha
+    const g = (dex as unknown as { golpes: Parameters<typeof specDoGolpe>[0][] }).golpes.find((x) => slugDe(x[0]) === slug);
+    const spec = specPorSlug(slug) ?? (g ? specDoGolpe(g) : undefined);
+    motor.tocar(spec!, { attacker: A, targets: [T], power: 80, outcome: outcome as "hit", seed: 7 });
     return !!spritesFx.receitaPronta(slug);
   },
   async ate(q: number) {

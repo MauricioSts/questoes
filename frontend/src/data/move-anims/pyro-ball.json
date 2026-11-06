@@ -1,0 +1,132 @@
+{
+ "slug": "pyro-ball",
+ "pixel": true,
+ "note": "pixel art própria (original): bola de pedra em chamas chutada em arco",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Og-pyro-ball--bola",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 4,
+   "end": 32,
+   "arc": 26,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 16,
+    "loop": true
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 28,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 1
+      },
+      {
+       "t": 28,
+       "v": 0
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 28,
+       "v": 540
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-pyro-ball--explosao",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 32,
+   "end": 51,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 16
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 15,
+       "v": 1
+      },
+      {
+       "t": 19,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "hop"
+  }
+ ],
+ "hits": [
+  33
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 33,
+    "dur": 10,
+    "amp": 3
+   }
+  ]
+ }
+}

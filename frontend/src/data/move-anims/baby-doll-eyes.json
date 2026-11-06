@@ -1,0 +1,95 @@
+{
+ "slug": "baby-doll-eyes",
+ "pixel": true,
+ "note": "pixel art própria (original): olhões brilhantes com coraçõezinhos",
+ "duration": 80,
+ "layers": [
+  {
+   "asset": "Og-baby-doll-eyes",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 48,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     1,
+     2,
+     1,
+     1
+    ],
+    "fps": 8
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -14
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 1
+      },
+      {
+       "t": 48,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 30,
+   "end": 80,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 38,
+       "v": 0.6
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  30
+ ],
+ "react": "status"
+}

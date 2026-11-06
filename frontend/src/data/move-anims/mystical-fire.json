@@ -1,0 +1,105 @@
+{
+ "slug": "mystical-fire",
+ "pixel": true,
+ "note": "pixel art própria (original): orbe de chama violeta em espiral com runas",
+ "duration": 54,
+ "layers": [
+  {
+   "asset": "Og-mystical-fire--projetil",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 26,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "fps": 20,
+    "loop": true
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 26,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-mystical-fire--impacto",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 26,
+   "end": 43,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 18
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 13,
+       "v": 1
+      },
+      {
+       "t": 17,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  27
+ ]
+}

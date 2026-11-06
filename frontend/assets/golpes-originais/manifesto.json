@@ -1,0 +1,324 @@
+{
+ "aqua-cutter--impacto.png": {
+  "w": 40,
+  "h": 40,
+  "n": 3,
+  "peca": "impacto",
+  "lote": 1
+ },
+ "aqua-cutter--lamina.png": {
+  "w": 40,
+  "h": 20,
+  "n": 1,
+  "peca": "projetil",
+  "lote": 1
+ },
+ "aqua-step--pegada.png": {
+  "w": 12,
+  "h": 10,
+  "n": 1,
+  "peca": "particula",
+  "lote": 1
+ },
+ "aqua-step--redemoinho.png": {
+  "w": 48,
+  "h": 24,
+  "n": 4,
+  "peca": "redemoinho",
+  "lote": 1
+ },
+ "baby-doll-eyes.png": {
+  "w": 48,
+  "h": 26,
+  "n": 3,
+  "peca": "olhos",
+  "lote": 1
+ },
+ "boomburst.png": {
+  "w": 128,
+  "h": 128,
+  "n": 5,
+  "peca": "onda",
+  "lote": 1
+ },
+ "branch-poke--galho.png": {
+  "w": 40,
+  "h": 16,
+  "n": 2,
+  "peca": "galho",
+  "lote": 1
+ },
+ "branch-poke--impacto.png": {
+  "w": 24,
+  "h": 24,
+  "n": 3,
+  "peca": "impacto",
+  "lote": 1
+ },
+ "court-change.png": {
+  "w": 128,
+  "h": 64,
+  "n": 4,
+  "peca": "setas",
+  "lote": 1
+ },
+ "darkest-lariat.png": {
+  "w": 48,
+  "h": 48,
+  "n": 6,
+  "peca": "redemoinho",
+  "lote": 1
+ },
+ "disarming-voice.png": {
+  "w": 40,
+  "h": 40,
+  "n": 3,
+  "peca": "onda",
+  "lote": 1
+ },
+ "drum-beating--raiz.png": {
+  "w": 32,
+  "h": 48,
+  "n": 4,
+  "peca": "raiz",
+  "lote": 1
+ },
+ "drum-beating--tambor.png": {
+  "w": 40,
+  "h": 40,
+  "n": 3,
+  "peca": "tambor",
+  "lote": 1
+ },
+ "flower-trick--buque.png": {
+  "w": 32,
+  "h": 32,
+  "n": 3,
+  "peca": "buque",
+  "lote": 1
+ },
+ "flower-trick--petala.png": {
+  "w": 10,
+  "h": 10,
+  "n": 3,
+  "peca": "particula",
+  "lote": 1
+ },
+ "grassy-terrain.png": {
+  "w": 256,
+  "h": 192,
+  "n": 4,
+  "peca": "overlay",
+  "lote": 1
+ },
+ "leafage.png": {
+  "w": 14,
+  "h": 14,
+  "n": 4,
+  "peca": "particula",
+  "lote": 1
+ },
+ "liquidation--corte.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "corte",
+  "lote": 1
+ },
+ "liquidation--gota.png": {
+  "w": 8,
+  "h": 8,
+  "n": 3,
+  "peca": "particula",
+  "lote": 1
+ },
+ "misty-terrain.png": {
+  "w": 256,
+  "h": 192,
+  "n": 4,
+  "peca": "overlay",
+  "lote": 1
+ },
+ "moonblast--explosao.png": {
+  "w": 48,
+  "h": 48,
+  "n": 5,
+  "peca": "explosao",
+  "lote": 1
+ },
+ "moonblast--lua.png": {
+  "w": 40,
+  "h": 40,
+  "n": 4,
+  "peca": "lua",
+  "lote": 1
+ },
+ "moonblast--orbe.png": {
+  "w": 24,
+  "h": 24,
+  "n": 1,
+  "peca": "projetil",
+  "lote": 1
+ },
+ "mystical-fire--impacto.png": {
+  "w": 40,
+  "h": 40,
+  "n": 5,
+  "peca": "impacto",
+  "lote": 1
+ },
+ "mystical-fire--projetil.png": {
+  "w": 32,
+  "h": 32,
+  "n": 6,
+  "peca": "projetil",
+  "lote": 1
+ },
+ "noble-roar--juba.png": {
+  "w": 48,
+  "h": 48,
+  "n": 1,
+  "peca": "juba",
+  "lote": 1
+ },
+ "noble-roar--onda.png": {
+  "w": 48,
+  "h": 48,
+  "n": 3,
+  "peca": "onda",
+  "lote": 1
+ },
+ "phantom-force--impacto.png": {
+  "w": 40,
+  "h": 40,
+  "n": 4,
+  "peca": "impacto",
+  "lote": 1
+ },
+ "phantom-force--portal.png": {
+  "w": 32,
+  "h": 48,
+  "n": 4,
+  "peca": "portal",
+  "lote": 1
+ },
+ "play-rough.png": {
+  "w": 56,
+  "h": 48,
+  "n": 6,
+  "peca": "nuvem",
+  "lote": 1
+ },
+ "pyro-ball--bola.png": {
+  "w": 24,
+  "h": 24,
+  "n": 4,
+  "peca": "projetil",
+  "lote": 1
+ },
+ "pyro-ball--explosao.png": {
+  "w": 48,
+  "h": 48,
+  "n": 5,
+  "peca": "explosao",
+  "lote": 1
+ },
+ "snipe-shot--mira.png": {
+  "w": 40,
+  "h": 40,
+  "n": 3,
+  "peca": "mira",
+  "lote": 1
+ },
+ "snipe-shot--tiro.png": {
+  "w": 64,
+  "h": 8,
+  "n": 1,
+  "peca": "projetil",
+  "lote": 1
+ },
+ "sparkling-aria--bolha.png": {
+  "w": 16,
+  "h": 16,
+  "n": 3,
+  "peca": "particula",
+  "lote": 1
+ },
+ "sparkling-aria--nota.png": {
+  "w": 12,
+  "h": 12,
+  "n": 2,
+  "peca": "particula",
+  "lote": 1
+ },
+ "spiky-shield.png": {
+  "w": 64,
+  "h": 64,
+  "n": 4,
+  "peca": "domo",
+  "lote": 1
+ },
+ "spirit-shackle--correntes.png": {
+  "w": 64,
+  "h": 32,
+  "n": 4,
+  "peca": "correntes",
+  "lote": 1
+ },
+ "spirit-shackle--flecha.png": {
+  "w": 32,
+  "h": 12,
+  "n": 1,
+  "peca": "flecha",
+  "lote": 1
+ },
+ "tearful-look--lagrima.png": {
+  "w": 8,
+  "h": 12,
+  "n": 1,
+  "peca": "particula",
+  "lote": 1
+ },
+ "tearful-look--olhos.png": {
+  "w": 48,
+  "h": 26,
+  "n": 2,
+  "peca": "olhos",
+  "lote": 1
+ },
+ "torch-song.png": {
+  "w": 16,
+  "h": 16,
+  "n": 3,
+  "peca": "particula",
+  "lote": 1
+ },
+ "water-shuriken--impacto.png": {
+  "w": 32,
+  "h": 32,
+  "n": 4,
+  "peca": "impacto",
+  "lote": 1
+ },
+ "water-shuriken--projetil.png": {
+  "w": 28,
+  "h": 28,
+  "n": 1,
+  "peca": "projetil",
+  "lote": 1
+ },
+ "wave-crash--espuma.png": {
+  "w": 10,
+  "h": 10,
+  "n": 3,
+  "peca": "particula",
+  "lote": 1
+ },
+ "wave-crash--onda.png": {
+  "w": 128,
+  "h": 96,
+  "n": 5,
+  "peca": "onda",
+  "lote": 1
+ }
+}

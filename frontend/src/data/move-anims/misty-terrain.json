@@ -1,0 +1,51 @@
+{
+ "slug": "misty-terrain",
+ "pixel": true,
+ "note": "pixel art própria (original): névoa rosa cobrindo o chão, com faíscas",
+ "duration": 96,
+ "layers": [
+  {
+   "asset": "Og-misty-terrain",
+   "keepColor": true,
+   "anchor": "screen-center",
+   "ds": true,
+   "assetVirado": "Og-misty-terrain-v",
+   "start": 0,
+   "end": 96,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": true
+   },
+   "z": 1,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 76,
+       "v": 1
+      },
+      {
+       "t": 96,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "none"
+}

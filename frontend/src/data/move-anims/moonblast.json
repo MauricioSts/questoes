@@ -1,0 +1,165 @@
+{
+ "slug": "moonblast",
+ "pixel": true,
+ "note": "pixel art própria (original): lua rosa se forma no alto e dispara um orbe",
+ "duration": 84,
+ "layers": [
+  {
+   "asset": "Og-moonblast--lua",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 44,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 9
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -44
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 1
+      },
+      {
+       "t": 38,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-moonblast--orbe",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 38,
+   "end": 56,
+   "frame": 0,
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 18,
+       "v": 1,
+       "ease": "in"
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -44
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 17,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-moonblast--explosao",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 56,
+   "end": 73,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 18
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 13,
+       "v": 1
+      },
+      {
+       "t": 17,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  57
+ ],
+ "screen": {
+  "flash": [
+   {
+    "t": 56,
+    "dur": 6,
+    "color": "#FFC8DC",
+    "alpha": 0.35
+   }
+  ]
+ }
+}

@@ -1,0 +1,129 @@
+{
+ "slug": "wave-crash",
+ "pixel": true,
+ "note": "pixel art própria (original): onda gigante curvada que quebra sobre o alvo",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Og-wave-crash--onda",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 4,
+   "end": 54,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     4
+    ],
+    "fps": 9
+   },
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -30
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -12
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 1
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-wave-crash--espuma",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 40,
+   "end": 44,
+   "spawn": {
+    "count": 10,
+    "spread": 8,
+    "interval": 0,
+    "life": 28,
+    "seed": 28,
+    "burst": 1.3,
+    "gravity": 0.06,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 28,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 30,
+   "kind": "lunge",
+   "dur": 12
+  }
+ ],
+ "hits": [
+  42
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 42,
+    "dur": 12,
+    "amp": 3
+   }
+  ]
+ }
+}

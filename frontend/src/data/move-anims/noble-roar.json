@@ -1,0 +1,203 @@
+{
+ "slug": "noble-roar",
+ "pixel": true,
+ "note": "pixel art própria (original): juba dourada e ondas de rugido",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Og-noble-roar--juba",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 34,
+   "frame": 0,
+   "z": 1,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.7
+      },
+      {
+       "t": 8,
+       "v": 1.1,
+       "ease": "out"
+      },
+      {
+       "t": 34,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-noble-roar--onda",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 4,
+   "end": 28,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 8
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.1
+      },
+      {
+       "t": 24,
+       "v": 0.8
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-noble-roar--onda",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 12,
+   "end": 36,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 8
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.1
+      },
+      {
+       "t": 24,
+       "v": 0.8
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 26,
+   "end": 76,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 38,
+       "v": 0.6
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  26
+ ],
+ "react": "status",
+ "screen": {
+  "shake": [
+   {
+    "t": 4,
+    "dur": 16,
+    "amp": 1
+   }
+  ]
+ }
+}

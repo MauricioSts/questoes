@@ -1,0 +1,102 @@
+{
+ "slug": "liquidation",
+ "pixel": true,
+ "note": "pixel art própria (original): jato d'água que vira lâmina e corta",
+ "duration": 48,
+ "layers": [
+  {
+   "asset": "Og-liquidation--corte",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 4,
+   "end": 20,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 15
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-liquidation--gota",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 14,
+   "end": 22,
+   "spawn": {
+    "count": 9,
+    "spread": 6,
+    "interval": 1,
+    "life": 20,
+    "seed": 21,
+    "burst": 1.4,
+    "gravity": 0.05,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 12
+  }
+ ],
+ "hits": [
+  12
+ ]
+}

@@ -1,0 +1,144 @@
+{
+ "slug": "aqua-step",
+ "pixel": true,
+ "note": "pixel art própria (original): passos de dança com pegadas d'água e redemoinho",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Og-aqua-step--redemoinho",
+   "keepColor": true,
+   "anchor": "field-user",
+   "start": 0,
+   "end": 34,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 14,
+    "loop": true
+   },
+   "z": 1,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 28,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-aqua-step--pegada",
+   "keepColor": true,
+   "anchor": "field-user",
+   "start": 0,
+   "end": 24,
+   "spawn": {
+    "count": 5,
+    "spread": [
+     16,
+     3
+    ],
+    "interval": 5,
+    "life": 22,
+    "seed": 27
+   },
+   "frame": 0,
+   "z": 1,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-water-shuriken--impacto",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 40,
+   "end": 55,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 16
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 11,
+       "v": 1
+      },
+      {
+       "t": 15,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 2,
+   "kind": "hop"
+  },
+  {
+   "who": "user",
+   "t": 30,
+   "kind": "lunge",
+   "dur": 12
+  }
+ ],
+ "hits": [
+  40
+ ]
+}

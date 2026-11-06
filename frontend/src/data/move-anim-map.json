@@ -2867,5 +2867,145 @@
   "modo": "recolor",
   "receita": "_stat-up",
   "arquetipo": "BUFF"
+ },
+ "spiky-shield": {
+  "modo": "pixel",
+  "receita": "spiky-shield",
+  "arquetipo": "FIELD"
+ },
+ "mystical-fire": {
+  "modo": "pixel",
+  "receita": "mystical-fire",
+  "arquetipo": "PROJ"
+ },
+ "water-shuriken": {
+  "modo": "pixel",
+  "receita": "water-shuriken",
+  "arquetipo": "PROJ"
+ },
+ "leafage": {
+  "modo": "pixel",
+  "receita": "leafage",
+  "arquetipo": "PROJ"
+ },
+ "phantom-force": {
+  "modo": "pixel",
+  "receita": "phantom-force",
+  "arquetipo": "STRIKE"
+ },
+ "spirit-shackle": {
+  "modo": "pixel",
+  "receita": "spirit-shackle",
+  "arquetipo": "PROJ"
+ },
+ "darkest-lariat": {
+  "modo": "pixel",
+  "receita": "darkest-lariat",
+  "arquetipo": "STRIKE"
+ },
+ "disarming-voice": {
+  "modo": "pixel",
+  "receita": "disarming-voice",
+  "arquetipo": "AOE"
+ },
+ "baby-doll-eyes": {
+  "modo": "pixel",
+  "receita": "baby-doll-eyes",
+  "arquetipo": "DEBUFF"
+ },
+ "misty-terrain": {
+  "modo": "pixel",
+  "receita": "misty-terrain",
+  "arquetipo": "FIELD"
+ },
+ "moonblast": {
+  "modo": "pixel",
+  "receita": "moonblast",
+  "arquetipo": "PROJ"
+ },
+ "sparkling-aria": {
+  "modo": "pixel",
+  "receita": "sparkling-aria",
+  "arquetipo": "AOE"
+ },
+ "branch-poke": {
+  "modo": "pixel",
+  "receita": "branch-poke",
+  "arquetipo": "STRIKE"
+ },
+ "noble-roar": {
+  "modo": "pixel",
+  "receita": "noble-roar",
+  "arquetipo": "DEBUFF"
+ },
+ "grassy-terrain": {
+  "modo": "pixel",
+  "receita": "grassy-terrain",
+  "arquetipo": "FIELD"
+ },
+ "drum-beating": {
+  "modo": "pixel",
+  "receita": "drum-beating",
+  "arquetipo": "STRIKE"
+ },
+ "boomburst": {
+  "modo": "pixel",
+  "receita": "boomburst",
+  "arquetipo": "AOE"
+ },
+ "pyro-ball": {
+  "modo": "pixel",
+  "receita": "pyro-ball",
+  "arquetipo": "PROJ"
+ },
+ "court-change": {
+  "modo": "pixel",
+  "receita": "court-change",
+  "arquetipo": "FIELD"
+ },
+ "tearful-look": {
+  "modo": "pixel",
+  "receita": "tearful-look",
+  "arquetipo": "DEBUFF"
+ },
+ "liquidation": {
+  "modo": "pixel",
+  "receita": "liquidation",
+  "arquetipo": "STRIKE"
+ },
+ "snipe-shot": {
+  "modo": "pixel",
+  "receita": "snipe-shot",
+  "arquetipo": "BEAM"
+ },
+ "play-rough": {
+  "modo": "pixel",
+  "receita": "play-rough",
+  "arquetipo": "STRIKE"
+ },
+ "flower-trick": {
+  "modo": "pixel",
+  "receita": "flower-trick",
+  "arquetipo": "STRIKE"
+ },
+ "torch-song": {
+  "modo": "pixel",
+  "receita": "torch-song",
+  "arquetipo": "AOE"
+ },
+ "aqua-cutter": {
+  "modo": "pixel",
+  "receita": "aqua-cutter",
+  "arquetipo": "PROJ"
+ },
+ "aqua-step": {
+  "modo": "pixel",
+  "receita": "aqua-step",
+  "arquetipo": "STRIKE"
+ },
+ "wave-crash": {
+  "modo": "pixel",
+  "receita": "wave-crash",
+  "arquetipo": "STRIKE"
  }
 }
