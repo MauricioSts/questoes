@@ -1,0 +1,59 @@
+{
+ "slug": "embargo",
+ "pixel": true,
+ "note": "pixel art própria (original): cadeado preto",
+ "duration": 52,
+ "layers": [
+  {
+   "asset": "Og-embargo",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 46,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     2
+    ],
+    "fps": 6
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -26
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 38,
+       "v": 1
+      },
+      {
+       "t": 46,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  16
+ ],
+ "react": "status"
+}

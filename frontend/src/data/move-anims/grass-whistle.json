@@ -1,0 +1,140 @@
+{
+ "slug": "grass-whistle",
+ "pixel": true,
+ "note": "pixel art própria (original): folha-apito e notas verdes",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Og-grass-whistle--folha",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 40,
+   "frame": 0,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 22
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -8
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -8
+      },
+      {
+       "t": 10,
+       "v": 8
+      },
+      {
+       "t": 20,
+       "v": -8
+      },
+      {
+       "t": 30,
+       "v": 8
+      },
+      {
+       "t": 40,
+       "v": -8
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 1
+      },
+      {
+       "t": 40,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-grass-whistle--nota",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 4,
+   "end": 36,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     6,
+     12
+    ],
+    "interval": 5,
+    "life": 26,
+    "seed": 25,
+    "frames": [
+     0,
+     1
+    ]
+   },
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.15
+      },
+      {
+       "t": 26,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  32
+ ],
+ "react": "status"
+}

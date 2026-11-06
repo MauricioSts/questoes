@@ -1,0 +1,67 @@
+{
+ "slug": "extrasensory",
+ "pixel": true,
+ "note": "pixel art própria (original): olho psíquico enorme sobre o alvo",
+ "duration": 50,
+ "layers": [
+  {
+   "asset": "Og-extrasensory",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 42,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     1,
+     2
+    ],
+    "fps": 8
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -8
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 36,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  24
+ ],
+ "actor": [
+  {
+   "who": "target",
+   "t": 24,
+   "kind": "shake",
+   "dur": 12
+  }
+ ]
+}

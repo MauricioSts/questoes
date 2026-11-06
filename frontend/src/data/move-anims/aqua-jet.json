@@ -1,0 +1,114 @@
+{
+ "slug": "aqua-jet",
+ "pixel": true,
+ "note": "pixel art própria (original): rastro de jato d'água",
+ "duration": 40,
+ "layers": [
+  {
+   "asset": "Og-aqua-jet",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 20,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 16,
+    "loop": true
+   },
+   "orient": true,
+   "z": 1,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.2
+      },
+      {
+       "t": 14,
+       "v": 0.6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-water-shuriken--impacto",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 14,
+   "end": 28,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 18
+   },
+   "z": 3,
+   "n": 4,
+   "fps": 18,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  14
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "dash",
+   "dur": 24
+  }
+ ]
+}

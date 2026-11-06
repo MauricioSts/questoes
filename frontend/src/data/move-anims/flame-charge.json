@@ -1,0 +1,115 @@
+{
+ "slug": "flame-charge",
+ "pixel": true,
+ "note": "pixel art própria (original): chamas pequenas em volta, correndo",
+ "duration": 44,
+ "layers": [
+  {
+   "asset": "Og-flame-charge",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 20,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     18,
+     14
+    ],
+    "interval": 2,
+    "life": 18,
+    "seed": 26,
+    "vy": -0.6,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-pyro-ball--explosao",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 18,
+   "end": 33,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 20
+   },
+   "z": 3,
+   "n": 5,
+   "fps": 20,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 11,
+       "v": 1
+      },
+      {
+       "t": 15,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.6
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  18
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 4,
+   "kind": "dash",
+   "dur": 24
+  }
+ ]
+}

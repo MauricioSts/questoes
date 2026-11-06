@@ -1,0 +1,96 @@
+{
+ "slug": "fire-fang",
+ "pixel": true,
+ "note": "pixel art própria (original): mordida e chamas",
+ "duration": 46,
+ "layers": [
+  {
+   "asset": "Og-mordida-base",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 2,
+   "end": 22,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 14
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-fire-fang--chama",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 10,
+   "end": 20,
+   "spawn": {
+    "count": 7,
+    "spread": [
+     16,
+     8
+    ],
+    "interval": 1,
+    "life": 22,
+    "seed": 11,
+    "vy": -0.8,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  10
+ ]
+}

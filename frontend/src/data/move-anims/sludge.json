@@ -1,0 +1,103 @@
+{
+ "slug": "sludge",
+ "pixel": true,
+ "note": "pixel art própria (original): gosma roxa arremessada",
+ "duration": 44,
+ "layers": [
+  {
+   "asset": "Og-sludge--projetil",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 18,
+   "frameSeq": {
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 10,
+    "loop": true
+   },
+   "arc": 16,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 18,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-sludge--respingo",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 18,
+   "end": 38,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12
+   },
+   "z": 3,
+   "n": 4,
+   "fps": 12,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  18
+ ]
+}

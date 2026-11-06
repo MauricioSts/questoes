@@ -1,0 +1,151 @@
+{
+ "slug": "stored-power",
+ "pixel": true,
+ "note": "pixel art própria (original): esferas de energia que se juntam e disparam",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Og-stored-power--esfera",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 18,
+   "spawn": {
+    "count": 5,
+    "spread": 26,
+    "interval": 2,
+    "life": 16,
+    "seed": 14,
+    "burst": -1.2
+   },
+   "frame": 0,
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-stored-power--esfera",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 20,
+   "end": 34,
+   "frame": 0,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 14,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.8
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-psystrike",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 34,
+   "end": 51,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 18
+   },
+   "z": 3,
+   "n": 5,
+   "fps": 18,
+   "tracks": {
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 13,
+       "v": 1
+      },
+      {
+       "t": 17,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  35
+ ]
+}

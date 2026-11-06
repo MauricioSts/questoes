@@ -1,0 +1,67 @@
+{
+ "slug": "psyshock",
+ "pixel": true,
+ "note": "pixel art própria (original): cristais psíquicos caindo como estilhaços",
+ "duration": 52,
+ "layers": [
+  {
+   "asset": "Og-psyshock",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 30,
+   "spawn": {
+    "count": 9,
+    "spread": [
+     20,
+     4
+    ],
+    "interval": 2,
+    "life": 20,
+    "seed": 15,
+    "vy": 2.6,
+    "spin": 0,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -56
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  22,
+  30
+ ]
+}

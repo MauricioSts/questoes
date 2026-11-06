@@ -1,0 +1,133 @@
+{
+ "slug": "mega-punch",
+ "pixel": true,
+ "note": "pixel art própria (original): punho grande com impacto forte",
+ "duration": 44,
+ "layers": [
+  {
+   "asset": "Og-soco-base--punho",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 0,
+   "end": 14,
+   "frame": 0,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -44
+      },
+      {
+       "t": 14,
+       "v": -14,
+       "ease": "out"
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 14,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 11,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-mega-punch",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 14,
+   "end": 32,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 14
+   },
+   "z": 3,
+   "n": 4,
+   "fps": 14,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  14
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 14
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 14,
+    "dur": 10,
+    "amp": 4
+   }
+  ]
+ }
+}

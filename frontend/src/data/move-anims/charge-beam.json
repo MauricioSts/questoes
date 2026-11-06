@@ -1,0 +1,75 @@
+{
+ "slug": "charge-beam",
+ "pixel": true,
+ "note": "pixel art própria (original): raio elétrico amarelo",
+ "duration": 46,
+ "layers": [
+  {
+   "asset": "Og-charge-beam",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 2,
+   "end": 38,
+   "orient": true,
+   "z": 3,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 15,
+    "loop": true
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.5
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.3
+      },
+      {
+       "t": 6,
+       "v": 1,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 1
+      },
+      {
+       "t": 36,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  12,
+  24
+ ]
+}

@@ -1,0 +1,60 @@
+{
+ "slug": "night-slash",
+ "pixel": true,
+ "note": "pixel art própria (original): corte escuro em meia-lua",
+ "duration": 34,
+ "layers": [
+  {
+   "asset": "Og-night-slash",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 4,
+   "end": 20,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 15
+   },
+   "z": 3,
+   "n": 4,
+   "fps": 15,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  10
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "hide",
+   "dur": 16
+  }
+ ]
+}

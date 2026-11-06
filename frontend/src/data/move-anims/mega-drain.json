@@ -1,0 +1,110 @@
+{
+ "slug": "mega-drain",
+ "pixel": true,
+ "note": "pixel art própria (original): esferas verdes maiores voltando",
+ "duration": 54,
+ "layers": [
+  {
+   "asset": "Og-water-shuriken--impacto",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 2,
+   "end": 17,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 16
+   },
+   "z": 3,
+   "n": 4,
+   "fps": 16,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 11,
+       "v": 1
+      },
+      {
+       "t": 15,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-mega-drain",
+   "keepColor": true,
+   "anchor": "target",
+   "to": "user",
+   "start": 8,
+   "end": 32,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     10,
+     10
+    ],
+    "interval": 3,
+    "life": 22,
+    "seed": 3,
+    "frames": [
+     0,
+     1
+    ]
+   },
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 1,
+       "ease": "in"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  4
+ ]
+}

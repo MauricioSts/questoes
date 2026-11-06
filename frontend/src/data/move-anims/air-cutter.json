@@ -1,0 +1,70 @@
+{
+ "slug": "air-cutter",
+ "pixel": true,
+ "note": "pixel art própria (original): várias lâminas de ar pequenas",
+ "duration": 40,
+ "layers": [
+  {
+   "asset": "Og-air-cutter",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 22,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     4,
+     16
+    ],
+    "interval": 2,
+    "life": 14,
+    "seed": 22,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "orient": true,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 14,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  16,
+  24
+ ]
+}

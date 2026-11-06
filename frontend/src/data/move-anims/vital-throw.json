@@ -1,0 +1,80 @@
+{
+ "slug": "vital-throw",
+ "pixel": true,
+ "note": "pixel art própria (original): arremesso com linhas de impacto",
+ "duration": 46,
+ "layers": [
+  {
+   "asset": "Og-vital-throw",
+   "keepColor": true,
+   "anchor": "field-target",
+   "start": 20,
+   "end": 38,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 10
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  20
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 10
+  },
+  {
+   "who": "target",
+   "t": 6,
+   "kind": "hop",
+   "dur": 14
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 20,
+    "dur": 8,
+    "amp": 3
+   }
+  ]
+ }
+}

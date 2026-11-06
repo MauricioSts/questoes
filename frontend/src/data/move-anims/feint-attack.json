@@ -1,0 +1,60 @@
+{
+ "slug": "feint-attack",
+ "pixel": true,
+ "note": "pixel art própria (original): golpe surgindo de lado com sombra",
+ "duration": 44,
+ "layers": [
+  {
+   "asset": "Og-feint-attack",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 4,
+   "end": 28,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 10
+   },
+   "z": 3,
+   "n": 4,
+   "fps": 10,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  22
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "hide",
+   "dur": 36
+  }
+ ]
+}

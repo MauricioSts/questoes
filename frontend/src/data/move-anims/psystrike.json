@@ -1,0 +1,70 @@
+{
+ "slug": "psystrike",
+ "pixel": true,
+ "note": "pixel art própria (original): explosão psíquica violeta grande",
+ "duration": 50,
+ "layers": [
+  {
+   "asset": "Og-psystrike",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 6,
+   "end": 28,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 14
+   },
+   "z": 3,
+   "n": 5,
+   "fps": 14,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  10
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 8,
+    "dur": 16,
+    "amp": 4
+   }
+  ],
+  "flash": [
+   {
+    "t": 6,
+    "dur": 6,
+    "color": "#D0A8FF",
+    "alpha": 0.45
+   }
+  ]
+ }
+}

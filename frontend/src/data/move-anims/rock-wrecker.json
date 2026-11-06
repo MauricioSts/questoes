@@ -1,0 +1,118 @@
+{
+ "slug": "rock-wrecker",
+ "pixel": true,
+ "note": "pixel art própria (original): rocha enorme em projétil",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Og-rock-wrecker",
+   "keepColor": false,
+   "anchor": "user",
+   "to": "target",
+   "start": 6,
+   "end": 30,
+   "frame": 0,
+   "arc": 18,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 24,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 24,
+       "v": 270
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-head-smash--explosao",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 30,
+   "end": 52,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 14
+   },
+   "z": 3,
+   "n": 5,
+   "fps": 14,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  30
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 30,
+    "dur": 16,
+    "amp": 5
+   }
+  ]
+ }
+}

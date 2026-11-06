@@ -1,0 +1,50 @@
+{
+ "slug": "hyper-fang",
+ "pixel": true,
+ "note": "pixel art própria (original): dois incisivos enormes",
+ "duration": 36,
+ "layers": [
+  {
+   "asset": "Og-hyper-fang",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 2,
+   "end": 22,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 14
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  10
+ ]
+}

@@ -1,0 +1,118 @@
+{
+ "slug": "giga-drain",
+ "pixel": true,
+ "note": "pixel art própria (original): muitas esferas e raízes de luz",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Og-giga-drain",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8
+   },
+   "z": 3,
+   "n": 4,
+   "fps": 8,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-mega-drain",
+   "keepColor": true,
+   "anchor": "target",
+   "to": "user",
+   "start": 16,
+   "end": 40,
+   "spawn": {
+    "count": 10,
+    "spread": [
+     10,
+     10
+    ],
+    "interval": 3,
+    "life": 22,
+    "seed": 3,
+    "frames": [
+     0,
+     1
+    ]
+   },
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 1,
+       "ease": "in"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  8
+ ]
+}

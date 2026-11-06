@@ -1,0 +1,173 @@
+{
+ "slug": "roar",
+ "pixel": true,
+ "note": "pixel art própria (original): ondas grossas e vento empurrando",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Og-roar",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 26,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 8
+   },
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.05
+      },
+      {
+       "t": 26,
+       "v": 0.95
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 21,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-roar",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 8,
+   "end": 34,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 8
+   },
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.05
+      },
+      {
+       "t": 26,
+       "v": 0.95
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 21,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-roar",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 16,
+   "end": 42,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 8
+   },
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.05
+      },
+      {
+       "t": 26,
+       "v": 0.95
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 21,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  26
+ ],
+ "react": "status",
+ "actor": [
+  {
+   "who": "target",
+   "t": 24,
+   "kind": "shake",
+   "dur": 20
+  }
+ ]
+}

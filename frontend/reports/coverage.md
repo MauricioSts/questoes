@@ -1,12 +1,12 @@
 # Cobertura das animações de golpes
 
-Gerado por `tools/gerar-receitas.mjs`. 559 golpes (gerações 1–5), 431 receitas, 662 de 686 arquivos do atlas usados.
+Gerado por `tools/gerar-receitas.mjs`. 559 golpes (gerações 1–5), 533 receitas, 777 de 801 arquivos do atlas usados.
 
 | | golpes |
 |---|---|
 | Cobertos com asset original | 91 |
-| Cobertos com aproximação (receita combinada ou reaproveitada) | 179 |
-| Pixel art própria (peças Px-* desenhadas por tools/pixel-kit.mjs) | 289 |
+| Cobertos com aproximação (receita combinada ou reaproveitada) | 77 |
+| Pixel art própria (peças Px-* desenhadas por tools/pixel-kit.mjs) | 391 |
 | Sem cobertura de sprite (fallback procedural por arquétipo) | 0 |
 
 Nenhuma receita é a animação do jogo: os PNGs são peças e o movimento foi recriado à mão.
@@ -111,183 +111,81 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 ## Cobertos com aproximação
 
 - Absorb: receita própria combinando peças: orbes e brilhos de Leech Seed voltando ao usuário
-- Bite: usa `crunch`
 - Blizzard: receita própria combinando peças: nevasca com cacos de gelo cruzando a tela
 - Body Slam: usa `stomp`
 - Bubble: usa `bubble-beam`
 - Bubble Beam: receita própria combinando peças: bolhas da folha de Water Pulse
-- Comet Punch: usa `rock-smash` pintado de Normal
 - Confuse Ray: receita própria combinando peças: orbe de Sacred Fire + pássaros de confusão
-- Confusion: usa `psychic`
-- Dizzy Punch: usa `rock-smash` pintado de Normal
-- Double-Edge: usa `giga-impact`
 - Dream Eater: usa `nightmare` pintado de Psychic
 - Earthquake: receita própria combinando peças: rachaduras de Fissure + tremor
-- Egg Bomb: usa `mud-bomb` pintado de Normal
 - Ember: receita própria combinando peças: chama pequena de Fire Spin + Burn
 - Flamethrower: receita própria combinando peças: jato montado com chamas soltas de Fire Spin
 - Fury Swipes: usa `scratch`
 - Glare: usa `mean-look`
-- Headbutt: usa `iron-head` pintado de Normal
-- High Jump Kick: usa `mega-kick` pintado de Fighting
-- Hyper Fang: usa `crunch` pintado de Normal
 - Ice Beam: receita própria combinando peças: raio montado com cacos de gelo
 - Ice Punch: usa `fire-punch` pintado de Ice
-- Jump Kick: usa `mega-kick` pintado de Fighting
-- Karate Chop: usa `cut` pintado de Fighting
 - Leer: usa `scary-face`
-- Low Kick: usa `mega-kick` pintado de Fighting
-- Mega Drain: usa `absorb`
-- Mega Punch: usa `rock-smash` pintado de Normal
 - Petal Dance: usa `magical-leaf`
-- Poison Powder: usa `sleep-powder` pintado de Poison
-- Poison Sting: usa `pin-missile` pintado de Poison
-- Psybeam: usa `psychic`
-- Razor Wind: usa `psycho-cut` pintado de Normal
-- Roar: usa `growl`
-- Rock Slide: usa `rock-tomb`
-- Rock Throw: usa `rock-tomb`
-- Rolling Kick: usa `mega-kick` pintado de Fighting
-- Screech: usa `growl`
-- Slash: usa `cut`
 - Sleep Powder: receita própria combinando peças: nuvens de Worry Seed como pó
-- Sludge: usa `mud-bomb` pintado de Poison
-- Solar Beam: usa `flash-cannon` pintado de Grass
-- Spike Cannon: usa `pin-missile` pintado de Normal
-- Spore: usa `sleep-powder`
-- Stun Spore: usa `sleep-powder`
-- Submission: usa `seismic-toss`
-- Super Fang: usa `crunch` pintado de Normal
-- Supersonic: usa `growl`
-- Take Down: usa `giga-impact`
 - Thunder Punch: usa `fire-punch` pintado de Electric
-- Twineedle: usa `pin-missile`
 - Water Gun: usa `bubble-beam`
-- Cotton Spore: usa `sleep-powder`
-- Cross Chop: usa `x-scissor` pintado de Fighting
 - Dynamic Punch: receita própria combinando peças: fundo do asset + punho de Close Combat
-- Extreme Speed: usa `quick-attack`
-- Feint Attack: usa `sucker-punch`
 - Flame Wheel: receita própria combinando peças
-- Fury Cutter: usa `cut` pintado de Bug
-- Giga Drain: usa `absorb`
-- Icy Wind: usa `blizzard`
-- Mach Punch: usa `rock-smash`
 - Magnitude: usa `earthquake`
 - Metal Claw: usa `scratch` pintado de Steel
 - Mind Reader: usa `lock-on`
-- Mud-Slap: usa `mud-bomb`
 - Octazooka: usa `mud-shot` pintado de Water
-- Perish Song: usa `sing`
-- Powder Snow: usa `blizzard`
-- Pursuit: usa `sucker-punch`
 - Rock Smash: receita própria combinando peças: punho de Close Combat + pedras
-- Sleep Talk: usa `rest` pintado de Normal
-- Sludge Bomb: usa `mud-bomb` pintado de Poison
-- Snore: usa `rest` pintado de Normal
 - Spite: usa `grudge`
 - Sunny Day: receita própria combinando peças: bola de fogo como sol
 - Sweet Kiss: usa `confuse-ray` pintado de Fairy
 - Triple Kick: usa `double-kick`
-- Vital Throw: usa `seismic-toss`
-- Air Cutter: usa `psycho-cut` pintado de Flying
 - Arm Thrust: usa `close-combat`
-- Blaze Kick: usa `mega-kick` pintado de Fire
 - Bounce: usa `fly`
 - Brick Break: usa `hammer-arm`
 - Crush Claw: usa `shadow-claw` pintado de Normal
 - Dive: usa `whirlpool`
-- Extrasensory: usa `psychic`
 - Flatter: usa `swagger` pintado de Dark
 - Focus Punch: usa `dynamic-punch`
 - Follow Me: usa `metronome`
-- Grass Whistle: usa `sing` pintado de Grass
 - Hydro Cannon: receita própria combinando peças: fundo do asset + jato de Hydro Pump
-- Hyper Voice: usa `growl`
 - Ice Ball: usa `ice-shard`
 - Icicle Spear: usa `ice-shard`
-- Imprison: usa `block` pintado de Psychic
-- Leaf Blade: usa `psycho-cut` pintado de Grass
-- Metal Sound: usa `growl` pintado de Steel
-- Meteor Mash: usa `iron-head`
 - Muddy Water: usa `surf`
 - Odor Sleuth: usa `foresight`
 - Overheat: receita própria combinando peças
-- Poison Fang: usa `crunch` pintado de Poison
-- Rock Blast: usa `rock-tomb`
 - Shadow Punch: usa `shadow-claw`
-- Sheer Cold: usa `blizzard`
-- Signal Beam: usa `flash-cannon` pintado de Bug
-- Sky Uppercut: usa `rock-smash`
 - Taunt: usa `swagger` pintado de Dark
-- Torment: usa `block` pintado de Dark
 - Trick: receita própria combinando peças: copos embaralhando: não sabemos qual golpe do DP usa esta folha
-- Uproar: usa `growl`
 - Volt Tackle: usa `flare-blitz` pintado de Electric
 - Water Spout: usa `hydro-pump`
 - Will-O-Wisp: receita própria combinando peças: chamas de Grudge + chamas de Burn
-- Yawn: usa `rest` pintado de Normal
-- Air Slash: usa `psycho-cut` pintado de Flying
-- Aqua Jet: usa `quick-attack` pintado de Water
-- Assurance: usa `sucker-punch`
 - Aura Sphere: receita própria combinando peças: orbes da folha de Sacred Fire
-- Brave Bird: usa `flare-blitz` pintado de Flying
 - Brine: usa `water-pulse`
-- Bullet Punch: usa `rock-smash` pintado de Steel
-- Charge Beam: usa `flash-cannon` pintado de Electric
-- Cross Poison: usa `x-scissor` pintado de Poison
 - Dark Pulse: usa `shadow-ball` pintado de Dark
 - Defend Order: receita própria combinando peças: esferas de mel como escudo: movimento inventado
 - Dragon Pulse: usa `aura-sphere` pintado de Dragon
-- Drain Punch: usa `absorb` pintado de Fighting
 - Earth Power: usa `fissure`
-- Embargo: usa `block` pintado de Dark
-- Feint: usa `quick-attack`
-- Fire Fang: usa `crunch` pintado de Fire
 - Flare Blitz: receita própria combinando peças: fundo do asset + explosão de Fire Punch
-- Head Smash: usa `iron-head` pintado de Rock
-- Heal Block: usa `block` pintado de Psychic
-- Ice Fang: usa `crunch` pintado de Ice
 - Magma Storm: usa `fire-spin`
 - Miracle Eye: usa `foresight` pintado de Psychic
-- Mirror Shot: usa `flash-cannon`
 - Mud Bomb: receita própria combinando peças: bola de Mud Bomb + respingo de Mud Sport
-- Night Slash: usa `x-scissor` pintado de Dark
 - Ominous Wind: usa `shadow-ball`
-- Payback: usa `sucker-punch`
 - Roar of Time: usa `spacial-rend`
-- Rock Wrecker: usa `rock-tomb`
 - Seed Bomb: usa `worry-seed`
 - Shadow Sneak: usa `shadow-force`
 - Stealth Rock: usa `spikes` pintado de Rock
-- Thunder Fang: usa `crunch` pintado de Electric
 - Toxic Spikes: usa `spikes` pintado de Poison
-- U-turn: usa `quick-attack` pintado de Bug
-- Zen Headbutt: usa `iron-head` pintado de Psychic
 - Bulldoze: usa `earthquake`
-- Circle Throw: usa `seismic-toss`
-- Echoed Voice: usa `growl`
-- Flame Charge: usa `flare-blitz`
-- Head Charge: usa `giga-impact`
-- Heavy Slam: usa `iron-head`
 - Hex: usa `nightmare`
 - Hone Claws: usa `swords-dance` pintado de Dark
-- Horn Leech: usa `absorb`
 - Incinerate: usa `flamethrower`
 - Inferno: usa `fire-blast`
 - Leaf Tornado: usa `leaf-storm`
 - Magic Room: usa `trick-room`
-- Psyshock: usa `psychic`
-- Psystrike: usa `psychic`
-- Rage Powder: usa `sleep-powder` pintado de Bug
 - Relic Song: usa `sing`
-- Round: usa `sing`
 - Sky Drop: usa `fly`
-- Snarl: usa `growl` pintado de Dark
-- Stored Power: usa `psychic`
-- Storm Throw: usa `seismic-toss`
 - Telekinesis: usa `kinesis`
-- Wild Charge: usa `flare-blitz` pintado de Electric
 - Wonder Room: usa `trick-room`
 
 ## Pixel art própria
@@ -299,9 +197,12 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Barrier: (original): placa hexagonal translúcida ciano
 - Bide: (carga)
 - Bind: (prender)
+- Bite: (original): mordida base pintado de Dark
 - Bone Club: (osso)
 - Bonemerang: (osso)
 - Clamp: (pinca)
+- Comet Punch: (original): vários punhos-cometa em sequência pintado de Normal
+- Confusion: (original): anéis psíquicos girando no alvo
 - Constrict: (prender)
 - Conversion: (brilhos)
 - Counter: (contato)
@@ -309,10 +210,13 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Defense Curl: (original): anel que se fecha em bola pintado de Normal
 - Dig: (cavar)
 - Disable: (original): X vermelho sobre uma corrente
+- Dizzy Punch: (original): punho e estrelinhas girando pintado de Normal
 - Double Slap: (golpe)
 - Double Team: (original): três silhuetas translúcidas pintado de Normal
+- Double-Edge: (original): investida com aura e recuo pintado de Normal
 - Dragon Rage: (feixe)
 - Drill Peck: (chifre)
+- Egg Bomb: (original): ovo branco que explode
 - Explosion: (explosao)
 - Flash: (original): clarão branco em tela cheia
 - Focus Energy: (original): veias de energia amarela convergindo
@@ -322,14 +226,22 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Gust: (projetil)
 - Harden: (original): superfície que racha e cristaliza
 - Haze: (nuvem)
+- Headbutt: (original): impacto de cabeça simples
+- High Jump Kick: (original): chute voador alto e mais forte pintado de Fighting
 - Horn Attack: (chifre)
 - Horn Drill: (chifre)
 - Hyper Beam: (feixe)
+- Hyper Fang: (original): dois incisivos enormes pintado de Normal
+- Jump Kick: (original): chute voador caindo de cima pintado de Fighting
+- Karate Chop: (original): mão de golpe de caratê pintado de Fighting
 - Leech Life: (dreno)
 - Lick: (chicote)
 - Light Screen: (barreira)
 - Lovely Kiss: (coracoes)
+- Low Kick: (original): rasteira baixa pintado de Fighting
 - Meditate: (original): aura de lótus laranja
+- Mega Drain: (original): esferas verdes maiores voltando
+- Mega Punch: (original): punho grande com impacto forte pintado de Normal
 - Mimic: (troca)
 - Minimize: (original): setas para dentro e ponto encolhendo pintado de Normal
 - Mirror Move: (brilhos)
@@ -338,25 +250,44 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Pay Day: (moedas)
 - Peck: (chifre)
 - Poison Gas: (nuvem)
+- Poison Powder: (original): pó roxo
+- Poison Sting: (original): ferrão roxo pintado de Poison
 - Pound: (golpe)
+- Psybeam: (original): raio em espiral de arco-íris
 - Psywave: (ondas)
 - Rage: (contato)
+- Razor Wind: (original): redemoinho de lâminas de vento
 - Reflect: (barreira)
+- Roar: (original): ondas grossas e vento empurrando
+- Rock Slide: (original): avalanche de pedras caindo pintado de Rock
+- Rock Throw: (original): 1 ou 2 pedras jogadas pintado de Rock
+- Rolling Kick: (original): chute giratório em arco pintado de Fighting
 - Sand Attack: (original): punhado de areia jogado no rosto
+- Screech: (original): ondas estridentes serrilhadas
 - Self-Destruct: (explosao)
 - Sharpen: (original): aresta que ganha brilho afiado pintado de Normal
 - Skull Bash: (carga)
 - Sky Attack: (carga)
 - Slam: (contato)
+- Slash: (original): três garras de corte
+- Sludge: (original): gosma roxa arremessada
 - Smog: (nuvem)
 - Smokescreen: (original): nuvem de fumaça preta
 - Soft-Boiled: (original): ovo branco que se abre em brilho
+- Solar Beam: (original): carga de luz do sol e raio grosso
 - Sonic Boom: (projetil)
+- Spike Cannon: (original): espinhos em rajada pintado de Normal
+- Spore: (original): esporos de cogumelo maiores
 - Strength: (contato)
 - String Shot: (original): fios brancos de seda enrolando
 - Struggle: (contato)
+- Stun Spore: (original): pó amarelo com faíscas
+- Submission: (original): rolagem de luta e impacto pintado de Fighting
+- Super Fang: (original): presas longas e rachadura no impacto pintado de Normal
+- Supersonic: (original): ondas finas em zigue-zague
 - Tackle: (contato)
 - Tail Whip: (original): cauda balançando com linhas de movimento
+- Take Down: (original): investida com poeira pintado de Normal
 - Teleport: (teleporte)
 - Thrash: (contato)
 - Thunder: (raio)
@@ -366,6 +297,7 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Toxic: (nuvem)
 - Transform: (brilhos)
 - Tri Attack: (projetil)
+- Twineedle: (original): duas agulhas pintado de Bug
 - Vine Whip: (chicote)
 - Vise Grip: (pinca)
 - Whirlwind: (original): redemoinho de vento cinza-claro
@@ -378,29 +310,41 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Bone Rush: (osso)
 - Charm: (original): coração rosa piscando
 - Conversion 2: (brilhos)
+- Cotton Spore: (original): tufos de algodão
+- Cross Chop: (original): duas mãos em X
 - Curse: (maldicao)
 - Destiny Bond: (ondas)
 - Detect: (brilhos)
 - Dragon Breath: (feixe)
 - Encore: (original): holofote e 'BIS!' com estrelas
 - Endure: (aura)
+- Extreme Speed: (original): rastro branco intenso pintado de Normal
 - False Swipe: (corte)
+- Feint Attack: (original): golpe surgindo de lado com sombra
 - Flail: (contato)
 - Frustration: (contato)
+- Fury Cutter: (original): lâmina de inseto verde que cresce
 - Future Sight: (futuro)
+- Giga Drain: (original): muitas esferas e raízes de luz
 - Heal Bell: (brilhos)
 - Hidden Power: (orbitar)
+- Icy Wind: (original): vento gelado azul-claro
 - Iron Tail: (chicote)
+- Mach Punch: (original): punho com linhas de velocidade pintado de Fighting
 - Megahorn: (chifre)
 - Milk Drink: (original): garrafa de leite e brilho branco
 - Mirror Coat: (feixe)
 - Moonlight: (original): lua crescente e luz azul descendo pintado de Fairy
 - Morning Sun: (original): sol nascendo laranja e amarelo
+- Mud-Slap: (original): tapa de lama marrom
 - Outrage: (contato)
 - Pain Split: (troca)
+- Perish Song: (original): notas sombrias e caveira
+- Powder Snow: (original): flocos de neve leves
 - Present: (projetil)
 - Protect: (barreira)
 - Psych Up: (brilhos)
+- Pursuit: (original): silhueta escura perseguindo pintado de Dark
 - Rapid Spin: (contato)
 - Return: (contato)
 - Reversal: (contato)
@@ -408,6 +352,9 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Safeguard: (barreira)
 - Sandstorm: (clima)
 - Sketch: (troca)
+- Sleep Talk: (original): balão de fala dormindo
+- Sludge Bomb: (original): bomba de lodo explodindo
+- Snore: (original): zzz e onda sonora
 - Spark: (choque)
 - Spider Web: (prender)
 - Steel Wing: (corte)
@@ -415,10 +362,13 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Synthesis: (original): raios de sol descendo e folhas absorvendo a luz pintado de Grass
 - Thief: (golpe)
 - Twister: (area)
+- Vital Throw: (original): arremesso com linhas de impacto
 - Zap Cannon: (projetil)
+- Air Cutter: (original): várias lâminas de ar pequenas
 - Aromatherapy: (brilhos)
 - Assist: (brilhos)
 - Astonish: (contato)
+- Blaze Kick: (original): chute em chamas pintado de Fire
 - Bulk Up: (original): bíceps inflando com linhas de força
 - Calm Mind: (original): olho fechado e ondas suaves lilás
 - Camouflage: (brilhos)
@@ -428,31 +378,43 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Doom Desire: (futuro)
 - Dragon Dance: (original): chamas de dragão roxas e azuis em espiral
 - Endeavor: (contato)
+- Extrasensory: (original): olho psíquico enorme sobre o alvo
 - Facade: (contato)
 - Fake Out: (palmas)
 - Fake Tears: (original): lágrimas exageradas em gotas grandes
 - Feather Dance: (original): penas brancas caindo
+- Grass Whistle: (original): folha-apito e notas verdes
 - Hail: (clima)
 - Howl: (original): lua e ondas de uivo
+- Hyper Voice: (original): ondas sonoras enormes e brancas
+- Imprison: (original): grade de cela roxa
 - Ingrain: (original): raízes descendo para o chão pintado de Grass
 - Iron Defense: (original): placas de aço que se juntam como armadura
 - Knock Off: (golpe)
+- Leaf Blade: (original): lâmina verde em forma de folha
 - Luster Purge: (feixe)
 - Magic Coat: (barreira)
 - Memento: (sacrificio)
+- Metal Sound: (original): ondas metálicas com faíscas
+- Meteor Mash: (original): punho-meteoro com estrelas pintado de Steel
 - Mist Ball: (projetil)
 - Nature Power: (projetil)
+- Poison Fang: (original): mordida e gotas roxas de veneno pintado de Poison
 - Poison Tail: (chicote)
 - Psycho Boost: (feixe)
 - Recycle: (brilhos)
 - Refresh: (brilhos)
 - Revenge: (contato)
+- Rock Blast: (original): rajada de pedras em sequência pintado de Rock
 - Role Play: (troca)
 - Sand Tomb: (prender)
 - Secret Power: (projetil)
+- Sheer Cold: (original): congelamento total num bloco de gelo
 - Shock Wave: (ondas)
+- Signal Beam: (original): raio de luzes coloridas piscando
 - Silver Wind: (area)
 - Skill Swap: (troca)
+- Sky Uppercut: (original): gancho de baixo para cima pintado de Fighting
 - Slack Off: (original): nuvenzinha de preguiça (zzz) e brilho verde
 - Smelling Salts: (golpe)
 - Snatch: (troca)
@@ -462,16 +424,26 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Swallow: (brilhos)
 - Tail Glow: (original): cauda brilhando com pontos de luz
 - Tickle: (original): pena fazendo cócegas com marcas de riso
+- Torment: (original): chifres de diabinho e marcas de raiva
+- Uproar: (original): notas e ondas caóticas coloridas
 - Weather Ball: (projetil)
 - Wish: (original): estrela cadente que cai no usuário
+- Yawn: (original): bocejo e uma bolha
+- Air Slash: (original): lâmina de ar branca em meia-lua pintado de Flying
+- Aqua Jet: (original): rastro de jato d'água
 - Aqua Ring: (original): anel de bolhas d'água girando pintado de Water
 - Aqua Tail: (chicote)
+- Assurance: (original): punho escuro e um '!' pintado de Dark
 - Avalanche: (area)
+- Brave Bird: (original): pássaro de energia azul investindo pintado de Flying
 - Bug Bite: (pinca)
 - Bug Buzz: (ondas)
+- Bullet Punch: (original): punho de aço em bala pintado de Steel
 - Captivate: (original): corações rosas com brilho
+- Charge Beam: (original): raio elétrico amarelo
 - Chatter: (ondas)
 - Copycat: (brilhos)
+- Cross Poison: (original): X roxo de veneno
 - Crush Grip: (golpe)
 - Dark Void: (nuvem)
 - Defog: (clima)
@@ -479,6 +451,10 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Double Hit: (chicote)
 - Draco Meteor: (area)
 - Dragon Rush: (contato)
+- Drain Punch: (original): punho que suga energia laranja pintado de Fighting
+- Embargo: (original): cadeado preto
+- Feint: (original): finta com silhueta falsa pintado de Normal
+- Fire Fang: (original): mordida e chamas pintado de Fire
 - Fling: (projetil)
 - Force Palm: (golpe)
 - Gastro Acid: (original): gosma verde ácida pingando
@@ -487,8 +463,11 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Guard Swap: (troca)
 - Gunk Shot: (projetil)
 - Gyro Ball: (contato)
+- Head Smash: (original): cabeça de pedra e explosão
+- Heal Block: (original): cruz verde com X
 - Healing Wish: (sacrificio)
 - Heart Swap: (troca)
+- Ice Fang: (original): mordida e cristais de gelo pintado de Ice
 - Judgment: (area)
 - Lucky Chant: (barreira)
 - Lunar Dance: (sacrificio)
@@ -496,8 +475,11 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Magnet Rise: (original): ímã em U flutuando com linhas de campo
 - Me First: (troca)
 - Metal Burst: (feixe)
+- Mirror Shot: (original): clarão refletido num espelho
 - Nasty Plot: (original): balão com sorriso maligno e lâmpada escura
 - Natural Gift: (projetil)
+- Night Slash: (original): corte escuro em meia-lua
+- Payback: (original): soco escuro de revide com seta voltando pintado de Dark
 - Pluck: (chifre)
 - Power Gem: (projetil)
 - Power Swap: (troca)
@@ -507,13 +489,17 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Punishment: (golpe)
 - Rock Climb: (contato)
 - Rock Polish: (original): pedra brilhando com faíscas de polimento
+- Rock Wrecker: (original): rocha enorme em projétil pintado de Rock
 - Roost: (original): penas descendo e ninho pintado de Flying
 - Switcheroo: (troca)
 - Tailwind: (clima)
+- Thunder Fang: (original): mordida e raios pintado de Electric
 - Trump Card: (projetil)
+- U-turn: (original): rastro em U verde-inseto pintado de Bug
 - Vacuum Wave: (projetil)
 - Wake-Up Slap: (golpe)
 - Wring Out: (golpe)
+- Zen Headbutt: (original): cabeça com aura psíquica azul pintado de Psychic
 - Acid Spray: (projetil)
 - Acrobatics: (contato)
 - After You: (original): mão em gesto de 'por favor' e seta
@@ -523,12 +509,14 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Blue Flare: (area)
 - Bolt Strike: (choque)
 - Chip Away: (contato)
+- Circle Throw: (original): arremesso em arco circular pintado de Fighting
 - Clear Smog: (nuvem)
 - Coil: (original): serpente roxa se enrolando
 - Cotton Guard: (original): nuvens de algodão envolvendo
 - Dragon Tail: (chicote)
 - Drill Run: (chifre)
 - Dual Chop: (corte)
+- Echoed Voice: (original): ondas que se repetem e crescem
 - Electro Ball: (projetil)
 - Electroweb: (prender)
 - Entrainment: (troca)
@@ -536,6 +524,7 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Final Gambit: (contato)
 - Fire Pledge: (area)
 - Flame Burst: (projetil)
+- Flame Charge: (original): chamas pequenas em volta, correndo
 - Foul Play: (contato)
 - Freeze Shock: (carga)
 - Frost Breath: (feixe)
@@ -545,21 +534,28 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Glaciate: (area)
 - Grass Pledge: (area)
 - Guard Split: (troca)
+- Head Charge: (original): cabeça com chifres investindo pintado de Normal
 - Heal Pulse: (original): pulso de onda em cruz verde pintado de Psychic
 - Heart Stamp: (golpe)
 - Heat Crash: (contato)
+- Heavy Slam: (original): corpo pesado caindo e rachando o chão
+- Horn Leech: (original): chifre de madeira e esferas verdes pintado de Grass
 - Hurricane: (area)
 - Ice Burn: (carga)
 - Icicle Crash: (area)
 - Low Sweep: (chicote)
 - Night Daze: (ondas)
 - Power Split: (troca)
+- Psyshock: (original): cristais psíquicos caindo como estilhaços
+- Psystrike: (original): explosão psíquica violeta grande
 - Quash: (original): mão empurrando para baixo com ondas escuras
 - Quick Guard: (barreira)
 - Quiver Dance: (original): pó de asa iridescente em espiral
+- Rage Powder: (original): pó vermelho-alaranjado em volta do usuário
 - Razor Shell: (corte)
 - Reflect Type: (troca)
 - Retaliate: (contato)
+- Round: (original): notas em roda
 - Sacred Sword: (corte)
 - Scald: (projetil)
 - Searing Shot: (area)
@@ -569,8 +565,11 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Simple Beam: (original): raio de pontinhos rosa e amarelo
 - Sludge Wave: (area)
 - Smack Down: (projetil)
+- Snarl: (original): ondas escuras com dentes
 - Soak: (projetil)
 - Steamroller: (contato)
+- Stored Power: (original): esferas de energia que se juntam e disparam
+- Storm Throw: (original): arremesso com redemoinho de vento pintado de Fighting
 - Struggle Bug: (area)
 - Synchronoise: (ondas)
 - Tail Slap: (chicote)
@@ -580,6 +579,7 @@ Arquivos do atlas sem receita: Px-Orbe, Px-Pulso, Px-Faisca, Px-Brilho, Px-Anel,
 - Volt Switch: (choque)
 - Water Pledge: (area)
 - Wide Guard: (barreira)
+- Wild Charge: (original): corpo elétrico investindo
 - Work Up: (original): punhos com linhas de esforço
 
 ## Sem cobertura (fallback procedural)

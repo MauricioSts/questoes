@@ -1,0 +1,65 @@
+{
+ "slug": "sleep-talk",
+ "pixel": true,
+ "note": "pixel art própria (original): balão de fala dormindo",
+ "duration": 52,
+ "layers": [
+  {
+   "asset": "Og-sleep-talk",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 46,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     1,
+     2
+    ],
+    "fps": 5
+   },
+   "z": 4,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 22
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -12
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 40,
+       "v": 1
+      },
+      {
+       "t": 46,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "self"
+}

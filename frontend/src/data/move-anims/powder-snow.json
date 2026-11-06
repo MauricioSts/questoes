@@ -1,0 +1,70 @@
+{
+ "slug": "powder-snow",
+ "pixel": true,
+ "note": "pixel art própria (original): flocos de neve leves",
+ "duration": 48,
+ "layers": [
+  {
+   "asset": "Og-powder-snow",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 26,
+   "spawn": {
+    "count": 12,
+    "spread": [
+     8,
+     14
+    ],
+    "interval": 2,
+    "life": 20,
+    "seed": 27,
+    "spin": 6,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.05
+      },
+      {
+       "t": 20,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  22
+ ]
+}

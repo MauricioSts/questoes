@@ -1,0 +1,68 @@
+{
+ "slug": "cross-chop",
+ "pixel": true,
+ "note": "pixel art própria (original): duas mãos em X",
+ "duration": 38,
+ "layers": [
+  {
+   "asset": "Og-cross-chop",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 2,
+   "end": 20,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 10
+   },
+   "z": 3,
+   "n": 3,
+   "fps": 10,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  16
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 16
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 16,
+    "dur": 6,
+    "amp": 2
+   }
+  ]
+ }
+}

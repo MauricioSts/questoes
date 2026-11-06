@@ -120,3 +120,123 @@ Folhas de sprite em pixel art de DS, desenhadas por código (`tools/golpes-origi
 | wish--estrela.png | 32×16 | 1 | projetil | 1 estrela cadente com rastro (o motor faz cair do céu no usuário) |
 | withdraw.png | 40×32 | 3 | icone | 1 duas metades de casco abertas; 2 fechando; 3 casco fechado com brilho |
 | work-up.png | 40×32 | 2 | icone | 1-2 loop: dois punhos laranja tremendo de esforço com linhas de força |
+
+## Lote 2b: grupos de golpes parecidos (102)
+
+| arquivo | quadro | nº de quadros | peças | o que acontece em cada quadro |
+|---|---|---|---|---|
+| air-cutter.png | 16×16 | 3 | particula | 3 variações de lâmina de ar pequena (saem em leque) |
+| air-slash.png | 32×32 | 1 | projetil | 1 lâmina de ar branca em meia-lua (o motor gira e lança) |
+| aqua-jet.png | 64×24 | 4 | rastro | 1-4 loop: jato d'água que se alarga para a frente (o usuário vai na ponta), com gotas |
+| assurance--exclamacao.png | 16×24 | 1 | icone | 1 '!' vermelho (aparece sobre o alvo se ele já levou dano no turno) |
+| assurance--punho.png | 28×24 | 1 | punho | 1 punho escuro |
+| blaze-kick.png | 40×32 | 4 | pe | 1-4 loop: pé em chamas, labaredas tremulando atrás |
+| brave-bird.png | 48×32 | 4 | projetil | 1-4 loop: pássaro de energia azul batendo as asas, com rastro (o usuário investe dentro dele) |
+| bullet-punch.png | 36×20 | 1 | projetil | 1 punho de aço em forma de bala |
+| charge-beam.png | 128×24 | 4 | raio | 1-4 loop: raio elétrico amarelo em zigue-zague (cada quadro um traçado) |
+| chute-base--impacto.png | 40×40 | 3 | impacto | (recolorível) 1 estrela pequena; 2 cheia; 3 afinando |
+| chute-base--pe.png | 32×24 | 1 | pe | (recolorível) base dos chutes: 1 pé com a sola para a direita |
+| circle-throw.png | 64×64 | 4 | rastro | 1-4 rastro do arremesso em arco circular, crescendo até quase uma volta |
+| comet-punch.png | 48×24 | 1 | punho | 1 punho dourado com cauda de cometa (o motor repete em sequência rápida) |
+| confusion.png | 56×24 | 4 | aneis | 1-4 loop: três anéis psíquicos rosa girando em volta do alvo |
+| cotton-spore.png | 14×14 | 3 | particula | 3 variações de tufo de algodão |
+| cross-chop.png | 48×48 | 3 | maos | 1 duas mãos de caratê afastadas; 2 cruzando; 3 X fechado com impacto |
+| cross-poison.png | 48×48 | 4 | corte | 1 primeiro risco roxo; 2 X de veneno completo; 3 brilho; 4 afinando |
+| dizzy-punch.png | 40×20 | 4 | estrelas | 1-4 loop: três estrelinhas girando em volta da cabeça do alvo |
+| double-edge--aura.png | 48×48 | 4 | aura | 1-4 loop: aura ondulante branca e laranja em volta do usuário que investe |
+| double-edge--recuo.png | 32×32 | 3 | impacto | 1-3 estrela laranja de recuo (sobre o próprio usuário) |
+| drain-punch--energia.png | 12×12 | 1 | particula | 1 esfera de energia laranja (sugada pelo punho base) |
+| echoed-voice.png | 48×48 | 4 | onda | 1-4 ondas que se repetem, cada quadro com uma a mais e maior (o golpe cresce a cada uso) |
+| egg-bomb--explosao.png | 48×48 | 5 | explosao | 1 clarão; 2 estrela; 3 explosão amarela; 4 anel; 5 dissolve |
+| egg-bomb--ovo.png | 16×20 | 1 | projetil | 1 ovo branco (o motor arremessa em arco e gira) |
+| embargo.png | 24×32 | 3 | icone | 1 cadeado preto aberto; 2 fecha; 3 trancado com brilho |
+| extrasensory.png | 48×32 | 3 | olho | 1 olho psíquico se abrindo sobre o alvo; 2 aberto; 3 brilha com raios |
+| extreme-speed.png | 96×32 | 3 | rastro | 1-3 loop: rastro branco intenso com linhas de velocidade passando |
+| feint.png | 40×48 | 3 | silhueta | (recolorível) 1 silhueta falsa do usuário; 2 começa a sumir; 3 some em xadrez (o golpe vem de outro lado) |
+| feint-attack.png | 48×48 | 4 | golpe | 1 sombra surge pela lateral; 2 aproxima; 3 golpe em X escuro; 4 X afinando |
+| fire-fang--chama.png | 14×18 | 3 | particula | 3 variações de chama (sobem da mordida) |
+| flame-charge.png | 12×16 | 3 | particula | 3 variações de chaminha (o motor espalha em volta do usuário correndo) |
+| fury-cutter.png | 48×48 | 4 | corte | 1-4 lâmina de inseto verde em meia-lua, cada quadro maior (usar o quadro pelo nº de usos seguidos) |
+| giga-drain.png | 48×48 | 4 | raizes | 1 raízes de luz começam a sair do alvo; 2-3 crescem com mais esferas; 4 muitas esferas presas às raízes |
+| grass-whistle--folha.png | 24×16 | 1 | folha | 1 folha-apito |
+| grass-whistle--nota.png | 12×12 | 2 | particula | 2 variações de nota verde |
+| head-charge.png | 40×24 | 1 | chifres | 1 par de chifres apontando para a frente (vai na frente da investida) |
+| head-smash--cabeca.png | 32×32 | 1 | cabeca | 1 cabeça de pedra com rachaduras (vai na frente do usuário na investida) |
+| head-smash--explosao.png | 56×56 | 5 | explosao | 1 clarão; 2 estrela; 3 explosão de pedra; 4 anel; 5 dissolve |
+| headbutt.png | 40×40 | 3 | impacto | 1 estrela pequena e anel; 2 estrela e dois anéis (bonk); 3 anéis se abrindo |
+| heal-block.png | 32×32 | 3 | icone | 1 cruz verde de cura; 2 um X vermelho começa por cima; 3 X completo (cura bloqueada) |
+| heavy-slam.png | 64×24 | 4 | rachadura | 1 o corpo pesado bate: rachadura curta; 2-3 rachaduras se espalham no chão; 4 lascas pulando |
+| high-jump-kick.png | 56×56 | 4 | impacto | 1-3 impacto vermelho forte de 8 pontas; 4 anéis de choque (o chute voador alto, mais forte) |
+| horn-leech.png | 32×24 | 1 | chifre | 1 chifre de madeira (as esferas verdes são as do mega-drain) |
+| hyper-fang.png | 48×48 | 4 | boca | (recolorível) 1-4 mordida com dois incisivos enormes |
+| hyper-voice.png | 64×64 | 3 | onda | 1-3 ondas sonoras enormes e brancas |
+| ice-fang--cristal.png | 14×14 | 3 | particula | 3 variações de cristal de gelo |
+| icy-wind.png | 64×32 | 4 | vento | 1-4 loop: vento gelado azul-claro em faixas onduladas com cristaizinhos |
+| imprison.png | 48×48 | 3 | cela | 1 grades roxas descendo; 2 cela completa; 3 cela trancada com brilho |
+| jump-kick.png | 24×48 | 1 | rastro | 1 rastro do chute voador caindo de cima (o pé base vai na ponta) |
+| karate-chop.png | 40×40 | 3 | mao | 1 mão de caratê erguida; 2 descendo com linhas de movimento; 3 golpe embaixo |
+| leaf-blade.png | 48×48 | 4 | corte | 1 lâmina-folha verde começa o corte; 2 meio; 3 corte inteiro com brilho; 4 some em xadrez |
+| low-kick.png | 64×24 | 3 | rastro | 1-3 rastro de rasteira baixo, varrendo da esquerda para a direita, com poeira |
+| mach-punch.png | 48×24 | 1 | linhas | 1 linhas de velocidade brancas (vão atrás do punho base) |
+| mega-drain.png | 14×14 | 2 | particula | 2 variações de esfera verde maior (o motor traz do alvo ao usuário) |
+| mega-punch.png | 64×64 | 4 | impacto | (recolorível) 1 impacto forte; 2 estrela enorme de 10 pontas; 3 estrela com anel de choque; 4 anéis se abrindo |
+| metal-sound.png | 48×48 | 3 | onda | 1-3 ondas metálicas cinza com faíscas |
+| meteor-mash.png | 48×32 | 4 | projetil | 1-4 loop: punho-meteoro de aço com cauda de fogo e duas estrelas girando |
+| mirror-shot--clarao.png | 64×16 | 2 | raio | 1-2 loop: tiro de luz refletida, prateado |
+| mirror-shot--espelho.png | 32×32 | 3 | espelho | 1 espelho oval; 2 reflexo atravessa; 3 clarão na borda (de onde sai o tiro) |
+| mordida-base.png | 48×48 | 4 | boca | (recolorível) base das mordidas: 1 boca aberta; 2 fechando; 3 fechada; 4 impacto com riscos (bite, fire/thunder/ice/poison-fang) |
+| mud-slap.png | 32×32 | 4 | impacto | 1 tapa de lama marrom; 2 espalha; 3 mancha cheia com respingos; 4 some |
+| night-slash.png | 48×48 | 4 | corte | 1 corte escuro em meia-lua começa; 2 abre; 3 cheio; 4 afina |
+| payback.png | 40×32 | 3 | seta | 1-3 seta vermelha curva voltando para o alvo (revide) |
+| pedra-base.png | 24×24 | 3 | pedra | (recolorível) base das pedras: 3 variações (pequena, média, grande) |
+| perish-song--caveira.png | 18×18 | 1 | icone | 1 caveira (fica sobre os dois Pokémon durante a contagem) |
+| perish-song--nota.png | 12×12 | 2 | particula | 2 variações de nota sombria |
+| poison-fang--gota.png | 10×12 | 3 | particula | 3 variações de gota roxa de veneno |
+| poison-powder.png | 10×10 | 3 | particula | 3 variações de pó roxo |
+| poison-sting.png | 20×10 | 1 | projetil | 1 ferrão roxo apontando para a direita |
+| powder-snow.png | 10×10 | 3 | particula | 3 variações de floco de neve leve |
+| psybeam.png | 128×24 | 4 | raio | 1-4 loop: raio em espiral dupla de arco-íris sobre um fio rosa (gira 90°/quadro) |
+| psyshock.png | 12×16 | 3 | particula | 3 variações de cristal psíquico em ponta (caem como estilhaços sobre o alvo) |
+| psystrike.png | 64×64 | 5 | explosao | 1 clarão violeta; 2 estrela; 3 explosão psíquica grande; 4 anel; 5 dissolve |
+| pursuit.png | 48×32 | 3 | silhueta | 1 silhueta escura de olhos vermelhos; 2-3 com rastros atrás (perseguindo) |
+| rage-powder.png | 10×10 | 3 | particula | 3 variações de pó vermelho-alaranjado |
+| razor-wind.png | 48×48 | 4 | redemoinho | 1-4 loop: redemoinho de lâminas de vento girando (carga no 1º turno) |
+| roar.png | 56×56 | 3 | onda | 1-3 ondas grossas com linhas de vento empurrando para a direita |
+| rock-wrecker.png | 48×48 | 1 | projetil | (recolorível) 1 rocha enorme rachada (o motor lança e gira) |
+| rolling-kick.png | 48×48 | 4 | rastro | 1-4 loop: arco de chute giratório (o pé base gira junto) |
+| round.png | 48×48 | 4 | notas | 1-4 loop: cinco notas coloridas girando em roda |
+| screech.png | 48×48 | 3 | onda | 1-3 ondas estridentes serrilhadas (branco com borda vermelha) |
+| sheer-cold.png | 48×56 | 4 | bloco | 1 gelo começa no chão; 2 sobe; 3 bloco de gelo cobre o alvo; 4 brilho (congelamento total) |
+| signal-beam.png | 128×16 | 4 | raio | 1-4 loop: fila de luzes coloridas piscando e trocando de cor |
+| sky-uppercut.png | 32×48 | 3 | rastro | 1-3 rastro de gancho em arco de baixo para cima (cresce) |
+| slash.png | 48×48 | 4 | corte | 1-3 três riscos de garra em diagonal crescendo; 4 afinando |
+| sleep-talk.png | 40×32 | 3 | balao | 1-3 balão de fala com reticências enchendo e um 'z' (falando dormindo) |
+| sludge--projetil.png | 20×20 | 2 | projetil | 1-2 loop: bola de gosma roxa pulsando |
+| sludge--respingo.png | 32×32 | 4 | impacto | 1 gosma bate; 2 espalha; 3 respingos roxos; 4 some |
+| sludge-bomb--bomba.png | 24×24 | 1 | projetil | 1 bomba de lodo roxa com pavio aceso |
+| sludge-bomb--explosao.png | 48×48 | 5 | explosao | 1 clarão; 2 estrela roxa; 3 explosão de lodo; 4 anel; 5 dissolve |
+| snarl.png | 48×48 | 3 | onda | 1-3 ondas escuras com dentes brancos nas bordas |
+| snore.png | 40×32 | 3 | onda | 1-3 'z' subindo (1 a 3) e uma onda de ronco que cresce |
+| soco-base--impacto.png | 40×40 | 3 | impacto | (recolorível) 1 estrela pequena; 2 estrela cheia; 3 afinando |
+| soco-base--punho.png | 28×24 | 1 | punho | (recolorível) base dos socos: 1 punho fechado de lado, nós dos dedos para a direita |
+| solar-beam--carga.png | 32×32 | 4 | carga | 1 ponto de luz; 2-3 o sol cresce juntando luz; 4 sol cheio com raios (carregado) |
+| solar-beam--raio.png | 128×32 | 3 | raio | 1-3 loop: raio grosso amarelo-branco ondulando (o motor estica entre usuário e alvo) |
+| spike-cannon.png | 20×10 | 1 | projetil | 1 espinho de pedra (o motor dispara em rajada) |
+| spore.png | 14×14 | 3 | particula | 3 variações de esporo de cogumelo, maiores, com pintinhas |
+| stored-power--esfera.png | 14×14 | 1 | particula | 1 esfera de energia rosa (uma por bônus de atributo; o motor junta no usuário e dispara) |
+| storm-throw.png | 48×48 | 4 | redemoinho | 1-4 loop: redemoinho de vento cinza-azulado (o arremesso sai dele) |
+| stun-spore.png | 10×10 | 3 | particula | 3 variações de pó amarelo (com pontinho de faísca) |
+| submission.png | 48×48 | 4 | rolagem | 1-4 loop: os dois rolando juntos: arcos de movimento girando, estrela e poeira |
+| super-fang--boca.png | 48×48 | 4 | boca | (recolorível) 1-4 mordida com presas longas |
+| super-fang--rachadura.png | 40×40 | 3 | rachadura | 1 rachadura começa no ponto da mordida; 2 abre; 3 rachadura grande (o HP pela metade) |
+| supersonic.png | 48×48 | 3 | onda | 1-3 ondas sonoras finas em zigue-zague, branco-roxas, saindo para a direita |
+| take-down.png | 48×24 | 4 | poeira | 1-4 nuvem de poeira crescendo atrás da investida (a última mais rala) |
+| thunder-fang--raio.png | 24×32 | 3 | raio | 1-3 raios curtos piscando (cada quadro um desenho) |
+| torment.png | 40×32 | 3 | icone | 1 chifrinhos de diabo; 2 com uma marca de raiva; 3 duas marcas de raiva |
+| twineedle.png | 28×14 | 1 | projetil | 1 duas agulhas verdes paralelas |
+| u-turn.png | 64×48 | 4 | rastro | 1-4 rastro verde-inseto em U: vai até o alvo, faz a curva e volta (o usuário troca) |
+| uproar.png | 48×48 | 4 | onda | 1-4 loop: ondas e notas em várias cores, desencontradas (caos) |
+| vital-throw.png | 48×48 | 3 | impacto | 1-3 linhas de impacto radiais se abrindo (o alvo bate no chão) |
+| wild-charge.png | 48×48 | 4 | aura | 1-4 loop: corpo envolto em aura elétrica com raios saindo (cada quadro outro desenho) |
+| yawn.png | 32×32 | 3 | icone | 1 boca começa a bocejar; 2 bocejo aberto e uma bolha; 3 bolha cresce (o alvo vai dormir) |
+| zen-headbutt.png | 48×48 | 4 | aura | 1-4 loop: aura psíquica azul em arcos na frente da cabeça (vai junto com a investida) |

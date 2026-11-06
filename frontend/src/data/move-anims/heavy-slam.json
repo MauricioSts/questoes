@@ -1,0 +1,73 @@
+{
+ "slug": "heavy-slam",
+ "pixel": true,
+ "note": "pixel art própria (original): corpo pesado caindo e rachando o chão",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Og-heavy-slam",
+   "keepColor": true,
+   "anchor": "field-target",
+   "start": 16,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 10
+   },
+   "z": 1,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  16
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "hop",
+   "dur": 16
+  },
+  {
+   "who": "user",
+   "t": 4,
+   "kind": "dash",
+   "dur": 24
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 16,
+    "dur": 14,
+    "amp": 5
+   }
+  ]
+ }
+}

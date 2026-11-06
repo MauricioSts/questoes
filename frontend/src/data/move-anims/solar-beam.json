@@ -1,0 +1,148 @@
+{
+ "slug": "solar-beam",
+ "pixel": true,
+ "note": "pixel art própria (original): carga de luz do sol e raio grosso",
+ "duration": 84,
+ "layers": [
+  {
+   "asset": "Og-solar-beam--carga",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 40,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     3,
+     3
+    ],
+    "fps": 8
+   },
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 18
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 36,
+       "v": 1
+      },
+      {
+       "t": 40,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-solar-beam--raio",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 36,
+   "end": 76,
+   "orient": true,
+   "z": 3,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 15,
+    "loop": true
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.5
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.3
+      },
+      {
+       "t": 6,
+       "v": 1,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 1
+      },
+      {
+       "t": 40,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  44,
+  56
+ ],
+ "screen": {
+  "flash": [
+   {
+    "t": 36,
+    "dur": 8,
+    "color": "#FFF8A0",
+    "alpha": 0.4
+   }
+  ],
+  "shake": [
+   {
+    "t": 38,
+    "dur": 30,
+    "amp": 2
+   }
+  ]
+ }
+}

@@ -450,3 +450,206 @@ RECEITAS_OG.push(...LOTE_2A.map(([slug, note, camadas, o]) => comBase(slug, note
 
 // arquétipo e base são só do mapa; a receita gravada não os carrega
 export const receitasOgLimpas = () => RECEITAS_OG.map(({ arquetipo, base, ...r }) => r);
+
+// ---------- lote 2b: grupos de golpes parecidos ----------
+// Peças base cinza (mordida, soco, chute, pedra) vão sem keepColor: o mapa pinta pelo tipo.
+const Lc = (asset, o) => ({ ...L(asset, o), keepColor: false });
+const arq = (slug) => POR_SLUG.get(slug).arquetipo;
+const G2 = (slug, note, corpo) => R(slug, arq(slug), note, corpo);
+const imp = (asset, t, o = {}) => noAlvo(asset, t, o.n ?? 3, o.fps ?? 15, o);
+const impCinza = (asset, t, o = {}) => ({ ...imp(asset, t, o), keepColor: false });
+const lunge = (t = 0, dur = 12) => ({ who: "user", t, kind: "lunge", dur });
+const dash = (t = 0, dur = 20) => ({ who: "user", t, kind: "dash", dur });
+const ondas3 = (asset, n, extra = [], o = {}) => [
+  ...[0, 8, 16].map((t0) => L(asset, { anchor: "user", to: "target", start: t0, end: t0 + 26, frameSeq: seq(intervalo(n), 8), z: 3, tracks: { p: k([0, 0.05], [26, o.alcance ?? 0.95]), alpha: fade(26, 2, 5) } })),
+  ...extra,
+];
+const particulasCaindo = (asset, frames, o = {}) =>
+  L(asset, { anchor: "target", start: 0, end: o.end ?? 30, spawn: { count: o.count ?? 14, spread: o.spread ?? [24, 6], interval: o.interval ?? 2, life: o.life ?? 30, seed: o.seed ?? 1, vy: o.vy ?? 0.7, spin: o.spin ?? 0, frames }, z: 4, tracks: { y: k([0, o.y ?? -36]), alpha: fade(o.life ?? 30, 2, 8) } });
+const feixeMeio = (asset, start, end, o = {}) =>
+  L(asset, { anchor: "user", to: "target", start, end, orient: true, z: 3, frameSeq: o.frameSeq ?? seq([0, 1, 2, 3].slice(0, o.n ?? 4), 15, true), tracks: { p: k([0, 0.5]), scale: k([0, 0.3], [6, 1, "out"]), alpha: fade(end - start, 2, 6) } });
+const orbesDreno = (asset, start, o = {}) =>
+  L(asset, { anchor: "target", to: "user", start, end: start + 24, spawn: { count: o.count ?? 6, spread: [10, 10], interval: 3, life: 22, seed: o.seed ?? 3, frames: o.frames ?? [0] }, z: 3, tracks: { p: k([0, 0], [22, 1, "in"]), alpha: fade(22, 2, 4) } });
+const sequenciaProj = (asset, n, passo, dur, o = {}) =>
+  Array.from({ length: n }, (_, i) => ({
+    ...viagem(asset, i * passo, i * passo + dur, { frame: (o.frames ?? [0])[i % (o.frames ?? [0]).length], orient: o.orient ?? true, ...(o.arc ? { arc: o.arc } : {}), ...(o.rot ? { tracks: { rot: k([0, 0], [dur, o.rot]) } } : {}) }),
+    ...(o.cinza ? { keepColor: false } : {}),
+  }));
+const impactosSeq = (asset, n, passo, dur, o = {}) =>
+  Array.from({ length: n }, (_, i) => ({ ...imp(asset, i * passo + dur, { n: 3, fps: 20, tracks: { x: k([0, ((i * 7) % 3) * 6 - 6]), y: k([0, ((i * 5) % 3) * 5 - 5]), alpha: fade(9, 1, 3) } }), ...(o.cinza ? { keepColor: false } : {}) }));
+const hitsSeq = (n, passo, dur) => Array.from({ length: n }, (_, i) => i * passo + dur);
+
+const SOCO = "soco-base--punho";
+const SOCO_IMP = "soco-base--impacto";
+const PE = "chute-base--pe";
+const PE_IMP = "chute-base--impacto";
+const BOCA = "mordida-base";
+const punhoAoAlvo = (start, o = {}) => Lc(SOCO, { anchor: "target", start, end: start + (o.dur ?? 12), frame: 0, z: 3, tracks: { x: k([0, o.x0 ?? -34], [o.dur ?? 12, o.x1 ?? -10, "out"]), y: k([0, o.y0 ?? 0], [o.dur ?? 12, o.y1 ?? 0]), scale: k([0, o.scale ?? 1]), alpha: fade(o.dur ?? 12, 1, 3) } });
+const peAoAlvo = (start, o = {}) => Lc(PE, { anchor: "target", start, end: start + (o.dur ?? 12), frame: 0, z: 3, tracks: { x: k([0, o.x0 ?? -34], [o.dur ?? 12, o.x1 ?? -10, "out"]), y: k([0, o.y0 ?? 6], [o.dur ?? 12, o.y1 ?? 6, "in"]), rot: k([0, o.rot0 ?? 0], [o.dur ?? 12, o.rot1 ?? 0]), scale: k([0, o.scale ?? 1]), alpha: fade(o.dur ?? 12, 1, 3) } });
+const mordida = (start = 0) => Lc(BOCA, { anchor: "target", start, end: start + 20, frameSeq: seq([0, 1, 2, 3], 14), z: 3, tracks: { alpha: fade(20, 1, 4) } });
+
+const LOTE_2B = [
+  // som
+  G2("supersonic", "ondas finas em zigue-zague", { duration: 56, layers: ondas3("supersonic", 3), hits: [26], react: "status" }),
+  G2("screech", "ondas estridentes serrilhadas", { duration: 84, layers: ondas3("screech", 3, [quedaAtributo(30)]), hits: [30], react: "status", screen: tremor(4, 24, 1) }),
+  G2("roar", "ondas grossas e vento empurrando", { duration: 60, layers: ondas3("roar", 3), hits: [26], react: "status", actor: [{ who: "target", t: 24, kind: "shake", dur: 20 }] }),
+  G2("hyper-voice", "ondas sonoras enormes e brancas", { duration: 56, layers: ondas3("hyper-voice", 3), hits: [24, 34], screen: tremor(6, 30, 3) }),
+  G2("metal-sound", "ondas metálicas com faíscas", { duration: 84, layers: ondas3("metal-sound", 3, [quedaAtributo(30)]), hits: [30], react: "status" }),
+  G2("uproar", "notas e ondas caóticas coloridas", { duration: 60, layers: [L("uproar", { anchor: "user", to: "target", start: 0, end: 52, frameSeq: seq(intervalo(4), 10, true), z: 3, tracks: { p: k([0, 0.15], [52, 0.75]), alpha: fade(52, 3, 8) } })], hits: [20, 36], screen: tremor(4, 44, 2) }),
+  G2("echoed-voice", "ondas que se repetem e crescem", { duration: 50, layers: [L("echoed-voice", { anchor: "user", to: "target", start: 0, end: 34, frameSeq: seq(intervalo(4), 8), z: 3, tracks: { p: k([0, 0.05], [34, 1]), alpha: fade(34, 2, 5) } })], hits: [32] }),
+  G2("snarl", "ondas escuras com dentes", { duration: 90, layers: ondas3("snarl", 3, [quedaAtributo(36)]), hits: [26, 34] }),
+  // mordidas
+  G2("bite", "mordida base", { duration: 36, layers: [mordida(2)], hits: [10] }),
+  G2("hyper-fang", "dois incisivos enormes", { duration: 36, layers: [Lc("hyper-fang", { anchor: "target", start: 2, end: 22, frameSeq: seq([0, 1, 2, 3], 14), z: 3, tracks: { alpha: fade(20, 1, 4) } })], hits: [10] }),
+  G2("super-fang", "presas longas e rachadura no impacto", {
+    duration: 52,
+    layers: [Lc("super-fang--boca", { anchor: "target", start: 2, end: 22, frameSeq: seq([0, 1, 2, 3], 14), z: 3, tracks: { alpha: fade(20, 1, 4) } }), L("super-fang--rachadura", { anchor: "target", start: 10, end: 44, frameSeq: seq([0, 1, 2], 10), z: 3, tracks: { alpha: fade(34, 1, 10) } })],
+    hits: [10],
+    screen: tremor(10, 8, 2),
+  }),
+  G2("fire-fang", "mordida e chamas", { duration: 46, layers: [mordida(2), L("fire-fang--chama", { anchor: "target", start: 10, end: 20, spawn: { count: 7, spread: [16, 8], interval: 1, life: 22, seed: 11, vy: -0.8, frames: [0, 1, 2] }, z: 3, tracks: { alpha: fade(22, 1, 8) } })], hits: [10] }),
+  G2("thunder-fang", "mordida e raios", { duration: 44, layers: [mordida(2), L("thunder-fang--raio", { anchor: "target", start: 10, end: 32, frameSeq: seq([0, 1, 2], 15, true), z: 3, tracks: { alpha: fade(22, 1, 4) } })], hits: [10], screen: { flash: [{ t: 10, dur: 4, color: "#FFF6A8", alpha: 0.3 }] } }),
+  G2("ice-fang", "mordida e cristais de gelo", { duration: 44, layers: [mordida(2), L("ice-fang--cristal", { anchor: "target", start: 10, end: 14, spawn: { count: 8, spread: 6, interval: 0, life: 24, seed: 12, burst: 1.3, spin: 8, frames: [0, 1, 2] }, z: 3, tracks: { alpha: fade(24, 1, 8) } })], hits: [10] }),
+  G2("poison-fang", "mordida e gotas roxas de veneno", { duration: 46, layers: [mordida(2), L("poison-fang--gota", { anchor: "target", start: 10, end: 16, spawn: { count: 7, spread: 6, interval: 1, life: 24, seed: 13, burst: 0.9, gravity: 0.08, frames: [0, 1, 2] }, z: 3, tracks: { alpha: fade(24, 1, 6) } })], hits: [10] }),
+  // psíquicos
+  G2("confusion", "anéis psíquicos girando no alvo", { duration: 56, layers: [L("confusion", { anchor: "target", start: 0, end: 50, frameSeq: seq(intervalo(4), 12, true), z: 3, tracks: { alpha: fade(50, 4, 8) } })], hits: [24], actor: [{ who: "target", t: 16, kind: "shake", dur: 20 }] }),
+  G2("psybeam", "raio em espiral de arco-íris", { duration: 48, layers: [feixeMeio("psybeam", 4, 40)], hits: [16] }),
+  G2("stored-power", "esferas de energia que se juntam e disparam", {
+    duration: 60,
+    layers: [
+      L("stored-power--esfera", { anchor: "user", start: 0, end: 18, spawn: { count: 5, spread: 26, interval: 2, life: 16, seed: 14, burst: -1.2 }, frame: 0, z: 3, tracks: { alpha: fade(16, 2, 2) } }),
+      viagem("stored-power--esfera", 20, 34, { frame: 0, tracks: { scale: k([0, 1.8]) } }),
+      { ...imp("psystrike", 34, { n: 5, fps: 18 }), tracks: { scale: k([0, 0.6]), alpha: fade(17, 1, 4) } },
+    ],
+    hits: [35],
+  }),
+  G2("extrasensory", "olho psíquico enorme sobre o alvo", { duration: 50, layers: [L("extrasensory", { anchor: "target", start: 0, end: 42, frameSeq: seq([0, 1, 2, 1, 2], 8), z: 4, tracks: { y: k([0, -8]), alpha: fade(42, 3, 6) } })], hits: [24], actor: [{ who: "target", t: 24, kind: "shake", dur: 12 }] }),
+  G2("psyshock", "cristais psíquicos caindo como estilhaços", { duration: 52, layers: [particulasCaindo("psyshock", [0, 1, 2], { count: 9, spread: [20, 4], vy: 2.6, life: 20, y: -56, seed: 15 })], hits: [22, 30] }),
+  G2("psystrike", "explosão psíquica violeta grande", { duration: 50, layers: [imp("psystrike", 6, { n: 5, fps: 14 })], hits: [10], screen: { shake: [{ t: 8, dur: 16, amp: 4 }], flash: [{ t: 6, dur: 6, color: "#D0A8FF", alpha: 0.45 }] } }),
+  // socos
+  G2("comet-punch", "vários punhos-cometa em sequência", { duration: 50, layers: [...sequenciaProj("comet-punch", 5, 6, 10, { orient: true }), ...impactosSeq(SOCO_IMP, 5, 6, 10, { cinza: true })], hits: hitsSeq(5, 6, 10) }),
+  G2("mach-punch", "punho com linhas de velocidade", {
+    duration: 32,
+    layers: [L("mach-punch", { anchor: "target", start: 0, end: 10, frame: 0, z: 3, tracks: { x: k([0, -50], [8, -30]), alpha: fade(10, 1, 3) } }), punhoAoAlvo(0, { dur: 8, x0: -40 }), impCinza(SOCO_IMP, 8)],
+    hits: [8],
+    actor: [lunge(0, 8)],
+  }),
+  G2("bullet-punch", "punho de aço em bala", { duration: 30, layers: [viagem("bullet-punch", 0, 8, { frame: 0, orient: true }), impCinza(SOCO_IMP, 8)], hits: [8] }),
+  G2("sky-uppercut", "gancho de baixo para cima", {
+    duration: 40,
+    layers: [L("sky-uppercut", { anchor: "target", start: 2, end: 22, frameSeq: seq([0, 1, 2], 12), z: 3, tracks: { x: k([0, -10]), alpha: fade(20, 1, 6) } }), punhoAoAlvo(2, { dur: 12, x0: -14, x1: -4, y0: 26, y1: -14 }), impCinza(SOCO_IMP, 12, { tracks: { y: k([0, -10]), alpha: fade(12, 1, 3) } })],
+    hits: [12],
+    actor: [lunge(0, 12), { who: "target", t: 12, kind: "hop", dur: 14 }],
+  }),
+  G2("mega-punch", "punho grande com impacto forte", { duration: 44, layers: [punhoAoAlvo(0, { dur: 14, x0: -44, x1: -14, scale: 1.6 }), impCinza("mega-punch", 14, { n: 4, fps: 14 })], hits: [14], actor: [lunge(0, 14)], screen: tremor(14, 10, 4) }),
+  G2("dizzy-punch", "punho e estrelinhas girando", { duration: 70, layers: [punhoAoAlvo(0), impCinza(SOCO_IMP, 12), L("dizzy-punch", { anchor: "target", start: 16, end: 66, frameSeq: seq(intervalo(4), 12, true), z: 4, tracks: { y: k([0, -30]), alpha: fade(50, 3, 8) } })], hits: [12], actor: [lunge(0, 12)] }),
+  // pós
+  G2("poison-powder", "pó roxo", { duration: 56, layers: [particulasCaindo("poison-powder", [0, 1, 2], { seed: 16 })], hits: [24], react: "status" }),
+  G2("stun-spore", "pó amarelo com faíscas", { duration: 56, layers: [particulasCaindo("stun-spore", [0, 1, 2], { seed: 17 })], hits: [24], react: "status" }),
+  G2("rage-powder", "pó vermelho-alaranjado em volta do usuário", { duration: 56, layers: [{ ...particulasCaindo("rage-powder", [0, 1, 2], { seed: 18, spread: [20, 10], vy: -0.3, y: 10 }), anchor: "user" }], react: "self" }),
+  G2("spore", "esporos de cogumelo maiores", { duration: 64, layers: [particulasCaindo("spore", [0, 1, 2], { seed: 19, count: 10, interval: 3, vy: 0.5, life: 36 })], hits: [28], react: "status" }),
+  G2("cotton-spore", "tufos de algodão", { duration: 90, layers: [particulasCaindo("cotton-spore", [0, 1, 2], { seed: 20, count: 10, interval: 3, vy: 0.5, life: 36, spin: 2 }), quedaAtributo(34)], hits: [34], react: "status" }),
+  // cabeçadas
+  G2("meteor-mash", "punho-meteoro com estrelas", { duration: 40, layers: [viagem("meteor-mash", 0, 18, { frameSeq: seq(intervalo(4), 16, true), orient: true }), impCinza(SOCO_IMP, 18)], hits: [18], screen: tremor(18, 8, 2) }),
+  G2("zen-headbutt", "cabeça com aura psíquica azul", { duration: 42, layers: [L("zen-headbutt", { anchor: "user", to: "target", start: 0, end: 18, frameSeq: seq(intervalo(4), 16, true), z: 3, tracks: { p: k([0, 0], [18, 0.85, "in"]), alpha: fade(18, 2, 2) } }), impCinza(SOCO_IMP, 18)], hits: [18], actor: [dash(0, 30)] }),
+  G2("heavy-slam", "corpo pesado caindo e rachando o chão", { duration: 56, layers: [L("heavy-slam", { anchor: "field-target", start: 16, end: 50, frameSeq: seq([0, 1, 2, 3], 10), z: 1, tracks: { alpha: fade(34, 1, 10) } })], hits: [16], actor: [{ who: "user", t: 0, kind: "hop", dur: 16 }, dash(4, 24)], screen: tremor(16, 14, 5) }),
+  G2("headbutt", "impacto de cabeça simples", { duration: 36, layers: [imp("headbutt", 8, { n: 3, fps: 12 })], hits: [8], actor: [lunge(0, 12)] }),
+  G2("head-smash", "cabeça de pedra e explosão", { duration: 56, layers: [viagem("head-smash--cabeca", 4, 20, { frame: 0, tracks: { p: k([0, 0], [16, 0.9, "in"]) } }), imp("head-smash--explosao", 20, { n: 5, fps: 14 })], hits: [20], actor: [dash(2, 26)], screen: tremor(20, 16, 5) }),
+  // chutes
+  G2("low-kick", "rasteira baixa", { duration: 40, layers: [L("low-kick", { anchor: "field-target", start: 2, end: 20, frameSeq: seq([0, 1, 2], 12), z: 3, tracks: { y: k([0, -6]), alpha: fade(18, 1, 6) } }), peAoAlvo(2, { y0: 18, y1: 18, x0: -40, x1: 0 }), impCinza(PE_IMP, 12, { tracks: { y: k([0, 16]), alpha: fade(12, 1, 3) } })], hits: [12], actor: [lunge(0, 12), { who: "target", t: 12, kind: "hop", dur: 12 }] }),
+  G2("rolling-kick", "chute giratório em arco", { duration: 40, layers: [L("rolling-kick", { anchor: "target", start: 0, end: 20, frameSeq: seq(intervalo(4), 16, true), z: 3, tracks: { x: k([0, -14]), alpha: fade(20, 1, 6) } }), peAoAlvo(0, { dur: 14, rot0: -360, rot1: 0, x0: -30, x1: -8 }), impCinza(PE_IMP, 14)], hits: [14], actor: [lunge(0, 14)] }),
+  G2("jump-kick", "chute voador caindo de cima", { duration: 40, layers: [L("jump-kick", { anchor: "target", start: 0, end: 16, frame: 0, z: 3, tracks: { x: k([0, -26], [14, -10]), y: k([0, -60], [14, -18, "in"]), rot: k([0, -20]), alpha: fade(16, 1, 3) } }), peAoAlvo(0, { dur: 14, x0: -26, x1: -6, y0: -44, y1: -4, rot0: 25, rot1: 25 }), impCinza(PE_IMP, 14)], hits: [14], actor: [{ who: "user", t: 0, kind: "hop", dur: 12 }] }),
+  G2("high-jump-kick", "chute voador alto e mais forte", { duration: 48, layers: [L("jump-kick", { anchor: "target", start: 0, end: 18, frame: 0, z: 3, tracks: { x: k([0, -30], [16, -10]), y: k([0, -90], [16, -18, "in"]), rot: k([0, -20]), alpha: fade(18, 1, 3) } }), peAoAlvo(0, { dur: 16, x0: -30, x1: -6, y0: -80, y1: -4, rot0: 25, rot1: 25, scale: 1.3 }), imp("high-jump-kick", 16, { n: 4, fps: 14 })], hits: [16], actor: [{ who: "user", t: 0, kind: "hop", dur: 14 }], screen: tremor(16, 10, 4) }),
+  G2("blaze-kick", "chute em chamas", { duration: 44, layers: [L("blaze-kick", { anchor: "target", start: 0, end: 16, frameSeq: seq(intervalo(4), 16, true), z: 3, tracks: { x: k([0, -40], [14, -12, "out"]), alpha: fade(16, 1, 3) } }), impCinza(PE_IMP, 14), L("fire-fang--chama", { anchor: "target", start: 14, end: 20, spawn: { count: 6, spread: [12, 6], interval: 1, life: 20, seed: 21, vy: -0.8, frames: [0, 1, 2] }, z: 3, tracks: { alpha: fade(20, 1, 8) } })], hits: [14], actor: [lunge(0, 14)] }),
+  // raios
+  G2("solar-beam", "carga de luz do sol e raio grosso", {
+    duration: 84,
+    layers: [L("solar-beam--carga", { anchor: "user", start: 0, end: 40, frameSeq: seq([0, 1, 2, 3, 3, 3], 8), z: 3, tracks: { x: k([0, 18]), y: k([0, -10]), alpha: fade(40, 3, 4) } }), feixeMeio("solar-beam--raio", 36, 76, { n: 3 })],
+    hits: [44, 56],
+    screen: { flash: [{ t: 36, dur: 8, color: "#FFF8A0", alpha: 0.4 }], shake: [{ t: 38, dur: 30, amp: 2 }] },
+  }),
+  G2("signal-beam", "raio de luzes coloridas piscando", { duration: 46, layers: [feixeMeio("signal-beam", 2, 38)], hits: [14] }),
+  G2("mirror-shot", "clarão refletido num espelho", { duration: 46, layers: [L("mirror-shot--espelho", { anchor: "user", start: 0, end: 30, frameSeq: seq([0, 1, 2, 2], 8), z: 3, tracks: { x: k([0, 22]), y: k([0, -8]), alpha: fade(30, 2, 6) } }), viagem("mirror-shot--clarao", 22, 34, { frameSeq: seq([0, 1], 15, true), orient: true })], hits: [34], screen: { flash: [{ t: 20, dur: 4, color: "#FFFFFF", alpha: 0.35 }] } }),
+  G2("charge-beam", "raio elétrico amarelo", { duration: 46, layers: [feixeMeio("charge-beam", 2, 38)], hits: [12, 24] }),
+  // cortes de ar e lâmina
+  G2("air-slash", "lâmina de ar branca em meia-lua", { duration: 40, layers: [...sequenciaProj("air-slash", 2, 8, 16), impCinza(SOCO_IMP, 16), impCinza(SOCO_IMP, 24)], hits: [16, 24] }),
+  G2("air-cutter", "várias lâminas de ar pequenas", { duration: 40, layers: [L("air-cutter", { anchor: "user", to: "target", start: 0, end: 22, spawn: { count: 6, spread: [4, 16], interval: 2, life: 14, seed: 22, frames: [0, 1, 2] }, orient: true, tracks: { p: k([0, 0], [14, 1]), alpha: fade(14, 1, 2) } })], hits: [16, 24] }),
+  G2("leaf-blade", "lâmina verde em forma de folha", { duration: 36, layers: [imp("leaf-blade", 4, { n: 4, fps: 15 })], hits: [10], actor: [lunge(0, 12)] }),
+  G2("razor-wind", "redemoinho de lâminas de vento", { duration: 64, layers: [L("razor-wind", { anchor: "user", start: 0, end: 34, frameSeq: seq(intervalo(4), 14, true), z: 3, tracks: { alpha: fade(34, 3, 2) } }), viagem("razor-wind", 32, 50, { frameSeq: seq(intervalo(4), 16, true) })], hits: [50] }),
+  // sombrio rápido
+  G2("pursuit", "silhueta escura perseguindo", { duration: 44, layers: [viagem("pursuit", 0, 18, { frameSeq: seq([0, 1, 2], 12), tracks: { p: k([0, 0], [18, 0.85]) } }), impCinza(SOCO_IMP, 18)], hits: [18], actor: [{ who: "user", t: 0, kind: "hide", dur: 30 }] }),
+  G2("assurance", "punho escuro e um '!'", { duration: 54, layers: [{ ...punhoAoAlvo(0, {}), asset: nomeOg("assurance--punho.png"), keepColor: true }, impCinza(SOCO_IMP, 12), L("assurance--exclamacao", { anchor: "target", start: 14, end: 48, frame: 0, z: 4, tracks: { y: k([0, -26], [6, -34, "out"]), alpha: fade(34, 1, 6) } })], hits: [12], actor: [lunge(0, 12)] }),
+  G2("payback", "soco escuro de revide com seta voltando", { duration: 48, layers: [L("payback", { anchor: "target", start: 0, end: 22, frameSeq: seq([0, 1, 2], 10), z: 4, tracks: { y: k([0, -28]), alpha: fade(22, 2, 4) } }), { ...punhoAoAlvo(18, {}), asset: nomeOg("assurance--punho.png"), keepColor: true }, impCinza(SOCO_IMP, 30)], hits: [30], actor: [lunge(18, 12)] }),
+  G2("feint-attack", "golpe surgindo de lado com sombra", { duration: 44, layers: [imp("feint-attack", 4, { n: 4, fps: 10 })], hits: [22], actor: [{ who: "user", t: 0, kind: "hide", dur: 36 }] }),
+  // ataques rápidos
+  G2("feint", "finta com silhueta falsa", { duration: 44, layers: [Lc("feint", { anchor: "target", start: 0, end: 24, frameSeq: seq([0, 1, 2], 8), z: 3, tracks: { x: k([0, -30]), alpha: fade(24, 2, 4) } }), impCinza(SOCO_IMP, 26)], hits: [26], actor: [dash(18, 18)] }),
+  G2("aqua-jet", "rastro de jato d'água", { duration: 40, layers: [L("aqua-jet", { anchor: "user", to: "target", start: 0, end: 20, frameSeq: seq(intervalo(4), 16, true), orient: true, z: 1, tracks: { p: k([0, 0.2], [14, 0.6]), alpha: fade(20, 1, 6) } }), imp("water-shuriken--impacto", 14, { n: 4, fps: 18 })], hits: [14], actor: [dash(0, 24)] }),
+  G2("extreme-speed", "rastro branco intenso", { duration: 36, layers: [L("extreme-speed", { anchor: "user", to: "target", start: 0, end: 16, frameSeq: seq([0, 1, 2], 18, true), orient: true, z: 1, tracks: { p: k([0, 0.5]), alpha: fade(16, 1, 6) } }), impCinza(SOCO_IMP, 8)], hits: [8], actor: [{ who: "user", t: 0, kind: "hide", dur: 16 }], screen: { flash: [{ t: 6, dur: 3, color: "#FFFFFF", alpha: 0.3 }] } }),
+  G2("u-turn", "rastro em U verde-inseto", { duration: 44, layers: [L("u-turn", { anchor: "user", to: "target", start: 0, end: 36, frameSeq: seq(intervalo(4), 8), orient: true, z: 3, tracks: { p: k([0, 0.45]), alpha: fade(36, 2, 8) } }), impCinza(SOCO_IMP, 18)], hits: [18], actor: [dash(0, 36)] }),
+  // bloqueios
+  G2("imprison", "grade de cela roxa", { duration: 56, layers: [L("imprison", { anchor: "target", start: 0, end: 50, frameSeq: seq([0, 1, 2, 2], 6), z: 4, tracks: { y: k([0, -40], [10, 0, "out"]), alpha: fade(50, 2, 8) } })], hits: [10], react: "status" }),
+  G2("torment", "chifres de diabinho e marcas de raiva", { duration: 56, layers: [L("torment", { anchor: "target", start: 0, end: 50, frameSeq: seq([0, 1, 2, 1, 2], 6), z: 4, tracks: { y: k([0, -30]), alpha: fade(50, 3, 8) } })], hits: [20], react: "status" }),
+  G2("embargo", "cadeado preto", { duration: 52, layers: [L("embargo", { anchor: "target", start: 0, end: 46, frameSeq: seq([0, 1, 2, 2], 6), z: 4, tracks: { y: k([0, -26]), alpha: fade(46, 3, 8) } })], hits: [16], react: "status" }),
+  G2("heal-block", "cruz verde com X", { duration: 52, layers: [L("heal-block", { anchor: "target", start: 0, end: 46, frameSeq: seq([0, 1, 2, 2], 6), z: 4, tracks: { y: k([0, -26]), alpha: fade(46, 3, 8) } })], hits: [16], react: "status" }),
+  // dreno
+  G2("mega-drain", "esferas verdes maiores voltando", { duration: 54, layers: [imp("water-shuriken--impacto", 2, { n: 4, fps: 16 }), orbesDreno("mega-drain", 8, { frames: [0, 1], count: 6 })], hits: [4] }),
+  G2("giga-drain", "muitas esferas e raízes de luz", { duration: 64, layers: [imp("giga-drain", 0, { n: 4, fps: 8, tracks: { y: k([0, -10]), alpha: fade(30, 2, 6) } }), orbesDreno("mega-drain", 16, { frames: [0, 1], count: 10 })], hits: [8] }),
+  G2("drain-punch", "punho que suga energia laranja", { duration: 56, layers: [punhoAoAlvo(0), impCinza(SOCO_IMP, 12), orbesDreno("drain-punch--energia", 16)], hits: [12], actor: [lunge(0, 12)] }),
+  G2("horn-leech", "chifre de madeira e esferas verdes", { duration: 56, layers: [viagem("horn-leech", 0, 12, { frame: 0, orient: true, tracks: { p: k([0, 0.3], [12, 0.9, "in"]) } }), impCinza(SOCO_IMP, 12), orbesDreno("mega-drain", 18, { frames: [0, 1] })], hits: [12], actor: [lunge(0, 12)] }),
+  // lama e lodo
+  G2("mud-slap", "tapa de lama marrom", { duration: 40, layers: [viagem("mud-slap", 0, 12, { frame: 0 }), imp("mud-slap", 12, { n: 4, fps: 12 })], hits: [12] }),
+  G2("sludge", "gosma roxa arremessada", { duration: 44, layers: [viagem("sludge--projetil", 0, 18, { frameSeq: seq([0, 1], 10, true), arc: 16 }), imp("sludge--respingo", 18, { n: 4, fps: 12 })], hits: [18] }),
+  G2("sludge-bomb", "bomba de lodo explodindo", { duration: 52, layers: [viagem("sludge-bomb--bomba", 0, 22, { frame: 0, arc: 24, tracks: { rot: k([0, 0], [22, 360]) } }), imp("sludge-bomb--explosao", 22, { n: 5, fps: 15 })], hits: [22], screen: tremor(22, 8, 2) }),
+  G2("egg-bomb", "ovo branco que explode", { duration: 52, layers: [viagem("egg-bomb--ovo", 0, 22, { frame: 0, arc: 28, tracks: { rot: k([0, 0], [22, 540]) } }), imp("egg-bomb--explosao", 22, { n: 5, fps: 15 })], hits: [22], screen: tremor(22, 8, 3) }),
+  // arremessos
+  G2("submission", "rolagem de luta e impacto", { duration: 60, layers: [L("submission", { anchor: "target", start: 4, end: 44, frameSeq: seq(intervalo(4), 14, true), z: 3, tracks: { alpha: fade(40, 2, 6) } }), impCinza(SOCO_IMP, 44)], hits: [14, 28, 44], actor: [dash(0, 12), { who: "user", t: 6, kind: "hide", dur: 44 }] }),
+  G2("circle-throw", "arremesso em arco circular", { duration: 50, layers: [L("circle-throw", { anchor: "target", start: 4, end: 30, frameSeq: seq(intervalo(4), 10), z: 3, tracks: { alpha: fade(26, 2, 6) } }), impCinza(SOCO_IMP, 28)], hits: [28], actor: [lunge(0, 10), { who: "target", t: 10, kind: "hop", dur: 18 }] }),
+  G2("vital-throw", "arremesso com linhas de impacto", { duration: 46, layers: [L("vital-throw", { anchor: "field-target", start: 20, end: 38, frameSeq: seq([0, 1, 2], 10), z: 3, tracks: { y: k([0, -10]), alpha: fade(18, 1, 6) } })], hits: [20], actor: [lunge(0, 10), { who: "target", t: 6, kind: "hop", dur: 14 }], screen: tremor(20, 8, 3) }),
+  G2("storm-throw", "arremesso com redemoinho de vento", { duration: 50, layers: [L("storm-throw", { anchor: "target", start: 0, end: 36, frameSeq: seq(intervalo(4), 14, true), z: 3, tracks: { alpha: fade(36, 2, 6) } }), impCinza(SOCO_IMP, 30)], hits: [30], actor: [lunge(0, 10), { who: "target", t: 12, kind: "hop", dur: 18 }] }),
+  // pedras
+  G2("rock-throw", "1 ou 2 pedras jogadas", { duration: 46, layers: [...sequenciaProj("pedra-base", 2, 8, 18, { frames: [1, 0], orient: false, arc: 20, rot: 360, cinza: true }), ...impactosSeq(SOCO_IMP, 2, 8, 18, { cinza: true })], hits: [18, 26] }),
+  G2("rock-blast", "rajada de pedras em sequência", { duration: 54, layers: [...sequenciaProj("pedra-base", 5, 6, 12, { frames: [0, 1, 2], orient: false, rot: 360, cinza: true }), ...impactosSeq(SOCO_IMP, 5, 6, 12, { cinza: true })], hits: hitsSeq(5, 6, 12) }),
+  G2("rock-slide", "avalanche de pedras caindo", { duration: 60, layers: [{ ...particulasCaindo("pedra-base", [0, 1, 2], { count: 10, spread: [26, 6], interval: 3, vy: 3, life: 20, y: -70, seed: 23, spin: 8 }), keepColor: false }], hits: [22, 34], screen: tremor(18, 30, 3) }),
+  G2("rock-wrecker", "rocha enorme em projétil", { duration: 64, layers: [{ ...viagem("rock-wrecker", 6, 30, { frame: 0, arc: 18, tracks: { rot: k([0, 0], [24, 270]) } }), keepColor: false }, imp("head-smash--explosao", 30, { n: 5, fps: 14 })], hits: [30], screen: tremor(30, 16, 5) }),
+  // investidas
+  G2("take-down", "investida com poeira", { duration: 44, layers: [L("take-down", { anchor: "field-user", start: 0, end: 24, frameSeq: seq(intervalo(4), 10), z: 1, tracks: { x: k([0, -10]), alpha: fade(24, 1, 8) } }), impCinza(SOCO_IMP, 14)], hits: [14], actor: [dash(0, 26)], screen: tremor(14, 6, 2) }),
+  G2("double-edge", "investida com aura e recuo", { duration: 56, layers: [L("double-edge--aura", { anchor: "user", to: "target", start: 0, end: 16, frameSeq: seq(intervalo(4), 16, true), z: 3, tracks: { p: k([0, 0], [16, 0.85, "in"]), alpha: fade(16, 2, 2) } }), impCinza(SOCO_IMP, 16), L("double-edge--recuo", { anchor: "user", start: 30, end: 42, frameSeq: seq([0, 1, 2], 15), z: 3, tracks: { alpha: fade(12, 1, 3) } })], hits: [16], actor: [dash(0, 30), { who: "user", t: 30, kind: "shake", dur: 12 }], screen: tremor(16, 10, 3) }),
+  G2("head-charge", "cabeça com chifres investindo", { duration: 48, layers: [L("head-charge", { anchor: "user", to: "target", start: 0, end: 16, frame: 0, orient: true, z: 3, tracks: { p: k([0, 0.1], [16, 0.85, "in"]), alpha: fade(16, 2, 2) } }), L("take-down", { anchor: "field-user", start: 0, end: 24, frameSeq: seq(intervalo(4), 10), z: 1, tracks: { alpha: fade(24, 1, 8) } }), impCinza(SOCO_IMP, 16)], hits: [16], actor: [dash(0, 28)], screen: tremor(16, 10, 3) }),
+  // cortes
+  G2("slash", "três garras de corte", { duration: 34, layers: [imp("slash", 4, { n: 4, fps: 15 })], hits: [10], actor: [lunge(0, 10)] }),
+  G2("fury-cutter", "lâmina de inseto verde que cresce", { duration: 34, layers: [imp("fury-cutter", 4, { n: 4, fps: 15 })], hits: [10], actor: [lunge(0, 10)] }),
+  G2("karate-chop", "mão de golpe de caratê", { duration: 36, layers: [imp("karate-chop", 2, { n: 3, fps: 12, tracks: { y: k([0, -12]), alpha: fade(15, 1, 3) } }), impCinza(SOCO_IMP, 12)], hits: [12], actor: [lunge(0, 12)] }),
+  // espinhos
+  G2("poison-sting", "ferrão roxo", { duration: 34, layers: [...sequenciaProj("poison-sting", 1, 0, 12), ...impactosSeq(SOCO_IMP, 1, 0, 12, { cinza: true })], hits: [12] }),
+  G2("twineedle", "duas agulhas", { duration: 40, layers: [...sequenciaProj("twineedle", 2, 6, 12), ...impactosSeq(SOCO_IMP, 2, 6, 12, { cinza: true })], hits: [12, 18] }),
+  G2("spike-cannon", "espinhos em rajada", { duration: 50, layers: [...sequenciaProj("spike-cannon", 5, 5, 10), ...impactosSeq(SOCO_IMP, 5, 5, 10, { cinza: true })], hits: hitsSeq(5, 5, 10) }),
+  // canto
+  G2("round", "notas em roda", { duration: 56, layers: [L("round", { anchor: "user", to: "target", start: 0, end: 44, frameSeq: seq(intervalo(4), 10, true), z: 3, tracks: { p: k([0, 0.1], [44, 1]), alpha: fade(44, 3, 6) } })], hits: [40] }),
+  G2("perish-song", "notas sombrias e caveira", {
+    duration: 90,
+    layers: [
+      L("perish-song--nota", { anchor: "screen-center", start: 0, end: 50, spawn: { count: 12, spread: [90, 40], interval: 4, life: 34, seed: 24, vy: -0.4, frames: [0, 1] }, z: 4, tracks: { alpha: fade(34, 4, 8) } }),
+      L("perish-song--caveira", { anchor: "target", start: 30, end: 84, frame: 0, z: 4, tracks: { y: k([0, -40]), alpha: fade(54, 6, 10) } }),
+      L("perish-song--caveira", { anchor: "user", start: 30, end: 84, frame: 0, z: 4, tracks: { x: k([0, 24]), y: k([0, -10]), alpha: fade(54, 6, 10) } }),
+    ],
+    react: "none",
+  }),
+  G2("grass-whistle", "folha-apito e notas verdes", { duration: 64, layers: [L("grass-whistle--folha", { anchor: "user", start: 0, end: 40, frame: 0, z: 3, tracks: { x: k([0, 22]), y: k([0, -8]), rot: k([0, -8], [10, 8], [20, -8], [30, 8], [40, -8]), alpha: fade(40, 3, 6) } }), L("grass-whistle--nota", { anchor: "user", to: "target", start: 4, end: 36, spawn: { count: 6, spread: [6, 12], interval: 5, life: 26, seed: 25, frames: [0, 1] }, z: 3, tracks: { p: k([0, 0.15], [26, 1]), alpha: fade(26, 2, 4) } })], hits: [32], react: "status" }),
+  // cortes cruzados
+  G2("cross-poison", "X roxo de veneno", { duration: 34, layers: [imp("cross-poison", 4, { n: 4, fps: 15 })], hits: [10], actor: [lunge(0, 10)] }),
+  G2("night-slash", "corte escuro em meia-lua", { duration: 34, layers: [imp("night-slash", 4, { n: 4, fps: 15 })], hits: [10], actor: [{ who: "user", t: 0, kind: "hide", dur: 16 }] }),
+  G2("cross-chop", "duas mãos em X", { duration: 38, layers: [imp("cross-chop", 2, { n: 3, fps: 10 })], hits: [16], actor: [lunge(0, 16)], screen: tremor(16, 6, 2) }),
+  // investida elemental
+  G2("flame-charge", "chamas pequenas em volta, correndo", { duration: 44, layers: [L("flame-charge", { anchor: "user", start: 0, end: 20, spawn: { count: 8, spread: [18, 14], interval: 2, life: 18, seed: 26, vy: -0.6, frames: [0, 1, 2] }, z: 3, tracks: { alpha: fade(18, 1, 6) } }), imp("pyro-ball--explosao", 18, { n: 5, fps: 20, tracks: { scale: k([0, 0.6]), alpha: fade(15, 1, 4) } })], hits: [18], actor: [dash(4, 24)] }),
+  G2("brave-bird", "pássaro de energia azul investindo", { duration: 56, layers: [L("brave-bird", { anchor: "user", to: "target", start: 0, end: 20, frameSeq: seq(intervalo(4), 16, true), orient: true, z: 3, tracks: { p: k([0, 0], [20, 0.9, "in"]), scale: k([0, 1.4]), alpha: fade(20, 2, 2) } }), impCinza(SOCO_IMP, 20), L("double-edge--recuo", { anchor: "user", start: 34, end: 46, frameSeq: seq([0, 1, 2], 15), z: 3, tracks: { alpha: fade(12, 1, 3) } })], hits: [20], actor: [dash(0, 32), { who: "user", t: 34, kind: "shake", dur: 12 }], screen: tremor(20, 10, 3) }),
+  G2("wild-charge", "corpo elétrico investindo", { duration: 52, layers: [L("wild-charge", { anchor: "user", to: "target", start: 0, end: 22, frameSeq: seq(intervalo(4), 16, true), z: 3, tracks: { p: k([0, 0], [22, 0.85, "in"]), alpha: fade(22, 2, 2) } }), L("thunder-fang--raio", { anchor: "target", start: 20, end: 34, frameSeq: seq([0, 1, 2], 15, true), z: 3, tracks: { alpha: fade(14, 1, 3) } }), L("double-edge--recuo", { anchor: "user", start: 34, end: 46, frameSeq: seq([0, 1, 2], 15), z: 3, tracks: { alpha: fade(12, 1, 3) } })], hits: [22], actor: [dash(0, 34)], screen: { flash: [{ t: 22, dur: 4, color: "#FFF6A8", alpha: 0.35 }] } }),
+  // sono
+  G2("yawn", "bocejo e uma bolha", { duration: 60, layers: [L("yawn", { anchor: "user", start: 0, end: 40, frameSeq: seq([0, 1, 2, 2], 6), z: 4, tracks: { x: k([0, 22]), y: k([0, -10]), alpha: fade(40, 3, 6) } }), L("snore", { anchor: "target", start: 34, end: 56, frame: 0, z: 4, tracks: { y: k([0, -30]), alpha: fade(22, 3, 6) } })], hits: [36], react: "status" }),
+  G2("snore", "zzz e onda sonora", { duration: 52, layers: [L("snore", { anchor: "user", start: 0, end: 30, frameSeq: seq([0, 1, 2], 6), z: 4, tracks: { x: k([0, 18]), y: k([0, -10]), alpha: fade(30, 3, 4) } }), ...ondas3("roar", 3).slice(0, 2).map((l) => ({ ...l, start: l.start + 20, end: l.end + 20 }))], hits: [40] }),
+  G2("sleep-talk", "balão de fala dormindo", { duration: 52, layers: [L("sleep-talk", { anchor: "user", start: 0, end: 46, frameSeq: seq([0, 1, 2, 1, 2], 5), z: 4, tracks: { x: k([0, 22]), y: k([0, -12]), alpha: fade(46, 3, 6) } })], react: "self" }),
+  // gelo
+  G2("icy-wind", "vento gelado azul-claro", { duration: 90, layers: [feixeMeio("icy-wind", 0, 40), quedaAtributo(32)], hits: [20, 32] }),
+  G2("sheer-cold", "congelamento total num bloco de gelo", { duration: 76, layers: [L("sheer-cold", { anchor: "target", start: 6, end: 70, frameSeq: seq([0, 1, 2, 3, 2, 3], 6), z: 4, tracks: { alpha: fade(64, 1, 10) } })], hits: [30], screen: { flash: [{ t: 30, dur: 8, color: "#D8F4FF", alpha: 0.5 }], tint: [{ start: 0, end: 70, color: "#285878", alpha: 0.25 }] } }),
+  G2("powder-snow", "flocos de neve leves", { duration: 48, layers: [L("powder-snow", { anchor: "user", to: "target", start: 0, end: 26, spawn: { count: 12, spread: [8, 14], interval: 2, life: 20, seed: 27, spin: 6, frames: [0, 1, 2] }, z: 3, tracks: { p: k([0, 0.05], [20, 1]), alpha: fade(20, 2, 4) } })], hits: [22] }),
+];
+RECEITAS_OG.push(...LOTE_2B);

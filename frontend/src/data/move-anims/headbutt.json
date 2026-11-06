@@ -1,0 +1,59 @@
+{
+ "slug": "headbutt",
+ "pixel": true,
+ "note": "pixel art própria (original): impacto de cabeça simples",
+ "duration": 36,
+ "layers": [
+  {
+   "asset": "Og-headbutt",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 8,
+   "end": 23,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 12
+   },
+   "z": 3,
+   "n": 3,
+   "fps": 12,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 11,
+       "v": 1
+      },
+      {
+       "t": 15,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  8
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 12
+  }
+ ]
+}

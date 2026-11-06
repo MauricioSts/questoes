@@ -1,0 +1,156 @@
+{
+ "slug": "blaze-kick",
+ "pixel": true,
+ "note": "pixel art própria (original): chute em chamas",
+ "duration": 44,
+ "layers": [
+  {
+   "asset": "Og-blaze-kick",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 16,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 16,
+    "loop": true
+   },
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -40
+      },
+      {
+       "t": 14,
+       "v": -12,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 13,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-chute-base--impacto",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 14,
+   "end": 26,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 15
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-fire-fang--chama",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 14,
+   "end": 20,
+   "spawn": {
+    "count": 6,
+    "spread": [
+     12,
+     6
+    ],
+    "interval": 1,
+    "life": 20,
+    "seed": 21,
+    "vy": -0.8,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  14
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 14
+  }
+ ]
+}

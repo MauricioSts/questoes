@@ -1,0 +1,76 @@
+{
+ "slug": "rock-slide",
+ "pixel": true,
+ "note": "pixel art própria (original): avalanche de pedras caindo",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Og-pedra-base",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 0,
+   "end": 30,
+   "spawn": {
+    "count": 10,
+    "spread": [
+     26,
+     6
+    ],
+    "interval": 3,
+    "life": 20,
+    "seed": 23,
+    "vy": 3,
+    "spin": 8,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -70
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  22,
+  34
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 18,
+    "dur": 30,
+    "amp": 3
+   }
+  ]
+ }
+}

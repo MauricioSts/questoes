@@ -1,0 +1,59 @@
+{
+ "slug": "confusion",
+ "pixel": true,
+ "note": "pixel art própria (original): anéis psíquicos girando no alvo",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Og-confusion",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12,
+    "loop": true
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 1
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  24
+ ],
+ "actor": [
+  {
+   "who": "target",
+   "t": 16,
+   "kind": "shake",
+   "dur": 20
+  }
+ ]
+}

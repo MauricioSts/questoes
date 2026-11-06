@@ -1,0 +1,94 @@
+{
+ "slug": "poison-fang",
+ "pixel": true,
+ "note": "pixel art própria (original): mordida e gotas roxas de veneno",
+ "duration": 46,
+ "layers": [
+  {
+   "asset": "Og-mordida-base",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 2,
+   "end": 22,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 14
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-poison-fang--gota",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 10,
+   "end": 16,
+   "spawn": {
+    "count": 7,
+    "spread": 6,
+    "interval": 1,
+    "life": 24,
+    "seed": 13,
+    "burst": 0.9,
+    "gravity": 0.08,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  10
+ ]
+}

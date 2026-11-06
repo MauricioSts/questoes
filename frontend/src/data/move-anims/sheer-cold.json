@@ -1,0 +1,70 @@
+{
+ "slug": "sheer-cold",
+ "pixel": true,
+ "note": "pixel art própria (original): congelamento total num bloco de gelo",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Og-sheer-cold",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 6,
+   "end": 70,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     2,
+     3
+    ],
+    "fps": 6
+   },
+   "z": 4,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 54,
+       "v": 1
+      },
+      {
+       "t": 64,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  30
+ ],
+ "screen": {
+  "flash": [
+   {
+    "t": 30,
+    "dur": 8,
+    "color": "#D8F4FF",
+    "alpha": 0.5
+   }
+  ],
+  "tint": [
+   {
+    "start": 0,
+    "end": 70,
+    "color": "#285878",
+    "alpha": 0.25
+   }
+  ]
+ }
+}

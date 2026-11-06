@@ -1,0 +1,127 @@
+{
+ "slug": "mirror-shot",
+ "pixel": true,
+ "note": "pixel art própria (original): clarão refletido num espelho",
+ "duration": 46,
+ "layers": [
+  {
+   "asset": "Og-mirror-shot--espelho",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     2
+    ],
+    "fps": 8
+   },
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 22
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -8
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-mirror-shot--clarao",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 22,
+   "end": 34,
+   "frameSeq": {
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 15,
+    "loop": true
+   },
+   "orient": true,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 12,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  34
+ ],
+ "screen": {
+  "flash": [
+   {
+    "t": 20,
+    "dur": 4,
+    "color": "#FFFFFF",
+    "alpha": 0.35
+   }
+  ]
+ }
+}

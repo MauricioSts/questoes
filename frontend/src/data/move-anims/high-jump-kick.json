@@ -1,0 +1,210 @@
+{
+ "slug": "high-jump-kick",
+ "pixel": true,
+ "note": "pixel art própria (original): chute voador alto e mais forte",
+ "duration": 48,
+ "layers": [
+  {
+   "asset": "Og-jump-kick",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 18,
+   "frame": 0,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -30
+      },
+      {
+       "t": 16,
+       "v": -10
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -90
+      },
+      {
+       "t": 16,
+       "v": -18,
+       "ease": "in"
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -20
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 15,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-chute-base--pe",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 0,
+   "end": 16,
+   "frame": 0,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -30
+      },
+      {
+       "t": 16,
+       "v": -6,
+       "ease": "out"
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -80
+      },
+      {
+       "t": 16,
+       "v": -4,
+       "ease": "in"
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 25
+      },
+      {
+       "t": 16,
+       "v": 25
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.3
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 13,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-high-jump-kick",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 16,
+   "end": 34,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 14
+   },
+   "z": 3,
+   "n": 4,
+   "fps": 14,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  16
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "hop",
+   "dur": 14
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 16,
+    "dur": 10,
+    "amp": 4
+   }
+  ]
+ }
+}

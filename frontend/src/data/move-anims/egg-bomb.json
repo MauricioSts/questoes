@@ -1,0 +1,118 @@
+{
+ "slug": "egg-bomb",
+ "pixel": true,
+ "note": "pixel art própria (original): ovo branco que explode",
+ "duration": 52,
+ "layers": [
+  {
+   "asset": "Og-egg-bomb--ovo",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 22,
+   "frame": 0,
+   "arc": 28,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 540
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-egg-bomb--explosao",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 22,
+   "end": 42,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 15
+   },
+   "z": 3,
+   "n": 5,
+   "fps": 15,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  22
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 22,
+    "dur": 8,
+    "amp": 3
+   }
+  ]
+ }
+}

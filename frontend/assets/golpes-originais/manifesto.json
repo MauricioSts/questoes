@@ -17,6 +17,24 @@
   "golpe": "after-you",
   "desc": "1 mão de palma para cima em gesto de 'por favor'; 2 com seta amarela apontando para o alvo"
  },
+ "air-cutter.png": {
+  "w": 16,
+  "h": 16,
+  "n": 3,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "air-cutter",
+  "desc": "3 variações de lâmina de ar pequena (saem em leque)"
+ },
+ "air-slash.png": {
+  "w": 32,
+  "h": 32,
+  "n": 1,
+  "peca": "projetil",
+  "lote": "2b",
+  "golpe": "air-slash",
+  "desc": "1 lâmina de ar branca em meia-lua (o motor gira e lança)"
+ },
  "aqua-cutter--impacto.png": {
   "w": 40,
   "h": 40,
@@ -34,6 +52,15 @@
   "lote": "1",
   "golpe": "aqua-cutter",
   "desc": "1 lâmina d'água em meia-lua horizontal, convexa para a direita"
+ },
+ "aqua-jet.png": {
+  "w": 64,
+  "h": 24,
+  "n": 4,
+  "peca": "rastro",
+  "lote": "2b",
+  "golpe": "aqua-jet",
+  "desc": "1-4 loop: jato d'água que se alarga para a frente (o usuário vai na ponta), com gotas"
  },
  "aqua-ring.png": {
   "w": 56,
@@ -61,6 +88,24 @@
   "lote": "1",
   "golpe": "aqua-step",
   "desc": "1-4 loop: redemoinho d'água achatado aos pés, 3 braços girando (30°/quadro) com gotas em volta (colocar no field-user)"
+ },
+ "assurance--exclamacao.png": {
+  "w": 16,
+  "h": 24,
+  "n": 1,
+  "peca": "icone",
+  "lote": "2b",
+  "golpe": "assurance",
+  "desc": "1 '!' vermelho (aparece sobre o alvo se ele já levou dano no turno)"
+ },
+ "assurance--punho.png": {
+  "w": 28,
+  "h": 24,
+  "n": 1,
+  "peca": "punho",
+  "lote": "2b",
+  "golpe": "assurance",
+  "desc": "1 punho escuro"
  },
  "autotomize--pedaco.png": {
   "w": 12,
@@ -107,6 +152,15 @@
   "golpe": "belly-drum",
   "desc": "1 barriga redonda; 2 batida: barriga estufa e ondas vermelhas dos lados; 3 duas ondas por lado"
  },
+ "blaze-kick.png": {
+  "w": 40,
+  "h": 32,
+  "n": 4,
+  "peca": "pe",
+  "lote": "2b",
+  "golpe": "blaze-kick",
+  "desc": "1-4 loop: pé em chamas, labaredas tremulando atrás"
+ },
  "boomburst.png": {
   "w": 128,
   "h": 128,
@@ -134,6 +188,15 @@
   "golpe": "branch-poke",
   "desc": "1 estrela pequena; 2 estrela cheia; 3 estrela afinando"
  },
+ "brave-bird.png": {
+  "w": 48,
+  "h": 32,
+  "n": 4,
+  "peca": "projetil",
+  "lote": "2b",
+  "golpe": "brave-bird",
+  "desc": "1-4 loop: pássaro de energia azul batendo as asas, com rastro (o usuário investe dentro dele)"
+ },
  "bulk-up.png": {
   "w": 40,
   "h": 32,
@@ -142,6 +205,15 @@
   "lote": "2a",
   "golpe": "bulk-up",
   "desc": "1 braço dobrado; 2 bíceps incha com linhas de força; 3 bíceps no máximo"
+ },
+ "bullet-punch.png": {
+  "w": 36,
+  "h": 20,
+  "n": 1,
+  "peca": "projetil",
+  "lote": "2b",
+  "golpe": "bullet-punch",
+  "desc": "1 punho de aço em forma de bala"
  },
  "calm-mind.png": {
   "w": 40,
@@ -161,6 +233,15 @@
   "golpe": "captivate",
   "desc": "1 coração rosa; 2 coração grande com brilhos; 3 pulsa e os brilhos mudam"
  },
+ "charge-beam.png": {
+  "w": 128,
+  "h": 24,
+  "n": 4,
+  "peca": "raio",
+  "lote": "2b",
+  "golpe": "charge-beam",
+  "desc": "1-4 loop: raio elétrico amarelo em zigue-zague (cada quadro um traçado)"
+ },
  "charge.png": {
   "w": 40,
   "h": 40,
@@ -179,6 +260,33 @@
   "golpe": "charm",
   "desc": "1 coração rosa; 2 pisca grande com halo; 3 encolhe (loop 1-2-3)"
  },
+ "chute-base--impacto.png": {
+  "w": 40,
+  "h": 40,
+  "n": 3,
+  "peca": "impacto",
+  "lote": "2b",
+  "golpe": "chute-base",
+  "desc": "(recolorível) 1 estrela pequena; 2 cheia; 3 afinando"
+ },
+ "chute-base--pe.png": {
+  "w": 32,
+  "h": 24,
+  "n": 1,
+  "peca": "pe",
+  "lote": "2b",
+  "golpe": "chute-base",
+  "desc": "(recolorível) base dos chutes: 1 pé com a sola para a direita"
+ },
+ "circle-throw.png": {
+  "w": 64,
+  "h": 64,
+  "n": 4,
+  "peca": "rastro",
+  "lote": "2b",
+  "golpe": "circle-throw",
+  "desc": "1-4 rastro do arremesso em arco circular, crescendo até quase uma volta"
+ },
  "coil.png": {
   "w": 40,
   "h": 40,
@@ -187,6 +295,24 @@
   "lote": "2a",
   "golpe": "coil",
   "desc": "1 serpente roxa meia volta; 2-3 enrolando mais; 4 espiral fechada com a cabeça no topo"
+ },
+ "comet-punch.png": {
+  "w": 48,
+  "h": 24,
+  "n": 1,
+  "peca": "punho",
+  "lote": "2b",
+  "golpe": "comet-punch",
+  "desc": "1 punho dourado com cauda de cometa (o motor repete em sequência rápida)"
+ },
+ "confusion.png": {
+  "w": 56,
+  "h": 24,
+  "n": 4,
+  "peca": "aneis",
+  "lote": "2b",
+  "golpe": "confusion",
+  "desc": "1-4 loop: três anéis psíquicos rosa girando em volta do alvo"
  },
  "cosmic-power.png": {
   "w": 48,
@@ -206,6 +332,15 @@
   "golpe": "cotton-guard",
   "desc": "1 três tufos de algodão; 2 cinco tufos envolvendo; 3 anel completo de algodão branco"
  },
+ "cotton-spore.png": {
+  "w": 14,
+  "h": 14,
+  "n": 3,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "cotton-spore",
+  "desc": "3 variações de tufo de algodão"
+ },
  "court-change.png": {
   "w": 128,
   "h": 64,
@@ -214,6 +349,24 @@
   "lote": "1",
   "golpe": "court-change",
   "desc": "1-4: seta amarela vai da esquerda para a direita por cima e a azul da direita para a esquerda por baixo, cada quadro avança 1/4 do caminho"
+ },
+ "cross-chop.png": {
+  "w": 48,
+  "h": 48,
+  "n": 3,
+  "peca": "maos",
+  "lote": "2b",
+  "golpe": "cross-chop",
+  "desc": "1 duas mãos de caratê afastadas; 2 cruzando; 3 X fechado com impacto"
+ },
+ "cross-poison.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "corte",
+  "lote": "2b",
+  "golpe": "cross-poison",
+  "desc": "1 primeiro risco roxo; 2 X de veneno completo; 3 brilho; 4 afinando"
  },
  "darkest-lariat.png": {
   "w": 48,
@@ -251,6 +404,33 @@
   "golpe": "disarming-voice",
   "desc": "1 um coração-onda pequeno; 2 dois arcos concêntricos; 3 três arcos maiores (o motor afasta e faz fade)"
  },
+ "dizzy-punch.png": {
+  "w": 40,
+  "h": 20,
+  "n": 4,
+  "peca": "estrelas",
+  "lote": "2b",
+  "golpe": "dizzy-punch",
+  "desc": "1-4 loop: três estrelinhas girando em volta da cabeça do alvo"
+ },
+ "double-edge--aura.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "aura",
+  "lote": "2b",
+  "golpe": "double-edge",
+  "desc": "1-4 loop: aura ondulante branca e laranja em volta do usuário que investe"
+ },
+ "double-edge--recuo.png": {
+  "w": 32,
+  "h": 32,
+  "n": 3,
+  "peca": "impacto",
+  "lote": "2b",
+  "golpe": "double-edge",
+  "desc": "1-3 estrela laranja de recuo (sobre o próprio usuário)"
+ },
  "double-team.png": {
   "w": 64,
   "h": 40,
@@ -268,6 +448,15 @@
   "lote": "2a",
   "golpe": "dragon-dance",
   "desc": "1-6 loop: duas fitas de chama de dragão (roxa e azul) subindo em espiral, as costas mais escuras, com pontas de fogo no topo"
+ },
+ "drain-punch--energia.png": {
+  "w": 12,
+  "h": 12,
+  "n": 1,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "drain-punch",
+  "desc": "1 esfera de energia laranja (sugada pelo punho base)"
  },
  "drum-beating--raiz.png": {
   "w": 32,
@@ -287,6 +476,42 @@
   "golpe": "drum-beating",
   "desc": "1 baquetas erguidas; 2 batida no couro com linhas de impacto; 3 baquetas voltando"
  },
+ "echoed-voice.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "onda",
+  "lote": "2b",
+  "golpe": "echoed-voice",
+  "desc": "1-4 ondas que se repetem, cada quadro com uma a mais e maior (o golpe cresce a cada uso)"
+ },
+ "egg-bomb--explosao.png": {
+  "w": 48,
+  "h": 48,
+  "n": 5,
+  "peca": "explosao",
+  "lote": "2b",
+  "golpe": "egg-bomb",
+  "desc": "1 clarão; 2 estrela; 3 explosão amarela; 4 anel; 5 dissolve"
+ },
+ "egg-bomb--ovo.png": {
+  "w": 16,
+  "h": 20,
+  "n": 1,
+  "peca": "projetil",
+  "lote": "2b",
+  "golpe": "egg-bomb",
+  "desc": "1 ovo branco (o motor arremessa em arco e gira)"
+ },
+ "embargo.png": {
+  "w": 24,
+  "h": 32,
+  "n": 3,
+  "peca": "icone",
+  "lote": "2b",
+  "golpe": "embargo",
+  "desc": "1 cadeado preto aberto; 2 fecha; 3 trancado com brilho"
+ },
  "encore.png": {
   "w": 48,
   "h": 48,
@@ -295,6 +520,24 @@
   "lote": "2a",
   "golpe": "encore",
   "desc": "1 holofote acende; 2 'BIS!' aparece; 3 estrelas em volta"
+ },
+ "extrasensory.png": {
+  "w": 48,
+  "h": 32,
+  "n": 3,
+  "peca": "olho",
+  "lote": "2b",
+  "golpe": "extrasensory",
+  "desc": "1 olho psíquico se abrindo sobre o alvo; 2 aberto; 3 brilha com raios"
+ },
+ "extreme-speed.png": {
+  "w": 96,
+  "h": 32,
+  "n": 3,
+  "peca": "rastro",
+  "lote": "2b",
+  "golpe": "extreme-speed",
+  "desc": "1-3 loop: rastro branco intenso com linhas de velocidade passando"
  },
  "fake-tears.png": {
   "w": 14,
@@ -313,6 +556,42 @@
   "lote": "2a",
   "golpe": "feather-dance",
   "desc": "3 variações de pena branca (o motor faz cair balançando)"
+ },
+ "feint-attack.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "golpe",
+  "lote": "2b",
+  "golpe": "feint-attack",
+  "desc": "1 sombra surge pela lateral; 2 aproxima; 3 golpe em X escuro; 4 X afinando"
+ },
+ "feint.png": {
+  "w": 40,
+  "h": 48,
+  "n": 3,
+  "peca": "silhueta",
+  "lote": "2b",
+  "golpe": "feint",
+  "desc": "(recolorível) 1 silhueta falsa do usuário; 2 começa a sumir; 3 some em xadrez (o golpe vem de outro lado)"
+ },
+ "fire-fang--chama.png": {
+  "w": 14,
+  "h": 18,
+  "n": 3,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "fire-fang",
+  "desc": "3 variações de chama (sobem da mordida)"
+ },
+ "flame-charge.png": {
+  "w": 12,
+  "h": 16,
+  "n": 3,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "flame-charge",
+  "desc": "3 variações de chaminha (o motor espalha em volta do usuário correndo)"
  },
  "flash.png": {
   "w": 256,
@@ -350,6 +629,15 @@
   "golpe": "focus-energy",
   "desc": "1 veias de energia amarela nas bordas; 2-3 convergindo para o centro; 4 centro brilha e estoura"
  },
+ "fury-cutter.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "corte",
+  "lote": "2b",
+  "golpe": "fury-cutter",
+  "desc": "1-4 lâmina de inseto verde em meia-lua, cada quadro maior (usar o quadro pelo nº de usos seguidos)"
+ },
  "gastro-acid.png": {
   "w": 32,
   "h": 40,
@@ -358,6 +646,33 @@
   "lote": "2a",
   "golpe": "gastro-acid",
   "desc": "1-4 loop: gosma verde ácida pingando gotas que caem em ritmos diferentes"
+ },
+ "giga-drain.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "raizes",
+  "lote": "2b",
+  "golpe": "giga-drain",
+  "desc": "1 raízes de luz começam a sair do alvo; 2-3 crescem com mais esferas; 4 muitas esferas presas às raízes"
+ },
+ "grass-whistle--folha.png": {
+  "w": 24,
+  "h": 16,
+  "n": 1,
+  "peca": "folha",
+  "lote": "2b",
+  "golpe": "grass-whistle",
+  "desc": "1 folha-apito"
+ },
+ "grass-whistle--nota.png": {
+  "w": 12,
+  "h": 12,
+  "n": 2,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "grass-whistle",
+  "desc": "2 variações de nota verde"
  },
  "grassy-terrain.png": {
   "w": 256,
@@ -386,6 +701,51 @@
   "golpe": "harden",
   "desc": "1 superfície cinza rachando; 2 vira cristal facetado; 3 cristal brilha"
  },
+ "head-charge.png": {
+  "w": 40,
+  "h": 24,
+  "n": 1,
+  "peca": "chifres",
+  "lote": "2b",
+  "golpe": "head-charge",
+  "desc": "1 par de chifres apontando para a frente (vai na frente da investida)"
+ },
+ "head-smash--cabeca.png": {
+  "w": 32,
+  "h": 32,
+  "n": 1,
+  "peca": "cabeca",
+  "lote": "2b",
+  "golpe": "head-smash",
+  "desc": "1 cabeça de pedra com rachaduras (vai na frente do usuário na investida)"
+ },
+ "head-smash--explosao.png": {
+  "w": 56,
+  "h": 56,
+  "n": 5,
+  "peca": "explosao",
+  "lote": "2b",
+  "golpe": "head-smash",
+  "desc": "1 clarão; 2 estrela; 3 explosão de pedra; 4 anel; 5 dissolve"
+ },
+ "headbutt.png": {
+  "w": 40,
+  "h": 40,
+  "n": 3,
+  "peca": "impacto",
+  "lote": "2b",
+  "golpe": "headbutt",
+  "desc": "1 estrela pequena e anel; 2 estrela e dois anéis (bonk); 3 anéis se abrindo"
+ },
+ "heal-block.png": {
+  "w": 32,
+  "h": 32,
+  "n": 3,
+  "peca": "icone",
+  "lote": "2b",
+  "golpe": "heal-block",
+  "desc": "1 cruz verde de cura; 2 um X vermelho começa por cima; 3 X completo (cura bloqueada)"
+ },
  "heal-pulse.png": {
   "w": 48,
   "h": 48,
@@ -395,6 +755,33 @@
   "golpe": "heal-pulse",
   "desc": "1 cruz verde; 2 primeira onda de pulso; 3 duas ondas; 4 ondas se afastando"
  },
+ "heavy-slam.png": {
+  "w": 64,
+  "h": 24,
+  "n": 4,
+  "peca": "rachadura",
+  "lote": "2b",
+  "golpe": "heavy-slam",
+  "desc": "1 o corpo pesado bate: rachadura curta; 2-3 rachaduras se espalham no chão; 4 lascas pulando"
+ },
+ "high-jump-kick.png": {
+  "w": 56,
+  "h": 56,
+  "n": 4,
+  "peca": "impacto",
+  "lote": "2b",
+  "golpe": "high-jump-kick",
+  "desc": "1-3 impacto vermelho forte de 8 pontas; 4 anéis de choque (o chute voador alto, mais forte)"
+ },
+ "horn-leech.png": {
+  "w": 32,
+  "h": 24,
+  "n": 1,
+  "peca": "chifre",
+  "lote": "2b",
+  "golpe": "horn-leech",
+  "desc": "1 chifre de madeira (as esferas verdes são as do mega-drain)"
+ },
  "howl.png": {
   "w": 40,
   "h": 40,
@@ -403,6 +790,51 @@
   "lote": "2a",
   "golpe": "howl",
   "desc": "1 lua crescente cinza-azulada e uma onda de uivo; 2 duas ondas; 3 três ondas"
+ },
+ "hyper-fang.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "boca",
+  "lote": "2b",
+  "golpe": "hyper-fang",
+  "desc": "(recolorível) 1-4 mordida com dois incisivos enormes"
+ },
+ "hyper-voice.png": {
+  "w": 64,
+  "h": 64,
+  "n": 3,
+  "peca": "onda",
+  "lote": "2b",
+  "golpe": "hyper-voice",
+  "desc": "1-3 ondas sonoras enormes e brancas"
+ },
+ "ice-fang--cristal.png": {
+  "w": 14,
+  "h": 14,
+  "n": 3,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "ice-fang",
+  "desc": "3 variações de cristal de gelo"
+ },
+ "icy-wind.png": {
+  "w": 64,
+  "h": 32,
+  "n": 4,
+  "peca": "vento",
+  "lote": "2b",
+  "golpe": "icy-wind",
+  "desc": "1-4 loop: vento gelado azul-claro em faixas onduladas com cristaizinhos"
+ },
+ "imprison.png": {
+  "w": 48,
+  "h": 48,
+  "n": 3,
+  "peca": "cela",
+  "lote": "2b",
+  "golpe": "imprison",
+  "desc": "1 grades roxas descendo; 2 cela completa; 3 cela trancada com brilho"
  },
  "ingrain.png": {
   "w": 48,
@@ -421,6 +853,33 @@
   "lote": "2a",
   "golpe": "iron-defense",
   "desc": "1 quatro placas de aço afastadas; 2 aproximando; 3 juntas como armadura; 4 armadura brilha"
+ },
+ "jump-kick.png": {
+  "w": 24,
+  "h": 48,
+  "n": 1,
+  "peca": "rastro",
+  "lote": "2b",
+  "golpe": "jump-kick",
+  "desc": "1 rastro do chute voador caindo de cima (o pé base vai na ponta)"
+ },
+ "karate-chop.png": {
+  "w": 40,
+  "h": 40,
+  "n": 3,
+  "peca": "mao",
+  "lote": "2b",
+  "golpe": "karate-chop",
+  "desc": "1 mão de caratê erguida; 2 descendo com linhas de movimento; 3 golpe embaixo"
+ },
+ "leaf-blade.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "corte",
+  "lote": "2b",
+  "golpe": "leaf-blade",
+  "desc": "1 lâmina-folha verde começa o corte; 2 meio; 3 corte inteiro com brilho; 4 some em xadrez"
  },
  "leafage.png": {
   "w": 14,
@@ -449,6 +908,24 @@
   "golpe": "liquidation",
   "desc": "3 variações de gota d'água (média, pequena, grande)"
  },
+ "low-kick.png": {
+  "w": 64,
+  "h": 24,
+  "n": 3,
+  "peca": "rastro",
+  "lote": "2b",
+  "golpe": "low-kick",
+  "desc": "1-3 rastro de rasteira baixo, varrendo da esquerda para a direita, com poeira"
+ },
+ "mach-punch.png": {
+  "w": 48,
+  "h": 24,
+  "n": 1,
+  "peca": "linhas",
+  "lote": "2b",
+  "golpe": "mach-punch",
+  "desc": "1 linhas de velocidade brancas (vão atrás do punho base)"
+ },
  "magnet-rise.png": {
   "w": 32,
   "h": 40,
@@ -467,6 +944,42 @@
   "golpe": "meditate",
   "desc": "1 lótus laranja fechado; 2 pétalas abrindo; 3 lótus aberto com aura"
  },
+ "mega-drain.png": {
+  "w": 14,
+  "h": 14,
+  "n": 2,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "mega-drain",
+  "desc": "2 variações de esfera verde maior (o motor traz do alvo ao usuário)"
+ },
+ "mega-punch.png": {
+  "w": 64,
+  "h": 64,
+  "n": 4,
+  "peca": "impacto",
+  "lote": "2b",
+  "golpe": "mega-punch",
+  "desc": "(recolorível) 1 impacto forte; 2 estrela enorme de 10 pontas; 3 estrela com anel de choque; 4 anéis se abrindo"
+ },
+ "metal-sound.png": {
+  "w": 48,
+  "h": 48,
+  "n": 3,
+  "peca": "onda",
+  "lote": "2b",
+  "golpe": "metal-sound",
+  "desc": "1-3 ondas metálicas cinza com faíscas"
+ },
+ "meteor-mash.png": {
+  "w": 48,
+  "h": 32,
+  "n": 4,
+  "peca": "projetil",
+  "lote": "2b",
+  "golpe": "meteor-mash",
+  "desc": "1-4 loop: punho-meteoro de aço com cauda de fogo e duas estrelas girando"
+ },
  "milk-drink.png": {
   "w": 24,
   "h": 32,
@@ -484,6 +997,24 @@
   "lote": "2a",
   "golpe": "minimize",
   "desc": "(recolorível) 1 quatro setas apontando para dentro, ponto grande; 2-3 setas fecham e o ponto encolhe; 4 só um pontinho"
+ },
+ "mirror-shot--clarao.png": {
+  "w": 64,
+  "h": 16,
+  "n": 2,
+  "peca": "raio",
+  "lote": "2b",
+  "golpe": "mirror-shot",
+  "desc": "1-2 loop: tiro de luz refletida, prateado"
+ },
+ "mirror-shot--espelho.png": {
+  "w": 32,
+  "h": 32,
+  "n": 3,
+  "peca": "espelho",
+  "lote": "2b",
+  "golpe": "mirror-shot",
+  "desc": "1 espelho oval; 2 reflexo atravessa; 3 clarão na borda (de onde sai o tiro)"
  },
  "misty-terrain.png": {
   "w": 256,
@@ -530,6 +1061,15 @@
   "golpe": "moonlight",
   "desc": "1 lua crescente azul; 2 luz azul começa a descer; 3 feixes de luz chegam ao chão"
  },
+ "mordida-base.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "boca",
+  "lote": "2b",
+  "golpe": "mordida-base",
+  "desc": "(recolorível) base das mordidas: 1 boca aberta; 2 fechando; 3 fechada; 4 impacto com riscos (bite, fire/thunder/ice/poison-fang)"
+ },
  "morning-sun.png": {
   "w": 48,
   "h": 32,
@@ -538,6 +1078,15 @@
   "lote": "2a",
   "golpe": "morning-sun",
   "desc": "1 sol aparecendo no horizonte; 2 nascendo; 3 metade com raios; 4 sol inteiro laranja e amarelo"
+ },
+ "mud-slap.png": {
+  "w": 32,
+  "h": 32,
+  "n": 4,
+  "peca": "impacto",
+  "lote": "2b",
+  "golpe": "mud-slap",
+  "desc": "1 tapa de lama marrom; 2 espalha; 3 mancha cheia com respingos; 4 some"
  },
  "mystical-fire--impacto.png": {
   "w": 40,
@@ -566,6 +1115,15 @@
   "golpe": "nasty-plot",
   "desc": "1 bolinhas de pensamento; 2 balão com sorriso maligno; 3 lâmpada escura acende em cima"
  },
+ "night-slash.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "corte",
+  "lote": "2b",
+  "golpe": "night-slash",
+  "desc": "1 corte escuro em meia-lua começa; 2 abre; 3 cheio; 4 afina"
+ },
  "noble-roar--juba.png": {
   "w": 48,
   "h": 48,
@@ -583,6 +1141,42 @@
   "lote": "1",
   "golpe": "noble-roar",
   "desc": "1 primeira onda dourada; 2 duas ondas; 3 três ondas largas (saem da boca para a direita)"
+ },
+ "payback.png": {
+  "w": 40,
+  "h": 32,
+  "n": 3,
+  "peca": "seta",
+  "lote": "2b",
+  "golpe": "payback",
+  "desc": "1-3 seta vermelha curva voltando para o alvo (revide)"
+ },
+ "pedra-base.png": {
+  "w": 24,
+  "h": 24,
+  "n": 3,
+  "peca": "pedra",
+  "lote": "2b",
+  "golpe": "pedra-base",
+  "desc": "(recolorível) base das pedras: 3 variações (pequena, média, grande)"
+ },
+ "perish-song--caveira.png": {
+  "w": 18,
+  "h": 18,
+  "n": 1,
+  "peca": "icone",
+  "lote": "2b",
+  "golpe": "perish-song",
+  "desc": "1 caveira (fica sobre os dois Pokémon durante a contagem)"
+ },
+ "perish-song--nota.png": {
+  "w": 12,
+  "h": 12,
+  "n": 2,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "perish-song",
+  "desc": "2 variações de nota sombria"
  },
  "phantom-force--impacto.png": {
   "w": 40,
@@ -611,6 +1205,42 @@
   "golpe": "play-rough",
   "desc": "1-6 loop: nuvem de briga pulsando, 2 estrelas amarelas e 1 coração rosa girando em volta, poeira voando"
  },
+ "poison-fang--gota.png": {
+  "w": 10,
+  "h": 12,
+  "n": 3,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "poison-fang",
+  "desc": "3 variações de gota roxa de veneno"
+ },
+ "poison-powder.png": {
+  "w": 10,
+  "h": 10,
+  "n": 3,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "poison-powder",
+  "desc": "3 variações de pó roxo"
+ },
+ "poison-sting.png": {
+  "w": 20,
+  "h": 10,
+  "n": 1,
+  "peca": "projetil",
+  "lote": "2b",
+  "golpe": "poison-sting",
+  "desc": "1 ferrão roxo apontando para a direita"
+ },
+ "powder-snow.png": {
+  "w": 10,
+  "h": 10,
+  "n": 3,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "powder-snow",
+  "desc": "3 variações de floco de neve leve"
+ },
  "power-trick.png": {
   "w": 40,
   "h": 32,
@@ -619,6 +1249,42 @@
   "lote": "2a",
   "golpe": "power-trick",
   "desc": "1 seta vermelha (ataque) em cima e azul (defesa) embaixo; 2-3 giram trocando de lugar; 4 trocadas"
+ },
+ "psybeam.png": {
+  "w": 128,
+  "h": 24,
+  "n": 4,
+  "peca": "raio",
+  "lote": "2b",
+  "golpe": "psybeam",
+  "desc": "1-4 loop: raio em espiral dupla de arco-íris sobre um fio rosa (gira 90°/quadro)"
+ },
+ "psyshock.png": {
+  "w": 12,
+  "h": 16,
+  "n": 3,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "psyshock",
+  "desc": "3 variações de cristal psíquico em ponta (caem como estilhaços sobre o alvo)"
+ },
+ "psystrike.png": {
+  "w": 64,
+  "h": 64,
+  "n": 5,
+  "peca": "explosao",
+  "lote": "2b",
+  "golpe": "psystrike",
+  "desc": "1 clarão violeta; 2 estrela; 3 explosão psíquica grande; 4 anel; 5 dissolve"
+ },
+ "pursuit.png": {
+  "w": 48,
+  "h": 32,
+  "n": 3,
+  "peca": "silhueta",
+  "lote": "2b",
+  "golpe": "pursuit",
+  "desc": "1 silhueta escura de olhos vermelhos; 2-3 com rastros atrás (perseguindo)"
  },
  "pyro-ball--bola.png": {
   "w": 24,
@@ -656,6 +1322,33 @@
   "golpe": "quiver-dance",
   "desc": "1-4 loop: pó de asa iridescente (5 cores) em espiral girando 45°/quadro"
  },
+ "rage-powder.png": {
+  "w": 10,
+  "h": 10,
+  "n": 3,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "rage-powder",
+  "desc": "3 variações de pó vermelho-alaranjado"
+ },
+ "razor-wind.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "redemoinho",
+  "lote": "2b",
+  "golpe": "razor-wind",
+  "desc": "1-4 loop: redemoinho de lâminas de vento girando (carga no 1º turno)"
+ },
+ "roar.png": {
+  "w": 56,
+  "h": 56,
+  "n": 3,
+  "peca": "onda",
+  "lote": "2b",
+  "golpe": "roar",
+  "desc": "1-3 ondas grossas com linhas de vento empurrando para a direita"
+ },
  "rock-polish.png": {
   "w": 32,
   "h": 32,
@@ -665,6 +1358,24 @@
   "golpe": "rock-polish",
   "desc": "1 pedra com uma faísca; 2 pedra polida com brilho; 3 brilhos de polimento em volta"
  },
+ "rock-wrecker.png": {
+  "w": 48,
+  "h": 48,
+  "n": 1,
+  "peca": "projetil",
+  "lote": "2b",
+  "golpe": "rock-wrecker",
+  "desc": "(recolorível) 1 rocha enorme rachada (o motor lança e gira)"
+ },
+ "rolling-kick.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "rastro",
+  "lote": "2b",
+  "golpe": "rolling-kick",
+  "desc": "1-4 loop: arco de chute giratório (o pé base gira junto)"
+ },
  "roost--ninho.png": {
   "w": 40,
   "h": 16,
@@ -673,6 +1384,15 @@
   "lote": "2a",
   "golpe": "roost",
   "desc": "1 ninho de gravetos (o motor põe no chão sob o usuário; as penas são as do feather-dance)"
+ },
+ "round.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "notas",
+  "lote": "2b",
+  "golpe": "round",
+  "desc": "1-4 loop: cinco notas coloridas girando em roda"
  },
  "sand-attack--grao.png": {
   "w": 8,
@@ -692,6 +1412,15 @@
   "golpe": "sand-attack",
   "desc": "1 punhado de areia; 2 nuvem de areia abrindo; 3 nuvem rala (chega no rosto do alvo)"
  },
+ "screech.png": {
+  "w": 48,
+  "h": 48,
+  "n": 3,
+  "peca": "onda",
+  "lote": "2b",
+  "golpe": "screech",
+  "desc": "1-3 ondas estridentes serrilhadas (branco com borda vermelha)"
+ },
  "sharpen.png": {
   "w": 32,
   "h": 32,
@@ -700,6 +1429,15 @@
   "lote": "2a",
   "golpe": "sharpen",
   "desc": "(recolorível) 1 aresta triangular; 2 brilho afiado subindo; 3 brilho na ponta com faísca"
+ },
+ "sheer-cold.png": {
+  "w": 48,
+  "h": 56,
+  "n": 4,
+  "peca": "bloco",
+  "lote": "2b",
+  "golpe": "sheer-cold",
+  "desc": "1 gelo começa no chão; 2 sobe; 3 bloco de gelo cobre o alvo; 4 brilho (congelamento total)"
  },
  "shell-smash.png": {
   "w": 40,
@@ -719,6 +1457,15 @@
   "golpe": "shift-gear",
   "desc": "1-4 loop: duas engrenagens de metal girando em sentidos opostos"
  },
+ "signal-beam.png": {
+  "w": 128,
+  "h": 16,
+  "n": 4,
+  "peca": "raio",
+  "lote": "2b",
+  "golpe": "signal-beam",
+  "desc": "1-4 loop: fila de luzes coloridas piscando e trocando de cor"
+ },
  "simple-beam.png": {
   "w": 64,
   "h": 16,
@@ -727,6 +1474,15 @@
   "lote": "2a",
   "golpe": "simple-beam",
   "desc": "1-2 loop: raio de pontinhos rosa e amarelo alternando (desliza 4 px por quadro)"
+ },
+ "sky-uppercut.png": {
+  "w": 32,
+  "h": 48,
+  "n": 3,
+  "peca": "rastro",
+  "lote": "2b",
+  "golpe": "sky-uppercut",
+  "desc": "1-3 rastro de gancho em arco de baixo para cima (cresce)"
  },
  "slack-off.png": {
   "w": 40,
@@ -737,6 +1493,60 @@
   "golpe": "slack-off",
   "desc": "1 nuvenzinha de preguiça com um z; 2 dois z; 3 três z e brilho verde em volta"
  },
+ "slash.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "corte",
+  "lote": "2b",
+  "golpe": "slash",
+  "desc": "1-3 três riscos de garra em diagonal crescendo; 4 afinando"
+ },
+ "sleep-talk.png": {
+  "w": 40,
+  "h": 32,
+  "n": 3,
+  "peca": "balao",
+  "lote": "2b",
+  "golpe": "sleep-talk",
+  "desc": "1-3 balão de fala com reticências enchendo e um 'z' (falando dormindo)"
+ },
+ "sludge--projetil.png": {
+  "w": 20,
+  "h": 20,
+  "n": 2,
+  "peca": "projetil",
+  "lote": "2b",
+  "golpe": "sludge",
+  "desc": "1-2 loop: bola de gosma roxa pulsando"
+ },
+ "sludge--respingo.png": {
+  "w": 32,
+  "h": 32,
+  "n": 4,
+  "peca": "impacto",
+  "lote": "2b",
+  "golpe": "sludge",
+  "desc": "1 gosma bate; 2 espalha; 3 respingos roxos; 4 some"
+ },
+ "sludge-bomb--bomba.png": {
+  "w": 24,
+  "h": 24,
+  "n": 1,
+  "peca": "projetil",
+  "lote": "2b",
+  "golpe": "sludge-bomb",
+  "desc": "1 bomba de lodo roxa com pavio aceso"
+ },
+ "sludge-bomb--explosao.png": {
+  "w": 48,
+  "h": 48,
+  "n": 5,
+  "peca": "explosao",
+  "lote": "2b",
+  "golpe": "sludge-bomb",
+  "desc": "1 clarão; 2 estrela roxa; 3 explosão de lodo; 4 anel; 5 dissolve"
+ },
  "smokescreen.png": {
   "w": 48,
   "h": 40,
@@ -745,6 +1555,15 @@
   "lote": "2a",
   "golpe": "smokescreen",
   "desc": "1 baforada de fumaça preta pequena; 2 cresce; 3 nuvem cheia; 4 dissolvendo"
+ },
+ "snarl.png": {
+  "w": 48,
+  "h": 48,
+  "n": 3,
+  "peca": "onda",
+  "lote": "2b",
+  "golpe": "snarl",
+  "desc": "1-3 ondas escuras com dentes brancos nas bordas"
  },
  "snipe-shot--mira.png": {
   "w": 40,
@@ -764,6 +1583,33 @@
   "golpe": "snipe-shot",
   "desc": "1 tiro d'água fino e reto apontando para a direita (cauda fina à esquerda)"
  },
+ "snore.png": {
+  "w": 40,
+  "h": 32,
+  "n": 3,
+  "peca": "onda",
+  "lote": "2b",
+  "golpe": "snore",
+  "desc": "1-3 'z' subindo (1 a 3) e uma onda de ronco que cresce"
+ },
+ "soco-base--impacto.png": {
+  "w": 40,
+  "h": 40,
+  "n": 3,
+  "peca": "impacto",
+  "lote": "2b",
+  "golpe": "soco-base",
+  "desc": "(recolorível) 1 estrela pequena; 2 estrela cheia; 3 afinando"
+ },
+ "soco-base--punho.png": {
+  "w": 28,
+  "h": 24,
+  "n": 1,
+  "peca": "punho",
+  "lote": "2b",
+  "golpe": "soco-base",
+  "desc": "(recolorível) base dos socos: 1 punho fechado de lado, nós dos dedos para a direita"
+ },
  "soft-boiled.png": {
   "w": 32,
   "h": 32,
@@ -772,6 +1618,24 @@
   "lote": "2a",
   "golpe": "soft-boiled",
   "desc": "1 ovo branco; 2 ovo racha no meio; 3 abre e brilha; 4 brilho grande saindo"
+ },
+ "solar-beam--carga.png": {
+  "w": 32,
+  "h": 32,
+  "n": 4,
+  "peca": "carga",
+  "lote": "2b",
+  "golpe": "solar-beam",
+  "desc": "1 ponto de luz; 2-3 o sol cresce juntando luz; 4 sol cheio com raios (carregado)"
+ },
+ "solar-beam--raio.png": {
+  "w": 128,
+  "h": 32,
+  "n": 3,
+  "peca": "raio",
+  "lote": "2b",
+  "golpe": "solar-beam",
+  "desc": "1-3 loop: raio grosso amarelo-branco ondulando (o motor estica entre usuário e alvo)"
  },
  "sparkling-aria--bolha.png": {
   "w": 16,
@@ -790,6 +1654,15 @@
   "lote": "1",
   "golpe": "sparkling-aria",
   "desc": "2 variações de nota musical azul-clara (colcheia e dupla)"
+ },
+ "spike-cannon.png": {
+  "w": 20,
+  "h": 10,
+  "n": 1,
+  "peca": "projetil",
+  "lote": "2b",
+  "golpe": "spike-cannon",
+  "desc": "1 espinho de pedra (o motor dispara em rajada)"
  },
  "spiky-shield.png": {
   "w": 64,
@@ -818,6 +1691,15 @@
   "golpe": "spirit-shackle",
   "desc": "1 flecha-sombra roxa apontando para a direita (o motor faz cair e cravar)"
  },
+ "spore.png": {
+  "w": 14,
+  "h": 14,
+  "n": 3,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "spore",
+  "desc": "3 variações de esporo de cogumelo, maiores, com pintinhas"
+ },
  "stockpile.png": {
   "w": 40,
   "h": 24,
@@ -827,6 +1709,24 @@
   "golpe": "stockpile",
   "desc": "1 uma esfera verde; 2 duas; 3 três esferas acumuladas (uma por uso)"
  },
+ "stored-power--esfera.png": {
+  "w": 14,
+  "h": 14,
+  "n": 1,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "stored-power",
+  "desc": "1 esfera de energia rosa (uma por bônus de atributo; o motor junta no usuário e dispara)"
+ },
+ "storm-throw.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "redemoinho",
+  "lote": "2b",
+  "golpe": "storm-throw",
+  "desc": "1-4 loop: redemoinho de vento cinza-azulado (o arremesso sai dele)"
+ },
  "string-shot.png": {
   "w": 40,
   "h": 40,
@@ -835,6 +1735,51 @@
   "lote": "2a",
   "golpe": "string-shot",
   "desc": "1 fio de seda começa a enrolar; 2-3 mais voltas; 4 o alvo fica todo enrolado"
+ },
+ "stun-spore.png": {
+  "w": 10,
+  "h": 10,
+  "n": 3,
+  "peca": "particula",
+  "lote": "2b",
+  "golpe": "stun-spore",
+  "desc": "3 variações de pó amarelo (com pontinho de faísca)"
+ },
+ "submission.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "rolagem",
+  "lote": "2b",
+  "golpe": "submission",
+  "desc": "1-4 loop: os dois rolando juntos: arcos de movimento girando, estrela e poeira"
+ },
+ "super-fang--boca.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "boca",
+  "lote": "2b",
+  "golpe": "super-fang",
+  "desc": "(recolorível) 1-4 mordida com presas longas"
+ },
+ "super-fang--rachadura.png": {
+  "w": 40,
+  "h": 40,
+  "n": 3,
+  "peca": "rachadura",
+  "lote": "2b",
+  "golpe": "super-fang",
+  "desc": "1 rachadura começa no ponto da mordida; 2 abre; 3 rachadura grande (o HP pela metade)"
+ },
+ "supersonic.png": {
+  "w": 48,
+  "h": 48,
+  "n": 3,
+  "peca": "onda",
+  "lote": "2b",
+  "golpe": "supersonic",
+  "desc": "1-3 ondas sonoras finas em zigue-zague, branco-roxas, saindo para a direita"
  },
  "sweet-scent.png": {
   "w": 48,
@@ -872,6 +1817,15 @@
   "golpe": "tail-whip",
   "desc": "1 cauda à esquerda; 2 no meio; 3 à direita (balançando com linhas de movimento)"
  },
+ "take-down.png": {
+  "w": 48,
+  "h": 24,
+  "n": 4,
+  "peca": "poeira",
+  "lote": "2b",
+  "golpe": "take-down",
+  "desc": "1-4 nuvem de poeira crescendo atrás da investida (a última mais rala)"
+ },
  "tearful-look--lagrima.png": {
   "w": 8,
   "h": 12,
@@ -890,6 +1844,15 @@
   "golpe": "tearful-look",
   "desc": "1-2 loop: olhos marejados com água na pálpebra de baixo; o brilho treme entre os quadros"
  },
+ "thunder-fang--raio.png": {
+  "w": 24,
+  "h": 32,
+  "n": 3,
+  "peca": "raio",
+  "lote": "2b",
+  "golpe": "thunder-fang",
+  "desc": "1-3 raios curtos piscando (cada quadro um desenho)"
+ },
  "tickle.png": {
   "w": 40,
   "h": 32,
@@ -907,6 +1870,51 @@
   "lote": "1",
   "golpe": "torch-song",
   "desc": "3 variações de nota de fogo (colcheia, dupla, semínima) com chaminhas no topo; o motor solta em leque"
+ },
+ "torment.png": {
+  "w": 40,
+  "h": 32,
+  "n": 3,
+  "peca": "icone",
+  "lote": "2b",
+  "golpe": "torment",
+  "desc": "1 chifrinhos de diabo; 2 com uma marca de raiva; 3 duas marcas de raiva"
+ },
+ "twineedle.png": {
+  "w": 28,
+  "h": 14,
+  "n": 1,
+  "peca": "projetil",
+  "lote": "2b",
+  "golpe": "twineedle",
+  "desc": "1 duas agulhas verdes paralelas"
+ },
+ "u-turn.png": {
+  "w": 64,
+  "h": 48,
+  "n": 4,
+  "peca": "rastro",
+  "lote": "2b",
+  "golpe": "u-turn",
+  "desc": "1-4 rastro verde-inseto em U: vai até o alvo, faz a curva e volta (o usuário troca)"
+ },
+ "uproar.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "onda",
+  "lote": "2b",
+  "golpe": "uproar",
+  "desc": "1-4 loop: ondas e notas em várias cores, desencontradas (caos)"
+ },
+ "vital-throw.png": {
+  "w": 48,
+  "h": 48,
+  "n": 3,
+  "peca": "impacto",
+  "lote": "2b",
+  "golpe": "vital-throw",
+  "desc": "1-3 linhas de impacto radiais se abrindo (o alvo bate no chão)"
  },
  "water-shuriken--impacto.png": {
   "w": 32,
@@ -953,6 +1961,15 @@
   "golpe": "whirlwind",
   "desc": "1-4 loop: redemoinho de vento cinza-claro em anéis, girando"
  },
+ "wild-charge.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "aura",
+  "lote": "2b",
+  "golpe": "wild-charge",
+  "desc": "1-4 loop: corpo envolto em aura elétrica com raios saindo (cada quadro outro desenho)"
+ },
  "wish--estrela.png": {
   "w": 32,
   "h": 16,
@@ -979,5 +1996,23 @@
   "lote": "2a",
   "golpe": "work-up",
   "desc": "1-2 loop: dois punhos laranja tremendo de esforço com linhas de força"
+ },
+ "yawn.png": {
+  "w": 32,
+  "h": 32,
+  "n": 3,
+  "peca": "icone",
+  "lote": "2b",
+  "golpe": "yawn",
+  "desc": "1 boca começa a bocejar; 2 bocejo aberto e uma bolha; 3 bolha cresce (o alvo vai dormir)"
+ },
+ "zen-headbutt.png": {
+  "w": 48,
+  "h": 48,
+  "n": 4,
+  "peca": "aura",
+  "lote": "2b",
+  "golpe": "zen-headbutt",
+  "desc": "1-4 loop: aura psíquica azul em arcos na frente da cabeça (vai junto com a investida)"
  }
 }

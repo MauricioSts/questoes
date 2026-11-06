@@ -1,0 +1,64 @@
+{
+ "slug": "rage-powder",
+ "pixel": true,
+ "note": "pixel art própria (original): pó vermelho-alaranjado em volta do usuário",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Og-rage-powder",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 30,
+   "spawn": {
+    "count": 14,
+    "spread": [
+     20,
+     10
+    ],
+    "interval": 2,
+    "life": 30,
+    "seed": 18,
+    "vy": -0.3,
+    "spin": 0,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 10
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "self"
+}

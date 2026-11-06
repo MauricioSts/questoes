@@ -1,0 +1,97 @@
+{
+ "slug": "super-fang",
+ "pixel": true,
+ "note": "pixel art própria (original): presas longas e rachadura no impacto",
+ "duration": 52,
+ "layers": [
+  {
+   "asset": "Og-super-fang--boca",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 2,
+   "end": 22,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 14
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-super-fang--rachadura",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 10,
+   "end": 44,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 10
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  10
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 10,
+    "dur": 8,
+    "amp": 2
+   }
+  ]
+ }
+}

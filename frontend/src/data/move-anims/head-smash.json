@@ -1,0 +1,114 @@
+{
+ "slug": "head-smash",
+ "pixel": true,
+ "note": "pixel art própria (original): cabeça de pedra e explosão",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Og-head-smash--cabeca",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 4,
+   "end": 20,
+   "frame": 0,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 16,
+       "v": 0.9,
+       "ease": "in"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-head-smash--explosao",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 20,
+   "end": 42,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 14
+   },
+   "z": 3,
+   "n": 5,
+   "fps": 14,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  20
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 2,
+   "kind": "dash",
+   "dur": 26
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 20,
+    "dur": 16,
+    "amp": 5
+   }
+  ]
+ }
+}

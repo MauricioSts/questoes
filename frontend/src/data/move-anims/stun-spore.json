@@ -1,0 +1,67 @@
+{
+ "slug": "stun-spore",
+ "pixel": true,
+ "note": "pixel art própria (original): pó amarelo com faíscas",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Og-stun-spore",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 30,
+   "spawn": {
+    "count": 14,
+    "spread": [
+     24,
+     6
+    ],
+    "interval": 2,
+    "life": 30,
+    "seed": 17,
+    "vy": 0.7,
+    "spin": 0,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -36
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  24
+ ],
+ "react": "status"
+}

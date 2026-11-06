@@ -1,0 +1,140 @@
+{
+ "slug": "perish-song",
+ "pixel": true,
+ "note": "pixel art própria (original): notas sombrias e caveira",
+ "duration": 90,
+ "layers": [
+  {
+   "asset": "Og-perish-song--nota",
+   "keepColor": true,
+   "anchor": "screen-center",
+   "start": 0,
+   "end": 50,
+   "spawn": {
+    "count": 12,
+    "spread": [
+     90,
+     40
+    ],
+    "interval": 4,
+    "life": 34,
+    "seed": 24,
+    "vy": -0.4,
+    "frames": [
+     0,
+     1
+    ]
+   },
+   "z": 4,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-perish-song--caveira",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 30,
+   "end": 84,
+   "frame": 0,
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -40
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 1
+      },
+      {
+       "t": 54,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-perish-song--caveira",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 30,
+   "end": 84,
+   "frame": 0,
+   "z": 4,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 24
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 1
+      },
+      {
+       "t": 54,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "none"
+}

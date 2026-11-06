@@ -442,16 +442,35 @@ def punho(q, cx, cy, s, P, dedos=True):
     """Punho fechado de lado, nós dos dedos para a direita (s = meia altura)."""
     def fn(x, y):
         u, v = (x - cx) / s, (y - cy) / s
-        # dedos dobrados: 4 gomos arredondados na frente
-        for k, vy in enumerate((-0.66, -0.22, 0.22, 0.66)):
-            if hyp((u - 0.55) / 0.5, (v - vy) / 0.27) <= 1:
-                return P.L if k == 0 else P.M if dedos and abs(v - vy) < 0.17 else P.D
-        if -0.6 <= u <= 0.6 and -0.92 <= v <= 0.92:
-            if -0.35 < u < 0.45 and 0.2 < v < 0.55:
-                return P.L  # polegar por cima
-            return P.L if v < -0.4 else P.M
-        if -1.2 <= u < -0.6 and abs(v) < 0.6:
-            return P.D  # pulso
+        corpo = abs(u / 0.85) ** 3 + abs(v / 0.95) ** 3 <= 1
+        nos = any(hyp((u - 0.78) / 0.24, (v - vy) / 0.24) <= 1 for vy in (-0.68, -0.23, 0.22, 0.67))
+        if corpo or nos:
+            if dedos and u > 0.05 and any(abs(v - k) < 0.06 for k in (-0.45, 0.0, 0.45)):
+                return P.D
+            if -0.75 < u < 0.15 and 0.35 < v < 0.75 and hyp((u + 0.3) / 0.45, (v - 0.55) / 0.2) <= 1:
+                return P.L  # polegar dobrado por baixo
+            if hyp((u + 0.3) / 0.45, (v - 0.55) / 0.2) <= 1.25 and v > 0.3 and u < 0.2:
+                return P.D
+            return P.W if hyp(u + 0.35, v + 0.5) < 0.22 else P.L if v < -0.3 else P.M
+        if -1.3 <= u < -0.7 and abs(v) < 0.62:
+            return P.D if abs(u + 1.0) < 0.1 else P.M  # pulso
+        return None
+    return peca(q, fn, P.O)
+
+
+def mao_faca(q, cx, cy, s, P, angulo=0.0):
+    """Mão de golpe de caratê: dedos juntos e esticados (lâmina da mão para baixo)."""
+    def fn(x, y):
+        u, v = rot(x - cx, y - cy, angulo)
+        u, v = u / s, v / s
+        if -1.1 <= u <= 1.1 and -0.42 <= v <= 0.42 and not (u > 0.85 and abs(v) > 0.25):
+            if u > -0.1 and abs(v - 0.0) < 0.05:
+                return P.D
+            return P.L if v < 0 else P.M
+        if -1.1 <= u <= -0.3 and -0.75 <= v < -0.42 and hyp((u + 0.6) / 0.5, (v + 0.45) / 0.3) <= 1:
+            return P.M  # polegar
+        if -1.6 <= u < -1.1 and abs(v) < 0.38:
+            return P.D
         return None
     return peca(q, fn, P.O)
 
@@ -581,4 +600,4 @@ class Lote:
         print(len(s.reg), "arquivos no lote", s.numero)
 
 
-LOTES = [("1", "golpes sem sprite (28)"), ("2a", "aumento/queda de atributo e cura (61)"), ("2b", "grupos de golpes parecidos (108)"), ("2c", "pares e golpes isolados (48)")]
+LOTES = [("1", "golpes sem sprite (28)"), ("2a", "aumento/queda de atributo e cura (61)"), ("2b", "grupos de golpes parecidos (102)"), ("2c", "pares e golpes isolados (54)")]

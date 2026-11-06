@@ -1,0 +1,67 @@
+{
+ "slug": "spore",
+ "pixel": true,
+ "note": "pixel art própria (original): esporos de cogumelo maiores",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Og-spore",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 30,
+   "spawn": {
+    "count": 10,
+    "spread": [
+     24,
+     6
+    ],
+    "interval": 3,
+    "life": 36,
+    "seed": 19,
+    "vy": 0.5,
+    "spin": 0,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -36
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 28,
+       "v": 1
+      },
+      {
+       "t": 36,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  28
+ ],
+ "react": "status"
+}
