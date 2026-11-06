@@ -606,17 +606,20 @@ function Jogo({
   const fundo = useMemo(() => {
     if (!partida) return cenario(null);
     const reg = regiaoDe(partida.regiao);
-    if (partida.modo === "ginasio" && partida.ginasio !== undefined) return cenario(reg.ginasios[partida.ginasio]?.tipo ?? null);
-    if (partida.modo === "safari") return cenario(TERRENOS[partida.terreno ?? -1]?.tipos[0] ?? null);
-    if (partida.modo === "lendario") return cenario(lendaPorId(partida.lenda ?? -1)?.cenario ?? null);
+    // semente: a partida (ginásio, Safári, lenda, Liga) ou o encontro (Caminho), para o
+    // fundo variar entre lutas mas ficar fixo durante a mesma
+    const sem = partida.iniciadaEm;
+    if (partida.modo === "ginasio" && partida.ginasio !== undefined) return cenario(reg.ginasios[partida.ginasio]?.tipo ?? null, sem);
+    if (partida.modo === "safari") return cenario(TERRENOS[partida.terreno ?? -1]?.tipos[0] ?? null, sem);
+    if (partida.modo === "lendario") return cenario(lendaPorId(partida.lenda ?? -1)?.cenario ?? null, sem);
     const t = encontro && encontro.treinador >= 0 ? partida.treinadores[encontro.treinador] : null;
-    if (partida.modo === "liga") return cenario(t?.campeao ? "campeao" : (reg.elite.find((m) => m.nome === t?.nome)?.tipo ?? "campeao"));
+    if (partida.modo === "liga") return cenario(t?.campeao ? "campeao" : (reg.elite.find((m) => m.nome === t?.nome)?.tipo ?? "campeao"), `${sem}:${t?.nome ?? ""}`);
     if (encontro && encontro.treinador >= 0) {
       const chave = `${partida.iniciadaEm}:${encontro.treinador}`;
-      if (fundoTreinador.current?.chave !== chave) fundoTreinador.current = { chave, fundo: cenario(dex.especies[encontro.especie]?.t[0] ?? null) };
+      if (fundoTreinador.current?.chave !== chave) fundoTreinador.current = { chave, fundo: cenario(dex.especies[encontro.especie]?.t[0] ?? null, chave) };
       return fundoTreinador.current.fundo;
     }
-    return cenario(encontro ? (dex.especies[encontro.especie]?.t[0] ?? null) : null);
+    return cenario(encontro ? (dex.especies[encontro.especie]?.t[0] ?? null) : null, `${sem}:${encontro?.chave ?? ""}`);
   }, [partida, encontro, dex]);
 
   // Pokébolas sobre as caixas de HP: o meu time sempre, o do treinador inimigo (selvagem não tem).

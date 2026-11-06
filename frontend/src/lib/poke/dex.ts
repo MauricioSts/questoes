@@ -1,3 +1,4 @@
+import fundosJson from "../../data/fundos.json";
 // POKÉDEX DA BATALHA: dados da PokéAPI (gerações 1–5) pré-gerados em src/data/pokedex.json
 // por scripts/gerar-pokedex.mjs, e as contas do jogo (atributos, dano, tipos, XP,
 // evolução). Funções puras: o motor (motor.ts) e os testes usam direto; a tela só carrega
@@ -133,13 +134,33 @@ export const TREINADORES_JOGADOR: { sprite: string; nome: string; regiao: string
   { sprite: "juliana-s", nome: "Juliana", regiao: "Paldea" },
 ];
 
-// Cenário de batalha (fundos da 6ª geração do Showdown) pelo tipo do lugar.
-const CENARIO_TIPO = [
-  "meadow", "earthycave", "orassea", "city", "forest", "icecave", "aquacordetown", "darkmeadow", "orasdesert",
-  "skypillar", "library", "forest", "earthycave", "dampcave", "elite4drake", "darkcity", "city", "meadow",
-];
-export const cenario = (tipo: number | "campeao" | null) =>
-  `https://play.pokemonshowdown.com/sprites/gen6bgs/bg-${tipo === "campeao" ? "elite4drake" : tipo === null ? "meadow" : (CENARIO_TIPO[tipo] ?? "meadow")}.jpg`;
+// Cenário de batalha: fundos originais em pixel art (public/fundos, gerados por
+// tools/fundos-originais/fundos.py). Cada tipo de lugar tem 1 a 3 biomas, cada bioma 3 layouts
+// e, ao ar livre, dia / tarde / noite pela hora do aparelho. A semente escolhe bioma e layout,
+// então o mesmo encontro mantém o fundo e encontros diferentes variam.
+const FUNDOS = fundosJson as { variantes: number; biomas: Record<string, { horas: string[] }>; tipos: Record<string, string[]> };
+const BASE_FUNDOS = `${import.meta.env?.BASE_URL ?? "/"}fundos/`;
+export type HoraDoDia = "dia" | "tarde" | "noite";
+export const horaDoDia = (d = new Date()): HoraDoDia => {
+  const h = d.getHours();
+  return h >= 6 && h < 17 ? "dia" : h >= 17 && h < 19 ? "tarde" : "noite";
+};
+const espalhar = (s: string | number) => {
+  let h = 2166136261;
+  for (const ch of String(s)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  h ^= h >>> 15;
+  return Math.imul(h, 2246822507) >>> 0;
+};
+export const biomasDoTipo = (tipo: number | "campeao" | null) => FUNDOS.tipos[tipo === null ? "0" : String(tipo)] ?? FUNDOS.tipos["0"];
+export const cenario = (tipo: number | "campeao" | null, semente: string | number = 0, hora: HoraDoDia = horaDoDia()) => {
+  const lista = biomasDoTipo(tipo);
+  const h = espalhar(`${tipo}:${semente}`);
+  const bioma = lista[h % lista.length];
+  const v = (h >>> 8) % FUNDOS.variantes;
+  const horas = FUNDOS.biomas[bioma]?.horas ?? ["dia"];
+  const hr = horas.includes(hora) ? hora : horas[horas.length - 1];
+  return `${BASE_FUNDOS}${bioma}-${v}-${hr}.png`;
+};
 
 // ---------- atributos ----------
 

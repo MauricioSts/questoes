@@ -80,3 +80,25 @@ describe("mapa golpe → visual", () => {
     expect(fx.receitaDe("thunder-punch")?.tipo).toBe(3);
   });
 });
+
+describe("fundos de batalha", () => {
+  it("cada tipo tem fundos que existem e a semente varia o fundo sem trocar no meio da luta", async () => {
+    const { cenario, biomasDoTipo } = await import("../lib/poke/dex");
+    const pasta = path.resolve(__dirname, "../../public/fundos");
+    const vistos = new Set<string>();
+    for (const tipo of [...Array.from({ length: 18 }, (_, i) => i), "campeao" as const, null]) {
+      for (const hora of ["dia", "tarde", "noite"] as const) {
+        for (let s = 0; s < 40; s++) {
+          const url = cenario(tipo, s, hora);
+          const arq = url.split("/").pop()!;
+          expect(fs.existsSync(path.join(pasta, arq)), arq).toBe(true);
+          vistos.add(arq);
+        }
+      }
+      expect(biomasDoTipo(tipo).length).toBeGreaterThan(0);
+    }
+    expect(cenario(4, "x", "dia")).toBe(cenario(4, "x", "dia"));
+    expect(new Set(Array.from({ length: 30 }, (_, s) => cenario(0, s, "dia"))).size).toBeGreaterThan(4);
+    expect(vistos.size).toBeGreaterThan(150);
+  });
+});

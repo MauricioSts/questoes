@@ -1,0 +1,277 @@
+{
+ "variantes": 3,
+ "biomas": {
+  "pradaria": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "estrada": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "cidade": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "vulcao": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "deserto": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "canion": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "praia": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "mar": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "lago": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "usina": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "floresta": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "jardim": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "caverna-gelo": {
+   "horas": [
+    "dia"
+   ]
+  },
+  "montanha-neve": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "dojo": {
+   "horas": [
+    "dia"
+   ]
+  },
+  "pantano": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "picos": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "templo": {
+   "horas": [
+    "dia"
+   ]
+  },
+  "cosmo": {
+   "horas": [
+    "noite"
+   ]
+  },
+  "bosque-cogumelos": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "caverna": {
+   "horas": [
+    "dia"
+   ]
+  },
+  "pedreira": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "cemiterio": {
+   "horas": [
+    "tarde",
+    "noite"
+   ]
+  },
+  "ruinas": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "caverna-cristal": {
+   "horas": [
+    "dia"
+   ]
+  },
+  "cidade-noturna": {
+   "horas": [
+    "noite"
+   ]
+  },
+  "fabrica": {
+   "horas": [
+    "dia"
+   ]
+  },
+  "jardim-encantado": {
+   "horas": [
+    "dia",
+    "tarde",
+    "noite"
+   ]
+  },
+  "salao-liga": {
+   "horas": [
+    "dia"
+   ]
+  }
+ },
+ "tipos": {
+  "0": [
+   "pradaria",
+   "estrada",
+   "cidade"
+  ],
+  "1": [
+   "vulcao",
+   "deserto",
+   "canion"
+  ],
+  "2": [
+   "praia",
+   "mar",
+   "lago"
+  ],
+  "3": [
+   "usina",
+   "cidade",
+   "cidade-noturna"
+  ],
+  "4": [
+   "floresta",
+   "pradaria",
+   "jardim"
+  ],
+  "5": [
+   "caverna-gelo",
+   "montanha-neve"
+  ],
+  "6": [
+   "dojo",
+   "pedreira",
+   "estrada"
+  ],
+  "7": [
+   "pantano",
+   "bosque-cogumelos"
+  ],
+  "8": [
+   "deserto",
+   "canion",
+   "pedreira"
+  ],
+  "9": [
+   "picos",
+   "pradaria",
+   "montanha-neve"
+  ],
+  "10": [
+   "templo",
+   "cosmo"
+  ],
+  "11": [
+   "bosque-cogumelos",
+   "floresta"
+  ],
+  "12": [
+   "caverna",
+   "pedreira",
+   "canion"
+  ],
+  "13": [
+   "cemiterio",
+   "ruinas"
+  ],
+  "14": [
+   "ruinas",
+   "caverna-cristal",
+   "picos"
+  ],
+  "15": [
+   "cidade-noturna",
+   "floresta",
+   "cemiterio"
+  ],
+  "16": [
+   "fabrica",
+   "usina"
+  ],
+  "17": [
+   "jardim-encantado",
+   "jardim"
+  ],
+  "campeao": [
+   "salao-liga"
+  ]
+ }
+}

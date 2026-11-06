@@ -18,7 +18,9 @@ function App() {
     m.autoLoop = false; // o relógio é o __fx.ate
     return m;
   }, []);
-  return <Arena inimigos={[lado(9), null]} meus={[lado(6), null]} treinador={null} mensagem="" motor={motor} textos={[]} bola={null} cor="#6890F0" />;
+  // ?fundo=<arquivo de public/fundos> mostra a arena com um cenário (para conferir os fundos)
+  const fundo = new URLSearchParams(location.search).get("fundo");
+  return <Arena inimigos={[lado(9), null]} meus={[lado(6), null]} treinador={null} mensagem="" motor={motor} textos={[]} bola={null} cor="#6890F0" fundo={fundo ? `/fundos/${fundo}` : undefined} />;
 }
 createRoot(document.getElementById("r")!).render(<App />);
 

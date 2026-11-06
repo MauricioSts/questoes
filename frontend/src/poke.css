@@ -28,7 +28,7 @@
 .pk-plataforma--inimigo { left: 53%; top: 37%; width: 36%; height: 9%; }
 .pk-plataforma--meu { left: 0%; bottom: 13%; width: 48%; height: 11%; }
 /* cenário em imagem: entra por cima do céu desenhado com fade; as plataformas viram sombra */
-.pk-fundo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 70%; opacity: 0; transition: opacity .5s ease; }
+.pk-fundo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; image-rendering: pixelated; opacity: 0; transition: opacity .5s ease; }
 .pk-arena--fundo .pk-fundo { opacity: 1; }
 .pk-arena--fundo .pk-plataforma { background: radial-gradient(closest-side, rgba(0,0,0,.34), rgba(0,0,0,.12) 70%, transparent); box-shadow: none; }
 
