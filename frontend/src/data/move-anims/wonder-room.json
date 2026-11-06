@@ -1,0 +1,50 @@
+{
+ "slug": "wonder-room",
+ "pixel": true,
+ "note": "pixel art própria (original): sala com xadrez distorcido",
+ "duration": 96,
+ "layers": [
+  {
+   "asset": "Og-wonder-room",
+   "keepColor": true,
+   "anchor": "screen-center",
+   "ds": true,
+   "start": 0,
+   "end": 96,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 6,
+    "loop": true
+   },
+   "z": 1,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 82,
+       "v": 1
+      },
+      {
+       "t": 96,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "none"
+}

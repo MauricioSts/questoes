@@ -1,0 +1,179 @@
+{
+ "slug": "focus-punch",
+ "pixel": true,
+ "note": "pixel art própria (original): punho concentrado com aura e impacto enorme",
+ "duration": 84,
+ "layers": [
+  {
+   "asset": "Og-focus-punch--aura",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12,
+    "loop": true
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 1
+      },
+      {
+       "t": 46,
+       "v": 1
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-soco-base--punho",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 50,
+   "end": 60,
+   "frame": 0,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -50
+      },
+      {
+       "t": 10,
+       "v": -12,
+       "ease": "out"
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 10,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 7,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-focus-punch--impacto",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 60,
+   "end": 80,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  60
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 50,
+   "kind": "lunge",
+   "dur": 10
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 60,
+    "dur": 16,
+    "amp": 6
+   }
+  ],
+  "flash": [
+   {
+    "t": 60,
+    "dur": 4,
+    "color": "#FFFFFF",
+    "alpha": 0.4
+   }
+  ]
+ }
+}

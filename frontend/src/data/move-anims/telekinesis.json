@@ -1,0 +1,60 @@
+{
+ "slug": "telekinesis",
+ "pixel": true,
+ "note": "pixel art própria (original): aura psíquica levantando o alvo",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Og-telekinesis",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 56,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 10,
+    "loop": true
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 1
+      },
+      {
+       "t": 48,
+       "v": 1
+      },
+      {
+       "t": 56,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  20
+ ],
+ "react": "status",
+ "actor": [
+  {
+   "who": "target",
+   "t": 10,
+   "kind": "hop",
+   "dur": 40
+  }
+ ]
+}

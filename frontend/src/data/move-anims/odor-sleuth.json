@@ -1,0 +1,68 @@
+{
+ "slug": "odor-sleuth",
+ "pixel": true,
+ "note": "pixel art própria (original): nariz farejando com linhas de cheiro",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Og-odor-sleuth",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     1,
+     2
+    ],
+    "fps": 6
+   },
+   "z": 4,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 26
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -8
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 1
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  30
+ ],
+ "react": "status"
+}

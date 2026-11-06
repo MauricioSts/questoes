@@ -1,0 +1,66 @@
+{
+ "slug": "crush-claw",
+ "pixel": true,
+ "note": "pixel art própria (original): garra enorme esmagando",
+ "duration": 40,
+ "layers": [
+  {
+   "asset": "Og-crush-claw",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 2,
+   "end": 20,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 10
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  16
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 16
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 16,
+    "dur": 8,
+    "amp": 3
+   }
+  ]
+ }
+}

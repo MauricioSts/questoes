@@ -1,0 +1,68 @@
+{
+ "slug": "flatter",
+ "pixel": true,
+ "note": "pixel art própria (original): estrelinhas e balão de elogio",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Og-flatter",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 46,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     1,
+     2
+    ],
+    "fps": 6
+   },
+   "z": 4,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -30
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -24
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 38,
+       "v": 1
+      },
+      {
+       "t": 46,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  24
+ ],
+ "react": "status"
+}

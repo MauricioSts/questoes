@@ -1,0 +1,106 @@
+{
+ "slug": "shadow-sneak",
+ "pixel": true,
+ "note": "pixel art própria (original): sombra rastejando pelo chão",
+ "duration": 44,
+ "layers": [
+  {
+   "asset": "Og-shadow-sneak",
+   "keepColor": true,
+   "anchor": "field-user",
+   "to": "field-target",
+   "start": 0,
+   "end": 24,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 10
+   },
+   "orient": true,
+   "z": 1,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.5
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-soco-base--impacto",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 24,
+   "end": 36,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 15
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  24
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "hide",
+   "dur": 30
+  }
+ ]
+}

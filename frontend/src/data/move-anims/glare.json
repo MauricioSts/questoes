@@ -1,0 +1,127 @@
+{
+ "slug": "glare",
+ "pixel": true,
+ "note": "pixel art própria (original): olhos de serpente e raio paralisante",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Og-glare--olhos",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     1
+    ],
+    "fps": 6
+   },
+   "z": 4,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 24
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -14
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-glare--raio",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 18,
+   "end": 38,
+   "orient": true,
+   "z": 3,
+   "frameSeq": {
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 15,
+    "loop": true
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.5
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.3
+      },
+      {
+       "t": 6,
+       "v": 1,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  30
+ ],
+ "react": "status"
+}

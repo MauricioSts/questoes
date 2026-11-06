@@ -1,0 +1,71 @@
+{
+ "slug": "stealth-rock",
+ "pixel": true,
+ "note": "pixel art própria (original): pedras pontudas flutuando em volta do alvo",
+ "duration": 70,
+ "layers": [
+  {
+   "asset": "Og-stealth-rock",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 4,
+   "end": 66,
+   "spawn": {
+    "count": 5,
+    "spread": 0,
+    "interval": 0,
+    "seed": 32,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "orbit": {
+    "rx": 34,
+    "ry": 12,
+    "speed": 5
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.5
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 1
+      },
+      {
+       "t": 54,
+       "v": 1
+      },
+      {
+       "t": 62,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "none"
+}

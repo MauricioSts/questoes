@@ -1,0 +1,68 @@
+{
+ "slug": "earth-power",
+ "pixel": true,
+ "note": "pixel art própria (original): rachaduras e jatos de energia do chão",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Og-earth-power",
+   "keepColor": true,
+   "anchor": "field-target",
+   "start": 4,
+   "end": 44,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 8
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -22
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 1
+      },
+      {
+       "t": 40,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  22
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 4,
+    "dur": 30,
+    "amp": 3
+   }
+  ]
+ }
+}

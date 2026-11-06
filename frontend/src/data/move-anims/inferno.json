@@ -1,0 +1,72 @@
+{
+ "slug": "inferno",
+ "pixel": true,
+ "note": "pixel art própria (original): anel de fogo envolvendo o alvo",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Og-inferno",
+   "keepColor": true,
+   "anchor": "field-target",
+   "start": 4,
+   "end": 58,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "fps": 14,
+    "loop": true
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -10
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 1
+      },
+      {
+       "t": 54,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  16,
+  34
+ ],
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 60,
+    "color": "#802000",
+    "alpha": 0.2
+   }
+  ]
+ }
+}

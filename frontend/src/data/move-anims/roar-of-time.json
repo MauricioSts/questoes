@@ -1,0 +1,146 @@
+{
+ "slug": "roar-of-time",
+ "pixel": true,
+ "note": "pixel art própria (original): distorção temporal azul e relógio",
+ "duration": 96,
+ "layers": [
+  {
+   "asset": "Og-roar-of-time--relogio",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": true
+   },
+   "z": 4,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 24
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -14
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.6
+      },
+      {
+       "t": 12,
+       "v": 1.2,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 1
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-roar-of-time--distorcao",
+   "keepColor": true,
+   "anchor": "screen-center",
+   "ds": true,
+   "start": 30,
+   "end": 90,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 8,
+    "loop": true
+   },
+   "z": 4,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 46,
+       "v": 1
+      },
+      {
+       "t": 60,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  56,
+  70
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 40,
+    "dur": 40,
+    "amp": 4
+   }
+  ],
+  "flash": [
+   {
+    "t": 40,
+    "dur": 8,
+    "color": "#90C8FF",
+    "alpha": 0.5
+   }
+  ],
+  "tint": [
+   {
+    "start": 20,
+    "end": 92,
+    "color": "#081848",
+    "alpha": 0.35
+   }
+  ]
+ }
+}

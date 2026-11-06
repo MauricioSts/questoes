@@ -1,0 +1,432 @@
+{
+ "slug": "triple-kick",
+ "pixel": true,
+ "note": "pixel art própria (original): três chutes em sequência",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Og-chute-base--pe",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 0,
+   "end": 10,
+   "frame": 0,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -30
+      },
+      {
+       "t": 10,
+       "v": -8,
+       "ease": "out"
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 10
+      },
+      {
+       "t": 10,
+       "v": 4,
+       "ease": "in"
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 10,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 7,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-triple-kick",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 10,
+   "end": 16,
+   "frameSeq": {
+    "frames": [
+     0
+    ],
+    "fps": 10
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -4
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 4
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-chute-base--pe",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 14,
+   "end": 24,
+   "frame": 0,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -30
+      },
+      {
+       "t": 10,
+       "v": -8,
+       "ease": "out"
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -6
+      },
+      {
+       "t": 10,
+       "v": -10,
+       "ease": "in"
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 10,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 7,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-triple-kick",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 24,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     1
+    ],
+    "fps": 10
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 4
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -8
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.25
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-chute-base--pe",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 28,
+   "end": 38,
+   "frame": 0,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -30
+      },
+      {
+       "t": 10,
+       "v": -8,
+       "ease": "out"
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 2
+      },
+      {
+       "t": 10,
+       "v": -2,
+       "ease": "in"
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 10,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 7,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-triple-kick",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 38,
+   "end": 44,
+   "frameSeq": {
+    "frames": [
+     2
+    ],
+    "fps": 10
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    },
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -2
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1.5
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  10,
+  24,
+  38
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 40
+  }
+ ]
+}

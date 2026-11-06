@@ -1,0 +1,75 @@
+{
+ "slug": "dream-eater",
+ "pixel": true,
+ "note": "pixel art própria (original): bolha de sonho sendo sugada",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Og-dream-eater",
+   "keepColor": true,
+   "anchor": "target",
+   "to": "user",
+   "start": 6,
+   "end": 40,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 4
+   },
+   "z": 4,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 34,
+       "v": 1,
+       "ease": "in"
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -24
+      },
+      {
+       "t": 34,
+       "v": -8
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  8
+ ]
+}

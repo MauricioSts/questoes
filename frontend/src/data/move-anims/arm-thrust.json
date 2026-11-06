@@ -1,0 +1,410 @@
+{
+ "slug": "arm-thrust",
+ "pixel": true,
+ "note": "pixel art própria (original): palmas rápidas em sequência",
+ "duration": 50,
+ "layers": [
+  {
+   "asset": "Og-arm-thrust--palma",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 8,
+   "frame": 0,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -30
+      },
+      {
+       "t": 6,
+       "v": -10
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-arm-thrust--impacto",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 6,
+   "end": 15,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 20
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 9,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 6
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-arm-thrust--palma",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 7,
+   "end": 15,
+   "frame": 0,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -30
+      },
+      {
+       "t": 6,
+       "v": -10
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -8
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-arm-thrust--impacto",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 13,
+   "end": 22,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 20
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 9,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -8
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-arm-thrust--palma",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 14,
+   "end": 22,
+   "frame": 0,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -30
+      },
+      {
+       "t": 6,
+       "v": -10
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 6
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-arm-thrust--impacto",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 20,
+   "end": 29,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 20
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 9,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 6
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-arm-thrust--palma",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 21,
+   "end": 29,
+   "frame": 0,
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -30
+      },
+      {
+       "t": 6,
+       "v": -10
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -8
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-arm-thrust--impacto",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 27,
+   "end": 36,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 20
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 6,
+       "v": 1
+      },
+      {
+       "t": 9,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -8
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  6,
+  13,
+  20,
+  27
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 30
+  }
+ ]
+}

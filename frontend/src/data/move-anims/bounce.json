@@ -1,0 +1,109 @@
+{
+ "slug": "bounce",
+ "pixel": true,
+ "note": "pixel art própria (original): mola e o salto",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Og-bounce",
+   "keepColor": true,
+   "anchor": "field-user",
+   "start": 0,
+   "end": 18,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 10
+   },
+   "z": 1,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -8
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-soco-base--impacto",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 38,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 15
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  38
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 8,
+   "kind": "hop",
+   "dur": 20
+  },
+  {
+   "who": "user",
+   "t": 24,
+   "kind": "dash",
+   "dur": 20
+  }
+ ]
+}

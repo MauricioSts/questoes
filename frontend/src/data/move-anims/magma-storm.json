@@ -1,0 +1,64 @@
+{
+ "slug": "magma-storm",
+ "pixel": true,
+ "note": "pixel art própria (original): redemoinho de magma",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Og-magma-storm",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 4,
+   "end": 70,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "fps": 14,
+    "loop": true
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 1
+      },
+      {
+       "t": 56,
+       "v": 1
+      },
+      {
+       "t": 66,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  20,
+  40
+ ],
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 72,
+    "color": "#802000",
+    "alpha": 0.25
+   }
+  ]
+ }
+}

@@ -1,0 +1,116 @@
+{
+ "slug": "brine",
+ "pixel": true,
+ "note": "pixel art própria (original): jato de água salgada com cristais de sal",
+ "duration": 46,
+ "layers": [
+  {
+   "asset": "Og-brine--jato",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 30,
+   "orient": true,
+   "z": 3,
+   "frameSeq": {
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 15,
+    "loop": true
+   },
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.5
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.3
+      },
+      {
+       "t": 6,
+       "v": 1,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-brine--sal",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 10,
+   "end": 26,
+   "spawn": {
+    "count": 8,
+    "spread": 6,
+    "interval": 2,
+    "life": 18,
+    "seed": 37,
+    "burst": 1.2,
+    "gravity": 0.06,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  12
+ ]
+}

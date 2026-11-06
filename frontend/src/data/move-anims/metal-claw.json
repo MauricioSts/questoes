@@ -1,0 +1,58 @@
+{
+ "slug": "metal-claw",
+ "pixel": true,
+ "note": "pixel art própria (original): garra metálica",
+ "duration": 34,
+ "layers": [
+  {
+   "asset": "Og-metal-claw",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 2,
+   "end": 18,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 15
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  8
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 10
+  }
+ ]
+}

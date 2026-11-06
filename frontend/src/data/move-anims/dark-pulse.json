@@ -1,0 +1,99 @@
+{
+ "slug": "dark-pulse",
+ "pixel": true,
+ "note": "pixel art própria (original): anéis escuros e roxos em pulso",
+ "duration": 44,
+ "layers": [
+  {
+   "asset": "Og-dark-pulse",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 22,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-dark-pulse",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 18,
+   "end": 38,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  20
+ ],
+ "screen": {
+  "tint": [
+   {
+    "start": 0,
+    "end": 36,
+    "color": "#100810",
+    "alpha": 0.3
+   }
+  ]
+ }
+}

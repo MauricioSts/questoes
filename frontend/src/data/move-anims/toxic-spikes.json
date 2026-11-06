@@ -1,0 +1,55 @@
+{
+ "slug": "toxic-spikes",
+ "pixel": true,
+ "note": "pixel art própria (original): espinhos roxos no chão",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Og-toxic-spikes",
+   "keepColor": true,
+   "anchor": "field-target",
+   "start": 4,
+   "end": 56,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 8
+   },
+   "z": 1,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 1
+      },
+      {
+       "t": 52,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "react": "none"
+}

@@ -1,0 +1,86 @@
+{
+ "slug": "bubble",
+ "pixel": true,
+ "note": "pixel art própria (original): bolhinhas pequenas",
+ "duration": 44,
+ "layers": [
+  {
+   "asset": "Og-bubble",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 24,
+   "spawn": {
+    "count": 8,
+    "spread": [
+     6,
+     10
+    ],
+    "interval": 2,
+    "life": 18,
+    "seed": 31,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.1
+      },
+      {
+       "t": 18,
+       "v": 1
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 9,
+       "v": -4
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 15,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  20,
+  28
+ ]
+}

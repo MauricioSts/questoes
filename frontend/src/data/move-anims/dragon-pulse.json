@@ -1,0 +1,123 @@
+{
+ "slug": "dragon-pulse",
+ "pixel": true,
+ "note": "pixel art própria (original): pulso de energia em forma de cabeça de dragão",
+ "duration": 44,
+ "layers": [
+  {
+   "asset": "Og-dragon-pulse",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 22,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 12,
+    "loop": true
+   },
+   "orient": true,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.8
+      },
+      {
+       "t": 22,
+       "v": 1.3
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-psystrike",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 22,
+   "end": 39,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 18
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 13,
+       "v": 1
+      },
+      {
+       "t": 17,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.7
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  22
+ ]
+}

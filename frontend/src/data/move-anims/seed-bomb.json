@@ -1,0 +1,107 @@
+{
+ "slug": "seed-bomb",
+ "pixel": true,
+ "note": "pixel art própria (original): semente que explode",
+ "duration": 50,
+ "layers": [
+  {
+   "asset": "Og-seed-bomb--semente",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 22,
+   "frame": 0,
+   "arc": 26,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 1
+      },
+      {
+       "t": 22,
+       "v": 0
+      }
+     ]
+    },
+    "rot": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 22,
+       "v": 540
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-seed-bomb--explosao",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 22,
+   "end": 42,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 15
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  22
+ ]
+}

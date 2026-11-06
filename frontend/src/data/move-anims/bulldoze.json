@@ -1,0 +1,107 @@
+{
+ "slug": "bulldoze",
+ "pixel": true,
+ "note": "pixel art própria (original): chão que se ergue em ondas",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Og-bulldoze",
+   "keepColor": true,
+   "anchor": "field-user",
+   "to": "field-target",
+   "start": 0,
+   "end": 44,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12,
+    "loop": true
+   },
+   "z": 1,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.1
+      },
+      {
+       "t": 44,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 36,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 40,
+   "end": 90,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 38,
+       "v": 0.6
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  36
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 4,
+    "dur": 40,
+    "amp": 3
+   }
+  ]
+ }
+}

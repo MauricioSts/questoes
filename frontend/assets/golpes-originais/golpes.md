@@ -240,3 +240,70 @@ Folhas de sprite em pixel art de DS, desenhadas por código (`tools/golpes-origi
 | wild-charge.png | 48×48 | 4 | aura | 1-4 loop: corpo envolto em aura elétrica com raios saindo (cada quadro outro desenho) |
 | yawn.png | 32×32 | 3 | icone | 1 boca começa a bocejar; 2 bocejo aberto e uma bolha; 3 bolha cresce (o alvo vai dormir) |
 | zen-headbutt.png | 48×48 | 4 | aura | 1-4 loop: aura psíquica azul em arcos na frente da cabeça (vai junto com a investida) |
+
+## Lote 2c: pares e golpes isolados (54)
+
+| arquivo | quadro | nº de quadros | peças | o que acontece em cada quadro |
+|---|---|---|---|---|
+| arm-thrust--impacto.png | 28×28 | 3 | impacto | 1-3 estrela branca do tapa |
+| arm-thrust--palma.png | 24×24 | 1 | palma | 1 palma aberta de frente (o motor repete 2-5 tapas rápidos) |
+| body-slam.png | 64×20 | 4 | onda | 1-4 onda de choque achatada no chão se abrindo com poeira (o corpo cai em cima do alvo) |
+| bounce.png | 24×32 | 3 | mola | 1 mola comprimida; 2 esticando; 3 esticada (o usuário salta) |
+| brick-break.png | 32×24 | 4 | tijolo | 1 tijolo inteiro; 2 racha; 3 parte em dois; 4 metades afastando com lascas (quebra Reflect/Light Screen) |
+| brine--jato.png | 64×16 | 2 | raio | 1-2 loop: jato de água salgada |
+| brine--sal.png | 8×8 | 3 | particula | 3 variações de cristal de sal (cubinhos brancos) |
+| bubble.png | 10×10 | 3 | particula | 3 variações de bolhinha pequena |
+| bulldoze.png | 96×24 | 4 | onda | 1-4 loop: o chão se ergue em ondas de terra que correm para a direita |
+| crush-claw.png | 56×56 | 3 | garra | 1 garra enorme aberta; 2 fechando; 3 esmaga com impacto |
+| dark-pulse.png | 64×64 | 4 | pulso | 1-4 anéis ondulados escuros e roxos se abrindo em pulso |
+| dive.png | 48×48 | 5 | respingo | 1 a água abre; 2-3 coluna de respingo sobe (mergulho ou emersão); 4 gotas caem; 5 some |
+| dragon-pulse.png | 64×40 | 3 | projetil | 1-3 loop: pulso de energia em forma de cabeça de dragão roxa, boca abrindo e fechando |
+| dream-eater.png | 32×24 | 3 | bolha | 1 bolha de sonho com estrela; 2-3 encolhe enquanto é sugada (o motor leva do alvo ao usuário) |
+| earth-power.png | 32×56 | 5 | jatos | 1 rachaduras no chão; 2-4 três jatos de energia laranja sobem; 5 somem |
+| flatter.png | 40×32 | 3 | balao | 1 balão de elogio com estrela e coração; 2-3 estrelinhas aparecem em volta |
+| focus-punch--aura.png | 56×56 | 4 | aura | 1-4 loop: aura laranja de concentração com linhas convergindo para o usuário |
+| focus-punch--impacto.png | 64×64 | 4 | impacto | 1-3 impacto enorme de 12 pontas; 4 anéis de choque |
+| follow-me.png | 40×32 | 3 | icone | 1 dedo levantado; 2 dedo dobrando com seta 'para cá'; 3 de novo (todos miram o usuário) |
+| fury-swipes.png | 32×32 | 3 | corte | 1-3 arranhão duplo rápido (o motor repete 3-5 vezes em ângulos diferentes) |
+| glare--olhos.png | 48×20 | 2 | olhos | 1-2 olhos de serpente amarelos, pupila em fenda que estreita |
+| glare--raio.png | 64×16 | 2 | raio | 1-2 loop: raio paralisante amarelo saindo dos olhos |
+| hex.png | 48×48 | 4 | runas | 1-4 loop: quatro símbolos de maldição roxos girando em volta do alvo |
+| hone-claws.png | 40×40 | 3 | garra | 1-3 garras afiando com faíscas amarelas aparecendo |
+| ice-ball.png | 24×24 | 4 | projetil | 1-4 loop: bola de gelo rolando (as rachaduras giram 45°/quadro) |
+| ice-punch.png | 36×28 | 1 | punho | 1 punho coberto de gelo com cristais pontudos |
+| icicle-spear.png | 24×10 | 1 | projetil | 1 estalactite de gelo apontando para a direita (o motor dispara em rajada) |
+| incinerate--chama.png | 32×40 | 4 | chama | 1-4 loop: labareda larga queimando (sobre o alvo e o item dele) |
+| incinerate--cinza.png | 6×6 | 3 | particula | 3 variações de cinza (sobem e caem depois da chama) |
+| inferno.png | 64×32 | 6 | anel | 1-6 loop: anel de chamas girando em volta do alvo (as de trás mais escuras) |
+| leaf-tornado.png | 48×64 | 4 | redemoinho | 1-4 loop: tornado de vento verde com folhas girando |
+| leer.png | 48×20 | 3 | olhos | 1 olhar estreito; 2 brilho nos olhos; 3 brilho máximo (olhar penetrante) |
+| magic-room.png | 256×192 | 4 | overlay | 1-4 loop: moldura de sala mágica roxa e estrelas que piscam em fases (anula itens) |
+| magma-storm.png | 64×56 | 6 | redemoinho | 1-6 loop: redemoinho de magma laranja e vermelho prendendo o alvo, com bolhas de lava |
+| magnitude.png | 32×16 | 7 | numero | 7 quadros: 'M4' a 'M10' (o quadro mostra a magnitude sorteada; o tremor cresce com ela) |
+| metal-claw.png | 48×48 | 4 | garra | 1 três garras de metal no alto; 2 descendo; 3 golpe com brilho; 4 afinando |
+| mind-reader.png | 48×48 | 3 | mira | 1 olho e linhas de mira afastadas; 2-3 as linhas fecham no alvo (o próximo golpe não erra) |
+| miracle-eye.png | 40×32 | 3 | icone | 1-3 olho com brilhos mágicos que vão aparecendo em volta |
+| muddy-water.png | 128×64 | 4 | onda | 1 lama sobe; 2 onda marrom cresce; 3 crista curva; 4 desaba sobre o alvo |
+| octazooka--jato.png | 64×20 | 2 | raio | 1-2 loop: jato grosso de tinta preta |
+| octazooka--mancha.png | 32×32 | 4 | impacto | 1 tinta bate; 2 espalha; 3 mancha preta cheia; 4 some (baixa a precisão) |
+| odor-sleuth.png | 40×32 | 3 | icone | 1 nariz farejando com uma linha de cheiro; 2-3 mais linhas onduladas |
+| ominous-wind.png | 64×32 | 4 | vento | 1-4 loop: vento roxo fantasmagórico em faixas com um rostinho de fantasma passando |
+| petal-dance.png | 12×12 | 3 | particula | 3 variações de pétala rosa (o motor faz um redemoinho em volta do usuário e depois no alvo) |
+| roar-of-time--distorcao.png | 256×192 | 3 | overlay | 1-3 loop: distorção temporal em anéis azuis saindo do centro da tela |
+| roar-of-time--relogio.png | 48×48 | 4 | relogio | 1-4 loop: relógio azul com os ponteiros girando ao contrário |
+| seed-bomb--explosao.png | 40×40 | 5 | explosao | 1 clarão; 2 estrela verde; 3 explosão; 4 anel; 5 dissolve |
+| seed-bomb--semente.png | 14×16 | 1 | projetil | 1 semente grande (o motor arremessa em arco e gira) |
+| shadow-punch.png | 48×24 | 1 | projetil | 1 punho de sombra roxo com rastro de fumaça (vem de longe e nunca erra) |
+| shadow-sneak.png | 96×16 | 4 | sombra | 1-4 sombra rastejando pelo chão até o alvo, com olhinhos vermelhos na ponta |
+| sky-drop.png | 48×48 | 3 | corrente | 1-3 corrente de vento subindo e sombra do alvo encolhendo no chão (o alvo é levado ao céu) |
+| spite.png | 48×48 | 3 | aura | 1 aura escura; 2 surge um rosto rancoroso de olhos vermelhos; 3 aura máxima |
+| stealth-rock.png | 14×16 | 3 | particula | 3 variações de pedra pontuda (o motor faz orbitar o alvo) |
+| sweet-kiss.png | 32×24 | 3 | icone | 1 lábios mandando beijo; 2 sai um coraçãozinho; 3 coração maior subindo |
+| taunt.png | 48×32 | 3 | icone | 1 mão com o dedo esticado; 2 dedo dobrando, chamando, com 'VEM!'; 3 de novo (provocação) |
+| telekinesis.png | 56×56 | 4 | aura | 1-4 loop: anéis psíquicos rosa subindo e setas para cima (o alvo flutua) |
+| thunder-punch.png | 40×32 | 3 | punho | 1-3 loop: punho amarelo com raios saindo (cada quadro um desenho) |
+| toxic-spikes.png | 48×16 | 3 | espinhos | 1 espinhos roxos brotando no chão do lado do alvo; 2 crescem; 3 completos com gotinhas de veneno |
+| triple-kick.png | 32×32 | 3 | impacto | 3 quadros: estrela laranja com o número do chute (1, 2, 3) |
+| water-gun.png | 64×12 | 2 | raio | 1-2 loop: jato d'água fino ondulando para a direita |
+| water-spout.png | 32×96 | 4 | geiser | 1 jato d'água sai do chão; 2-3 gêiser sobe; 4 topo se abre em gotas |
+| wonder-room.png | 256×192 | 4 | overlay | 1-4 loop: sala com piso xadrez lilás/azul distorcido em ondas (troca Defesa e Def. Esp.) |

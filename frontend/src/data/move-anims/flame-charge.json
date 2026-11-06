@@ -67,8 +67,6 @@
     "fps": 20
    },
    "z": 3,
-   "n": 5,
-   "fps": 20,
    "tracks": {
     "alpha": {
      "keys": [

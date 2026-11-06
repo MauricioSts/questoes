@@ -1,0 +1,101 @@
+{
+ "slug": "leer",
+ "pixel": true,
+ "note": "pixel art própria (original): olhar penetrante com brilho",
+ "duration": 84,
+ "layers": [
+  {
+   "asset": "Og-leer",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     2
+    ],
+    "fps": 8
+   },
+   "z": 4,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 24
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -14
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Status",
+   "anchor": "target",
+   "start": 28,
+   "end": 78,
+   "frame": 1,
+   "maskActor": "target",
+   "scroll": {
+    "dx": 0,
+    "dy": 2.5
+   },
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 6,
+       "v": 0.6
+      },
+      {
+       "t": 38,
+       "v": 0.6
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  28
+ ],
+ "react": "status"
+}

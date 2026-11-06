@@ -1,0 +1,84 @@
+{
+ "slug": "muddy-water",
+ "pixel": true,
+ "note": "pixel art própria (original): onda de lama marrom",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Og-muddy-water",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 4,
+   "end": 48,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     3
+    ],
+    "fps": 8
+   },
+   "z": 3,
+   "tracks": {
+    "x": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -30
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -4
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 36,
+       "v": 1
+      },
+      {
+       "t": 44,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  36
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 26,
+   "kind": "lunge",
+   "dur": 12
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 36,
+    "dur": 10,
+    "amp": 3
+   }
+  ]
+ }
+}

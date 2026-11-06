@@ -1,0 +1,66 @@
+{
+ "slug": "leaf-tornado",
+ "pixel": true,
+ "note": "pixel art própria (original): tornado de folhas verdes",
+ "duration": 60,
+ "layers": [
+  {
+   "asset": "Og-leaf-tornado",
+   "keepColor": true,
+   "anchor": "user",
+   "to": "target",
+   "start": 0,
+   "end": 50,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 14,
+    "loop": true
+   },
+   "z": 3,
+   "tracks": {
+    "p": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0.1
+      },
+      {
+       "t": 20,
+       "v": 1,
+       "ease": "out"
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 3,
+       "v": 1
+      },
+      {
+       "t": 42,
+       "v": 1
+      },
+      {
+       "t": 50,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  22,
+  34
+ ]
+}

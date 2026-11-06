@@ -1,0 +1,123 @@
+{
+ "slug": "water-spout",
+ "pixel": true,
+ "note": "pixel art própria (original): jato d'água em gêiser",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Og-water-spout",
+   "keepColor": true,
+   "anchor": "field-user",
+   "start": 0,
+   "end": 30,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 10
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -44
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-liquidation--gota",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 28,
+   "end": 44,
+   "spawn": {
+    "count": 12,
+    "spread": [
+     26,
+     6
+    ],
+    "interval": 1,
+    "life": 18,
+    "seed": 38,
+    "vy": 2.6,
+    "spin": 0,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 4,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -70
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 10,
+       "v": 1
+      },
+      {
+       "t": 18,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  36,
+  44
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 30,
+    "dur": 16,
+    "amp": 2
+   }
+  ]
+ }
+}

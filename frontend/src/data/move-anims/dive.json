@@ -1,0 +1,67 @@
+{
+ "slug": "dive",
+ "pixel": true,
+ "note": "pixel art própria (original): mergulho e respingo",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Og-dive",
+   "keepColor": true,
+   "anchor": "field-target",
+   "start": 6,
+   "end": 40,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "fps": 9
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -20
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 28,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  14
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "hide",
+   "dur": 40
+  }
+ ]
+}

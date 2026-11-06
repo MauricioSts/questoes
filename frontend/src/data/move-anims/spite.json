@@ -1,0 +1,52 @@
+{
+ "slug": "spite",
+ "pixel": true,
+ "note": "pixel art própria (original): aura escura com rosto rancoroso",
+ "duration": 56,
+ "layers": [
+  {
+   "asset": "Og-spite",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 0,
+   "end": 48,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     1,
+     2
+    ],
+    "fps": 6
+   },
+   "z": 4,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 1
+      },
+      {
+       "t": 40,
+       "v": 1
+      },
+      {
+       "t": 48,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  26
+ ],
+ "react": "status"
+}

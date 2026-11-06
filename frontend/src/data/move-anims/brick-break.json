@@ -1,0 +1,113 @@
+{
+ "slug": "brick-break",
+ "pixel": true,
+ "note": "pixel art própria (original): tijolo quebrando",
+ "duration": 42,
+ "layers": [
+  {
+   "asset": "Og-brick-break",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 4,
+   "end": 24,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 14,
+       "v": 1
+      },
+      {
+       "t": 20,
+       "v": 0
+      }
+     ]
+    },
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -20
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-soco-base--impacto",
+   "keepColor": false,
+   "anchor": "target",
+   "start": 12,
+   "end": 24,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 15
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 1,
+       "v": 1
+      },
+      {
+       "t": 8,
+       "v": 1
+      },
+      {
+       "t": 12,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  12
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "lunge",
+   "dur": 12
+  }
+ ],
+ "screen": {
+  "shake": [
+   {
+    "t": 12,
+    "dur": 6,
+    "amp": 2
+   }
+  ]
+ }
+}

@@ -1,0 +1,144 @@
+{
+ "slug": "petal-dance",
+ "pixel": true,
+ "note": "pixel art própria (original): pétalas rosas em redemoinho",
+ "duration": 76,
+ "layers": [
+  {
+   "asset": "Og-petal-dance",
+   "keepColor": true,
+   "anchor": "user",
+   "start": 0,
+   "end": 34,
+   "spawn": {
+    "count": 10,
+    "spread": 0,
+    "interval": 0,
+    "seed": 35,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "orbit": {
+    "rx": 24,
+    "ry": 14,
+    "speed": 14
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 1
+      },
+      {
+       "t": 26,
+       "v": 1
+      },
+      {
+       "t": 34,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-petal-dance",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 30,
+   "end": 70,
+   "spawn": {
+    "count": 10,
+    "spread": 0,
+    "interval": 0,
+    "seed": 36,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "orbit": {
+    "rx": 24,
+    "ry": 14,
+    "speed": 14
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      }
+     ]
+    },
+    "scale": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 1
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 4,
+       "v": 1
+      },
+      {
+       "t": 32,
+       "v": 1
+      },
+      {
+       "t": 40,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  40,
+  52
+ ],
+ "actor": [
+  {
+   "who": "user",
+   "t": 0,
+   "kind": "hop",
+   "dur": 20
+  }
+ ]
+}

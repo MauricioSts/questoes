@@ -1,0 +1,106 @@
+{
+ "slug": "incinerate",
+ "pixel": true,
+ "note": "pixel art própria (original): chama que queima itens, com cinzas",
+ "duration": 64,
+ "layers": [
+  {
+   "asset": "Og-incinerate--chama",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 4,
+   "end": 40,
+   "frameSeq": {
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12,
+    "loop": true
+   },
+   "z": 3,
+   "tracks": {
+    "y": {
+     "keys": [
+      {
+       "t": 0,
+       "v": -2
+      }
+     ]
+    },
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 30,
+       "v": 1
+      },
+      {
+       "t": 36,
+       "v": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "asset": "Og-incinerate--cinza",
+   "keepColor": true,
+   "anchor": "target",
+   "start": 30,
+   "end": 46,
+   "spawn": {
+    "count": 10,
+    "spread": [
+     16,
+     8
+    ],
+    "interval": 1,
+    "life": 24,
+    "seed": 39,
+    "vy": -0.4,
+    "gravity": 0.03,
+    "frames": [
+     0,
+     1,
+     2
+    ]
+   },
+   "z": 3,
+   "tracks": {
+    "alpha": {
+     "keys": [
+      {
+       "t": 0,
+       "v": 0
+      },
+      {
+       "t": 2,
+       "v": 1
+      },
+      {
+       "t": 16,
+       "v": 1
+      },
+      {
+       "t": 24,
+       "v": 0
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "hits": [
+  14
+ ]
+}
