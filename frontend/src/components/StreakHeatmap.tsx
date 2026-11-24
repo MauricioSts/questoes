@@ -48,7 +48,7 @@ export function StreakHeatmap({
   /** Ofensiva vinda do backend, que é a fonte da verdade. */
   streakAtual?: number;
 }) {
-  const { semanas, total, atual, maior, mesLabels, feriasWeeks } = useMemo(() => {
+  const { semanas, total, atual, maior, mesLabels } = useMemo(() => {
     const mapa = new Map(dias.map((d) => [d.dia, d.total]));
     const ehFerias = (k: string) => periodos.some((p) => k >= p.inicio && (p.fim ? k <= p.fim : true));
     const hoje = new Date();
@@ -58,7 +58,6 @@ export function StreakHeatmap({
     const inicio = new Date(hoje.getTime() - (52 * 7 + domHoje) * DIA_MS);
 
     const semanas: { data: Date; total: number; futuro: boolean; ferias: boolean }[][] = [];
-    const feriasWeeks = new Set<number>();
     let total = 0;
     for (let w = 0; w < 53; w++) {
       const col: { data: Date; total: number; futuro: boolean; ferias: boolean }[] = [];
@@ -68,7 +67,6 @@ export function StreakHeatmap({
         const k = chave(data);
         const t = futuro ? 0 : mapa.get(k) ?? 0;
         const ferias = !futuro && ehFerias(k);
-        if (ferias) feriasWeeks.add(w);
         if (!futuro) total += t;
         col.push({ data, total: t, futuro, ferias });
       }
@@ -121,7 +119,7 @@ export function StreakHeatmap({
       if (run > maior) maior = run;
     }
 
-    return { semanas, total, atual, maior, mesLabels, feriasWeeks };
+    return { semanas, total, atual, maior, mesLabels };
   }, [dias, periodos, meta]);
 
   const celulasCobra = useMemo(
@@ -196,11 +194,13 @@ export function StreakHeatmap({
               {semanas.map((col, wi) =>
                 col.map((cel, di) => {
                   const lv = nivel(cel.total);
-                  // Dia de férias sem atividade recebe um visual próprio (tracejado âmbar).
+                  // Coqueiro só no dia de férias em que não houve questão; dia de férias
+                  // com estudo fica igual a qualquer outro dia.
                   const feriasVazio = cel.ferias && lv === 0;
                   return (
                     <span
                       key={`${wi}-${di}`}
+                      className="grid place-items-center"
                       title={
                         cel.futuro
                           ? ""
@@ -211,15 +211,14 @@ export function StreakHeatmap({
                         height: CELULA,
                         borderRadius: "var(--rSm)",
                         opacity: cel.futuro ? 0 : 1,
-                        background: feriasVazio ? "var(--accentBg)" : `var(--heat${lv})`,
-                        border: feriasVazio
-                          ? "1px dashed var(--accent)"
-                          : lv === 0
-                          ? "1px solid var(--heat0bd)"
-                          : "none",
-                        boxShadow: cel.ferias && lv > 0 ? "0 0 0 1px var(--accent)" : "none",
+                        background: feriasVazio ? "transparent" : `var(--heat${lv})`,
+                        border: !feriasVazio && lv === 0 ? "1px solid var(--heat0bd)" : "none",
                       }}
-                    />
+                    >
+                      {feriasVazio && (
+                        <Palmtree size={12} strokeWidth={2} style={{ color: "var(--accent)" }} aria-label="Férias" />
+                      )}
+                    </span>
                   );
                 })
               )}
@@ -227,23 +226,10 @@ export function StreakHeatmap({
             <Cobra celulas={celulasCobra} celula={CELULA} espaco={ESPACO} />
             </div>
           </div>
-          {/* Marcadores de férias: uma palmeira sob cada semana que teve modo férias */}
-          <div
-            className="mt-1 grid"
-            style={{ marginLeft: ROTULO + ESPACO, gridTemplateColumns: `repeat(53, ${CELULA}px)`, gap: ESPACO }}
-          >
-            {Array.from({ length: 53 }).map((_, i) => (
-              <span key={i} className="grid place-items-center" style={{ height: CELULA, gridColumn: i + 1 }}>
-                {feriasWeeks.has(i) && (
-                  <Palmtree size={12} strokeWidth={2} style={{ color: "var(--accent)" }} aria-label="Semana com modo férias" />
-                )}
-              </span>
-            ))}
-          </div>
           {/* Legenda */}
           <div className="mt-2 flex items-center gap-2 text-[10px] text-faint" style={{ marginLeft: ROTULO + ESPACO }}>
             <span className="inline-flex items-center gap-1">
-              <Palmtree size={12} strokeWidth={2} style={{ color: "var(--accent)" }} /> férias
+              <Palmtree size={12} strokeWidth={2} style={{ color: "var(--accent)" }} /> folga nas férias
             </span>
             <span className="opacity-40">·</span>
             <span>menos</span>
