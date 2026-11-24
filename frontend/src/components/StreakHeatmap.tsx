@@ -228,10 +228,6 @@ export function StreakHeatmap({
           </div>
           {/* Legenda */}
           <div className="mt-2 flex items-center gap-2 text-[10px] text-faint" style={{ marginLeft: ROTULO + ESPACO }}>
-            <span className="inline-flex items-center gap-1">
-              <Palmtree size={12} strokeWidth={2} style={{ color: "var(--accent)" }} /> folga nas férias
-            </span>
-            <span className="opacity-40">·</span>
             <span>menos</span>
             {[0, 1, 2, 3, 4].map((lv) => (
               <span
